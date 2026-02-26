@@ -39,7 +39,8 @@
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <style>
 @font-face{font-family:'Handwriting';src:url('Handwriting.ttf') format('truetype');}
-:root{--bg:#f9f8f6;--card:#ffffff;--text:#2c2c2c;--accent:#93aacd;--accent-dark:#7a91b4;--muted:#999;--border:#e8e8e8;--water-fill:var(--accent);--water-light:#f0f4f8;--water-border:#c5d3e8;}
+:root{--bg:#f9f8f6;--card:#ffffff;--text:#2c2c2c;--accent:#93aacd;--accent-dark:#7a91b4;--muted:#999;--border:#e8e8e8;
+--phase-menstrual:#b8a0c8;--phase-follicular:#a0c4b0;--phase-ovulation:#c4a882;--phase-luteal:#a0aec8;--water-fill:var(--accent);--water-light:#f0f4f8;--water-border:#c5d3e8;}
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:'Handwriting',Georgia,serif;font-weight:400;font-stretch:normal;font-size:14px;background:var(--bg);color:var(--text);min-height:100vh;padding:0 20px 60px;transition:background .3s,color .3s;}
 h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.modal-save,.apply-btn,.settings-section-title,.week-label,.day-name{font-family:'Noto Serif Display',Georgia,serif;font-weight:400;font-style:normal;font-stretch:extra-condensed;text-transform:uppercase;}
@@ -344,7 +345,9 @@ h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.
 .mic-row-inline{display:flex;gap:8px;align-items:flex-start;}
 
 /* WEATHER INLINE */
-.block-weather{font-family:'Handwriting',Georgia,serif;font-size:.7rem;color:var(--muted);margin-left:6px;letter-spacing:0;display:inline-flex;align-items:center;gap:5px;}
+.block-weather-row{display:flex;justify-content:flex-end;min-height:14px;margin:-4px 0 6px;}
+.block-weather{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:20px;background:var(--bg);border:1px solid var(--border);}
+.block-weather:empty{display:none;}
 .block-weather-icon{font-size:.82rem;line-height:1;}
 .day-weather{font-size:.75rem;color:var(--muted);margin-top:2px;line-height:1;}
 
@@ -757,6 +760,7 @@ h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.
   <div class="page" id="page-habits">
     <div class="card" id="habitsSummaryCard"></div>
     <div id="habitCardsContainer"></div>
+    <div class="card" id="waterHabitCard"></div>
   </div>
 
   <!-- LISTS -->
@@ -820,13 +824,20 @@ h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.
     <!-- PHASE CARD -->
     <div class="card" id="cyclePhaseCard"></div>
 
-    <!-- YEAR STRIP CARD -->
-    <div class="card" style="padding:18px 22px 14px;">
-      <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:12px;">
-        <span class="card-title" style="margin-bottom:0;">Year View</span>
-        <span style="font-family:'Handwriting',Georgia,serif;font-size:.72rem;color:var(--muted);">scroll ← →</span>
+    <!-- CYCLE WEEK STRIP -->
+    <div class="card" style="padding:16px 20px 14px;" id="cycleWeekCard">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+        <button onclick="shiftCycleStrip(-7)" class="week-arrow">←</button>
+        <span id="cycleStripLabel" style="font-size:.78rem;color:var(--muted);"></span>
+        <button onclick="shiftCycleStrip(7)" id="cycleStripNextBtn" class="week-arrow">→</button>
       </div>
-      <div id="cycleYearStrip" style="display:flex;flex-direction:column;gap:5px;overflow-x:auto;padding-bottom:6px;-webkit-overflow-scrolling:touch;scrollbar-width:none;"></div>
+      <div id="cycleWeekStrip" style="display:flex;gap:6px;justify-content:space-between;touch-action:pan-y;"
+        ontouchstart="cycleTouchStart(event)" ontouchend="cycleTouchEnd(event)"></div>
+      <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:12px;padding-top:10px;border-top:1px solid var(--border);">
+        <span style="display:flex;align-items:center;gap:4px;font-size:.7rem;color:var(--muted);"><span style="width:8px;height:8px;border-radius:50%;background:var(--accent);display:inline-block;"></span>Period</span>
+        <span style="display:flex;align-items:center;gap:4px;font-size:.7rem;color:var(--muted);"><span style="width:8px;height:8px;border-radius:50%;background:#c4a882;display:inline-block;"></span>Ovulation</span>
+        <span style="display:flex;align-items:center;gap:4px;font-size:.7rem;color:var(--muted);"><span style="width:8px;height:8px;border-radius:50%;background:rgba(147,170,205,.4);display:inline-block;"></span>Predicted</span>
+      </div>
     </div>
 
     <!-- CALENDAR CARD -->
@@ -905,10 +916,14 @@ h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.
         <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:10px 0;border-top:1px solid var(--border);">
           <div id="gcalStatusDot" style="width:8px;height:8px;border-radius:50%;background:var(--border);flex-shrink:0;"></div>
           <span id="gcalStatusText" style="font-size:.82rem;color:var(--muted);flex:1;">Google Calendar — not connected</span>
-          <button class="apply-btn" id="gcalConnectBtn" onclick="gcalSignIn()" style="padding:6px 14px;font-size:.8rem;">Connect</button>
+          <button class="apply-btn" id="gcalConnectBtn" onclick="gcalSignIn(false)" style="padding:6px 14px;font-size:.8rem;">Connect</button>
           <button class="reset-theme-btn" id="gcalSyncBtn" onclick="gcalFullSync()" style="display:none;padding:6px 12px;font-size:.78rem;">Sync</button>
           <button class="reset-theme-btn" id="gcalDisconnectBtn" onclick="gcalSignOut()" style="display:none;padding:6px 12px;font-size:.78rem;">Disconnect</button>
           <span style="font-size:.72rem;color:var(--muted);width:100%;padding-left:18px;">Last sync: <span id="lastGcalSync">never</span></span>
+          <details style="width:100%;padding-left:18px;">
+            <summary style="font-size:.7rem;color:var(--muted);cursor:pointer;">Getting "Authorization Error"?</summary>
+            <p style="font-size:.72rem;color:var(--muted);margin-top:6px;line-height:1.5;">Go to <strong>console.cloud.google.com</strong> → APIs &amp; Services → Credentials → your OAuth 2.0 Client → Authorised JavaScript Origins. Add your exact GitHub Pages URL (e.g. <code>https://yourusername.github.io</code>) and also <code>http://localhost</code> for local testing. Save and wait 5 minutes for Google to propagate.</p>
+          </details>
         </div>
       </div>
 
@@ -920,7 +935,12 @@ h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.
         </div>
         <div class="settings-accordion-body" id="colourAccordion">
           <div style="padding-top:12px;">
+            <div style="font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px;">App Colours</div>
             <div class="settings-grid" id="settingsGrid"></div>
+            <div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--border);">
+              <div style="font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px;">Cycle Phase Colours</div>
+              <div class="settings-grid" id="phaseColourGrid"></div>
+            </div>
             <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;">
               <button class="apply-btn" onclick="applyTheme()">Apply</button>
               <button class="reset-theme-btn" onclick="resetTheme()">Reset to defaults</button>
@@ -1043,7 +1063,8 @@ function newCatId(){return 'CAT-'+String(++catSeq).padStart(4,'0');}
 
 // ---- STATE ----
 let tasks=[],events=[],waterFilled=0,waterGoal=8,meals=[],mealSeq=0,templates=[],templateSeq=0,recipes=[],recipeSeq=0,activeFilter='all',weekOffset=0,modalDate=null,eventsViewDate=null,scheduleViewDate=null;
-let cycleLog=[],cycleSeq=0;
+let cycleLog=[],cycleSeq=0,cycleMonthOffset=0;
+let cycleStripOffset=0,_cycleTouchX=null;
 function newMealId(){return 'MEAL-'+String(++mealSeq).padStart(4,'0');}
 function newTemplateId(){return 'TPL-'+String(++templateSeq).padStart(4,'0');}
 function newRecipeId(){return 'RCP-'+String(++recipeSeq).padStart(4,'0');}
@@ -1096,7 +1117,7 @@ function scheduleSave(){
       localStorage.setItem('centre_eventSeq',eventSeq);
       localStorage.setItem('centre_catSeq',catSeq);
       // save theme
-      const theme={};EDITABLE.forEach(v=>theme[v]=getComputedStyle(document.documentElement).getPropertyValue(v).trim());
+      const theme={};EDITABLE.forEach(v=>theme[v]=getComputedStyle(document.documentElement).getPropertyValue(v).trim());PHASE_VARS.forEach(v=>theme[v]=getComputedStyle(document.documentElement).getPropertyValue(v).trim());
       localStorage.setItem('centre_theme',JSON.stringify(theme));
       localStorage.setItem('centre_grocItems',JSON.stringify(grocItems));
       localStorage.setItem('centre_grocSeq',grocSeq);
@@ -1132,6 +1153,8 @@ function loadFromStorage(){
     const gs=localStorage.getItem('centre_grocSeq');if(gs)grocSeq=parseInt(gs);
     const cl=localStorage.getItem('centre_cycleLog');if(cl)cycleLog=JSON.parse(cl);
     const cs2=localStorage.getItem('centre_cycleSeq');if(cs2)cycleSeq=parseInt(cs2);
+    const gk=localStorage.getItem('centre_googleApiKey');if(gk)_googleApiKey=gk;
+    const gmk=localStorage.getItem('centre_geminiApiKey');if(gmk)_geminiApiKey=gmk;
     if(th){const theme=JSON.parse(th);Object.entries(theme).forEach(([k,v])=>document.documentElement.style.setProperty(k,v));}
   }catch(e){console.warn('Load failed',e);}
 }
@@ -1173,8 +1196,8 @@ function showPage(p,btn){
   const di=document.getElementById('di-'+p);
   if(di)di.classList.add('active');
   if(p==='overview'){renderOverview();renderOverviewEvents();renderWater();renderOverviewMeals();renderOverviewUpcoming();renderCycleOverview();setTimeout(applyWeatherToSchedule,200);}
-  if(p==='habits')renderHabitsDashboard();
-  if(p==='weekly')renderWeek();
+  if(p==='habits'){renderHabitsDashboard();renderWaterHabitCard();}
+  if(p==='weekly'){renderWeek();setTimeout(applyWeatherToWeekly,200);}
   if(p==='events')renderEventList();
   if(p==='lists')renderGrocList();
   if(p==='cycle')renderCyclePage();
@@ -1473,6 +1496,16 @@ function toggleTask(id,forDate){
 function deleteTask(id){tasks=tasks.filter(t=>t.id!==id);habitLog=habitLog.filter(e=>e.taskId!==id);scheduleSave();renderTasks();renderOverview();}
 function setFilter(f,btn){activeFilter=f;document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderTasks();}
 function toggleEditForm(id){const f=document.getElementById('edit-'+id);if(f)f.classList.toggle('open');}
+function updateEditRecur(id) {
+  const type = document.getElementById(`erecur-type-${id}`).value;
+  const extra = document.getElementById(`erecur-extra-${id}`);
+  const dow = document.getElementById(`erecur-dow-${id}`);
+  const lbl = document.getElementById(`erecur-extra-label-${id}`);
+  if (extra) extra.style.display = ['interval-days','interval-weeks','on-completion'].includes(type) ? 'block' : 'none';
+  if (dow) dow.style.display = type === 'dow' ? 'flex' : 'none';
+  if (lbl) lbl.textContent = type === 'on-completion' ? 'Days after completion' : 'Interval';
+}
+
 function saveTask(id){
   const t=tasks.find(t=>t.id===id);if(!t)return;
   t.name=document.getElementById(`ename-${id}`).value.trim()||t.name;
@@ -1480,6 +1513,20 @@ function saveTask(id){
   t.due=document.getElementById(`edue-${id}`).value;
   t.dur=parseInt(document.getElementById(`edur-${id}`).value)||0;
   t.catId=document.getElementById(`ecat-${id}`).value;
+  // Save recurrence
+  const recurType = document.getElementById(`erecur-type-${id}`)?.value || 'none';
+  if (recurType === 'none') {
+    t.recur = null;
+  } else {
+    const interval = parseInt(document.getElementById(`erecur-interval-${id}`)?.value) || 1;
+    const dowBtns = document.querySelectorAll(`[data-task="${id}"].dow-btn.sel`);
+    const dow = [...dowBtns].map(b => parseInt(b.dataset.i));
+    if (recurType === 'on-completion') {
+      t.recur = { type: recurType, completionDays: interval, endType: t.recur?.endType || 'never', endAfter: t.recur?.endAfter || 10, endDate: t.recur?.endDate || '' };
+    } else {
+      t.recur = { type: recurType, interval, dow, endType: t.recur?.endType || 'never', endAfter: t.recur?.endAfter || 10, endDate: t.recur?.endDate || '' };
+    }
+  }
   scheduleSave();renderTasks();
 }
 function hexToRgba(hex,alpha){const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);return `rgba(${r},${g},${b},${alpha})`;}
@@ -1529,6 +1576,27 @@ function renderTasks(){
                 <option value="" ${!t.catId?'selected':''}>— none —</option>
                 ${categories.map(c=>`<option value="${c.id}" ${t.catId===c.id?'selected':''}>${escHtml(c.name)}</option>`).join('')}
               </select>
+            </div>
+            <div class="form-group full">
+              <label class="form-label">Recurrence</label>
+              <select class="form-select" id="erecur-type-${t.id}" onchange="updateEditRecur('${t.id}')">
+                <option value="none" ${!t.recur?'selected':''}>None</option>
+                <option value="daily" ${t.recur&&t.recur.type==='daily'?'selected':''}>Daily</option>
+                <option value="weekly" ${t.recur&&t.recur.type==='weekly'?'selected':''}>Weekly</option>
+                <option value="monthly" ${t.recur&&t.recur.type==='monthly'?'selected':''}>Monthly</option>
+                <option value="yearly" ${t.recur&&t.recur.type==='yearly'?'selected':''}>Yearly</option>
+                <option value="interval-days" ${t.recur&&t.recur.type==='interval-days'?'selected':''}>Every X days</option>
+                <option value="interval-weeks" ${t.recur&&t.recur.type==='interval-weeks'?'selected':''}>Every X weeks</option>
+                <option value="dow" ${t.recur&&t.recur.type==='dow'?'selected':''}>Specific days of week</option>
+                <option value="on-completion" ${t.recur&&t.recur.type==='on-completion'?'selected':''}>On completion</option>
+              </select>
+            </div>
+            <div class="form-group full" id="erecur-extra-${t.id}" style="display:${t.recur&&['interval-days','interval-weeks','on-completion'].includes(t.recur.type)?'block':'none'}">
+              <label class="form-label" id="erecur-extra-label-${t.id}">${t.recur&&t.recur.type==='on-completion'?'Days after completion':'Interval'}</label>
+              <input class="form-input" type="number" id="erecur-interval-${t.id}" min="1" value="${t.recur?t.recur.interval||t.recur.completionDays||1:1}"/>
+            </div>
+            <div class="form-group full" id="erecur-dow-${t.id}" style="display:${t.recur&&t.recur.type==='dow'?'flex':'none'};flex-wrap:wrap;gap:5px;">
+              ${DOW_LABELS.map((d,i)=>`<button type="button" class="dow-btn ${t.recur&&t.recur.dow&&t.recur.dow.includes(i)?'sel':''}" data-task="${t.id}" data-i="${i}" onclick="this.classList.toggle('sel')">${d}</button>`).join('')}
             </div>
           </div>
           <button class="save-btn" onclick="saveTask('${t.id}')">Save changes</button>
@@ -1630,7 +1698,7 @@ function renderWeek(){
     const dayTasks=tasks.filter(tk=>occursOn(tk,ds)&&!tk.habit&&!(tk.dur>0&&tk.dur<30));
     const dayEvents=events.filter(ev=>occursOn(ev,ds));
     return `<div class="day-col ${isToday?'is-today':''}">
-      <div class="day-header"><div class="day-name">${DN[i]}</div><div class="day-num">${d.getDate()}</div></div>
+      <div class="day-header"><div class="day-name">${DN[i]}</div><div class="day-num">${d.getDate()}</div><div class="day-weather" data-weather-day="${ds}"></div></div>
       <div class="day-items">
         ${dayEvents.map(ev=>{const cat=categories.find(c=>c.id===ev.catId);const bg=cat?hexToRgba(cat.color,.18):'rgba(147,170,205,.15)';return `<div class="day-event" style="background:${bg}" title="${escHtml(ev.name)}">${evEmoji(ev,cat?cat.color:'var(--accent)')}${escHtml(ev.name)}</div>`;}).join('')}
         ${dayTasks.map(tk=>{const cat=categories.find(c=>c.id===tk.catId);const bg=cat?hexToRgba(cat.color,.12):'';return `<div class="day-task" style="${bg?'background:'+bg:''}" title="${escHtml(tk.name)}">${escHtml(tk.name)}</div>`;}).join('')}
@@ -1838,7 +1906,7 @@ function renderOverview(){
     }).join('');
 
     return `<div class="block-section${isCurrent?' is-current':''}${isPast?' is-past':''}">
-      <div class="block-title">${currentDot}${b.label}<span class="block-time">${fmtTime(b.start)} – ${fmtTime(b.end)}${isToday?' · '+pct+'% filled':''}</span><span class="block-weather" data-weather-block="${b.id}"></span></div>
+      <div class="block-title">${currentDot}${b.label}<span class="block-time">${fmtTime(b.start)} – ${fmtTime(b.end)}${isToday?' · '+pct+'% filled':''}</span></div><div class="block-weather-row"><span class="block-weather" data-weather-block="${b.id}"></span></div>
       <div class="block-tasks-wrap" data-block-id="${b.id}" ondragover="dndOver(event)" ondrop="dndDrop(event,'${b.id}','${vd}')" ondragleave="dndLeave(event)">
         ${evRows}
         <div class="block-tasks">${items.length?items.map(t=>{
@@ -1872,8 +1940,13 @@ function renderWater(){
   row.innerHTML=Array.from({length:goal},(_,i)=>`<div class="water-bar ${i<waterFilled?'filled':''}" onclick="tapWater(${i})" title="${(i+1)*250} ml"><div class="wfill"></div></div>`).join('');
 }
 function tapWater(i){
-  if(i<waterFilled){waterFilled=i;}else{waterFilled=i+1;}
-  scheduleSave();renderWater();
+  const prev = waterFilled;
+  if(i<waterFilled){ waterFilled=i; }
+  else { waterFilled=i+1; }
+  // Log delta to habitLog for history tracking
+  const delta = (waterFilled - prev) * 250;
+  if (delta > 0) logWaterToHabit(delta);
+  scheduleSave(); renderWater();
 }
 function setWaterGoal(v){waterGoal=Math.max(1,Math.min(20,parseInt(v)||8));if(waterFilled>waterGoal)waterFilled=waterGoal;scheduleSave();renderWater();}
 
@@ -2209,16 +2282,34 @@ function updateCatName(id,name){const c=categories.find(c=>c.id===id);if(c&&name
 function renderCatSelects(){const opts=`<option value="">— none —</option>`+categories.map(c=>`<option value="${c.id}">${escHtml(c.name)}</option>`).join('');['tCat','evCat','mEvCat','tplCat'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML=opts;});}
 
 // ---- SETTINGS ----
+const PHASE_VARS = ['--phase-menstrual','--phase-follicular','--phase-ovulation','--phase-luteal'];
+const PHASE_LABELS = {'--phase-menstrual':'Menstrual','--phase-follicular':'Follicular','--phase-ovulation':'Ovulation','--phase-luteal':'Luteal'};
+const PHASE_DEFAULTS = {'--phase-menstrual':'#b8a0c8','--phase-follicular':'#a0c4b0','--phase-ovulation':'#c4a882','--phase-luteal':'#a0aec8'};
+
+function makeColourSwatch(v, label) {
+  const cur = getComputedStyle(document.documentElement).getPropertyValue(v).trim() || '#888888';
+  return `<div class="setting-item"><label class="setting-label">${label}</label><div class="setting-row"><input class="hex-input" id="hex${v}" value="${cur}" placeholder="#ffffff" oninput="syncSwatch('${v}')"><div class="setting-swatch"><input type="color" id="swatch${v}" value="${cur}" oninput="syncHex('${v}')"></div></div></div>`;
+}
+
 function buildSettings(){
-  document.getElementById('settingsGrid').innerHTML=EDITABLE.map(v=>{
-    const cur=getComputedStyle(document.documentElement).getPropertyValue(v).trim();
-    return `<div class="setting-item"><label class="setting-label">${THEME_LABELS[v]}</label><div class="setting-row"><input class="hex-input" id="hex${v}" value="${cur}" placeholder="#ffffff" oninput="syncSwatch('${v}')"><div class="setting-swatch"><input type="color" id="swatch${v}" value="${cur}" oninput="syncHex('${v}')"></div></div></div>`;
-  }).join('');
+  const sg = document.getElementById('settingsGrid');
+  if (sg) sg.innerHTML = EDITABLE.map(v => makeColourSwatch(v, THEME_LABELS[v])).join('');
+  const pg = document.getElementById('phaseColourGrid');
+  if (pg) pg.innerHTML = PHASE_VARS.map(v => makeColourSwatch(v, PHASE_LABELS[v])).join('');
 }
 function syncSwatch(v){const h=document.getElementById('hex'+v).value;if(/^#[0-9a-fA-F]{6}$/.test(h))document.getElementById('swatch'+v).value=h;}
 function syncHex(v){document.getElementById('hex'+v).value=document.getElementById('swatch'+v).value;}
-function applyTheme(){EDITABLE.forEach(v=>{const hex=document.getElementById('hex'+v).value.trim();if(/^#[0-9a-fA-F]{3,6}$/.test(hex)){document.documentElement.style.setProperty(v,hex);if(v==='--accent')document.documentElement.style.setProperty('--accent-dark',darken(hex,15));}});scheduleSave();}
-function resetTheme(){Object.entries(THEME_DEFAULTS).forEach(([k,v])=>document.documentElement.style.setProperty(k,v));buildSettings();scheduleSave();}
+function applyTheme(){
+  EDITABLE.forEach(v=>{const hex=document.getElementById('hex'+v)?.value.trim();if(hex&&/^#[0-9a-fA-F]{3,6}$/.test(hex)){document.documentElement.style.setProperty(v,hex);if(v==='--accent')document.documentElement.style.setProperty('--accent-dark',darken(hex,15));}});
+  PHASE_VARS.forEach(v=>{const hex=document.getElementById('hex'+v)?.value.trim();if(hex&&/^#[0-9a-fA-F]{6}$/.test(hex))document.documentElement.style.setProperty(v,hex);});
+  scheduleSave();
+  if(document.getElementById('page-cycle')?.classList.contains('active')) renderCyclePage();
+}
+function resetTheme(){
+  Object.entries(THEME_DEFAULTS).forEach(([k,v])=>document.documentElement.style.setProperty(k,v));
+  Object.entries(PHASE_DEFAULTS).forEach(([k,v])=>document.documentElement.style.setProperty(k,v));
+  buildSettings();scheduleSave();
+}
 function darken(hex,amt){let r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);r=Math.max(0,r-amt);g=Math.max(0,g-amt);b=Math.max(0,b-amt);return '#'+[r,g,b].map(x=>x.toString(16).padStart(2,'0')).join('');}
 
 // ---- EXCEL ----
@@ -2828,8 +2919,16 @@ Keep task names concise and action-oriented.`;
     });
 
     const data = await response.json();
-    const raw = data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts && data.candidates[0].content.parts[0] ? data.candidates[0].content.parts[0].text : '';
-    const clean = raw.replace(/```json|```/g, '').trim();
+    if (data.error) throw new Error('Gemini API error: ' + (data.error.message || JSON.stringify(data.error)));
+    if (!response.ok) throw new Error('Gemini HTTP ' + response.status);
+    const raw = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+    if (!raw) throw new Error('Empty Gemini response — key may be invalid or quota exceeded');
+    // Strip markdown fences, leading/trailing whitespace, and anything before first [
+    let clean = raw.replace(/```json\s*/gi, '').replace(/```/g, '').trim();
+    const arrStart = clean.indexOf('[');
+    const arrEnd = clean.lastIndexOf(']');
+    if (arrStart === -1 || arrEnd === -1) throw new Error('Gemini did not return a JSON array. Response: ' + clean.slice(0,100));
+    clean = clean.slice(arrStart, arrEnd + 1);
     multiAddParsed = JSON.parse(clean);
 
     if (!Array.isArray(multiAddParsed) || !multiAddParsed.length) throw new Error('No items parsed');
@@ -2926,35 +3025,48 @@ function fbSetStatus(connected, text) {
 
 function initFirebase(manual) {
   if (!window._fbReady) {
+    fbSetStatus(false, 'Loading Firebase…');
     window.addEventListener('firebaseReady', () => initFirebase(manual), { once: true });
     return;
   }
+  console.log('[Firebase] initFirebase called, _fbReady:', window._fbReady, 'manual:', manual);
   fbSetStatus(false, 'Connecting…');
   try {
-    // Listen for real-time changes from other devices
-    if (fbUnsubscribe) fbUnsubscribe();
+    if (fbUnsubscribe) { try { fbUnsubscribe(); } catch(e) {} }
+    fbUnsubscribe = null;
     const dataRef = window._fbRef(window._fbDb, FB_PATH);
+    let firstSnapshot = true;
     fbUnsubscribe = window._fbOnValue(dataRef, (snapshot) => {
-      const remote = snapshot.val();
-      if (!remote) {
-        // Nothing in Firebase yet — push local data up
-        pushToFirebase();
-        return;
+      try {
+        const remote = snapshot.val();
+        fbConnected = true;
+        fbSyncEnabled = true;
+        localStorage.setItem('centre_fbSyncEnabled', 'true');
+        fbSetStatus(true, 'Connected — live sync active');
+        if (!remote) {
+          // Nothing in Firebase yet — push local data up on first connect
+          if (firstSnapshot && manual) pushToFirebase();
+          firstSnapshot = false;
+          return;
+        }
+        firstSnapshot = false;
+        const remoteTs = remote._ts || 0;
+        const localTs = parseInt(localStorage.getItem('centre_lastSync') || '0');
+        if (remoteTs > localTs) {
+          try { applyRemoteData(remote); } catch(e) { console.error('sync render error:', e); }
+        }
+      } catch(e) {
+        console.error('onValue handler error:', e);
       }
-      // Only auto-pull if remote is newer than our last sync
-      const remoteTs = remote._ts || 0;
-      const localTs = parseInt(localStorage.getItem('centre_lastSync') || '0');
-      if (remoteTs > localTs) {
-        applyRemoteData(remote);
-      }
-      fbSetStatus(true, 'Connected — live sync active');
-      localStorage.setItem('centre_fbSyncEnabled', 'true');
-      fbSyncEnabled = true;
     }, (err) => {
-      fbSetStatus(false, 'Error: ' + err.message);
+      fbSetStatus(false, 'Connection error: ' + err.message);
+      fbConnected = false;
+      // Retry after 5s
+      setTimeout(() => { if (!fbConnected) initFirebase(false); }, 5000);
     });
   } catch (e) {
-    fbSetStatus(false, 'Error: ' + e.message);
+    fbSetStatus(false, 'Init error: ' + e.message);
+    console.error('Firebase init error:', e);
   }
 }
 
@@ -2989,15 +3101,20 @@ function pushToFirebase() {
 }
 
 function pullFromFirebase() {
-  if (!window._fbReady) return;
+  if (!window._fbReady) { fbSetStatus(false, 'Firebase not ready — try Connect first'); return; }
   const dataRef = window._fbRef(window._fbDb, FB_PATH);
   window._fbGet(dataRef).then(snapshot => {
     const remote = snapshot.val();
     if (remote) {
-      applyRemoteData(remote);
-      fbSetStatus(true, 'Pulled from Firebase');
+      try {
+        applyRemoteData(remote);
+        fbSetStatus(true, 'Pulled from Firebase ✓');
+      } catch(e) {
+        console.error('applyRemoteData error:', e);
+        fbSetStatus(true, 'Pulled — render error: ' + e.message);
+      }
     } else {
-      fbSetStatus(true, 'Nothing in Firebase yet');
+      fbSetStatus(true, 'Nothing in Firebase yet — push from your other device first');
     }
   }).catch(e => fbSetStatus(false, 'Pull failed: ' + e.message));
 }
@@ -3036,12 +3153,34 @@ function applyRemoteData(remote) {
       if (gmi) gmi.value = _geminiApiKey;
     }
   }
-  // Re-render everything
-  renderCategories(); renderCatSelects(); renderTasks();
-  renderEventList(); renderHabits(); renderOverview();
-  renderOverviewEvents(); renderWater(); renderOverviewMeals();
-  renderOverviewHabitsRibbon(); renderGrocList(); renderOverviewUpcoming();
-  renderCycleOverview();
+  // Re-render — guard every call so a missing element never aborts the whole sync
+  function safeRender(fn) { try { fn(); } catch(e) { console.warn('render skip:', e.message); } }
+
+  safeRender(renderCategories);
+  safeRender(renderCatSelects);
+
+  // Only re-render the active page's content
+  const activePage = document.querySelector('.page.active');
+  const pid = activePage ? activePage.id.replace('page-','') : 'overview';
+
+  if (pid === 'tasks')    safeRender(renderTasks);
+  if (pid === 'events')   safeRender(renderEventList);
+  if (pid === 'habits')   { safeRender(renderHabitsDashboard); safeRender(renderWaterHabitCard); }
+  if (pid === 'meals')    safeRender(() => { if(typeof renderMealLog==='function') renderMealLog(); });
+  if (pid === 'lists')    safeRender(renderGrocList);
+  if (pid === 'weekly')   safeRender(renderWeek);
+  if (pid === 'cycle')    safeRender(renderCyclePage);
+  if (pid === 'settings') safeRender(buildSettings);
+
+  // Overview elements — always in DOM, safe to render
+  if (document.getElementById('overviewBlocks'))     safeRender(renderOverview);
+  if (document.getElementById('overviewEvents'))     safeRender(renderOverviewEvents);
+  if (document.getElementById('overviewMeals'))      safeRender(renderOverviewMeals);
+  if (document.getElementById('overviewUpcoming'))   safeRender(renderOverviewUpcoming);
+  if (document.getElementById('overviewCycle'))      safeRender(renderCycleOverview);
+  if (document.getElementById('overviewHabitsRibbon')) safeRender(renderOverviewHabitsRibbon);
+  if (document.getElementById('waterCupsRow'))       safeRender(renderWater);
+
   if (remote._ts) {
     localStorage.setItem('centre_lastSync', String(remote._ts));
     lastSyncTs = remote._ts;
@@ -3083,17 +3222,24 @@ function gcalSetStatus(connected, text) {
   if (disconnectBtn) disconnectBtn.style.display = connected ? '' : 'none';
 }
 
-function gcalSignIn() {
+function gcalSignIn(silent) {
   if (!window.google || !window.google.accounts) {
-    gcalSetStatus(false, 'Google Identity Services not loaded yet — try again');
+    gcalSetStatus(false, 'Google Identity Services not loaded — try again');
     return;
   }
   const client = google.accounts.oauth2.initTokenClient({
     client_id: GCAL_CLIENT_ID,
     scope: GCAL_SCOPES,
+    prompt: silent ? 'none' : '',
     callback: (tokenResponse) => {
       if (tokenResponse.error) {
-        gcalSetStatus(false, 'Auth error: ' + tokenResponse.error);
+        if (silent) {
+          // Silent refresh failed — token expired, need manual sign in
+          gcalSetStatus(false, 'Session expired — tap Connect to sign in again');
+          gcalToken = null;
+        } else {
+          gcalSetStatus(false, 'Auth error: ' + tokenResponse.error + '. Make sure your GitHub Pages URL is added to Google Cloud Console → OAuth → Authorised JavaScript Origins');
+        }
         return;
       }
       gcalToken = tokenResponse.access_token;
@@ -3101,10 +3247,16 @@ function gcalSignIn() {
       localStorage.setItem('centre_gcalToken', gcalToken);
       localStorage.setItem('centre_gcalTokenExpiry', String(gcalTokenExpiry));
       gcalSetStatus(true, 'Connected');
-      gcalFullSync();
+      if (!silent) gcalFullSync();
     }
   });
   client.requestAccessToken();
+}
+
+function gcalSilentRefresh() {
+  const hadSession = localStorage.getItem('centre_gcalToken');
+  if (!hadSession) return;
+  waitForGIS(() => gcalSignIn(true));
 }
 
 function gcalSignOut() {
@@ -3280,13 +3432,34 @@ function addMinutes(timeStr, mins) {
 function gcalRestoreSession() {
   const savedToken = localStorage.getItem('centre_gcalToken');
   const savedExpiry = parseInt(localStorage.getItem('centre_gcalTokenExpiry') || '0');
-  if (savedToken && Date.now() < savedExpiry) {
+  if (!savedToken) return; // Never connected before — do nothing
+
+  if (Date.now() < savedExpiry) {
+    // Token still valid in localStorage
     gcalToken = savedToken;
     gcalTokenExpiry = savedExpiry;
     gcalSetStatus(true, 'Connected');
     const lastSync = localStorage.getItem('centre_lastGcalSync');
     const el = document.getElementById('lastGcalSync');
     if (el && lastSync) el.textContent = lastSync;
+    // Schedule silent refresh 2 min before expiry
+    const msUntilExpiry = savedExpiry - Date.now() - 120000;
+    if (msUntilExpiry > 0) setTimeout(gcalSilentRefresh, msUntilExpiry);
+  } else {
+    // Token expired — try silent refresh once GIS is confirmed loaded
+    gcalSetStatus(false, 'Reconnecting…');
+    waitForGIS(gcalSilentRefresh);
+  }
+}
+
+function waitForGIS(callback, attempts) {
+  attempts = attempts || 0;
+  if (window.google && window.google.accounts && window.google.accounts.oauth2) {
+    callback();
+  } else if (attempts < 20) {
+    setTimeout(() => waitForGIS(callback, attempts + 1), 300);
+  } else {
+    gcalSetStatus(false, 'Not connected — tap Connect to sign in');
   }
 }
 
@@ -3299,6 +3472,15 @@ function gcalRestoreSession() {
 const CYCLE_LENGTH = 28;
 const PERIOD_LENGTH = 5;
 
+function getPhaseConfig() {
+  const s = getComputedStyle(document.documentElement);
+  return {
+    menstrual:  { name:'Menstrual',  color: s.getPropertyValue('--phase-menstrual').trim()  || '#b8a0c8', days:[1,5],   desc:'Rest, restore, turn inward.' },
+    follicular: { name:'Follicular', color: s.getPropertyValue('--phase-follicular').trim() || '#a0c4b0', days:[6,13],  desc:'Energy rising, good time to start things.' },
+    ovulation:  { name:'Ovulation',  color: s.getPropertyValue('--phase-ovulation').trim()  || '#c4a882', days:[14,16], desc:'Peak energy and clarity.' },
+    luteal:     { name:'Luteal',     color: s.getPropertyValue('--phase-luteal').trim()      || '#a0aec8', days:[17,28], desc:'Wind down, reflect, prepare.' }
+  };
+}
 const PHASE_CONFIG = {
   menstrual:  { name: 'Menstrual',  color: '#b8a0c8', days: [1,5],   desc: 'Rest, restore, turn inward.' },
   follicular: { name: 'Follicular', color: '#a0c4b0', days: [6,13],  desc: 'Energy rising, good time to start things.' },
@@ -3417,10 +3599,68 @@ function saveCycle() {
 
 function renderCyclePage() {
   renderCyclePhaseCard();
-  renderCycleYearView();
-  renderCycleCalendar();
+  renderCycleWeekStrip();
   renderCycleHistory();
 }
+
+function renderCycleWeekStrip() {
+  const strip = document.getElementById('cycleWeekStrip');
+  const label = document.getElementById('cycleStripLabel');
+  const nextBtn = document.getElementById('cycleStripNextBtn');
+  if (!strip) return;
+  const t = today();
+  const pc = getPhaseConfig();
+  const days = [];
+  for (let i = -3; i <= 3; i++) {
+    const d = new Date(t + 'T00:00:00');
+    d.setDate(d.getDate() + cycleStripOffset + i);
+    days.push({ d, ds: dateStr(d) });
+  }
+  const s = days[0].d.toLocaleDateString('en-AU', { day:'numeric', month:'short' });
+  const e = days[6].d.toLocaleDateString('en-AU', { day:'numeric', month:'short' });
+  if (label) label.textContent = s + ' \u2013 ' + e;
+  if (nextBtn) { nextBtn.disabled = cycleStripOffset >= 0; nextBtn.style.opacity = cycleStripOffset >= 0 ? '.3' : '1'; }
+  const DOW_S = ['S','M','T','W','T','F','S'];
+  strip.innerHTML = days.map(({ d, ds }) => {
+    const isToday = ds === t;
+    const isFuture = ds > t;
+    const cycleDay = getCycleDay(ds);
+    const phase = cycleDay ? getPhase(cycleDay) : null;
+    const phaseConf = phase ? pc[phase] : null;
+    const hasPeriod = cycleLog.some(e => e.date === ds && (e.type === 'period_start' || e.type === 'period_day'));
+    let circleBg = 'transparent', circleStroke = 'var(--border)', textColor = 'var(--muted)';
+    if (hasPeriod) { circleBg = phaseConf ? phaseConf.color : '#b8a0c8'; circleStroke = circleBg; textColor = 'white'; }
+    else if (cycleDay && phaseConf && !isFuture) { circleBg = phaseConf.color + '30'; circleStroke = phaseConf.color; textColor = 'var(--text)'; }
+    else if (cycleDay && isFuture) { circleBg = 'rgba(147,170,205,.08)'; circleStroke = 'rgba(147,170,205,.3)'; }
+    const ring = isToday ? '2.5px solid var(--accent)' : '1.5px solid ' + circleStroke;
+    return `<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;">
+      <div style="font-size:.62rem;color:${isToday?'var(--accent)':'var(--muted)'};">${DOW_S[d.getDay()]}</div>
+      <div style="width:38px;height:38px;border-radius:50%;background:${circleBg};border:${ring};display:flex;align-items:center;justify-content:center;transition:all .2s;">
+        <span style="font-size:.8rem;color:${isToday?'var(--accent)':textColor};font-weight:${isToday?'600':'400'};">${d.getDate()}</span>
+      </div>
+      <div style="font-size:.58rem;color:var(--muted);min-height:12px;">${cycleDay ? 'd'+cycleDay : ''}</div>
+    </div>`;
+  }).join('');
+}
+
+function shiftCycleStrip(days) {
+  if (days > 0 && cycleStripOffset >= 0) return;
+  cycleStripOffset += days;
+  renderCycleWeekStrip();
+}
+
+function cycleTouchStart(e) { _cycleTouchX = e.touches[0].clientX; }
+function cycleTouchEnd(e) {
+  if (_cycleTouchX === null) return;
+  const dx = e.changedTouches[0].clientX - _cycleTouchX;
+  _cycleTouchX = null;
+  if (Math.abs(dx) < 30) return;
+  shiftCycleStrip(dx > 0 ? -7 : 7);
+}
+
+function shiftCycleMonth(dir) { shiftCycleStrip(dir * 7); }
+
+function renderCycleMonthCard() { renderCycleWeekStrip(); }
 
 function renderCyclePhaseCard() {
   const card = document.getElementById('cyclePhaseCard');
@@ -3428,7 +3668,7 @@ function renderCyclePhaseCard() {
   const t = today();
   const cycleDay = getCycleDay(t);
   const phase = getPhase(cycleDay);
-  const cfg = phase ? PHASE_CONFIG[phase] : null;
+  const cfg = phase ? getPhaseConfig()[phase] : null;
 
   if (!cycleLog.length) {
     card.innerHTML = `<div style="text-align:center;padding:12px 0 6px;">
@@ -3444,11 +3684,12 @@ function renderCyclePhaseCard() {
   const phaseColor = cfg ? cfg.color : 'var(--accent)';
   const R = 46, CIRC = Math.round(2 * Math.PI * R);
   const dash = Math.round(pct * CIRC);
+  const _pc = getPhaseConfig();
   const phases = [
-    { key:'menstrual',  frac:5/28,  color:'#b8a0c8' },
-    { key:'follicular', frac:8/28,  color:'#a0c4b0' },
-    { key:'ovulation',  frac:3/28,  color:'#c4a882' },
-    { key:'luteal',     frac:12/28, color:'#a0aec8' }
+    { key:'menstrual',  frac:5/28,  color:_pc.menstrual.color },
+    { key:'follicular', frac:8/28,  color:_pc.follicular.color },
+    { key:'ovulation',  frac:3/28,  color:_pc.ovulation.color },
+    { key:'luteal',     frac:12/28, color:_pc.luteal.color }
   ];
   let segOffset = 0;
   const segSvg = phases.map(p => {
@@ -3490,9 +3731,10 @@ function renderCycleCalendar() {
   const cal = document.getElementById('cycleCalendar');
   if (!cal) return;
   const t = today();
-  const now = new Date(t + 'T00:00:00');
-  const firstOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-  const lastOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+  const base = new Date(t + 'T00:00:00');
+  base.setMonth(base.getMonth() + cycleMonthOffset);
+  const firstOfMonth = new Date(base.getFullYear(), base.getMonth(), 1);
+  const lastOfMonth = new Date(base.getFullYear(), base.getMonth() + 1, 0);
   const predicted = predictedPeriodDays();
   const ovWin = ovulationWindow();
   const startPad = (firstOfMonth.getDay() + 6) % 7;
@@ -3548,7 +3790,7 @@ function renderCycleOverview() {
   const t = today();
   const cycleDay = getCycleDay(t);
   const phase = getPhase(cycleDay);
-  const cfg = phase ? PHASE_CONFIG[phase] : null;
+  const cfg = phase ? getPhaseConfig()[phase] : null;
   if (!cfg || !cycleLog.length) { el.innerHTML = ''; return; }
   el.innerHTML = `<div class="card" style="padding:14px 20px;">
     <div style="display:flex;align-items:center;gap:10px;">
@@ -3616,6 +3858,186 @@ function toggleAccordion(id) {
   const isOpen = body.classList.toggle('open');
   if (arrow) arrow.classList.toggle('open', isOpen);
 }
+// ================================================================
+// WEATHER — Open-Meteo, Perth WA, no API key needed
+// ================================================================
+const WEATHER_LAT = -31.9505;
+const WEATHER_LON = 115.8605;
+let weatherCache = null;
+let weatherCacheDate = '';
+
+const BLOCK_HOURS = {
+  sunrise:[7,9], morning:[9,12], service:[12,16], closing:[16,20], winddown:[20,22]
+};
+
+async function fetchWeather() {
+  const t = today();
+  if (weatherCache && weatherCacheDate === t) return weatherCache;
+  try {
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${WEATHER_LAT}&longitude=${WEATHER_LON}&hourly=temperature_2m,precipitation_probability,uv_index,weathercode&daily=weathercode,temperature_2m_max,precipitation_probability_max&timezone=Australia%2FPerth&forecast_days=7`;
+    const res = await fetch(url, { mode:'cors' });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    if (data.error) throw new Error(data.reason || 'API error');
+    weatherCache = data;
+    weatherCacheDate = t;
+    return data;
+  } catch(e) {
+    console.warn('Weather fetch failed:', e);
+    document.querySelectorAll('[data-weather-block]').forEach(el => {
+      el.innerHTML = `<span style="font-size:.65rem;color:var(--muted);cursor:pointer;" onclick="applyWeatherToSchedule()" title="Retry">⟳</span>`;
+    });
+    return null;
+  }
+}
+
+function weatherSVG(code, size) {
+  const s = size || 14;
+  const c = 'var(--accent)';
+  const st = `fill="none" stroke="${c}" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"`;
+  const sun = `<svg width="${s}" height="${s}" viewBox="0 0 24 24" ${st}><circle cx="12" cy="12" r="4"/><line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="4.22" y1="4.22" x2="6.34" y2="6.34"/><line x1="17.66" y1="17.66" x2="19.78" y2="19.78"/><line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/><line x1="4.22" y1="19.78" x2="6.34" y2="17.66"/><line x1="17.66" y1="6.34" x2="19.78" y2="4.22"/></svg>`;
+  const partCloud = `<svg width="${s}" height="${s}" viewBox="0 0 24 24" ${st}><path d="M8 18H5a3 3 0 0 1 0-6 5 5 0 0 1 9.9-1A4 4 0 0 1 19 18h-3"/><circle cx="16" cy="6" r="2.5" stroke-width="1.4"/><line x1="19" y1="4" x2="20" y2="3"/></svg>`;
+  const cloud = `<svg width="${s}" height="${s}" viewBox="0 0 24 24" ${st}><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/></svg>`;
+  const rain = `<svg width="${s}" height="${s}" viewBox="0 0 24 24" ${st}><path d="M20 16.2A5 5 0 0 0 18 7h-1.26A8 8 0 1 0 4 15.25"/><line x1="8" y1="19" x2="8" y2="21"/><line x1="12" y1="17" x2="12" y2="19"/><line x1="16" y1="19" x2="16" y2="21"/></svg>`;
+  const storm = `<svg width="${s}" height="${s}" viewBox="0 0 24 24" ${st}><path d="M19 16.2A5 5 0 0 0 17 7h-1.26A8 8 0 1 0 3 15.25"/><polyline points="13 11 9 17 14 17 10 23"/></svg>`;
+  const fog = `<svg width="${s}" height="${s}" viewBox="0 0 24 24" ${st}><line x1="3" y1="8" x2="21" y2="8"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="16" x2="21" y2="16" stroke-dasharray="3 2"/></svg>`;
+  const snow = `<svg width="${s}" height="${s}" viewBox="0 0 24 24" ${st}><line x1="12" y1="2" x2="12" y2="22"/><path d="M12 6l-3-3M12 6l3-3M12 18l-3 3M12 18l3 3"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M6 12l-3-3M6 12l-3 3M18 12l3-3M18 12l3 3"/></svg>`;
+  if (code===0) return sun;
+  if (code<=2) return partCloud;
+  if (code<=3) return cloud;
+  if (code<=48) return fog;
+  if (code<=67) return rain;
+  if (code<=77) return snow;
+  if (code<=82) return rain;
+  if (code<=99) return storm;
+  return partCloud;
+}
+
+function avgHourly(arr, s, e, di) {
+  const sl = arr.slice(di*24+s, di*24+e);
+  return sl.length ? Math.round(sl.reduce((a,b)=>a+b,0)/sl.length) : null;
+}
+function maxHourly(arr, s, e, di) {
+  const sl = arr.slice(di*24+s, di*24+e);
+  return sl.length ? Math.round(Math.max(...sl)) : null;
+}
+
+async function applyWeatherToSchedule() {
+  const data = await fetchWeather();
+  if (!data || !data.hourly) return;
+  const h = data.hourly;
+  TIME_BLOCKS.forEach(b => {
+    const hrs = BLOCK_HOURS[b.id];
+    if (!hrs) return;
+    const temp = avgHourly(h.temperature_2m, hrs[0], hrs[1], 0);
+    const rain = maxHourly(h.precipitation_probability, hrs[0], hrs[1], 0);
+    const uv   = maxHourly(h.uv_index, hrs[0], hrs[1], 0);
+    const mid  = Math.floor((hrs[0]+hrs[1])/2);
+    const code = h.weathercode ? h.weathercode[mid] : 0;
+    const el = document.querySelector(`[data-weather-block="${b.id}"]`);
+    if (!el) return;
+    let parts = [];
+    if (temp !== null) parts.push(`<span style="font-size:.68rem;color:var(--muted);">${temp}°</span>`);
+    parts.push(weatherSVG(code, 13));
+    if (rain > 0) parts.push(`<span style="font-size:.65rem;color:var(--muted);">${rain}%</span>`);
+    if (uv >= 3)  parts.push(`<span style="font-size:.65rem;color:var(--muted);">UV${uv}</span>`);
+    el.innerHTML = parts.join('');
+
+  });
+}
+
+async function applyWeatherToWeekly() {
+  const data = await fetchWeather();
+  if (!data || !data.daily) return;
+  const days = getWeekDates(weekOffset);
+  days.forEach(d => {
+    const ds = dateStr(d);
+    const fi = (data.daily.time||[]).indexOf(ds);
+    if (fi < 0) return;
+    const el = document.querySelector(`[data-weather-day="${ds}"]`);
+    if (!el) return;
+    el.innerHTML = weatherSVG(data.daily.weathercode[fi], 12);
+    el.style.cssText += ';display:flex;justify-content:center;margin-top:2px;';
+  });
+}
+
+// ================================================================
+// WATER HABIT TRACKING — logs daily water to habitLog
+// ================================================================
+const WATER_HABIT_ID = '__water__';
+
+function ensureWaterHabit() {
+  // Virtual water habit — not in tasks[], just referenced in habitLog
+}
+
+function logWaterToHabit(mlAmount) {
+  // Each log entry records the ml added this session
+  habitLog.push({ taskId: WATER_HABIT_ID, date: today(), value: mlAmount, ts: Date.now() });
+}
+
+function getWaterHistoryByDate() {
+  // Returns { 'YYYY-MM-DD': totalMl } for all dates
+  const map = {};
+  habitLog.filter(e => e.taskId === WATER_HABIT_ID).forEach(e => {
+    map[e.date] = (map[e.date] || 0) + (e.value || 0);
+  });
+  return map;
+}
+
+let waterWeekOffset = 0;
+
+function renderWaterHabitCard() {
+  const container = document.getElementById('waterHabitCard');
+  if (!container) return;
+  const history = getWaterHistoryByDate();
+  const goalMl = (waterGoal || 8) * 250;
+  const t = today();
+
+  // Build 7-day window based on offset (0 = current week ending today)
+  const days = [];
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date(t + 'T00:00:00');
+    d.setDate(d.getDate() - i + (waterWeekOffset * 7));
+    const ds = dateStr(d);
+    days.push({ ds, ml: history[ds] || 0, d });
+  }
+  const achieved = days.filter(d => d.ml >= goalMl).length;
+  const weekStart = days[0].d.toLocaleDateString('en-AU', { day:'numeric', month:'short' });
+  const weekEnd   = days[6].d.toLocaleDateString('en-AU', { day:'numeric', month:'short' });
+  const isCurrentWeek = waterWeekOffset === 0;
+
+  container.innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+      <span class="card-title" style="margin-bottom:0;">Water</span>
+      <div style="display:flex;align-items:center;gap:6px;">
+        <button onclick="shiftWaterWeek(-1)" style="background:none;border:1.5px solid var(--border);border-radius:8px;width:28px;height:28px;cursor:pointer;color:var(--muted);font-size:.9rem;">←</button>
+        <span style="font-size:.72rem;color:var(--muted);min-width:100px;text-align:center;">${weekStart} – ${weekEnd}</span>
+        <button onclick="shiftWaterWeek(1)" ${isCurrentWeek?'disabled style="opacity:.3;cursor:default;"':''} style="background:none;border:1.5px solid var(--border);border-radius:8px;width:28px;height:28px;cursor:pointer;color:var(--muted);font-size:.9rem;">→</button>
+      </div>
+    </div>
+    <div style="display:flex;align-items:flex-end;gap:6px;height:72px;margin-bottom:8px;">
+      ${days.map(d => {
+        const pct = Math.min(100, goalMl > 0 ? Math.round((d.ml / goalMl) * 100) : 0);
+        const isToday = d.ds === t;
+        const met = d.ml >= goalMl;
+        const dayLabel = d.d.toLocaleDateString('en-AU', { weekday:'short' }).slice(0,1);
+        return `<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;height:100%;">
+          <div style="flex:1;width:100%;display:flex;align-items:flex-end;">
+            <div style="width:100%;height:${Math.max(4,pct)}%;background:${met?'var(--accent)':isToday?'rgba(147,170,205,.5)':'var(--border)'};border-radius:4px 4px 0 0;transition:height .3s;" title="${d.ds}: ${d.ml.toLocaleString()}ml"></div>
+          </div>
+          <div style="font-size:.62rem;color:${isToday?'var(--accent)':'var(--muted)'};">${dayLabel}</div>
+        </div>`;
+      }).join('')}
+    </div>
+    <div style="font-size:.72rem;color:var(--muted);">${achieved}/7 days at goal · Goal ${goalMl.toLocaleString()} ml/day</div>`;
+}
+
+function shiftWaterWeek(dir) {
+  if (dir > 0 && waterWeekOffset >= 0) return;
+  waterWeekOffset += dir;
+  renderWaterHabitCard();
+}
+
 // ---- INIT ----
 loadFromStorage();
 document.getElementById('modalOverlay').addEventListener('click',function(e){if(e.target===this)closeModal();});
@@ -3624,6 +4046,7 @@ renderCategories();renderCatSelects();renderTasks();buildSettings();
 document.getElementById('mealFilterDate').value=today();document.getElementById('mealDate').value=today();
 renderOverview();renderOverviewEvents();renderWater();renderOverviewMeals();renderOverviewHabitsRibbon();renderGrocList();renderOverviewUpcoming();
 renderCycleOverview();
+try{renderCycleWeekStrip();}catch(e){}
 setTimeout(applyWeatherToSchedule, 800);
 // Auto-connect Firebase if previously enabled
 if(localStorage.getItem('centre_fbSyncEnabled')==='true'){
@@ -3646,7 +4069,12 @@ function tickLive(){
   // Midnight water reset
   const storedDate=localStorage.getItem('centre_waterDate');
   const todayStr=today();
-  if(storedDate&&storedDate!==todayStr){waterFilled=0;localStorage.setItem('centre_waterDate',todayStr);scheduleSave();renderWater();}
+  if(storedDate&&storedDate!==todayStr){
+      // New day — reset counter but keep all habitLog history intact
+      waterFilled=0;
+      localStorage.setItem('centre_waterDate',todayStr);
+      scheduleSave();renderWater();
+    }
   else if(!storedDate){localStorage.setItem('centre_waterDate',todayStr);}
   if(now.getSeconds()===0)renderTasks();
 }
