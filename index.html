@@ -824,20 +824,14 @@ h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.
     <!-- PHASE CARD -->
     <div class="card" id="cyclePhaseCard"></div>
 
-    <!-- CYCLE WEEK STRIP -->
-    <div class="card" style="padding:16px 20px 14px;" id="cycleWeekCard">
+    <!-- MONTH SCROLL CARD -->
+    <div class="card" style="padding:18px 22px 14px;">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
-        <button onclick="shiftCycleStrip(-7)" class="week-arrow">←</button>
-        <span id="cycleStripLabel" style="font-size:.78rem;color:var(--muted);"></span>
-        <button onclick="shiftCycleStrip(7)" id="cycleStripNextBtn" class="week-arrow">→</button>
+        <button onclick="shiftCycleMonth(-1)" style="background:none;border:1.5px solid var(--border);border-radius:10px;padding:5px 14px;cursor:pointer;font-family:'Handwriting',Georgia,serif;font-size:.9rem;color:var(--muted);">←</button>
+        <span class="card-title" style="margin-bottom:0;" id="cycleMonthLabel"></span>
+        <button onclick="shiftCycleMonth(1)" style="background:none;border:1.5px solid var(--border);border-radius:10px;padding:5px 14px;cursor:pointer;font-family:'Handwriting',Georgia,serif;font-size:.9rem;color:var(--muted);">→</button>
       </div>
-      <div id="cycleWeekStrip" style="display:flex;gap:6px;justify-content:space-between;touch-action:pan-y;"
-        ontouchstart="cycleTouchStart(event)" ontouchend="cycleTouchEnd(event)"></div>
-      <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:12px;padding-top:10px;border-top:1px solid var(--border);">
-        <span style="display:flex;align-items:center;gap:4px;font-size:.7rem;color:var(--muted);"><span style="width:8px;height:8px;border-radius:50%;background:var(--accent);display:inline-block;"></span>Period</span>
-        <span style="display:flex;align-items:center;gap:4px;font-size:.7rem;color:var(--muted);"><span style="width:8px;height:8px;border-radius:50%;background:#c4a882;display:inline-block;"></span>Ovulation</span>
-        <span style="display:flex;align-items:center;gap:4px;font-size:.7rem;color:var(--muted);"><span style="width:8px;height:8px;border-radius:50%;background:rgba(147,170,205,.4);display:inline-block;"></span>Predicted</span>
-      </div>
+      <div id="cycleYearStrip" style="display:none;"></div>
     </div>
 
     <!-- CALENDAR CARD -->
@@ -898,6 +892,12 @@ h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.
               <input class="form-input" id="geminiApiKeyInput" type="password" placeholder="AIzaSy… (Gemini API)" style="flex:1;min-width:160px;"/>
               <button class="apply-btn" onclick="saveGeminiApiKey()" style="padding:7px 14px;font-size:.8rem;">Save</button>
               <span id="geminiKeyStatus" style="font-size:.75rem;color:var(--accent);"></span>
+              <label style="font-size:.75rem;color:var(--muted);width:100px;flex-shrink:0;">Model</label>
+              <select class="form-select" id="geminiModelSelect" onchange="saveGeminiModel()" style="flex:1;min-width:160px;">
+                <option value="gemini-2.0-flash">gemini-2.0-flash (latest · paid tier)</option>
+                <option value="gemini-1.5-flash">gemini-1.5-flash (free · 1500/day)</option>
+              </select>
+              <span style="font-size:.7rem;color:var(--muted);width:100%;padding-left:108px;">Use 1.5-flash if you hit quota limits on the free tier.</span>
             </div>
           </div>
         </div>
@@ -1062,9 +1062,8 @@ function newEventId(){return 'EVT-'+String(++eventSeq).padStart(4,'0');}
 function newCatId(){return 'CAT-'+String(++catSeq).padStart(4,'0');}
 
 // ---- STATE ----
-let tasks=[],events=[],waterFilled=0,waterGoal=8,meals=[],mealSeq=0,templates=[],templateSeq=0,recipes=[],recipeSeq=0,activeFilter='all',weekOffset=0,modalDate=null,eventsViewDate=null,scheduleViewDate=null;
+let tasks=[],events=[],waterFilled=0,waterGoal=8,waterWeekOffset=0,meals=[],mealSeq=0,templates=[],templateSeq=0,recipes=[],recipeSeq=0,activeFilter='all',weekOffset=0,modalDate=null,eventsViewDate=null,scheduleViewDate=null;
 let cycleLog=[],cycleSeq=0,cycleMonthOffset=0;
-let cycleStripOffset=0,_cycleTouchX=null;
 function newMealId(){return 'MEAL-'+String(++mealSeq).padStart(4,'0');}
 function newTemplateId(){return 'TPL-'+String(++templateSeq).padStart(4,'0');}
 function newRecipeId(){return 'RCP-'+String(++recipeSeq).padStart(4,'0');}
@@ -1496,16 +1495,6 @@ function toggleTask(id,forDate){
 function deleteTask(id){tasks=tasks.filter(t=>t.id!==id);habitLog=habitLog.filter(e=>e.taskId!==id);scheduleSave();renderTasks();renderOverview();}
 function setFilter(f,btn){activeFilter=f;document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderTasks();}
 function toggleEditForm(id){const f=document.getElementById('edit-'+id);if(f)f.classList.toggle('open');}
-function updateEditRecur(id) {
-  const type = document.getElementById(`erecur-type-${id}`).value;
-  const extra = document.getElementById(`erecur-extra-${id}`);
-  const dow = document.getElementById(`erecur-dow-${id}`);
-  const lbl = document.getElementById(`erecur-extra-label-${id}`);
-  if (extra) extra.style.display = ['interval-days','interval-weeks','on-completion'].includes(type) ? 'block' : 'none';
-  if (dow) dow.style.display = type === 'dow' ? 'flex' : 'none';
-  if (lbl) lbl.textContent = type === 'on-completion' ? 'Days after completion' : 'Interval';
-}
-
 function saveTask(id){
   const t=tasks.find(t=>t.id===id);if(!t)return;
   t.name=document.getElementById(`ename-${id}`).value.trim()||t.name;
@@ -1513,20 +1502,6 @@ function saveTask(id){
   t.due=document.getElementById(`edue-${id}`).value;
   t.dur=parseInt(document.getElementById(`edur-${id}`).value)||0;
   t.catId=document.getElementById(`ecat-${id}`).value;
-  // Save recurrence
-  const recurType = document.getElementById(`erecur-type-${id}`)?.value || 'none';
-  if (recurType === 'none') {
-    t.recur = null;
-  } else {
-    const interval = parseInt(document.getElementById(`erecur-interval-${id}`)?.value) || 1;
-    const dowBtns = document.querySelectorAll(`[data-task="${id}"].dow-btn.sel`);
-    const dow = [...dowBtns].map(b => parseInt(b.dataset.i));
-    if (recurType === 'on-completion') {
-      t.recur = { type: recurType, completionDays: interval, endType: t.recur?.endType || 'never', endAfter: t.recur?.endAfter || 10, endDate: t.recur?.endDate || '' };
-    } else {
-      t.recur = { type: recurType, interval, dow, endType: t.recur?.endType || 'never', endAfter: t.recur?.endAfter || 10, endDate: t.recur?.endDate || '' };
-    }
-  }
   scheduleSave();renderTasks();
 }
 function hexToRgba(hex,alpha){const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);return `rgba(${r},${g},${b},${alpha})`;}
@@ -1576,27 +1551,6 @@ function renderTasks(){
                 <option value="" ${!t.catId?'selected':''}>— none —</option>
                 ${categories.map(c=>`<option value="${c.id}" ${t.catId===c.id?'selected':''}>${escHtml(c.name)}</option>`).join('')}
               </select>
-            </div>
-            <div class="form-group full">
-              <label class="form-label">Recurrence</label>
-              <select class="form-select" id="erecur-type-${t.id}" onchange="updateEditRecur('${t.id}')">
-                <option value="none" ${!t.recur?'selected':''}>None</option>
-                <option value="daily" ${t.recur&&t.recur.type==='daily'?'selected':''}>Daily</option>
-                <option value="weekly" ${t.recur&&t.recur.type==='weekly'?'selected':''}>Weekly</option>
-                <option value="monthly" ${t.recur&&t.recur.type==='monthly'?'selected':''}>Monthly</option>
-                <option value="yearly" ${t.recur&&t.recur.type==='yearly'?'selected':''}>Yearly</option>
-                <option value="interval-days" ${t.recur&&t.recur.type==='interval-days'?'selected':''}>Every X days</option>
-                <option value="interval-weeks" ${t.recur&&t.recur.type==='interval-weeks'?'selected':''}>Every X weeks</option>
-                <option value="dow" ${t.recur&&t.recur.type==='dow'?'selected':''}>Specific days of week</option>
-                <option value="on-completion" ${t.recur&&t.recur.type==='on-completion'?'selected':''}>On completion</option>
-              </select>
-            </div>
-            <div class="form-group full" id="erecur-extra-${t.id}" style="display:${t.recur&&['interval-days','interval-weeks','on-completion'].includes(t.recur.type)?'block':'none'}">
-              <label class="form-label" id="erecur-extra-label-${t.id}">${t.recur&&t.recur.type==='on-completion'?'Days after completion':'Interval'}</label>
-              <input class="form-input" type="number" id="erecur-interval-${t.id}" min="1" value="${t.recur?t.recur.interval||t.recur.completionDays||1:1}"/>
-            </div>
-            <div class="form-group full" id="erecur-dow-${t.id}" style="display:${t.recur&&t.recur.type==='dow'?'flex':'none'};flex-wrap:wrap;gap:5px;">
-              ${DOW_LABELS.map((d,i)=>`<button type="button" class="dow-btn ${t.recur&&t.recur.dow&&t.recur.dow.includes(i)?'sel':''}" data-task="${t.id}" data-i="${i}" onclick="this.classList.toggle('sel')">${d}</button>`).join('')}
             </div>
           </div>
           <button class="save-btn" onclick="saveTask('${t.id}')">Save changes</button>
@@ -2562,6 +2516,7 @@ function saveGoogleApiKey(){
 }
 
 let _geminiApiKey='';
+let _geminiModel=localStorage.getItem('centre_geminiModel')||'gemini-2.0-flash';
 
 function loadGoogleApiKey(){
   const saved=localStorage.getItem('centre_googleApiKey');
@@ -2571,6 +2526,12 @@ function loadGoogleApiKey(){
   if(inp)inp.value=keyToUse;
 }
 
+function saveGeminiModel(){
+  const sel=document.getElementById('geminiModelSelect');
+  if(!sel)return;
+  _geminiModel=sel.value;
+  localStorage.setItem('centre_geminiModel',_geminiModel);
+}
 function saveGeminiApiKey(){
   const val=document.getElementById('geminiApiKeyInput').value.trim();
   _geminiApiKey=val;
@@ -2582,11 +2543,9 @@ function saveGeminiApiKey(){
 
 function loadGeminiApiKey(){
   const saved=localStorage.getItem('centre_geminiApiKey');
-  if(saved){
-    _geminiApiKey=saved;
-    const inp=document.getElementById('geminiApiKeyInput');
-    if(inp)inp.value=saved;
-  }
+  if(saved){_geminiApiKey=saved;const inp=document.getElementById('geminiApiKeyInput');if(inp)inp.value=saved;}
+  const savedModel=localStorage.getItem('centre_geminiModel');
+  if(savedModel){_geminiModel=savedModel;const sel=document.getElementById('geminiModelSelect');if(sel)sel.value=savedModel;}
 }
 
 async function locSearch(input,inputId,dropId){
@@ -2908,7 +2867,8 @@ Keep task names concise and action-oriented.`;
 
     const geminiKey = _geminiApiKey || localStorage.getItem('centre_geminiApiKey') || '';
     if (!geminiKey) throw new Error('No Gemini API key set — add one in Settings');
-    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${geminiKey}`;
+    const _model = _geminiModel || 'gemini-1.5-flash';
+    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${_model}:generateContent?key=${geminiKey}`;
     const response = await fetch(geminiUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -2919,8 +2879,7 @@ Keep task names concise and action-oriented.`;
     });
 
     const data = await response.json();
-    if (data.error) throw new Error('Gemini API error: ' + (data.error.message || JSON.stringify(data.error)));
-    if (!response.ok) throw new Error('Gemini HTTP ' + response.status);
+    if (data.error) throw new Error('Gemini: ' + (data.error.message || JSON.stringify(data.error)));
     const raw = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
     if (!raw) throw new Error('Empty Gemini response — key may be invalid or quota exceeded');
     // Strip markdown fences, leading/trailing whitespace, and anything before first [
@@ -3339,15 +3298,35 @@ async function gcalPushCentreEvents() {
   localStorage.setItem('centre_gcalIdMap', JSON.stringify(gcalIdMap));
 }
 
+function stripGcalDescription(desc) {
+  if (!desc) return '';
+  let s = desc.replace(/<[^>]*>/g, '');
+  s = s.replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'"').replace(/&#39;/g,"'").replace(/&nbsp;/g,' ');
+  s = s.split('\n').filter(line => {
+    const l = line.trim().toLowerCase();
+    return !l.startsWith('join with google meet') &&
+           !l.startsWith('https://meet.google.com') &&
+           !l.startsWith('or dial:') &&
+           !l.startsWith('to join the video meeting') &&
+           !l.startsWith('view your event') &&
+           !l.includes('meet.google.com') &&
+           !l.match(/^\+\d[\d\s\-(),]+pin/i) &&
+           !l.match(/^pin:\s*\d/i);
+  }).join('\n').trim();
+  s = s.replace(/\n{3,}/g, '\n\n').trim();
+  return s;
+}
+
 async function gcalPullGcalEvents() {
-  // Pull events from GCal for the next 60 days
+  // Pull events from GCal for the next 180 days
   const now = new Date();
-  const future = new Date(now); future.setDate(future.getDate() + 60);
+  now.setHours(0,0,0,0);
+  const future = new Date(now); future.setDate(future.getDate() + 180);
   const params = new URLSearchParams({
     timeMin: now.toISOString(),
     timeMax: future.toISOString(),
     singleEvents: 'true',
-    maxResults: '250',
+    maxResults: '500',
     orderBy: 'startTime'
   });
   const data = await gcalFetch(`${GCAL_API_BASE}/calendars/primary/events?${params}`);
@@ -3357,11 +3336,16 @@ async function gcalPullGcalEvents() {
   const reverseMap = {};
   Object.entries(gcalIdMap).forEach(([cId, gId]) => reverseMap[gId] = cId);
 
-  // Get set of gcalIds we pushed ourselves (don't re-import them)
-  const pushedGcalIds = new Set(Object.values(gcalIdMap));
+  // Only skip gcalIds where the Centre event still exists (guards against ghost IDs after storage clear)
+  const pushedGcalIds = new Set(
+    Object.entries(gcalIdMap)
+      .filter(([cId]) => events.some(e => e.id === cId))
+      .map(([, gId]) => gId)
+  );
 
   data.items.forEach(gev => {
-    if (pushedGcalIds.has(gev.id)) return; // skip ones we pushed
+    if (gev.status === 'cancelled') return;
+    if (pushedGcalIds.has(gev.id)) return;
     if (!gev.start) return;
 
     const dateStr = gev.start.date || (gev.start.dateTime ? gev.start.dateTime.split('T')[0] : null);
@@ -3369,20 +3353,18 @@ async function gcalPullGcalEvents() {
     const timeEndStr = gev.end && gev.end.dateTime ? gev.end.dateTime.split('T')[1].slice(0,5) : '';
     if (!dateStr) return;
 
+    const cleanNotes = stripGcalDescription(gev.description);
     const existingCentreId = reverseMap[gev.id];
-    if (existingCentreId) {
-      // Update existing imported event
-      const ev = events.find(e => e.id === existingCentreId);
-      if (ev) {
-        ev.name = gev.summary || ev.name;
-        ev.date = dateStr;
-        ev.time = timeStr;
-        ev.timeEnd = timeEndStr;
-        ev.notes = gev.description || ev.notes;
-        ev.location = (gev.location || ev.location);
-      }
+    const existingEv = existingCentreId ? events.find(e => e.id === existingCentreId) : null;
+
+    if (existingEv) {
+      existingEv.name = gev.summary || existingEv.name;
+      existingEv.date = dateStr;
+      existingEv.time = timeStr;
+      existingEv.timeEnd = timeEndStr;
+      existingEv.notes = cleanNotes;
+      existingEv.location = gev.location || existingEv.location;
     } else {
-      // Add as new imported event
       const newId = newEventId();
       events.push({
         id: newId,
@@ -3392,7 +3374,7 @@ async function gcalPullGcalEvents() {
         timeEnd: timeEndStr,
         type: 'event',
         catId: '',
-        notes: gev.description || '',
+        notes: cleanNotes,
         location: gev.location || '',
         busyStatus: gev.status === 'confirmed' ? 'busy' : 'free',
         gcalImported: true,
@@ -3599,68 +3581,24 @@ function saveCycle() {
 
 function renderCyclePage() {
   renderCyclePhaseCard();
-  renderCycleWeekStrip();
+  renderCycleMonthCard();
+  renderCycleCalendar();
   renderCycleHistory();
 }
 
-function renderCycleWeekStrip() {
-  const strip = document.getElementById('cycleWeekStrip');
-  const label = document.getElementById('cycleStripLabel');
-  const nextBtn = document.getElementById('cycleStripNextBtn');
-  if (!strip) return;
-  const t = today();
-  const pc = getPhaseConfig();
-  const days = [];
-  for (let i = -3; i <= 3; i++) {
-    const d = new Date(t + 'T00:00:00');
-    d.setDate(d.getDate() + cycleStripOffset + i);
-    days.push({ d, ds: dateStr(d) });
-  }
-  const s = days[0].d.toLocaleDateString('en-AU', { day:'numeric', month:'short' });
-  const e = days[6].d.toLocaleDateString('en-AU', { day:'numeric', month:'short' });
-  if (label) label.textContent = s + ' \u2013 ' + e;
-  if (nextBtn) { nextBtn.disabled = cycleStripOffset >= 0; nextBtn.style.opacity = cycleStripOffset >= 0 ? '.3' : '1'; }
-  const DOW_S = ['S','M','T','W','T','F','S'];
-  strip.innerHTML = days.map(({ d, ds }) => {
-    const isToday = ds === t;
-    const isFuture = ds > t;
-    const cycleDay = getCycleDay(ds);
-    const phase = cycleDay ? getPhase(cycleDay) : null;
-    const phaseConf = phase ? pc[phase] : null;
-    const hasPeriod = cycleLog.some(e => e.date === ds && (e.type === 'period_start' || e.type === 'period_day'));
-    let circleBg = 'transparent', circleStroke = 'var(--border)', textColor = 'var(--muted)';
-    if (hasPeriod) { circleBg = phaseConf ? phaseConf.color : '#b8a0c8'; circleStroke = circleBg; textColor = 'white'; }
-    else if (cycleDay && phaseConf && !isFuture) { circleBg = phaseConf.color + '30'; circleStroke = phaseConf.color; textColor = 'var(--text)'; }
-    else if (cycleDay && isFuture) { circleBg = 'rgba(147,170,205,.08)'; circleStroke = 'rgba(147,170,205,.3)'; }
-    const ring = isToday ? '2.5px solid var(--accent)' : '1.5px solid ' + circleStroke;
-    return `<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;">
-      <div style="font-size:.62rem;color:${isToday?'var(--accent)':'var(--muted)'};">${DOW_S[d.getDay()]}</div>
-      <div style="width:38px;height:38px;border-radius:50%;background:${circleBg};border:${ring};display:flex;align-items:center;justify-content:center;transition:all .2s;">
-        <span style="font-size:.8rem;color:${isToday?'var(--accent)':textColor};font-weight:${isToday?'600':'400'};">${d.getDate()}</span>
-      </div>
-      <div style="font-size:.58rem;color:var(--muted);min-height:12px;">${cycleDay ? 'd'+cycleDay : ''}</div>
-    </div>`;
-  }).join('');
+function shiftCycleMonth(dir) {
+  cycleMonthOffset += dir;
+  renderCycleMonthCard();
+  renderCycleCalendar();
 }
 
-function shiftCycleStrip(days) {
-  if (days > 0 && cycleStripOffset >= 0) return;
-  cycleStripOffset += days;
-  renderCycleWeekStrip();
+function renderCycleMonthCard() {
+  const now = new Date();
+  now.setMonth(now.getMonth() + cycleMonthOffset);
+  const label = now.toLocaleDateString('en-AU', { month:'long', year:'numeric' });
+  const el = document.getElementById('cycleMonthLabel');
+  if (el) el.textContent = label;
 }
-
-function cycleTouchStart(e) { _cycleTouchX = e.touches[0].clientX; }
-function cycleTouchEnd(e) {
-  if (_cycleTouchX === null) return;
-  const dx = e.changedTouches[0].clientX - _cycleTouchX;
-  _cycleTouchX = null;
-  if (Math.abs(dx) < 30) return;
-  shiftCycleStrip(dx > 0 ? -7 : 7);
-}
-
-function shiftCycleMonth(dir) { shiftCycleStrip(dir * 7); }
-
-function renderCycleMonthCard() { renderCycleWeekStrip(); }
 
 function renderCyclePhaseCard() {
   const card = document.getElementById('cyclePhaseCard');
@@ -3671,11 +3609,11 @@ function renderCyclePhaseCard() {
   const cfg = phase ? getPhaseConfig()[phase] : null;
 
   if (!cycleLog.length) {
-    card.innerHTML = `<div style="text-align:center;padding:12px 0 6px;">
-      <div style="font-family:'Noto Serif Display',Georgia,serif;font-weight:400;font-stretch:extra-condensed;text-transform:uppercase;letter-spacing:.14em;font-size:1.4rem;color:var(--muted);margin-bottom:10px;">Cycle Tracking</div>
-      <p style="font-size:.88rem;color:var(--muted);margin-bottom:16px;">Log your first period start to begin.</p>
-      <button class="cycle-log-btn" onclick="cycleLogPeriodStart()">Log period start today</button>
-    </div>`;
+    card.innerHTML = '<div style="text-align:center;padding:12px 0 6px;">' +
+      '<div style="font-family:var(--font-display,Georgia,serif);font-weight:400;font-stretch:extra-condensed;text-transform:uppercase;letter-spacing:.14em;font-size:1.4rem;color:var(--muted);margin-bottom:10px;">Cycle Tracking</div>' +
+      '<p style="font-size:.88rem;color:var(--muted);margin-bottom:16px;">Log your first period start to begin.</p>' +
+      '<button class="cycle-log-btn" onclick="cycleLogPeriodStart()">Log period start today</button>' +
+    '</div>';
     return;
   }
 
@@ -3692,39 +3630,66 @@ function renderCyclePhaseCard() {
     { key:'luteal',     frac:12/28, color:_pc.luteal.color }
   ];
   let segOffset = 0;
-  const segSvg = phases.map(p => {
+  const segSvg = phases.map(function(p) {
     const len = Math.round(p.frac * CIRC);
-    const svg = `<circle r="${R}" cx="60" cy="60" fill="none" stroke="${p.color}" stroke-width="6" stroke-dasharray="${len} ${CIRC-len}" stroke-dashoffset="${-segOffset}" opacity="0.35"/>`;
+    const svg = '<circle r="' + R + '" cx="60" cy="60" fill="none" stroke="' + p.color + '" stroke-width="6" stroke-dasharray="' + len + ' ' + (CIRC-len) + '" stroke-dashoffset="' + (-segOffset) + '" opacity="0.35"/>';
     segOffset += len;
     return svg;
   }).join('');
 
-  card.innerHTML = `
-    <div style="display:flex;align-items:center;gap:20px;flex-wrap:wrap;">
-      <div style="flex-shrink:0;position:relative;width:120px;height:120px;">
-        <svg width="120" height="120" viewBox="0 0 120 120" style="transform:rotate(-90deg);overflow:visible;">
-          <circle r="${R}" cx="60" cy="60" fill="none" stroke="var(--border)" stroke-width="6"/>
-          ${segSvg}
-          <circle r="${R}" cx="60" cy="60" fill="none" stroke="${phaseColor}" stroke-width="7"
-            stroke-dasharray="${dash} ${CIRC-dash}" stroke-linecap="round" opacity="0.9"/>
-        </svg>
-        <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;">
-          <div style="font-family:'Noto Serif Display',Georgia,serif;font-weight:400;font-stretch:extra-condensed;font-size:1.7rem;line-height:1;color:${phaseColor};">${cycleDay}</div>
-          <div style="font-size:.65rem;color:var(--muted);">of ${CYCLE_LENGTH}</div>
-        </div>
-      </div>
-      <div style="flex:1;min-width:140px;">
-        <div style="font-family:'Noto Serif Display',Georgia,serif;font-weight:400;font-stretch:extra-condensed;text-transform:uppercase;letter-spacing:.12em;font-size:1.5rem;color:${phaseColor};line-height:1.1;margin-bottom:5px;">${cfg ? cfg.name : '—'}</div>
-        <div style="font-size:.84rem;color:var(--muted);margin-bottom:12px;line-height:1.4;">${cfg ? cfg.desc : ''}</div>
-        <div style="font-size:.78rem;color:var(--muted);">${daysLeft} days until next cycle</div>
-      </div>
-    </div>
-    <div style="margin-top:18px;display:flex;gap:3px;border-radius:8px;overflow:hidden;height:8px;">
-      ${phases.map(p => `<div style="flex:${p.frac};background:${p.key===phase?p.color:p.color+'55'};" title="${p.key}"></div>`).join('')}
-    </div>
-    <div style="display:flex;justify-content:space-between;margin-top:5px;">
-      ${phases.map(p => `<div style="font-size:.68rem;color:${p.key===phase?p.color:'var(--muted)'};text-transform:capitalize;">${p.key}</div>`).join('')}
-    </div>`;
+  // Phase-specific detail (pre-computed variables only, no nested template literals)
+  var phaseDetailHtml = '';
+  if (cfg && cycleDay) {
+    var phaseStart = cfg.days[0];
+    var phaseEnd   = cfg.days[1];
+    var phaseLen   = phaseEnd - phaseStart + 1;
+    var dayInPhase = cycleDay - phaseStart + 1;
+    var daysLeftInPhase = phaseEnd - cycleDay;
+    var phasePct = Math.min(100, Math.round((dayInPhase / phaseLen) * 100));
+    var daysLeftLabel = daysLeftInPhase > 0
+      ? (daysLeftInPhase + ' day' + (daysLeftInPhase === 1 ? '' : 's') + ' remaining')
+      : 'last day of phase';
+    var phaseDescs = {
+      menstrual:  'Your body is releasing. Prioritise rest, warmth, and gentle movement. Energy is naturally lower — honour that.',
+      follicular: 'Oestrogen is rising. Energy, focus, and creativity are building. A great time to start new things.',
+      ovulation:  'You are at peak energy and confidence. Make important decisions and connect with others.',
+      luteal:     'Progesterone rises then falls. Lean into focused detail work early, then slow down and prepare to rest.'
+    };
+    var desc = phaseDescs[phase] || (cfg.desc || '');
+    phaseDetailHtml =
+      '<div style="font-size:.73rem;color:' + phaseColor + ';margin-bottom:5px;opacity:.85;">Day ' + dayInPhase + ' of ' + phaseLen + ' in this phase &middot; ' + daysLeftLabel + '</div>' +
+      '<div style="height:4px;background:var(--border);border-radius:4px;overflow:hidden;margin-bottom:9px;">' +
+        '<div style="height:100%;width:' + phasePct + '%;background:' + phaseColor + ';border-radius:4px;transition:width .4s;"></div>' +
+      '</div>' +
+      '<div style="font-size:.82rem;color:var(--muted);margin-bottom:10px;line-height:1.5;">' + desc + '</div>';
+  }
+
+  var segStr = segSvg;
+  card.innerHTML =
+    '<div style="display:flex;align-items:center;gap:20px;flex-wrap:wrap;">' +
+      '<div style="flex-shrink:0;position:relative;width:120px;height:120px;">' +
+        '<svg width="120" height="120" viewBox="0 0 120 120" style="transform:rotate(-90deg);overflow:visible;">' +
+          '<circle r="' + R + '" cx="60" cy="60" fill="none" stroke="var(--border)" stroke-width="6"/>' +
+          segStr +
+          '<circle r="' + R + '" cx="60" cy="60" fill="none" stroke="' + phaseColor + '" stroke-width="7" stroke-dasharray="' + dash + ' ' + (CIRC-dash) + '" stroke-linecap="round" opacity="0.9"/>' +
+        '</svg>' +
+        '<div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;">' +
+          '<div style="font-family:var(--font-display,Georgia,serif);font-weight:400;font-stretch:extra-condensed;font-size:1.7rem;line-height:1;color:' + phaseColor + ';">' + cycleDay + '</div>' +
+          '<div style="font-size:.65rem;color:var(--muted);">of ' + CYCLE_LENGTH + '</div>' +
+        '</div>' +
+      '</div>' +
+      '<div style="flex:1;min-width:140px;">' +
+        '<div style="font-family:var(--font-display,Georgia,serif);font-weight:400;font-stretch:extra-condensed;text-transform:uppercase;letter-spacing:.12em;font-size:1.5rem;color:' + phaseColor + ';line-height:1.1;margin-bottom:4px;">' + (cfg ? cfg.name : '—') + '</div>' +
+        phaseDetailHtml +
+        '<div style="font-size:.75rem;color:var(--muted);">' + daysLeft + ' day' + (daysLeft === 1 ? '' : 's') + ' until next cycle</div>' +
+      '</div>' +
+    '</div>' +
+    '<div style="margin-top:18px;display:flex;gap:3px;border-radius:8px;overflow:hidden;height:8px;">' +
+      phases.map(function(p){ return '<div style="flex:' + p.frac + ';background:' + (p.key===phase ? p.color : p.color+'55') + ';" title="' + p.key + '"></div>'; }).join('') +
+    '</div>' +
+    '<div style="display:flex;justify-content:space-between;margin-top:5px;">' +
+      phases.map(function(p){ return '<div style="font-size:.68rem;color:' + (p.key===phase ? p.color : 'var(--muted)') + ';text-transform:capitalize;">' + p.key + '</div>'; }).join('') +
+    '</div>';
 }
 
 function renderCycleCalendar() {
@@ -3984,8 +3949,6 @@ function getWaterHistoryByDate() {
   return map;
 }
 
-let waterWeekOffset = 0;
-
 function renderWaterHabitCard() {
   const container = document.getElementById('waterHabitCard');
   if (!container) return;
@@ -3993,7 +3956,6 @@ function renderWaterHabitCard() {
   const goalMl = (waterGoal || 8) * 250;
   const t = today();
 
-  // Build 7-day window based on offset (0 = current week ending today)
   const days = [];
   for (let i = 6; i >= 0; i--) {
     const d = new Date(t + 'T00:00:00');
@@ -4001,35 +3963,35 @@ function renderWaterHabitCard() {
     const ds = dateStr(d);
     days.push({ ds, ml: history[ds] || 0, d });
   }
-  const achieved = days.filter(d => d.ml >= goalMl).length;
+  const achieved = days.filter(function(d){ return d.ml >= goalMl; }).length;
   const weekStart = days[0].d.toLocaleDateString('en-AU', { day:'numeric', month:'short' });
   const weekEnd   = days[6].d.toLocaleDateString('en-AU', { day:'numeric', month:'short' });
   const isCurrentWeek = waterWeekOffset === 0;
 
-  container.innerHTML = `
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
-      <span class="card-title" style="margin-bottom:0;">Water</span>
-      <div style="display:flex;align-items:center;gap:6px;">
-        <button onclick="shiftWaterWeek(-1)" style="background:none;border:1.5px solid var(--border);border-radius:8px;width:28px;height:28px;cursor:pointer;color:var(--muted);font-size:.9rem;">←</button>
-        <span style="font-size:.72rem;color:var(--muted);min-width:100px;text-align:center;">${weekStart} – ${weekEnd}</span>
-        <button onclick="shiftWaterWeek(1)" ${isCurrentWeek?'disabled style="opacity:.3;cursor:default;"':''} style="background:none;border:1.5px solid var(--border);border-radius:8px;width:28px;height:28px;cursor:pointer;color:var(--muted);font-size:.9rem;">→</button>
-      </div>
-    </div>
-    <div style="display:flex;align-items:flex-end;gap:6px;height:72px;margin-bottom:8px;">
-      ${days.map(d => {
-        const pct = Math.min(100, goalMl > 0 ? Math.round((d.ml / goalMl) * 100) : 0);
-        const isToday = d.ds === t;
-        const met = d.ml >= goalMl;
-        const dayLabel = d.d.toLocaleDateString('en-AU', { weekday:'short' }).slice(0,1);
-        return `<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;height:100%;">
-          <div style="flex:1;width:100%;display:flex;align-items:flex-end;">
-            <div style="width:100%;height:${Math.max(4,pct)}%;background:${met?'var(--accent)':isToday?'rgba(147,170,205,.5)':'var(--border)'};border-radius:4px 4px 0 0;transition:height .3s;" title="${d.ds}: ${d.ml.toLocaleString()}ml"></div>
-          </div>
-          <div style="font-size:.62rem;color:${isToday?'var(--accent)':'var(--muted)'};">${dayLabel}</div>
-        </div>`;
-      }).join('')}
-    </div>
-    <div style="font-size:.72rem;color:var(--muted);">${achieved}/7 days at goal · Goal ${goalMl.toLocaleString()} ml/day</div>`;
+  const bars = days.map(function(d) {
+    const pct = Math.min(100, goalMl > 0 ? Math.round((d.ml / goalMl) * 100) : 0);
+    const isToday = d.ds === t;
+    const met = d.ml >= goalMl;
+    const dayLabel = d.d.toLocaleDateString('en-AU', { weekday:'short' }).slice(0,1);
+    return '<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;height:100%;">' +
+      '<div style="flex:1;width:100%;display:flex;align-items:flex-end;">' +
+        '<div style="width:100%;height:' + Math.max(4,pct) + '%;background:' + (met ? 'var(--accent)' : isToday ? 'rgba(147,170,205,.5)' : 'var(--border)') + ';border-radius:4px 4px 0 0;transition:height .3s;" title="' + d.ds + ': ' + d.ml.toLocaleString() + 'ml"></div>' +
+      '</div>' +
+      '<div style="font-size:.62rem;color:' + (isToday ? 'var(--accent)' : 'var(--muted)') + ';">' + dayLabel + '</div>' +
+    '</div>';
+  }).join('');
+
+  container.innerHTML =
+    '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">' +
+      '<span class="card-title" style="margin-bottom:0;">Water</span>' +
+      '<div style="display:flex;align-items:center;gap:6px;">' +
+        '<button onclick="shiftWaterWeek(-1)" style="background:none;border:1.5px solid var(--border);border-radius:8px;width:28px;height:28px;cursor:pointer;color:var(--muted);font-size:.9rem;">←</button>' +
+        '<span style="font-size:.72rem;color:var(--muted);min-width:110px;text-align:center;">' + weekStart + ' – ' + weekEnd + '</span>' +
+        '<button onclick="shiftWaterWeek(1)" ' + (isCurrentWeek ? 'disabled style="opacity:.3;cursor:default;" ' : '') + 'style="background:none;border:1.5px solid var(--border);border-radius:8px;width:28px;height:28px;cursor:pointer;color:var(--muted);font-size:.9rem;">→</button>' +
+      '</div>' +
+    '</div>' +
+    '<div style="display:flex;align-items:flex-end;gap:6px;height:72px;margin-bottom:8px;">' + bars + '</div>' +
+    '<div style="font-size:.72rem;color:var(--muted);">' + achieved + '/7 days at goal · Goal ' + goalMl.toLocaleString() + ' ml/day</div>';
 }
 
 function shiftWaterWeek(dir) {
@@ -4037,24 +3999,6 @@ function shiftWaterWeek(dir) {
   waterWeekOffset += dir;
   renderWaterHabitCard();
 }
-
-// ---- INIT ----
-loadFromStorage();
-document.getElementById('modalOverlay').addEventListener('click',function(e){if(e.target===this)closeModal();});
-buildDowRow('t');buildDowRow('ev');buildDowRow('m');
-renderCategories();renderCatSelects();renderTasks();buildSettings();
-document.getElementById('mealFilterDate').value=today();document.getElementById('mealDate').value=today();
-renderOverview();renderOverviewEvents();renderWater();renderOverviewMeals();renderOverviewHabitsRibbon();renderGrocList();renderOverviewUpcoming();
-renderCycleOverview();
-try{renderCycleWeekStrip();}catch(e){}
-setTimeout(applyWeatherToSchedule, 800);
-// Auto-connect Firebase if previously enabled
-if(localStorage.getItem('centre_fbSyncEnabled')==='true'){
-  if(window._fbReady){initFirebase(false);}
-  else{window.addEventListener('firebaseReady',()=>initFirebase(false),{once:true});}
-}
-// Restore GCal session if token still valid
-setTimeout(gcalRestoreSession,800);
 
 function tickClockOnly(){
   const now=new Date();
