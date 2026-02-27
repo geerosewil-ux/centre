@@ -40,7 +40,7 @@
 <style>
 @font-face{font-family:'Handwriting';src:url('Handwriting.ttf') format('truetype');}
 :root{--font-body:'Handwriting',Georgia,serif;--font-display:'Noto Serif Display',Georgia,serif;--bg:#f9f8f6;--card:#ffffff;--text:#2c2c2c;--accent:#93aacd;--accent-dark:#7a91b4;--muted:#999;--border:#e8e8e8;
---phase-menstrual:#dd2c60;--phase-follicular:#d78881;--phase-ovulation:#ac487c;--phase-luteal:#861a3a;--water-fill:var(--accent);--water-light:#f0f4f8;--water-border:#c5d3e8;}
+--phase-menstrual:#dd2c60;--phase-follicular:#d78881;--phase-ovulation:#ac487c;--phase-luteal:#861a3a;--water-fill:var(--accent);--water-light:rgba(147,170,205,.13);--water-border:rgba(147,170,205,.25);}
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:'Handwriting',Georgia,serif;font-weight:400;font-stretch:normal;font-size:14px;background:var(--bg);color:var(--text);min-height:100vh;padding:0 20px 60px;transition:background .3s,color .3s;}
 h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.modal-save,.apply-btn,.settings-section-title,.week-label,.day-name{font-family:'Noto Serif Display',Georgia,serif;font-weight:400;font-style:normal;font-stretch:extra-condensed;text-transform:uppercase;}
@@ -379,7 +379,7 @@ h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.
 .multiadd-item-check{accent-color:var(--accent);width:15px;height:15px;flex-shrink:0;cursor:pointer;}
 .multiadd-item-text{flex:1;font-family:'Handwriting',Georgia,serif;font-size:.88rem;}
 .multiadd-item-meta{font-family:'Handwriting',Georgia,serif;font-size:.72rem;color:var(--muted);}
-.multiadd-status{font-family:'Handwriting',Georgia,serif;font-size:.8rem;color:var(--muted);text-align:center;padding:8px 0;}
+.multiadd-status{font-family:'Noto Serif Display',Georgia,serif;font-stretch:extra-condensed;font-size:.8rem;color:var(--muted);text-align:center;padding:8px 0;}
 .multiadd-confirm-btn{font-family:'Noto Serif Display',Georgia,serif;font-weight:400;font-stretch:extra-condensed;text-transform:uppercase;letter-spacing:.08em;font-size:.9rem;background:var(--accent);color:white;border:none;border-radius:10px;padding:10px;cursor:pointer;width:100%;margin-top:4px;}
 .mic-row-inline{display:flex;gap:8px;align-items:flex-start;}
 
@@ -438,7 +438,7 @@ h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.
 <nav id="navDrawer" style="position:fixed;top:0;left:-260px;width:240px;height:100vh;background:var(--card);z-index:300;transition:left .28s cubic-bezier(.4,0,.2,1);box-shadow:4px 0 24px rgba(0,0,0,.10);display:flex;flex-direction:column;padding:0;">
   <div style="padding:28px 24px 16px;border-bottom:1px solid var(--border);">
     <div style="font-family:'Noto Serif Display',Georgia,serif;font-weight:400;font-stretch:extra-condensed;text-transform:none;letter-spacing:.12em;font-size:1.5rem;color:var(--text);">centre</div>
-    <div id="drawerDate" style="font-family:'Handwriting',Georgia,serif;font-size:.76rem;color:var(--muted);margin-top:3px;"></div>
+    <div id="drawerDate" style="font-family:'Noto Serif Display',Georgia,serif;font-stretch:extra-condensed;font-size:.76rem;color:var(--muted);margin-top:3px;"></div>
   </div>
   <div style="flex:1;overflow-y:auto;padding:12px 0;">
     <button class="drawer-item active" id="di-overview" onclick="showPage('overview');closeDrawer()">
@@ -446,7 +446,7 @@ h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.
       Centre
     </button>
     <button class="drawer-item" id="di-weekly" onclick="showPage('weekly');closeDrawer()">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="9" y1="4" x2="9" y2="10"/></svg>
       Planner
     </button>
     <button class="drawer-item" id="di-tasks" onclick="showPage('tasks');closeDrawer()">
@@ -462,7 +462,7 @@ h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.
       Events
     </button>
     <button class="drawer-item" id="di-meals" onclick="showPage('meals');closeDrawer()">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 1 3 3c0 1.5-1 3-3 5-2-2-3-3.5-3-5a3 3 0 0 1 3-3z"/><path d="M12 10c-2 4-5 6-7 9a1 1 0 0 0 1 1c2-1 5-3 6-7"/><path d="M12 10c2 4 5 6 7 9a1 1 0 0 1-1 1c-2-1-5-3-6-7"/></svg>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="2" x2="8" y2="22"/><path d="M8 2C8 2 5 5 5 10h6c0-5-3-8-3-8z"/><line x1="16" y1="2" x2="16" y2="22"/><line x1="13" y1="7" x2="19" y2="7"/></svg>
       Meals
     </button>
     <button class="drawer-item" id="di-lists" onclick="showPage('lists');closeDrawer()">
@@ -500,27 +500,41 @@ h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.
 
   <!-- OVERVIEW -->
   <div class="page active" id="page-overview">
-    <div class="card" id="overviewEvents"></div>
-    <div class="card" style="padding:18px 22px;">
-      <div class="card-header" style="margin-bottom:10px">
-        <span class="card-title" style="margin-bottom:0">Water</span>
-        <span id="waterGoalLabel" style="font-size:.76rem;color:var(--muted);"></span>
-      </div>
-      <div class="water-tracker">
-        <div class="water-bars-row" id="waterCupsRow"></div>
-        <div class="water-meta">
-          <span id="waterMl">0 ml today</span>
-          <span id="waterPct" style="color:var(--accent);"></span>
+
+    <!-- Day nav header -->
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;padding:0 2px;">
+      <button id="centrePrevBtn" onclick="shiftCentreDate(-1)" style="background:none;border:1.5px solid var(--border);border-radius:10px;padding:5px 14px;cursor:pointer;font-family:'Noto Serif Display',Georgia,serif;font-stretch:extra-condensed;font-size:.9rem;color:var(--muted);transition:all .2s;" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">&#8592;</button>
+      <span id="centreDateLabel" style="font-family:'Noto Serif Display',Georgia,serif;font-weight:400;font-stretch:extra-condensed;text-transform:uppercase;letter-spacing:.12em;font-size:1.1rem;color:var(--text);cursor:pointer;" onclick="resetCentreDate()"></span>
+      <button id="centreNextBtn" onclick="shiftCentreDate(1)" style="background:none;border:1.5px solid var(--border);border-radius:10px;padding:5px 14px;cursor:pointer;font-family:'Noto Serif Display',Georgia,serif;font-stretch:extra-condensed;font-size:.9rem;color:var(--muted);transition:all .2s;" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">&#8594;</button>
+    </div>
+
+    <!-- Swipe container -->
+    <div id="centreSwipeWrap" style="position:relative;overflow:hidden;touch-action:pan-y;min-height:300px;">
+      <div id="centreCardStack" style="display:flex;flex-direction:column;gap:20px;transition:opacity .22s,transform .22s;will-change:transform,opacity;">
+        <div class="card" id="overviewEvents"></div>
+        <div class="card" style="padding:18px 22px;">
+          <div class="card-header" style="margin-bottom:10px">
+            <span class="card-title" style="margin-bottom:0">Water</span>
+            <span id="waterGoalLabel" style="font-size:.76rem;color:var(--muted);"></span>
+          </div>
+          <!-- Water for viewed date -->
+          <div class="water-tracker">
+            <div class="water-bars-row" id="waterCupsRow"></div>
+            <div class="water-meta">
+              <span id="waterMl">0 ml today</span>
+              <span id="waterPct" style="color:var(--accent);"></span>
+            </div>
+          </div>
         </div>
+        <div class="card" id="overviewBlocks"></div>
+        <div class="card" id="overviewHealth">
+          <div class="card-title" style="margin-bottom:14px;">My Health</div>
+          <div id="overviewCycle" style="margin-bottom:10px;"></div>
+          <div id="overviewMeals"></div>
+        </div>
+        <div class="card" id="overviewUpcoming"></div>
       </div>
     </div>
-    <div class="card" id="overviewBlocks"></div>
-    <div class="card" id="overviewHealth">
-      <div class="card-title" style="margin-bottom:14px;">My Health</div>
-      <div id="overviewCycle" style="margin-bottom:10px;"></div>
-      <div id="overviewMeals"></div>
-    </div>
-    <div class="card" id="overviewUpcoming"></div>
   </div>
 
   <!-- PLANNER (was Weekly) -->
@@ -546,12 +560,8 @@ h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.
 
     <!-- 3. Mini month dot row -->
     <div class="card" id="plannerMonthCard">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+      <div style="margin-bottom:14px;">
         <span class="card-title" style="margin-bottom:0;" id="plannerMonthLabel"></span>
-        <div style="display:flex;gap:6px;">
-          <button class="week-arrow" onclick="shiftPlannerMonth(-1)" style="width:28px;height:28px;padding:0;display:flex;align-items:center;justify-content:center;">&#8592;</button>
-          <button class="week-arrow" onclick="shiftPlannerMonth(1)" style="width:28px;height:28px;padding:0;display:flex;align-items:center;justify-content:center;">&#8594;</button>
-        </div>
       </div>
       <div id="plannerMonthDots"></div>
     </div>
@@ -575,7 +585,7 @@ h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.
         <div class="form-group"><label class="form-label">Category</label><select class="form-select" id="psEvCat"><option value="">— none —</option></select></div>
         <div class="form-group"><label class="form-label">Type</label>
           <select class="form-select" id="psEvType" onchange="handlePsEvType()">
-            <option value="event">Event</option><option value="birthday">Birthday</option><option value="social">Social</option><option value="appointment">Appointment</option>
+            <option value="event">Event</option><option value="birthday">Birthday</option>
           </select>
         </div>
         <div class="form-group"><label class="form-label">Date</label><input class="form-input" type="date" id="psEvDate"/></div>
@@ -687,8 +697,6 @@ h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.
               <div id="tHabitStreakGroup" style="display:none">
                 <div class="form-grid" style="margin:0">
                   <div class="form-group"><label class="form-label">Streak target (days)</label><input class="form-input" type="number" id="tHabitStreakTarget" min="1" value="7"/></div>
-                  <div class="form-group"><label class="form-label">Grace period (days)</label><input class="form-input" type="number" id="tHabitStreakGrace" min="0" value="0"/></div>
-                  <div class="form-group"><label class="form-label">Streak freezes</label><input class="form-input" type="number" id="tHabitStreakFreezes" min="0" value="1"/></div>
                 </div>
               </div>
               <!-- Quantity -->
@@ -770,7 +778,7 @@ h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.
         <div class="form-group"><label class="form-label">Category</label><select class="form-select" id="evCat"><option value="">— none —</option></select></div>
         <div class="form-group"><label class="form-label">Type</label>
           <select class="form-select" id="evType" onchange="handleEvType()">
-            <option value="event">Event</option><option value="birthday">Birthday</option><option value="social">Social</option><option value="appointment">Appointment</option>
+            <option value="event">Event</option><option value="birthday">Birthday</option>
           </select>
         </div>
         <div class="form-group"><label class="form-label">Status</label>
@@ -889,6 +897,7 @@ h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.
     <div class="card">
       <div class="tabs" id="listsTabs">
         <button class="tab active" onclick="showListTab('grocery',this)">Grocery</button>
+        <button class="tab" onclick="showListTab('notes',this)">Notes</button>
       </div>
       <!-- GROCERY LIST -->
       <div id="listtab-grocery">
@@ -925,8 +934,15 @@ h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.
           <button class="add-btn" onclick="addGrocItem()">+ Add Item</button>
           <button class="add-btn" onclick="openMultiAdd('grocery')" style="background:none;border:1.5px solid var(--accent);color:var(--accent);margin-top:4px;">+ Additions</button>
         </div>
+      <!-- NOTES TAB -->
+      <div id="listtab-notes" style="display:none;">
+        <div style="display:flex;gap:8px;margin-bottom:14px;align-items:flex-end;">
+          <button onclick="newNote()" style="font-family:'Noto Serif Display',Georgia,serif;font-stretch:extra-condensed;text-transform:uppercase;letter-spacing:.08em;font-size:.85rem;background:var(--accent);color:white;border:none;border-radius:10px;padding:9px 16px;cursor:pointer;white-space:nowrap;">+ New Note</button>
+        </div>
+        <div id="notesList" style="display:flex;flex-direction:column;gap:10px;"></div>
+      </div>
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:8px;">
-          <span id="grocCount" style="font-size:.8rem;color:var(--muted);font-family:'Handwriting',Georgia,serif;"></span>
+          <span id="grocCount" style="font-size:.8rem;color:var(--muted);font-family:'Noto Serif Display',Georgia,serif;font-stretch:extra-condensed;"></span>
           <div style="display:flex;gap:6px;">
             <button class="filter-btn active" id="grocFilterAll" onclick="setGrocFilter('all',this)">All</button>
             <button class="filter-btn" id="grocFilterPending" onclick="setGrocFilter('pending',this)">Needed</button>
@@ -1021,6 +1037,47 @@ h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.
       </div>
 
       <!-- COLOURS ACCORDION (collapsed by default) -->
+      <!-- Netlify Hosting Guide -->
+      <div class="settings-section">
+        <div class="settings-section-title">Enable AI Features</div>
+        <div style="background:var(--bg);border-radius:14px;padding:16px;border:1.5px solid var(--border);font-family:'Noto Serif Display',Georgia,serif;font-stretch:extra-condensed;font-size:.84rem;line-height:1.7;color:var(--text);">
+          <p style="margin-bottom:10px;">The AI list parser requires the app to be served over <strong>https://</strong> rather than opened as a local file. The easiest way is a free one-time upload to Netlify.</p>
+          <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:12px;">
+            <div style="display:flex;gap:10px;align-items:flex-start;">
+              <span style="font-family:'Noto Serif Display',Georgia,serif;font-stretch:extra-condensed;font-size:.9rem;color:var(--accent);min-width:20px;">1.</span>
+              <span>Go to <strong>app.netlify.com/drop</strong> in your browser (works on iPhone Safari too)</span>
+            </div>
+            <div style="display:flex;gap:10px;align-items:flex-start;">
+              <span style="font-family:'Noto Serif Display',Georgia,serif;font-stretch:extra-condensed;font-size:.9rem;color:var(--accent);min-width:20px;">2.</span>
+              <span>Drag this HTML file onto the Netlify page, or tap the upload area and pick the file</span>
+            </div>
+            <div style="display:flex;gap:10px;align-items:flex-start;">
+              <span style="font-family:'Noto Serif Display',Georgia,serif;font-stretch:extra-condensed;font-size:.9rem;color:var(--accent);min-width:20px;">3.</span>
+              <span>Netlify gives you a free URL like <em>random-name.netlify.app</em> — bookmark it</span>
+            </div>
+            <div style="display:flex;gap:10px;align-items:flex-start;">
+              <span style="font-family:'Noto Serif Display',Georgia,serif;font-stretch:extra-condensed;font-size:.9rem;color:var(--accent);min-width:20px;">4.</span>
+              <span>Open that URL on any device — AI parser works, your data stays in that browser's storage</span>
+            </div>
+          </div>
+          <p style="font-size:.78rem;color:var(--muted);">Re-upload the file whenever there's an update. Your stored data stays separate from the file itself — it lives in the browser.</p>
+        </div>
+      </div>
+
+      <!-- Streak Milestones -->
+      <div class="settings-section">
+        <div class="settings-section-title">Streak Milestones</div>
+        <p style="font-size:.82rem;color:var(--muted);font-family:'Noto Serif Display',Georgia,serif;font-stretch:extra-condensed;margin-bottom:12px;">Celebrate these streak lengths with confetti.</p>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;" id="milestoneChips"></div>
+        <div style="display:flex;gap:8px;align-items:flex-end;">
+          <div class="form-group" style="flex:1;max-width:140px;">
+            <label class="form-label">Add milestone (days)</label>
+            <input class="form-input" type="number" id="milestoneInput" min="1" max="3650" placeholder="e.g. 21" onkeydown="if(event.key==='Enter')addMilestone()"/>
+          </div>
+          <button class="apply-btn" onclick="addMilestone()" style="padding:9px 18px;">Add</button>
+        </div>
+      </div>
+
       <div class="settings-accordion">
         <div class="settings-accordion-header" onclick="toggleAccordion('colourAccordion')">
           <span class="settings-accordion-title">Workspace Colours</span>
@@ -1110,7 +1167,7 @@ h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.
     <div class="modal-form">
       <div class="form-group"><label class="form-label">Type</label>
         <select class="form-select" id="mEvType" onchange="handleModalEvType()">
-          <option value="event">Event</option><option value="birthday">Birthday</option><option value="social">Social</option><option value="appointment">Appointment</option>
+          <option value="event">Event</option><option value="birthday">Birthday</option>
         </select>
       </div>
       <div class="form-group"><label class="form-label" id="mEvNameLabel">What's happening?</label><input class="form-input" id="mEvName"/></div>
@@ -1157,6 +1214,8 @@ function newCatId(){return 'CAT-'+String(++catSeq).padStart(4,'0');}
 // ---- STATE ----
 let tasks=[],events=[],waterFilled=0,waterGoal=8,waterWeekOffset=0,meals=[],mealSeq=0,templates=[],templateSeq=0,recipes=[],recipeSeq=0,activeFilter='all',weekOffset=0,modalDate=null,eventsViewDate=null,scheduleViewDate=null;
 let cycleLog=[],cycleSeq=0,cycleMonthOffset=0;
+let notes=[],noteSeq=0;
+function newNoteId(){return 'NOTE-'+String(++noteSeq).padStart(4,'0');}
 function newMealId(){return 'MEAL-'+String(++mealSeq).padStart(4,'0');}
 function newTemplateId(){return 'TPL-'+String(++templateSeq).padStart(4,'0');}
 function newRecipeId(){return 'RCP-'+String(++recipeSeq).padStart(4,'0');}
@@ -1184,8 +1243,8 @@ const THEME_DEFAULTS={'--bg':'#f9f8f6','--card':'#ffffff','--text':'#2c2c2c','--
 const THEME_LABELS={'--bg':'Background','--card':'Card','--text':'Text','--accent':'Accent','--muted':'Muted text','--border':'Borders'};
 const EDITABLE=['--bg','--card','--text','--accent','--muted','--border'];
 const DOW_LABELS=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
-const EV_PROMPTS={birthday:"Whose birthday?",social:"Where are you going?",appointment:"What's the appointment?",event:"What's happening?"};
-const MILESTONES=[7,14,30,50,100,200,365];
+const EV_PROMPTS={birthday:"Whose birthday?",event:"What's happening?"};
+let MILESTONES=[7,30,100,365]; // user-editable, saved to storage
 
 // ---- LOCALSTORAGE ----
 let saveTimer=null;
@@ -1193,6 +1252,8 @@ function scheduleSave(){
   clearTimeout(saveTimer);
   saveTimer=setTimeout(()=>{
     try{
+      localStorage.setItem('centre_notes',JSON.stringify(notes));
+      localStorage.setItem('centre_noteSeq',noteSeq);
       localStorage.setItem('centre_tasks',JSON.stringify(tasks));
       localStorage.setItem('centre_events',JSON.stringify(events));
       localStorage.setItem('centre_categories',JSON.stringify(categories));
@@ -1225,6 +1286,8 @@ function scheduleSave(){
 
 function loadFromStorage(){
   try{
+    const ns=localStorage.getItem('centre_notes');if(ns)notes=JSON.parse(ns);
+    const nss=localStorage.getItem('centre_noteSeq');if(nss)noteSeq=parseInt(nss);
     const t=localStorage.getItem('centre_tasks');if(t)tasks=JSON.parse(t);
     const e=localStorage.getItem('centre_events');if(e)events=JSON.parse(e);
     const c=localStorage.getItem('centre_categories');if(c)categories=JSON.parse(c);
@@ -1287,14 +1350,14 @@ function showPage(p,btn){
   if(pg)pg.classList.add('active');
   const di=document.getElementById('di-'+p);
   if(di)di.classList.add('active');
-  if(p==='overview'){renderOverview();renderOverviewEvents();renderWater();renderOverviewMeals();renderOverviewUpcoming();renderCycleOverview();setTimeout(applyWeatherToSchedule,200);}
+  if(p==='overview'){renderOverview();renderOverviewEvents();renderWater();renderOverviewMeals();renderOverviewUpcoming();renderCycleOverview();setTimeout(applyWeatherToSchedule,200);centreDate=null;updateCentreDateLabel();}
   if(p==='habits'){renderHabitsDashboard();renderWaterHabitCard();}
   if(p==='weekly'){renderPlannerPage();setTimeout(applyWeatherToWeekly,200);}
   if(p==='events')renderEventList();
   if(p==='lists')renderGrocList();
   if(p==='cycle')renderCyclePage();
   if(p==='meals'){document.getElementById('mealFilterDate').value=today();document.getElementById('mealDate').value=today();const mte=document.getElementById('mealType');if(mte)mte.value=smartMealType();renderMealLog();}
-  if(p==='settings'){buildSettings();loadGoogleApiKey();loadGeminiApiKey();renderWater();}
+  if(p==='settings'){buildSettings();loadGoogleApiKey();loadGeminiApiKey();renderWater();renderMilestoneChips();}
 }
 
 function showTab(id,btn){
@@ -1354,7 +1417,7 @@ function getHabitGoal(){
   const type=document.getElementById('tHabitType').value;
   const base={type};
   if(type==='frequency'){base.count=parseInt(document.getElementById('tHabitFreqCount').value)||1;base.period=document.getElementById('tHabitFreqPeriod').value;base.customDays=parseInt(document.getElementById('tHabitFreqCustom').value)||3;}
-  if(type==='streak'){base.target=parseInt(document.getElementById('tHabitStreakTarget').value)||7;base.grace=parseInt(document.getElementById('tHabitStreakGrace').value)||0;base.freezes=parseInt(document.getElementById('tHabitStreakFreezes').value)||1;base.freezesUsed=0;base.bestStreak=0;}
+  if(type==='streak'){base.target=parseInt(document.getElementById('tHabitStreakTarget').value)||7;base.bestStreak=0;}
   if(type==='quantity'){base.target=parseInt(document.getElementById('tHabitQtyTarget').value)||2500;base.unit=document.getElementById('tHabitQtyUnit').value||'units';base.increment=parseInt(document.getElementById('tHabitQtyIncrement').value)||1;}
   if(type==='cumulative'){base.target=parseInt(document.getElementById('tHabitCumTarget').value)||100;base.unit=document.getElementById('tHabitCumUnit').value||'units';base.deadline=document.getElementById('tHabitCumDeadline').value||'';}
   return base;
@@ -1404,8 +1467,13 @@ function getTodayQty(taskId){return getHabitLogToday(taskId).reduce((s,e)=>s+(e.
 function getTodayFreqCount(taskId){return getHabitLogToday(taskId).length;}
 
 function logHabit(taskId,value=1){
+  const _task = tasks.find(t => t.id === taskId);
+  const _prevStreak = _task && _task.habit && _task.habit.type === 'streak' ? getStreak(_task).current : 0;
   habitLog.push({taskId,date:today(),value,ts:Date.now()});
   scheduleSave();
+  if (_task && _task.habit && _task.habit.type === 'streak') {
+    checkStreakMilestones(_task, _prevStreak, getStreak(_task).current);
+  }
   renderOverview();renderTasks();
   if(document.getElementById('page-habits').classList.contains('active'))renderHabitsDashboard();
 }
@@ -1420,7 +1488,7 @@ function unlogHabit(taskId){
 
 function getStreak(task){
   if(!task.habit||task.habit.type!=='streak')return{current:0,best:0};
-  let cur=0,best=task.habit.bestStreak||0,graceDaysLeft=task.habit.grace||0;
+  let cur=0,best=task.habit.bestStreak||0;
   const d=new Date();let checkDate=new Date(d);
   // walk backwards from yesterday (today not yet committed)
   checkDate.setDate(checkDate.getDate()-1);
@@ -1428,7 +1496,6 @@ function getStreak(task){
     const ds=dateStr(checkDate);
     const done=habitLog.some(e=>e.taskId===task.id&&e.date===ds);
     if(done){cur++;}
-    else if(graceDaysLeft>0){graceDaysLeft--;cur++;}
     else{break;}
     checkDate.setDate(checkDate.getDate()-1);
   }
@@ -1460,6 +1527,64 @@ function getCumProgress(task){
 function getMilestones(streak){return MILESTONES.map(m=>({val:m,achieved:streak>=m}));}
 
 // ---- HABIT CARD RENDER ----
+// ---- STREAK CELEBRATION ----
+function celebrateStreak(milestone, habitName) {
+  // Confetti burst
+  const canvas = document.createElement('canvas');
+  canvas.style.cssText = 'position:fixed;inset:0;z-index:9999;pointer-events:none;width:100%;height:100%;';
+  document.body.appendChild(canvas);
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  const ctx = canvas.getContext('2d');
+
+  const COLORS = ['var(--accent)', '#f4d03f', '#e8a0bf', '#a0d4b0', '#d4a0b0'];
+  const HEX_COLORS = ['#93aacd','#f4d03f','#e8a0bf','#a0d4b0','#d4a0b0','#f0c060'];
+  const pieces = Array.from({length: 90}, () => ({
+    x: Math.random() * canvas.width,
+    y: -10 - Math.random() * 80,
+    r: 3 + Math.random() * 5,
+    color: HEX_COLORS[Math.floor(Math.random() * HEX_COLORS.length)],
+    vx: (Math.random() - 0.5) * 4,
+    vy: 2 + Math.random() * 4,
+    rot: Math.random() * Math.PI * 2,
+    vr: (Math.random() - 0.5) * 0.2,
+    shape: Math.random() > 0.5 ? 'rect' : 'circle',
+    w: 6 + Math.random() * 8,
+    h: 3 + Math.random() * 5
+  }));
+
+  let frame = 0;
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    pieces.forEach(p => {
+      p.x += p.vx; p.y += p.vy; p.rot += p.vr; p.vy += 0.08;
+      const alpha = Math.max(0, 1 - frame / 140);
+      ctx.save(); ctx.globalAlpha = alpha;
+      ctx.translate(p.x, p.y); ctx.rotate(p.rot);
+      ctx.fillStyle = p.color;
+      if (p.shape === 'circle') { ctx.beginPath(); ctx.arc(0,0,p.r,0,Math.PI*2); ctx.fill(); }
+      else { ctx.fillRect(-p.w/2, -p.h/2, p.w, p.h); }
+      ctx.restore();
+    });
+    frame++;
+    if (frame < 160) requestAnimationFrame(draw);
+    else canvas.remove();
+  }
+  draw();
+
+  // Toast message
+  showToast(`🎉 ${milestone}-day streak — ${escHtml(habitName)}!`, 3500);
+}
+
+function checkStreakMilestones(task, prevStreak, newStreak) {
+  if (!task.habit || task.habit.type !== 'streak') return;
+  MILESTONES.forEach(m => {
+    if (prevStreak < m && newStreak >= m) {
+      celebrateStreak(m, task.name);
+    }
+  });
+}
+
 function renderHabits(){
   const hts=habitTasks();
   const container=document.getElementById('habitCards');
@@ -1515,10 +1640,8 @@ function renderHabits(){
         </div>
         <div class="milestones">${ms.map(m=>`<span class="milestone ${m.achieved?'achieved':''}">${m.val}d</span>`).join('')}</div>`;
       const todayLogged=habitLog.some(e=>e.taskId===t.id&&e.date===today());
-      const freezeLeft=(g.freezes||0)-(g.freezesUsed||0);
       actionsHtml=`
-        <button class="habit-action-btn ${todayLogged?'':'primary'}" onclick="${todayLogged?`unlogHabit('${t.id}')`:`logHabit('${t.id}')`}">${todayLogged?'Undo':'Done today'}</button>
-        ${freezeLeft>0?`<button class="habit-action-btn" onclick="useFreeze('${t.id}')" title="Protect streak without completing">Freeze (${freezeLeft})</button>`:''}`;
+        <button class="habit-action-btn ${todayLogged?'':'primary'}" onclick="${todayLogged?`unlogHabit('${t.id}')`:`logHabit('${t.id}')`}">${todayLogged?'Undo':'Done today'}</button>`;
     }
 
     if(g.type==='cumulative'){
@@ -1690,7 +1813,7 @@ function renderEventList(){
           <button class="delete-btn" onclick="deleteEvent('${ev.id}')">×</button>
         </div>
         <div class="item-meta" style="margin-top:4px">
-          <span class="meta-tag" style="background:var(--bg);color:var(--muted);border:1px solid var(--border)">${ev.type}</span>
+          ${ev.type && ev.type !== 'event' ? `<span class="meta-tag" style="background:var(--bg);color:var(--muted);border:1px solid var(--border)">${ev.type}</span>` : ''}
           ${cat?`<span class="meta-tag" style="background:${cat.color};color:white">${escHtml(cat.name)}</span>`:''}
           ${nextDate?`<span class="meta-tag meta-due ${dueClass(nextDate)}">${formatDate(nextDate)}</span>`:''}
           ${ev.time?`<span class="meta-tag" style="background:#f0f0f0;color:var(--muted)">${fmtTimeStr(ev.time)}${ev.timeEnd?' – '+fmtTimeStr(ev.timeEnd):''}</span>`:''}
@@ -1821,61 +1944,78 @@ function savePlannerEvent() {
   showToast('Event added');
 }
 
-function shiftPlannerMonth(dir) {
-  plannerMonthOffset += dir;
-  renderPlannerMonthDots();
-}
-
 function renderPlannerMonthDots() {
   const t = today();
-  const base = new Date(t + 'T00:00:00');
-  base.setDate(1);
-  base.setMonth(base.getMonth() + plannerMonthOffset);
-  const year = base.getFullYear(), month = base.getMonth();
+  const now = new Date(t + 'T00:00:00');
+  const year = now.getFullYear(), month = now.getMonth();
   const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const firstDay = new Date(year, month, 1).getDay(); // 0=Sun
+  // Convert to Mon-first offset (0=Mon … 6=Sun)
+  const startOffset = (firstDay + 6) % 7;
 
-  document.getElementById('plannerMonthLabel').textContent =
-    base.toLocaleDateString('en-AU', { month: 'long', year: 'numeric' });
+  const labelEl = document.getElementById('plannerMonthLabel');
+  if (labelEl) labelEl.textContent = now.toLocaleDateString('en-AU', { month: 'long', year: 'numeric' });
 
-  const dots = [];
-  for (let d = 1; d <= daysInMonth; d++) {
+  const DAY_NAMES = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  const accentRgb = (() => {
+    const hex = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim();
+    if (!hex || hex.startsWith('rgb')) return '147,170,205';
+    const h = hex.replace('#','');
+    return [parseInt(h.slice(0,2),16),parseInt(h.slice(2,4),16),parseInt(h.slice(4,6),16)].join(',');
+  })();
+
+  // Build array of cells: nulls for offset, then day numbers
+  const cells = Array(startOffset).fill(null);
+  for (let d = 1; d <= daysInMonth; d++) cells.push(d);
+  // Pad to complete last row
+  while (cells.length % 7 !== 0) cells.push(null);
+
+  // Header row
+  const headerRow = DAY_NAMES.map(n =>
+    `<div style="text-align:center;font-family:'Noto Serif Display',Georgia,serif;font-stretch:extra-condensed;text-transform:uppercase;letter-spacing:.08em;font-size:.6rem;color:var(--muted);padding:0 0 6px;">${n}</div>`
+  ).join('');
+
+  // Day cells
+  const cellHtml = cells.map(d => {
+    if (!d) return `<div></div>`;
     const ds = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
     const isToday = ds === t;
     const isPast = ds < t;
-
-    // Check events on this day
     const dayEvs = events.filter(ev => occursOn(ev, ds));
+    const count = dayEvs.length;
 
-    // Check cycle phase
-    const phaseInfo = getCycleDayInfo(ds);
-    const phaseColor = phaseInfo ? getPhaseConfig(phaseInfo.phase).color : null;
+    // Background ring for today
+    const todayStyle = isToday
+      ? `background:var(--accent);color:white;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;margin:0 auto;`
+      : `display:flex;align-items:center;justify-content:center;width:22px;height:22px;margin:0 auto;`;
 
-    // Dot colour priority: event > phase > default
-    let dotColor = 'var(--border)';
-    let dotSize = 7;
-    if (dayEvs.length) {
-      const cat = dayEvs[0].catId ? categories.find(c => c.id === dayEvs[0].catId) : null;
-      dotColor = cat ? cat.color : 'var(--accent)';
-      dotSize = 9;
-    } else if (phaseColor) {
-      dotColor = phaseColor;
-    }
+    const numColor = isToday ? '' : isPast ? 'color:var(--muted);' : 'color:var(--text);';
+    const numOpacity = isPast && !isToday ? 'opacity:.55;' : '';
 
-    const opacity = isPast && !isToday ? '0.45' : '1';
-    const ring = isToday ? `box-shadow:0 0 0 2px ${dotColor};` : '';
-    const label = d;
+    // Single filled circle, opacity by event density
+    const maxEvCount = Math.max(1, ...Array.from({length:daysInMonth},(_,di)=>{
+      const dds=`${year}-${String(month+1).padStart(2,'0')}-${String(di+1).padStart(2,'0')}`;
+      return events.filter(ev=>occursOn(ev,dds)).length;
+    }));
+    const dotOpacity = count === 0 ? 0.1 : 0.18 + (count/maxEvCount)*0.72;
+    const dotFade = isPast && !isToday ? dotOpacity*0.55 : dotOpacity;
+    const dots = `<div style="width:6px;height:6px;border-radius:50%;background:var(--accent);opacity:${dotFade.toFixed(2)};margin:3px auto 0;flex-shrink:0;"></div>`;
 
-    dots.push(
-      `<div style="display:flex;flex-direction:column;align-items:center;gap:3px;cursor:default;" title="${ds}${dayEvs.length ? ': ' + dayEvs.map(e=>e.name).join(', ') : ''}">` +
-      `<div style="width:${dotSize}px;height:${dotSize}px;border-radius:50%;background:${dotColor};opacity:${opacity};${ring}flex-shrink:0;transition:all .2s;"></div>` +
-      `<div style="font-size:.52rem;color:${isToday ? 'var(--accent)' : 'var(--muted)'};font-weight:${isToday ? '600' : 'normal'};line-height:1;">${label}</div>` +
-      `</div>`
-    );
-  }
+    const evTitles = dayEvs.map(e=>e.name).join(', ');
+    return `<div style="text-align:center;padding:2px 0;${numOpacity}" title="${ds}${evTitles?': '+evTitles:''}">
+      <div style="${todayStyle}${numColor}font-family:'Noto Serif Display',Georgia,serif;font-stretch:extra-condensed;font-size:.72rem;line-height:1;">${d}</div>
+      ${dots}
+    </div>`;
+  }).join('');
 
-  document.getElementById('plannerMonthDots').innerHTML =
-    `<div style="display:flex;flex-wrap:wrap;gap:4px 2px;align-items:flex-end;">${dots.join('')}</div>`;
+  const dotsEl = document.getElementById('plannerMonthDots');
+  if (dotsEl) dotsEl.innerHTML =
+    `<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px 0;">
+      ${headerRow}
+      ${cellHtml}
+    </div>`;
 }
+
 
 function renderPlannerEventList() {
   const list = document.getElementById('plannerEventList');
@@ -1896,7 +2036,7 @@ function renderPlannerEventList() {
       <div class="item-info">
         <div style="display:flex;align-items:center;gap:8px"><div class="item-name" style="flex:1">${escHtml(ev.name)}</div><button class="delete-btn" onclick="deleteEvent('${ev.id}');renderPlannerEventList()">×</button></div>
         <div class="item-meta" style="margin-top:4px">
-          <span class="meta-tag" style="background:var(--bg);color:var(--muted);border:1px solid var(--border)">${ev.type}</span>
+          ${ev.type && ev.type !== 'event' ? `<span class="meta-tag" style="background:var(--bg);color:var(--muted);border:1px solid var(--border)">${ev.type}</span>` : ''}
           ${cat ? `<span class="meta-tag" style="background:${cat.color};color:white">${escHtml(cat.name)}</span>` : ''}
           ${nextDate ? `<span class="meta-tag meta-due ${dueClass(nextDate)}">${formatDate(nextDate)}</span>` : ''}
           ${ev.time ? `<span class="meta-tag" style="background:#f0f0f0;color:var(--muted)">${fmtTimeStr(ev.time)}</span>` : ''}
@@ -2012,24 +2152,14 @@ function evEmoji(ev,color){
   return '';
 }
 function renderOverviewEvents(){
-  const viewDate=eventsViewDate||today();
+  const viewDate=getCentreDate();
   const isToday=viewDate===today();
-  const prevDate=addDays(viewDate,-1);
-  const nextDate2=addDays(viewDate,1);
-  const labelStr=isToday?'Today':formatDate(viewDate);
-  // Exclude timed events — they already appear in the schedule blocks
   const todayEvs=events.filter(ev=>occursOn(ev,viewDate)&&!ev.time).sort((a,b)=>(a.name||'').localeCompare(b.name||''));
   const container=document.getElementById('overviewEvents');
-  const header=`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:${todayEvs.length?'14px':'6px'}">
+  const header=`<div style="display:flex;align-items:center;margin-bottom:${todayEvs.length?'14px':'6px'}">
     <span class="card-title" style="margin-bottom:0">Events</span>
-    <div style="display:flex;align-items:center;gap:5px;">
-      <button onclick="evNav('${prevDate}')" style="background:none;border:1.5px solid var(--border);border-radius:8px;padding:3px 9px;cursor:pointer;color:var(--muted);font-size:.82rem;line-height:1;">←</button>
-      <span style="font-size:.76rem;color:${isToday?'var(--accent)':'var(--muted)'};min-width:54px;text-align:center;">${labelStr}</span>
-      <button onclick="evNav('${nextDate2}')" style="background:none;border:1.5px solid var(--border);border-radius:8px;padding:3px 9px;cursor:pointer;color:var(--muted);font-size:.82rem;line-height:1;">→</button>
-      ${!isToday?`<button onclick="evNav(null)" style="background:none;border:1.5px solid var(--accent);border-radius:8px;padding:2px 8px;cursor:pointer;color:var(--accent);font-size:.68rem;">Today</button>`:''}
-    </div>
   </div>`;
-  if(!todayEvs.length){container.innerHTML=header+`<p class="no-events">No events${isToday?' today':' on this day'}.</p>`;return;}
+  if(!todayEvs.length){container.innerHTML=header+`<p class="no-events">No events${isToday?' today':' this day'}.</p>`;return;}
   container.innerHTML=header+`<div class="events-strip">
     ${todayEvs.map(ev=>{
       const cat=categories.find(c=>c.id===ev.catId);
@@ -2043,13 +2173,7 @@ function renderOverviewEvents(){
     }).join('')}
   </div>`;
 }
-// Note-to-block hint mapping
-const NOTE_HINTS={
-  'before bed':'winddown','bedtime':'winddown','wind down':'winddown','evening':'winddown','night':'winddown','after dinner':'winddown',
-  'morning':'morning','after breakfast':'morning','wake up':'sunrise','early morning':'sunrise','sunrise':'sunrise',
-  'lunch':'service','after lunch':'closing','midday':'service','afternoon':'closing','after work':'closing','closing':'closing',
-  'dinner':'winddown','before sleep':'winddown','at night':'winddown'
-};
+
 function noteBlockHint(notes){
   if(!notes)return null;
   const n=notes.toLowerCase();
@@ -2097,6 +2221,106 @@ function assignBlocks(tl, viewDate){
 }
 function fmtTime(m){const h=Math.floor(m/60),mn=m%60,ap=h>=12?'pm':'am',h12=h>12?h-12:h===0?12:h;return `${h12}${mn?':'+String(mn).padStart(2,'0'):''}${ap}`;}
 function timeToMins(t){if(!t)return 0;const[h,m]=t.split(':').map(Number);return h*60+(m||0);}
+// ---- CENTRE DATE NAV ----
+let centreDate = null; // null = today
+
+function getCentreDate() { return centreDate || today(); }
+
+function shiftCentreDate(dir) {
+  const cur = getCentreDate();
+  const d = new Date(cur + 'T00:00:00');
+  d.setDate(d.getDate() + dir);
+  const ds = dateStr(d);
+  // Don't go more than 14 days in future or 60 days in past
+  const t = today();
+  const diff = Math.round((d - new Date(t + 'T00:00:00')) / 86400000);
+  if (diff > 14 || diff < -60) return;
+  centreDate = ds === t ? null : ds;
+  animateCentreCards(dir);
+  renderAllOverviewForDate();
+}
+
+function resetCentreDate() {
+  if (centreDate === null) return;
+  const prev = centreDate < today() ? 1 : -1;
+  centreDate = null;
+  animateCentreCards(prev);
+  renderAllOverviewForDate();
+}
+
+function animateCentreCards(dir) {
+  const stack = document.getElementById('centreCardStack');
+  if (!stack) return;
+  // Slide out in direction, then snap back and fade in
+  const outX = dir > 0 ? '-40px' : '40px';
+  stack.style.transition = 'none';
+  stack.style.opacity = '0';
+  stack.style.transform = `translateX(${outX})`;
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    stack.style.transition = 'opacity .22s, transform .22s';
+    stack.style.opacity = '1';
+    stack.style.transform = 'translateX(0)';
+  }));
+}
+
+function updateCentreDateLabel() {
+  const el = document.getElementById('centreDateLabel');
+  if (!el) return;
+  const ds = getCentreDate();
+  const t = today();
+  if (ds === t) el.textContent = 'Today';
+  else if (ds === addDays(t, 1)) el.textContent = 'Tomorrow';
+  else if (ds === addDays(t, -1)) el.textContent = 'Yesterday';
+  else el.textContent = new Date(ds + 'T00:00:00').toLocaleDateString('en-AU', { weekday:'short', day:'numeric', month:'short' }).toUpperCase();
+  // Dim prev button if at limit
+  const diff = Math.round((new Date(ds+'T00:00:00') - new Date(t+'T00:00:00')) / 86400000);
+  const prev = document.getElementById('centrePrevBtn');
+  const next = document.getElementById('centreNextBtn');
+  if (prev) prev.style.opacity = diff <= -60 ? '.3' : '1';
+  if (next) next.style.opacity = diff >= 14 ? '.3' : '1';
+}
+
+function renderAllOverviewForDate() {
+  updateCentreDateLabel();
+  const ds = getCentreDate();
+  scheduleViewDate = ds === today() ? null : ds;
+  eventsViewDate   = ds === today() ? null : ds;
+  renderOverview();
+  renderOverviewEvents();
+  renderWater();
+  renderOverviewMeals();
+  renderOverviewUpcoming();
+  renderCycleOverview();
+}
+
+function initCentreSwipe() {
+  const wrap = document.getElementById('centreSwipeWrap');
+  if (!wrap) return;
+  let startX = 0, startY = 0, tracking = false;
+
+  function onStart(x, y) { startX = x; startY = y; tracking = true; }
+  function onMove(x, y) {
+    if (!tracking) return;
+    if (Math.abs(y - startY) > Math.abs(x - startX) * 1.4) { tracking = false; }
+  }
+  function onEnd(x) {
+    if (!tracking) return;
+    tracking = false;
+    const dx = x - startX;
+    if (Math.abs(dx) < 45) return;
+    shiftCentreDate(dx < 0 ? 1 : -1);
+  }
+
+  wrap.addEventListener('touchstart', e => { const t = e.touches[0]; onStart(t.clientX, t.clientY); }, { passive: true });
+  wrap.addEventListener('touchmove',  e => { const t = e.touches[0]; onMove(t.clientX, t.clientY); }, { passive: true });
+  wrap.addEventListener('touchend',   e => { const t = e.changedTouches[0]; onEnd(t.clientX); }, { passive: true });
+  wrap.addEventListener('mousedown',  e => onStart(e.clientX, e.clientY));
+  wrap.addEventListener('mousemove',  e => { if (e.buttons) onMove(e.clientX, e.clientY); });
+  wrap.addEventListener('mouseup',    e => onEnd(e.clientX));
+  wrap.addEventListener('mouseleave', e => { tracking = false; });
+}
+
+
 function renderOverview(){
   const vd=scheduleViewDate||today();
   const isToday=vd===today();
@@ -2109,16 +2333,7 @@ function renderOverview(){
   // Timed events for this view date (shown inside block stripes only)
   const timedEvs=events.filter(ev=>occursOn(ev,vd)&&ev.time).sort((a,b)=>a.time.localeCompare(b.time));
 
-  const header=`<div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:18px">
-    <span class="card-title" style="margin-bottom:0">Schedule</span>
-    <div style="display:flex;align-items:center;gap:5px;">
-      <button onclick="schedNav('${prevD}')" style="background:none;border:1.5px solid var(--border);border-radius:8px;padding:3px 9px;cursor:pointer;color:var(--muted);font-size:.82rem;line-height:1;">←</button>
-      <span style="font-size:.76rem;color:${isToday?'var(--accent)':'var(--muted)'};min-width:54px;text-align:center;">${labelStr}</span>
-      <button onclick="schedNav('${nextD}')" style="background:none;border:1.5px solid var(--border);border-radius:8px;padding:3px 9px;cursor:pointer;color:var(--muted);font-size:.82rem;line-height:1;">→</button>
-      ${!isToday?`<button onclick="schedNav(null)" style="background:none;border:1.5px solid var(--accent);border-radius:8px;padding:2px 8px;cursor:pointer;color:var(--accent);font-size:.68rem;">Today</button>`:''}
-      ${isToday?`<span id="liveClock" style="font-size:.76rem;color:var(--muted);min-width:58px;text-align:right;"></span>`:'<span style="min-width:58px;"></span>'}
-    </div>
-  </div>`;
+  const header=`<div style="display:flex;align-items:center;margin-bottom:18px"><span class="card-title" style="margin-bottom:0">Schedule</span></div>`;
 
   container.innerHTML=header+TIME_BLOCKS.map(b=>{
     const items=asgn[b.id]||[];
@@ -2182,14 +2397,80 @@ function renderWater(){
   const totalMl=goal*250;
   const filledMl=waterFilled*250;
   const pct=goal>0?Math.round(waterFilled/goal*100):0;
+  // Settings labels
   const sv=document.getElementById('settingsWaterGoalVal');if(sv)sv.textContent=goal;
   const sm=document.getElementById('settingsWaterMl');if(sm)sm.textContent=totalMl.toLocaleString()+' ml';
+  // Centre card labels (always show today's data for header)
   const gl=document.getElementById('waterGoalLabel');if(gl)gl.textContent=`${filledMl.toLocaleString()} / ${totalMl.toLocaleString()} ml`;
   const wml=document.getElementById('waterMl');if(wml)wml.textContent=`${filledMl.toLocaleString()} ml today`;
   const wp=document.getElementById('waterPct');if(wp)wp.textContent=pct>0?`${pct}%`:'';
+
   const row=document.getElementById('waterCupsRow');if(!row)return;
-  row.innerHTML=Array.from({length:goal},(_,i)=>`<div class="water-bar ${i<waterFilled?'filled':''}" onclick="tapWater(${i})" title="${(i+1)*250} ml"><div class="wfill"></div></div>`).join('');
+
+  const viewDate = getCentreDate();
+  const isToday = viewDate === today();
+
+  if(isToday){
+    // Normal cup tap row
+    row.innerHTML=Array.from({length:goal},(_,i)=>`<div class="water-bar ${i<waterFilled?'filled':''}" onclick="tapWater(${i})" title="${(i+1)*250} ml" style="max-width:18px;"><div class="wfill"></div></div>`).join('');
+  } else {
+    // Past day: show editable ml input + current logged amount
+    const history=getWaterHistoryByDate();
+    const pastMl=history[viewDate]||0;
+    const pastCups=Math.round(pastMl/250);
+    const dayLabel=new Date(viewDate+'T00:00:00').toLocaleDateString('en-AU',{weekday:'short',day:'numeric',month:'short'});
+    // Show readonly cup fill + edit button
+    row.innerHTML=`
+      <div style="display:flex;flex-direction:column;gap:10px;width:100%;">
+        <div style="display:flex;gap:3px;align-items:flex-end;">
+          ${Array.from({length:goal},(_,i)=>`<div class="water-bar ${i<pastCups?'filled':''}" style="max-width:18px;pointer-events:none;opacity:.7;"><div class="wfill"></div></div>`).join('')}
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+          <span style="font-size:.78rem;color:var(--muted);font-family:'Noto Serif Display',Georgia,serif;font-stretch:extra-condensed;">${dayLabel}: ${pastMl.toLocaleString()} ml</span>
+          <button onclick="openWaterPastEdit('${viewDate}')" style="font-family:'Noto Serif Display',Georgia,serif;font-stretch:extra-condensed;font-size:.75rem;background:none;border:1.5px solid var(--accent);border-radius:8px;padding:3px 10px;color:var(--accent);cursor:pointer;">Edit</button>
+        </div>
+      </div>`;
+  }
 }
+
+function openWaterPastEdit(ds){
+  // Remove any existing popup
+  const existing=document.getElementById('waterCentreEditPop');if(existing)existing.remove();
+  const history=getWaterHistoryByDate();
+  const curMl=history[ds]||0;
+  const dayLabel=new Date(ds+'T00:00:00').toLocaleDateString('en-AU',{weekday:'long',day:'numeric',month:'short'});
+  const pop=document.createElement('div');
+  pop.id='waterCentreEditPop';
+  pop.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.2);z-index:200;display:flex;align-items:center;justify-content:center;padding:20px;';
+  pop.innerHTML=`<div style="background:var(--card);border-radius:16px;padding:24px;max-width:320px;width:100%;box-shadow:0 8px 32px rgba(0,0,0,.12);">
+    <div style="font-family:'Noto Serif Display',Georgia,serif;font-stretch:extra-condensed;text-transform:uppercase;letter-spacing:.1em;font-size:1rem;margin-bottom:4px;">Edit Water</div>
+    <div style="font-size:.78rem;color:var(--muted);margin-bottom:16px;">${dayLabel}</div>
+    <div style="display:flex;flex-direction:column;gap:8px;">
+      <label style="font-size:.68rem;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);">Total intake (ml)</label>
+      <input id="waterCentreEditInput" type="number" min="0" max="10000" step="50" value="${curMl}" style="font-family:'Noto Serif Display',Georgia,serif;font-stretch:extra-condensed;font-size:1.1rem;border:1.5px solid var(--border);border-radius:10px;padding:9px 12px;width:100%;outline:none;background:var(--bg);color:var(--text);" onkeydown="if(event.key==='Enter')saveWaterCentreEdit('${ds}');if(event.key==='Escape')document.getElementById('waterCentreEditPop').remove();" />
+    </div>
+    <div style="display:flex;gap:8px;margin-top:16px;">
+      <button onclick="document.getElementById('waterCentreEditPop').remove()" style="font-family:'Noto Serif Display',Georgia,serif;font-stretch:extra-condensed;font-size:.88rem;background:none;border:1.5px solid var(--border);border-radius:10px;padding:9px 16px;cursor:pointer;color:var(--muted);">Cancel</button>
+      <button onclick="saveWaterCentreEdit('${ds}')" style="font-family:'Noto Serif Display',Georgia,serif;font-stretch:extra-condensed;text-transform:uppercase;letter-spacing:.08em;font-size:.88rem;background:var(--accent);color:white;border:none;border-radius:10px;padding:9px 20px;cursor:pointer;flex:1;">Save</button>
+    </div>
+  </div>`;
+  pop.addEventListener('click',e=>{if(e.target===pop)pop.remove();});
+  document.body.appendChild(pop);
+  setTimeout(()=>document.getElementById('waterCentreEditInput')?.focus(),50);
+}
+
+function saveWaterCentreEdit(ds){
+  const inp=document.getElementById('waterCentreEditInput');if(!inp)return;
+  const newMl=Math.max(0,parseInt(inp.value)||0);
+  habitLog=habitLog.filter(e=>!(e.taskId===WATER_HABIT_ID&&e.date===ds));
+  if(newMl>0)habitLog.push({taskId:WATER_HABIT_ID,date:ds,value:newMl,ts:Date.now(),manual:true});
+  document.getElementById('waterCentreEditPop')?.remove();
+  scheduleSave();
+  renderWater();
+  renderWaterHabitCard();
+  showToast('Water updated for '+new Date(ds+'T00:00:00').toLocaleDateString('en-AU',{day:'numeric',month:'short'}));
+}
+
 function tapWater(i){
   const prev = waterFilled;
   if(i<waterFilled){ waterFilled=i; }
@@ -2257,7 +2538,7 @@ function renderMealLog(){
 }
 function renderOverviewMeals(){
   const container=document.getElementById('overviewMeals');if(!container)return;
-  const todayMeals=meals.filter(m=>m.date===today());
+  const todayMeals=meals.filter(m=>m.date===getCentreDate());
   const MEAL_ORDER=['breakfast','lunch','dinner','snack'];
   const sorted=[...todayMeals].sort((a,b)=>MEAL_ORDER.indexOf(a.type)-MEAL_ORDER.indexOf(b.type));
   if(!todayMeals.length){container.innerHTML=`<p class="no-events" style="margin-top:2px;font-size:.82rem;">No meals logged today.</p>`;return;}
@@ -2327,7 +2608,7 @@ function renderRecipeList(){
         </div>
       </div>
       <div id="rcpDetail-${r.id}" style="display:none;padding:12px 14px;border-top:1px solid var(--border);background:var(--card);">
-        ${r.ingredients?`<div style="margin-bottom:10px;"><div class="form-label" style="margin-bottom:4px;">Ingredients</div><div style="font-size:.82rem;white-space:pre-line;line-height:1.7;">${escHtml(r.ingredients)}</div></div>`:''}
+        ${r.ingredients?`<div style="margin-bottom:10px;"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;"><span class="form-label" style="margin:0;">Ingredients</span><button onclick="addRecipeIngredientsToGrocery('${r.id}')" style="font-size:.72rem;background:none;border:1.5px solid var(--accent);border-radius:8px;padding:3px 10px;color:var(--accent);cursor:pointer;white-space:nowrap;">+ Add to grocery</button></div><div style="font-size:.82rem;white-space:pre-line;line-height:1.7;">${escHtml(r.ingredients)}</div></div>`:''}
         ${r.method?`<div><div class="form-label" style="margin-bottom:4px;">Method</div><div style="font-size:.82rem;white-space:pre-line;line-height:1.7;">${escHtml(r.method)}</div></div>`:''}
         <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px;padding-top:10px;border-top:1px solid var(--border);">
           ${r.cal?`<div class="nut-item"><div class="nut-val">${r.cal}</div><div class="nut-lbl">kcal</div></div>`:''}
@@ -2544,6 +2825,29 @@ function makeColourSwatch(v, label) {
   return `<div class="setting-item"><label class="setting-label">${label}</label><div class="setting-row"><input class="hex-input" id="hex${v}" value="${cur}" placeholder="#ffffff" oninput="syncSwatch('${v}')"><div class="setting-swatch"><input type="color" id="swatch${v}" value="${cur}" oninput="syncHex('${v}')"></div></div></div>`;
 }
 
+function loadMilestones(){
+  const saved=localStorage.getItem('centre_milestones');
+  if(saved){try{const m=JSON.parse(saved);if(Array.isArray(m)&&m.length)MILESTONES=m;}catch(e){}}
+}
+function saveMilestones(){
+  localStorage.setItem('centre_milestones',JSON.stringify(MILESTONES));
+}
+function renderMilestoneChips(){
+  const el=document.getElementById('milestoneChips');if(!el)return;
+  const sorted=[...MILESTONES].sort((a,b)=>a-b);
+  el.innerHTML=sorted.map(m=>`<span style="display:inline-flex;align-items:center;gap:4px;background:var(--accent);color:white;border-radius:20px;padding:3px 10px 3px 12px;font-family:'Noto Serif Display',Georgia,serif;font-stretch:extra-condensed;font-size:.8rem;">${m}d<button onclick="removeMilestone(${m})" style="background:none;border:none;color:rgba(255,255,255,.8);cursor:pointer;font-size:1rem;line-height:1;padding:0 2px;">×</button></span>`).join('');
+}
+function addMilestone(){
+  const inp=document.getElementById('milestoneInput');
+  const val=parseInt(inp.value);
+  if(!val||val<1||val>3650){inp.focus();return;}
+  if(!MILESTONES.includes(val)){MILESTONES.push(val);saveMilestones();renderMilestoneChips();}
+  inp.value='';inp.focus();
+}
+function removeMilestone(val){
+  MILESTONES=MILESTONES.filter(m=>m!==val);
+  saveMilestones();renderMilestoneChips();
+}
 function buildSettings(){
   const sg = document.getElementById('settingsGrid');
   if (sg) sg.innerHTML = EDITABLE.map(v => makeColourSwatch(v, THEME_LABELS[v])).join('');
@@ -2553,7 +2857,13 @@ function buildSettings(){
 function syncSwatch(v){const h=document.getElementById('hex'+v).value;if(/^#[0-9a-fA-F]{6}$/.test(h))document.getElementById('swatch'+v).value=h;}
 function syncHex(v){document.getElementById('hex'+v).value=document.getElementById('swatch'+v).value;}
 function applyTheme(){
-  EDITABLE.forEach(v=>{const hex=document.getElementById('hex'+v)?.value.trim();if(hex&&/^#[0-9a-fA-F]{3,6}$/.test(hex)){document.documentElement.style.setProperty(v,hex);if(v==='--accent')document.documentElement.style.setProperty('--accent-dark',darken(hex,15));}});
+  EDITABLE.forEach(v=>{const hex=document.getElementById('hex'+v)?.value.trim();if(hex&&/^#[0-9a-fA-F]{3,6}$/.test(hex)){document.documentElement.style.setProperty(v,hex);if(v==='--accent'){
+      document.documentElement.style.setProperty('--accent-dark',darken(hex,15));
+      // Update water colours to match new accent
+      const r=parseInt(hex.slice(1,3),16),g2=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);
+      document.documentElement.style.setProperty('--water-light',`rgba(${r},${g2},${b},.13)`);
+      document.documentElement.style.setProperty('--water-border',`rgba(${r},${g2},${b},.25)`);
+    }}});
   PHASE_VARS.forEach(v=>{const hex=document.getElementById('hex'+v)?.value.trim();if(hex&&/^#[0-9a-fA-F]{6}$/.test(hex))document.documentElement.style.setProperty(v,hex);});
   scheduleSave();
   if(document.getElementById('page-cycle')?.classList.contains('active')) renderCyclePage();
@@ -2723,6 +3033,99 @@ function importExcel(input){
   };
   reader.onerror=function(){fb.textContent='Could not read file.';};
   reader.readAsArrayBuffer(file);
+}
+
+// ---- NOTES ----
+function newNote() {
+  const id = newNoteId();
+  notes.unshift({ id, title: '', body: '', created: Date.now(), updated: Date.now() });
+  scheduleSave();
+  renderNotes();
+  // Focus the title of the new note
+  setTimeout(() => {
+    const el = document.getElementById('note-title-' + id);
+    if (el) el.focus();
+  }, 50);
+}
+
+function deleteNote(id) {
+  if (!confirm('Delete this note?')) return;
+  notes = notes.filter(n => n.id !== id);
+  scheduleSave();
+  renderNotes();
+}
+
+function saveNoteField(id, field, val) {
+  const n = notes.find(n => n.id === id);
+  if (!n) return;
+  n[field] = val;
+  n.updated = Date.now();
+  scheduleSave();
+}
+
+function renderNotes() {
+  const el = document.getElementById('notesList');
+  if (!el) return;
+  if (!notes.length) {
+    el.innerHTML = '<div class="empty-msg">No notes yet. Tap + New Note to start.</div>';
+    return;
+  }
+  el.innerHTML = notes.map(n => {
+    const dateStr2 = new Date(n.updated).toLocaleDateString('en-AU', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+    return `<div style="background:var(--bg);border-radius:14px;padding:16px 18px;border:1.5px solid var(--border);transition:border-color .2s;" onmouseenter="this.style.borderColor='var(--accent)'" onmouseleave="this.style.borderColor='var(--border)'">
+      <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:10px;">
+        <input
+          id="note-title-${n.id}"
+          class="form-input"
+          placeholder="Title"
+          value="${escHtml(n.title)}"
+          oninput="saveNoteField('${n.id}','title',this.value)"
+          style="font-family:'Noto Serif Display',Georgia,serif;font-stretch:extra-condensed;text-transform:uppercase;letter-spacing:.08em;font-size:1rem;border:none;background:transparent;padding:0;flex:1;outline:none;"
+        />
+        <button onclick="deleteNote('${n.id}')" style="background:none;border:none;color:#ccc;font-size:1.1rem;cursor:pointer;padding:0 2px;flex-shrink:0;line-height:1;" title="Delete note">×</button>
+      </div>
+      <textarea
+        id="note-body-${n.id}"
+        placeholder="Start writing…"
+        oninput="saveNoteField('${n.id}','body',this.value);autoResizeTextarea(this)"
+        style="font-family:'Noto Serif Display',Georgia,serif;font-stretch:extra-condensed;font-size:.9rem;width:100%;border:none;background:transparent;resize:none;outline:none;color:var(--text);line-height:1.6;min-height:60px;overflow:hidden;"
+      >${escHtml(n.body)}</textarea>
+      <div style="font-size:.65rem;color:var(--muted);margin-top:8px;font-family:'Noto Serif Display',Georgia,serif;font-stretch:extra-condensed;">${dateStr2}</div>
+    </div>`;
+  }).join('');
+  // Resize all textareas to fit content
+  el.querySelectorAll('textarea').forEach(autoResizeTextarea);
+}
+
+function autoResizeTextarea(el) {
+  el.style.height = 'auto';
+  el.style.height = el.scrollHeight + 'px';
+}
+
+function showListTab(tab, btn) {
+  document.querySelectorAll('#listsTabs .tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  ['grocery', 'notes'].forEach(t => {
+    const el = document.getElementById('listtab-' + t);
+    if (el) el.style.display = t === tab ? 'block' : 'none';
+  });
+  if (tab === 'notes') renderNotes();
+}
+
+// ---- RECIPE → GROCERY ----
+function addRecipeIngredientsToGrocery(recipeId) {
+  const r = recipes.find(r => r.id === recipeId);
+  if (!r || !r.ingredients) return;
+  const lines = r.ingredients.split('\n').map(s => s.trim()).filter(Boolean);
+  if (!lines.length) { showToast('No ingredients to add'); return; }
+  let added = 0;
+  lines.forEach(line => {
+    grocItems.push({ id: newGrocId(), name: line, aisle: '', qty: '', got: false });
+    added++;
+  });
+  scheduleSave();
+  renderGrocList();
+  showToast(added + ' ingredient' + (added !== 1 ? 's' : '') + ' added to Grocery List');
 }
 
 function escHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
@@ -2962,12 +3365,6 @@ function clearGotItems(){
   }
 }
 
-function showListTab(tab,btn){
-  document.querySelectorAll('#page-lists [id^="listtab-"]').forEach(el=>el.style.display='none');
-  document.getElementById('listtab-'+tab).style.display='block';
-  document.querySelectorAll('#listsTabs .tab').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
-}
 
 function renderGrocList(){
   const container=document.getElementById('grocList');
@@ -3204,7 +3601,12 @@ Keep task names concise and action-oriented.`;
     btn.disabled = false;
 
   } catch (err) {
-    status.textContent = 'Could not parse — check your input and try again. (' + (err.message || 'error') + ')';
+    const isNetworkErr = err.message && (err.message.includes('fetch') || err.message.includes('network') || err.message.includes('Failed'));
+    if (isNetworkErr) {
+      status.innerHTML = 'Network error — the AI parser needs an internet connection and may not work when the file is opened directly from your computer.<br><span style="font-size:.75rem;opacity:.7;">Try opening the file via a local server, or use the manual add form below.</span>';
+    } else {
+      status.textContent = 'Could not parse — ' + (err.message || 'unknown error') + '. Try rephrasing your list.';
+    }
     btn.disabled = false;
     btn.textContent = 'Parse list →';
   }
@@ -3646,12 +4048,22 @@ async function gcalPullGcalEvents() {
   const reverseMap = {};
   Object.entries(gcalIdMap).forEach(([cId, gId]) => reverseMap[gId] = cId);
 
-  // Only skip gcalIds where the Centre event still exists (guards against ghost IDs after storage clear)
+  // Rebuild map from events that have gcalId stored directly (survives storage clears)
+  events.forEach(ev => {
+    if (ev.gcalId && !reverseMap[ev.gcalId]) {
+      reverseMap[ev.gcalId] = ev.id;
+      gcalIdMap[ev.id] = ev.gcalId; // restore map entry
+    }
+  });
+
+  // Only skip gcalIds where the Centre event still exists
   const pushedGcalIds = new Set(
     Object.entries(gcalIdMap)
       .filter(([cId]) => events.some(e => e.id === cId))
       .map(([, gId]) => gId)
   );
+  // Also skip any gcalId that already exists directly on an event
+  events.forEach(ev => { if (ev.gcalId) pushedGcalIds.add(ev.gcalId); });
 
   data.items.forEach(gev => {
     if (gev.status === 'cancelled') return;
@@ -3873,6 +4285,76 @@ function cycleEditLastCycle() {
   overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
 }
 
+function addManualCycleEntry() {
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay open';
+  overlay.innerHTML = `<div class="modal">
+    <div class="modal-title">Add Past Period</div>
+    <div class="modal-form">
+      <div class="form-group"><label class="form-label">Period start date</label>
+        <input class="form-input" type="date" id="cycleManualStart"/></div>
+      <div class="form-group"><label class="form-label">Period end date (optional)</label>
+        <input class="form-input" type="date" id="cycleManualEnd"/></div>
+    </div>
+    <div class="modal-actions">
+      <button class="modal-cancel" onclick="this.closest('.modal-overlay').remove()">Cancel</button>
+      <button class="modal-save" onclick="saveManualCycleEntry(this)">Add</button>
+    </div>
+  </div>`;
+  document.body.appendChild(overlay);
+  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+}
+
+function saveManualCycleEntry(btn) {
+  const start = document.getElementById('cycleManualStart').value;
+  const end = document.getElementById('cycleManualEnd').value;
+  if (!start) { document.getElementById('cycleManualStart').focus(); return; }
+  if (cycleLog.some(c => c.startDate === start)) { showToast('A period starting that date already exists'); return; }
+  cycleLog.push({ id: newCycleId(), startDate: start, endDate: end });
+  saveCycle();
+  btn.closest('.modal-overlay').remove();
+  renderCyclePage();
+  renderCycleOverview();
+  showToast('Period added');
+}
+
+function editCycleEntry(id) {
+  const c = cycleLog.find(c => c.id === id);
+  if (!c) return;
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay open';
+  overlay.innerHTML = `<div class="modal">
+    <div class="modal-title">Edit Period</div>
+    <div class="modal-form">
+      <div class="form-group"><label class="form-label">Period start date</label>
+        <input class="form-input" type="date" id="cycleEntryStart" value="${c.startDate}"/></div>
+      <div class="form-group"><label class="form-label">Period end date (optional)</label>
+        <input class="form-input" type="date" id="cycleEntryEnd" value="${c.endDate||''}"/></div>
+    </div>
+    <div class="modal-actions">
+      <button class="modal-cancel" onclick="this.closest('.modal-overlay').remove()">Cancel</button>
+      <button class="modal-save" onclick="saveCycleEntryEdit('${id}', this)">Save</button>
+    </div>
+  </div>`;
+  document.body.appendChild(overlay);
+  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+}
+
+function saveCycleEntryEdit(id, btn) {
+  const c = cycleLog.find(c => c.id === id);
+  if (!c) return;
+  const start = document.getElementById('cycleEntryStart').value;
+  const end = document.getElementById('cycleEntryEnd').value;
+  if (!start) return;
+  c.startDate = start;
+  c.endDate = end;
+  saveCycle();
+  btn.closest('.modal-overlay').remove();
+  renderCyclePage();
+  renderCycleOverview();
+  showToast('Period updated');
+}
+
 function saveCycleEdit(btn) {
   const overlay = btn.closest('.modal-overlay');
   const start = document.getElementById('cycleEditStart').value;
@@ -4006,16 +4488,19 @@ function renderCyclePhaseCard() {
 function renderCycleHistory() {
   const el = document.getElementById('cycleHistory');
   if (!el) return;
-  if (!cycleLog.length) { el.innerHTML = '<div class="empty-msg">No cycles logged yet.</div>'; return; }
+  // Add manual entry button at top
+  const addBtn = `<button onclick="addManualCycleEntry()" style="font-family:'Noto Serif Display',Georgia,serif;font-stretch:extra-condensed;font-size:.82rem;background:none;border:1.5px dashed var(--border);border-radius:10px;padding:7px 14px;cursor:pointer;color:var(--muted);margin-bottom:12px;width:100%;">+ Add past period</button>`;
+  if (!cycleLog.length) { el.innerHTML = addBtn + '<div class="empty-msg" style="margin-top:8px;">No cycles logged yet.</div>'; return; }
   const sorted = [...cycleLog].sort((a,b) => b.startDate.localeCompare(a.startDate));
-  el.innerHTML = sorted.map((c,i) => {
+  el.innerHTML = addBtn + sorted.map((c,i) => {
     const end = c.endDate || (i===0 ? 'ongoing' : addDaysToDate(c.startDate, PERIOD_LENGTH-1));
     const len = c.endDate ? Math.round((new Date(c.endDate)-new Date(c.startDate))/(1000*60*60*24))+1 : PERIOD_LENGTH;
     const cycleLen = i < sorted.length-1 ? Math.round((new Date(c.startDate)-new Date(sorted[i+1].startDate))/(1000*60*60*24)) : null;
     return `<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:11px;background:var(--bg);margin-bottom:6px;">
-      <span class="phase-dot" style="background:#b8a0c8"></span>
+      <span class="phase-dot" style="background:var(--phase-menstrual,#dd2c60)"></span>
       <span style="font-size:.88rem;flex:1;">${formatDate(c.startDate)}${c.endDate?' – '+formatDate(c.endDate):''}</span>
       <span style="font-size:.75rem;color:var(--muted);">${len}d${cycleLen?' · '+cycleLen+'d cycle':''}</span>
+      <button class="edit-btn" onclick="editCycleEntry('${c.id}')" style="font-size:.78rem;color:var(--muted);background:none;border:none;cursor:pointer;padding:2px 6px;">edit</button>
       <button class="delete-btn" onclick="deleteCycle('${c.id}')">×</button>
     </div>`;
   }).join('');
@@ -4029,7 +4514,7 @@ function deleteCycle(id) {
 function renderCycleOverview() {
   const el = document.getElementById('overviewCycle');
   if (!el) return;
-  const t = today();
+  const t = getCentreDate();
   const cycleDay = getCycleDay(t);
   const phase = getPhase(cycleDay);
   const cfg = phase ? getPhaseConfig()[phase] : null;
@@ -4286,7 +4771,8 @@ function saveWaterDay(ds) {
   if (pop) pop.remove();
   scheduleSave();
   renderWaterHabitCard();
-  if (ds === today()) { waterFilled = Math.round(newMl / 250); renderWater(); }
+  if (ds === today()) waterFilled = Math.round(newMl / 250);
+  renderWater(); // refresh history strip on Centre card
   showToast('Water updated for ' + new Date(ds+'T00:00:00').toLocaleDateString('en-AU',{day:'numeric',month:'short'}));
 }
 
@@ -4591,11 +5077,14 @@ loadFromStorage();
 })();
 document.getElementById('modalOverlay').addEventListener('click',function(e){if(e.target===this)closeModal();});
 buildDowRow('t');buildDowRow('ev');buildDowRow('m');buildDowRow('ps');
-renderCategories();renderCatSelects();renderTasks();buildSettings();
+renderCategories();renderCatSelects();renderTasks();loadMilestones();
+buildSettings();
 document.getElementById('mealFilterDate').value=today();document.getElementById('mealDate').value=today();
 renderOverview();renderOverviewEvents();renderWater();renderOverviewMeals();renderOverviewHabitsRibbon();renderGrocList();renderOverviewUpcoming();
 renderCycleOverview();
 try{renderCycleWeekStrip();}catch(e){}
+initCentreSwipe();
+updateCentreDateLabel();
 setTimeout(applyWeatherToSchedule, 800);
 // Auto-connect Firebase if previously enabled
 if(localStorage.getItem('centre_fbSyncEnabled')==='true'){
@@ -4644,7 +5133,7 @@ setInterval(tickLive,1000);
 <div class="multiadd-overlay" id="multiAddOverlay">
   <div class="multiadd-panel">
     <div class="multiadd-title" id="multiAddTitle">Add Multiple</div>
-    <p style="font-size:.8rem;color:var(--muted);font-family:'Handwriting',Georgia,serif;margin-top:-6px;">Type or speak a list of items — AI will parse and add them all at once.</p>
+    <p style="font-size:.8rem;color:var(--muted);font-family:'Noto Serif Display',Georgia,serif;font-stretch:extra-condensed;margin-top:-6px;">Type or speak a list of items — AI will parse and add them all at once.</p>
     <div class="mic-row-inline">
       <textarea class="multiadd-textarea" id="multiAddText" placeholder="e.g. 3 apples, almond milk, sourdough bread, cheddar cheese…&#10;or for tasks: call dentist, pick up dry cleaning, book Airbnb for July…"></textarea>
       <button type="button" class="mic-btn" id="micbtn-multiAddText" onclick="startVoice('multiAddText','multiAddVoiceStatus')" title="Speak your list"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="11" rx="3"/><path d="M5 10a7 7 0 0 0 14 0"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="8" y1="22" x2="16" y2="22"/></svg></button>
@@ -4657,8 +5146,8 @@ setInterval(tickLive,1000);
     <div id="multiAddStatus" class="multiadd-status" style="display:none;"></div>
     <div id="multiAddResult" style="display:none;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-        <span style="font-family:'Handwriting',Georgia,serif;font-size:.8rem;color:var(--muted);" id="multiAddResultLabel">Uncheck any you don't want to add:</span>
-        <button style="font-family:'Handwriting',Georgia,serif;font-size:.75rem;background:none;border:none;color:var(--accent);cursor:pointer;" onclick="runMultiAdd()">Re-parse</button>
+        <span style="font-family:'Noto Serif Display',Georgia,serif;font-stretch:extra-condensed;font-size:.8rem;color:var(--muted);" id="multiAddResultLabel">Uncheck any you don't want to add:</span>
+        <button style="font-family:'Noto Serif Display',Georgia,serif;font-stretch:extra-condensed;font-size:.75rem;background:none;border:none;color:var(--accent);cursor:pointer;" onclick="runMultiAdd()">Re-parse</button>
       </div>
       <div class="multiadd-result" id="multiAddItems"></div>
       <button class="multiadd-confirm-btn" id="multiAddConfirmBtn" onclick="confirmMultiAdd()">Add All to List</button>
