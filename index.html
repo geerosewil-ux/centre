@@ -509,9 +509,14 @@ h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.
     </div>
 
     <!-- Swipe container -->
+    <!-- Firebase connection banner (hidden when connected or not using Firebase) -->
+    <div id="centreSyncBanner" style="display:none;background:#fef6e0;border:1px solid #f0d080;border-radius:10px;padding:8px 14px;margin-bottom:12px;font-family:'Handwriting',Georgia,serif;font-size:.8rem;color:#7a5c10;display:flex;align-items:center;justify-content:space-between;gap:10px;">
+      <span id="centreSyncBannerText">Connecting to database…</span>
+      <button onclick="initFirebase(true)" style="font-size:.75rem;border:1px solid #c8a030;border-radius:8px;padding:2px 10px;background:none;color:#7a5c10;cursor:pointer;white-space:nowrap;">Reconnect</button>
+    </div>
     <div id="centreSwipeWrap" style="position:relative;overflow:hidden;touch-action:pan-y;min-height:300px;">
       <div id="centreCardStack" style="display:flex;flex-direction:column;gap:20px;transition:opacity .22s,transform .22s;will-change:transform,opacity;">
-        <div class="card" id="overviewEvents"></div>
+        <div class="card" id="overviewEvents"><p class="no-events" style="margin:8px 0">Loading…</p></div>
         <div class="card" style="padding:18px 22px;">
           <div class="card-header" style="margin-bottom:10px">
             <span class="card-title" style="margin-bottom:0">Water</span>
@@ -2413,12 +2418,13 @@ function renderWater(){
   }
 }
 function tapWater(i){
-  const prev = waterFilled;
   if(i<waterFilled){ waterFilled=i; }
   else { waterFilled=i+1; }
-  // Log delta to habitLog for history tracking
-  const delta = (waterFilled - prev) * 250;
-  if (delta > 0) logWaterToHabit(delta);
+  // Replace today's water log with exact current total
+  habitLog = habitLog.filter(e => !(e.taskId === WATER_HABIT_ID && e.date === today()));
+  if (waterFilled > 0) {
+    habitLog.push({ taskId: WATER_HABIT_ID, date: today(), value: waterFilled * 250, ts: Date.now() });
+  }
   scheduleSave(); renderWater();
 }
 function setWaterGoal(v){waterGoal=Math.max(1,Math.min(20,parseInt(v)||8));if(waterFilled>waterGoal)waterFilled=waterGoal;scheduleSave();renderWater();}
@@ -3628,6 +3634,17 @@ function fbSetStatus(connected, text) {
   const txt = document.getElementById('syncStatusText');
   if (dot) dot.style.background = connected ? '#6abf82' : (text.includes('Error') ? '#e07070' : 'var(--border)');
   if (txt) txt.textContent = text;
+  // Show/hide Centre banner
+  const banner = document.getElementById('centreSyncBanner');
+  const bannerTxt = document.getElementById('centreSyncBannerText');
+  if (banner) {
+    if (connected) {
+      banner.style.display = 'none';
+    } else if (localStorage.getItem('centre_fbSyncEnabled') === 'true') {
+      banner.style.display = 'flex';
+      if (bannerTxt) bannerTxt.textContent = text || 'Reconnecting to database…';
+    }
+  }
 }
 
 function initFirebase(manual) {
@@ -3685,6 +3702,7 @@ function getLocalDataBundle() {
     taskSeq, eventSeq, catSeq,
     grocItems, grocSeq,
     cycleLog, cycleSeq,
+    notes, noteSeq,
     _apiKeys: { google: _googleApiKey||'', gemini: _geminiApiKey||'' },
     _ts: Date.now()
   };
@@ -3727,6 +3745,10 @@ function pullFromFirebase() {
 }
 
 function applyRemoteData(remote) {
+  // Reset view to today when syncing remote data
+  centreDate = null;
+  scheduleViewDate = null;
+  eventsViewDate = null;
   if (remote.tasks) tasks = remote.tasks;
   if (remote.events) events = remote.events;
   if (remote.categories) categories = remote.categories;
@@ -3746,6 +3768,8 @@ function applyRemoteData(remote) {
   if (remote.grocSeq) grocSeq = remote.grocSeq;
   if (remote.cycleLog) { cycleLog = remote.cycleLog; saveCycle(); }
   if (remote.cycleSeq) cycleSeq = remote.cycleSeq;
+  if (remote.notes) notes = remote.notes;
+  if (remote.noteSeq) noteSeq = remote.noteSeq;
   if (remote._apiKeys) {
     if (remote._apiKeys.google) {
       _googleApiKey = remote._apiKeys.google;
@@ -3760,6 +3784,8 @@ function applyRemoteData(remote) {
       if (gmi) gmi.value = _geminiApiKey;
     }
   }
+  // Reconcile waterFilled from habitLog (in case Firebase had stale waterFilled)
+  reconcileWaterFilled();
   // Re-render — guard every call so a missing element never aborts the whole sync
   function safeRender(fn) { try { fn(); } catch(e) { console.warn('render skip:', e.message); } }
 
@@ -3779,20 +3805,17 @@ function applyRemoteData(remote) {
   if (pid === 'cycle')    safeRender(renderCyclePage);
   if (pid === 'settings') safeRender(buildSettings);
 
-  // Overview elements — always in DOM, safe to render
-  if (document.getElementById('overviewBlocks'))     safeRender(renderOverview);
-  if (document.getElementById('overviewEvents'))     safeRender(renderOverviewEvents);
-  if (document.getElementById('overviewMeals'))      safeRender(renderOverviewMeals);
-  if (document.getElementById('overviewUpcoming'))   safeRender(renderOverviewUpcoming);
-  if (document.getElementById('overviewCycle'))      safeRender(renderCycleOverview);
-  if (document.getElementById('overviewHabitsRibbon')) safeRender(renderOverviewHabitsRibbon);
-  if (document.getElementById('waterCupsRow'))       safeRender(renderWater);
+  // Overview — render all Centre cards for the correct date
+  safeRender(renderAllOverviewForDate);
+  safeRender(renderWater);
 
   if (remote._ts) {
     localStorage.setItem('centre_lastSync', String(remote._ts));
     lastSyncTs = remote._ts;
     updateSyncTime();
   }
+  // Hide Centre banner — sync successful
+  fbSetStatus(true, 'Connected — live sync active');
 }
 
 function updateSyncTime() {
@@ -4721,6 +4744,14 @@ function logWaterToHabit(mlAmount) {
   habitLog.push({ taskId: WATER_HABIT_ID, date: today(), value: mlAmount, ts: Date.now() });
 }
 
+function reconcileWaterFilled() {
+  // Recompute waterFilled from habitLog for today — ensures cup display matches log
+  const todayMl = habitLog
+    .filter(e => e.taskId === WATER_HABIT_ID && e.date === today())
+    .reduce((s, e) => s + (e.value || 0), 0);
+  waterFilled = Math.round(todayMl / 250);
+}
+
 function getWaterHistoryByDate() {
   // Returns { 'YYYY-MM-DD': totalMl } for all dates
   const map = {};
@@ -5020,6 +5051,7 @@ buildDowRow('t');buildDowRow('ev');buildDowRow('m');buildDowRow('ps');
 renderCategories();renderCatSelects();renderTasks();loadMilestones();
 buildSettings();
 document.getElementById('mealFilterDate').value=today();document.getElementById('mealDate').value=today();
+reconcileWaterFilled();
 renderOverview();renderOverviewEvents();renderWater();renderOverviewMeals();renderOverviewHabitsRibbon();renderGrocList();renderOverviewUpcoming();
 renderCycleOverview();
 try{renderCycleWeekStrip();}catch(e){}
@@ -5028,15 +5060,19 @@ updateCentreDateLabel();
 setTimeout(applyWeatherToSchedule, 800);
 // Auto-connect Firebase if previously enabled
 if(localStorage.getItem('centre_fbSyncEnabled')==='true'){
+  // Show banner immediately so user knows it's trying to connect
+  setTimeout(()=>fbSetStatus(false,'Connecting to database…'),100);
   if(window._fbReady){
     initFirebase(false);
   } else {
-    // Listen for module load AND poll as fallback
     window.addEventListener('firebaseReady',()=>initFirebase(false),{once:true});
     let _fbPollCount=0;
     const _fbPoll=setInterval(()=>{
       if(window._fbReady){clearInterval(_fbPoll);initFirebase(false);}
-      if(++_fbPollCount>30)clearInterval(_fbPoll); // stop after 15s
+      if(++_fbPollCount>30){
+        clearInterval(_fbPoll);
+        fbSetStatus(false,'Database unavailable — tap Reconnect to try again');
+      }
     },500);
   }
 }
