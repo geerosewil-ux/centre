@@ -3206,7 +3206,11 @@ function gcalSignIn(silent) {
       localStorage.setItem('centre_gcalToken', gcalToken);
       localStorage.setItem('centre_gcalTokenExpiry', String(gcalTokenExpiry));
       gcalSetStatus(true, 'Connected');
-      if (!silent) gcalFullSync();
+      if (!silent) {
+        gcalFullSync();
+        // After connecting, also push to Firebase so data syncs across devices
+        setTimeout(() => { if (fbSyncEnabled && window._fbReady) pushToFirebase(); }, 2000);
+      }
     }
   });
   client.requestAccessToken();
@@ -3428,8 +3432,8 @@ function gcalRestoreSession() {
     const msUntilExpiry = savedExpiry - Date.now() - 120000;
     if (msUntilExpiry > 0) setTimeout(gcalSilentRefresh, msUntilExpiry);
   } else {
-    // Token expired — try silent refresh once GIS is confirmed loaded
-    gcalSetStatus(false, 'Reconnecting…');
+    // Token expired — try silent refresh; if that fails show a clear reconnect prompt
+    gcalSetStatus(false, 'Session expired — tap Connect in Settings → Connections');
     waitForGIS(gcalSilentRefresh);
   }
 }
@@ -3999,6 +4003,32 @@ function shiftWaterWeek(dir) {
   waterWeekOffset += dir;
   renderWaterHabitCard();
 }
+
+loadFromStorage();
+document.getElementById('modalOverlay').addEventListener('click',function(e){if(e.target===this)closeModal();});
+buildDowRow('t');buildDowRow('ev');buildDowRow('m');
+renderCategories();renderCatSelects();renderTasks();buildSettings();
+document.getElementById('mealFilterDate').value=today();document.getElementById('mealDate').value=today();
+renderOverview();renderOverviewEvents();renderWater();renderOverviewMeals();renderOverviewHabitsRibbon();renderGrocList();renderOverviewUpcoming();
+renderCycleOverview();
+try{renderCycleWeekStrip();}catch(e){}
+setTimeout(applyWeatherToSchedule, 800);
+// Auto-connect Firebase if previously enabled
+if(localStorage.getItem('centre_fbSyncEnabled')==='true'){
+  if(window._fbReady){
+    initFirebase(false);
+  } else {
+    // Listen for module load AND poll as fallback
+    window.addEventListener('firebaseReady',()=>initFirebase(false),{once:true});
+    let _fbPollCount=0;
+    const _fbPoll=setInterval(()=>{
+      if(window._fbReady){clearInterval(_fbPoll);initFirebase(false);}
+      if(++_fbPollCount>30)clearInterval(_fbPoll); // stop after 15s
+    },500);
+  }
+}
+// Restore GCal session if token still valid
+setTimeout(gcalRestoreSession, 800);
 
 function tickClockOnly(){
   const now=new Date();
