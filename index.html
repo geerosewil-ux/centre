@@ -2,8 +2,11 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Centre</title>
+<title>Centre v49</title>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Centre">
@@ -48,7 +51,7 @@ h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.
 .card-title{font-size:1.25rem;letter-spacing:.12em;color:var(--text);margin-bottom:18px;}
 .block-title{font-size:.95rem;letter-spacing:.03em;color:var(--text);margin-bottom:10px;display:flex;align-items:center;gap:8px;}
 .block-section{margin-bottom:26px;}
-.block-section.is-past{opacity:.45;}
+.block-section.is-past{opacity:.55;}
 .block-tasks-wrap{border-left:2px solid var(--border);padding-left:10px;margin-top:8px;transition:border-color .2s;}
 .block-section.is-current .block-tasks-wrap{border-left-color:var(--accent);}
 .block-time{font-family:'Noto Serif Display',Georgia,serif;font-size:.68rem;color:var(--muted);letter-spacing:0;}
@@ -168,7 +171,7 @@ h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.
 .milestone.achieved{background:var(--accent);border-color:var(--accent);color:white;}
 
 /* CATEGORIES */
-.cat-list-row{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--border);}
+.cat-list-row{display:flex;align-items:center;gap:10px;padding:5px 0;}
 .cat-list-row:last-child{border-bottom:none;}
 .cat-color-pick{width:28px;height:28px;border-radius:7px;border:1.5px solid rgba(0,0,0,.1);cursor:pointer;flex-shrink:0;padding:0;-webkit-appearance:none;overflow:hidden;}
 .cat-color-pick::-webkit-color-swatch-wrapper{padding:0;}
@@ -182,7 +185,7 @@ h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.
 .cat-swatch{width:36px;height:36px;border-radius:8px;border:1.5px solid var(--border);flex-shrink:0;}
 .cat-add-btn{font-family:'Noto Serif Display',Georgia,serif;font-stretch:extra-condensed;text-transform:uppercase;letter-spacing:.08em;font-size:.85rem;background:var(--accent);color:white;border:none;border-radius:10px;padding:9px 16px;cursor:pointer;white-space:nowrap;}
 .cat-list{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px;}
-.cat-chip{display:flex;align-items:center;gap:6px;padding:4px 10px 4px 8px;border-radius:20px;font-size:.8rem;color:white;font-family:'Noto Serif Display',Georgia,serif;}
+.cat-chip{display:flex;align-items:center;gap:6px;padding:4px 10px 4px 8px;border-radius:20px;font-size:.8rem;color:var(--text);border:1.5px solid var(--border);background:var(--bg);font-family:'Noto Serif Display',Georgia,serif;}
 .cat-chip .cat-del{background:none;border:none;color:rgba(255,255,255,.8);cursor:pointer;font-size:1rem;line-height:1;padding:0;}
 
 /* OVERVIEW */
@@ -271,6 +274,12 @@ h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.
 
 /* IO */
 .io-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;}
+.icon-picker-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:5px;margin-top:8px;}
+.icon-pick-btn{background:none;border:1.5px solid var(--border);border-radius:8px;padding:6px;font-size:1.1rem;cursor:pointer;transition:all .15s;line-height:1;text-align:center;}
+.icon-pick-btn:hover,.icon-pick-btn.sel{border-color:var(--accent);background:rgba(147,170,205,.12);}
+.icon-pick-btn.sel{box-shadow:0 0 0 2px var(--accent);}
+.cat-icon-preview{font-size:1.1rem;width:28px;text-align:center;flex-shrink:0;}
+.cat-icon-badge{display:inline-flex;align-items:center;gap:4px;padding:2px 8px 2px 4px;border-radius:20px;border:1.5px solid rgba(147,170,205,.35);background:rgba(147,170,205,.08);font-size:.72rem;color:var(--text);font-family:'Handwriting',Georgia,serif;}
 .io-btn{font-family:'Noto Serif Display',Georgia,serif;font-size:.85rem;background:none;border:1.5px solid var(--border);border-radius:10px;padding:10px 14px;cursor:pointer;color:var(--text);transition:all .2s;text-align:left;display:flex;flex-direction:column;gap:3px;}
 .io-btn:hover{border-color:var(--accent);color:var(--accent);}
 .io-btn-label{font-family:'Noto Serif Display',Georgia,serif;font-stretch:extra-condensed;text-transform:uppercase;letter-spacing:.08em;font-size:.8rem;}
@@ -490,7 +499,7 @@ h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.
     <span style="display:block;width:16px;height:1.5px;background:currentColor;border-radius:2px;"></span>
   </button>
   <div style="text-align:center;">
-    <h1 class="app-title" style="font-size:2.8rem;letter-spacing:.18em;margin-bottom:0;">centre</h1>
+    <h1 class="app-title" style="font-size:2.8rem;letter-spacing:.18em;margin-bottom:0;text-transform:none;">centre</h1>
     <p class="app-date" id="appDate" style="margin-bottom:0;"></p>
   </div>
   <div style="width:30px;"></div>
@@ -510,7 +519,7 @@ h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.
 
     <!-- Swipe container -->
     <!-- Firebase connection banner (hidden when connected or not using Firebase) -->
-    <div id="centreSyncBanner" style="display:none;background:#fef6e0;border:1px solid #f0d080;border-radius:10px;padding:8px 14px;margin-bottom:12px;font-family:'Handwriting',Georgia,serif;font-size:.8rem;color:#7a5c10;display:flex;align-items:center;justify-content:space-between;gap:10px;">
+    <div id="centreSyncBanner" style="display:none;background:#fef6e0;border:1px solid #f0d080;border-radius:10px;padding:8px 14px;margin-bottom:12px;font-family:'Handwriting',Georgia,serif;font-size:.8rem;color:#7a5c10;align-items:center;justify-content:space-between;gap:10px;">
       <span id="centreSyncBannerText">Connecting to database…</span>
       <button onclick="initFirebase(true)" style="font-size:.75rem;border:1px solid #c8a030;border-radius:8px;padding:2px 10px;background:none;color:#7a5c10;cursor:pointer;white-space:nowrap;">Reconnect</button>
     </div>
@@ -522,7 +531,7 @@ h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.
             <span class="card-title" style="margin-bottom:0">Water</span>
             <span id="waterGoalLabel" style="font-size:.76rem;color:var(--muted);"></span>
           </div>
-          <!-- Cup row (shows viewed date's intake; past days get an Edit button) -->
+          <!-- Today-only water tracker -->
           <div class="water-tracker">
             <div class="water-bars-row" id="waterCupsRow"></div>
             <div class="water-meta">
@@ -565,8 +574,10 @@ h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.
 
     <!-- 3. Mini month dot row -->
     <div class="card" id="plannerMonthCard">
-      <div style="margin-bottom:14px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+        <button onclick="shiftPlannerMonth(-1)" style="background:none;border:1.5px solid var(--border);border-radius:10px;padding:5px 12px;cursor:pointer;font-family:'Handwriting',Georgia,serif;font-size:.9rem;color:var(--muted);">&#8592;</button>
         <span class="card-title" style="margin-bottom:0;" id="plannerMonthLabel"></span>
+        <button onclick="shiftPlannerMonth(1)" style="background:none;border:1.5px solid var(--border);border-radius:10px;padding:5px 12px;cursor:pointer;font-family:'Handwriting',Georgia,serif;font-size:.9rem;color:var(--muted);">&#8594;</button>
       </div>
       <div id="plannerMonthDots"></div>
     </div>
@@ -727,15 +738,17 @@ h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.
         </div>
       </div>
       <div id="tab-cats" style="display:none">
-        <div class="cat-form">
+        <div class="cat-form" style="flex-direction:column;gap:10px;">
           <div class="form-group"><label class="form-label">Name</label><input class="form-input" id="catName" placeholder="e.g. Wellness"/></div>
-          <div class="form-group"><label class="form-label">Hex colour</label>
-            <div class="hex-preview-wrap"><input class="form-input" id="catHex" placeholder="#93aacd" maxlength="7" oninput="previewCatColor()"/><div class="cat-swatch" id="catSwatch" style="background:#93aacd"></div></div>
+          <div class="form-group">
+            <label class="form-label">Icon <span id="catIconPreview" style="font-size:1rem;margin-left:6px;">👤</span></label>
+            <input type="hidden" id="catIconVal" value="👤"/>
+            <div class="icon-picker-grid"><button type="button" class="icon-pick-btn" onclick="selectCatIcon('★')">★</button><button type="button" class="icon-pick-btn" onclick="selectCatIcon('♥')">♥</button><button type="button" class="icon-pick-btn" onclick="selectCatIcon('⚡')">⚡</button><button type="button" class="icon-pick-btn" onclick="selectCatIcon('✦')">✦</button><button type="button" class="icon-pick-btn" onclick="selectCatIcon('◆')">◆</button><button type="button" class="icon-pick-btn" onclick="selectCatIcon('●')">●</button><button type="button" class="icon-pick-btn" onclick="selectCatIcon('👤')">👤</button><button type="button" class="icon-pick-btn" onclick="selectCatIcon('💼')">💼</button><button type="button" class="icon-pick-btn" onclick="selectCatIcon('🎂')">🎂</button><button type="button" class="icon-pick-btn" onclick="selectCatIcon('📅')">📅</button><button type="button" class="icon-pick-btn" onclick="selectCatIcon('✉')">✉</button><button type="button" class="icon-pick-btn" onclick="selectCatIcon('☎')">☎</button><button type="button" class="icon-pick-btn" onclick="selectCatIcon('🏠')">🏠</button><button type="button" class="icon-pick-btn" onclick="selectCatIcon('🛒')">🛒</button><button type="button" class="icon-pick-btn" onclick="selectCatIcon('🍽')">🍽</button><button type="button" class="icon-pick-btn" onclick="selectCatIcon('🎵')">🎵</button><button type="button" class="icon-pick-btn" onclick="selectCatIcon('📚')">📚</button><button type="button" class="icon-pick-btn" onclick="selectCatIcon('🏃')">🏃</button><button type="button" class="icon-pick-btn" onclick="selectCatIcon('💊')">💊</button><button type="button" class="icon-pick-btn" onclick="selectCatIcon('💰')">💰</button><button type="button" class="icon-pick-btn" onclick="selectCatIcon('🎯')">🎯</button><button type="button" class="icon-pick-btn" onclick="selectCatIcon('🌿')">🌿</button><button type="button" class="icon-pick-btn" onclick="selectCatIcon('✈')">✈</button><button type="button" class="icon-pick-btn" onclick="selectCatIcon('🔔')">🔔</button></div>
           </div>
-          <button class="cat-add-btn" onclick="addCategory()">Add</button>
+          <button class="cat-add-btn" onclick="addCategory()">Add category</button>
         </div>
-        <div class="cat-list" id="catList"></div>
-        <p style="font-size:.78rem;color:var(--muted);font-family:'Noto Serif Display',Georgia,serif;">Categories are shared between tasks and events.</p>
+        <div class="cat-list" id="catList" style="margin-top:16px;"></div>
+        <p style="font-size:.78rem;color:var(--muted);font-family:'Handwriting',Georgia,serif;margin-top:10px;">Categories are shared between tasks and events.</p>
       </div>
       <!-- TEMPLATES TAB -->
       <div id="tab-ttpl" style="display:none">
@@ -1226,11 +1239,11 @@ function newTemplateId(){return 'TPL-'+String(++templateSeq).padStart(4,'0');}
 function newRecipeId(){return 'RCP-'+String(++recipeSeq).padStart(4,'0');}
 
 let categories=[
-  {id:'CAT-0001',name:'Personal',color:'#b0c4b1'},
-  {id:'CAT-0002',name:'Work',color:'#93aacd'},
-  {id:'CAT-0003',name:'Birthday',color:'#d4a0b0'},
-  {id:'CAT-0004',name:'Social',color:'#a0b8d4'},
-  {id:'CAT-0005',name:'Appointment',color:'#a0d4b0'}
+  {id:'CAT-0001',name:'Personal',icon:'👤'},
+  {id:'CAT-0002',name:'Work',icon:'💼'},
+  {id:'CAT-0003',name:'Birthday',icon:'🎂'},
+  {id:'CAT-0004',name:'Social',icon:'✦'},
+  {id:'CAT-0005',name:'Appointment',icon:'📅'}
 ];
 
 // Habit log: { taskId, date, value } — one entry per completion per day
@@ -1328,9 +1341,23 @@ function clearStorage(){
 let saveFlash=null;
 function showSaveIndicator(){
   const el=document.getElementById('saveIndicator');
+  if(!el)return;
+  el.textContent='Saved';
   el.classList.add('show');
   clearTimeout(saveFlash);
   saveFlash=setTimeout(()=>el.classList.remove('show'),1500);
+}
+
+function showToast(msg, duration) {
+  const el = document.getElementById('saveIndicator');
+  if (!el) return;
+  el.textContent = msg || 'Saved';
+  el.classList.add('show');
+  clearTimeout(window._toastTimer);
+  window._toastTimer = setTimeout(() => {
+    el.classList.remove('show');
+    el.textContent = 'Saved';
+  }, duration || 2200);
 }
 
 // ---- NAV ----
@@ -1355,7 +1382,7 @@ function showPage(p,btn){
   if(pg)pg.classList.add('active');
   const di=document.getElementById('di-'+p);
   if(di)di.classList.add('active');
-  if(p==='overview'){renderOverview();renderOverviewEvents();renderWater();renderOverviewMeals();renderOverviewUpcoming();renderCycleOverview();setTimeout(applyWeatherToSchedule,200);centreDate=null;updateCentreDateLabel();}
+  if(p==='overview'){centreDate=null;renderAllOverviewForDate();setTimeout(applyWeatherToSchedule,200);}
   if(p==='habits'){renderHabitsDashboard();renderWaterHabitCard();}
   if(p==='weekly'){renderPlannerPage();setTimeout(applyWeatherToWeekly,200);}
   if(p==='events')renderEventList();
@@ -1431,20 +1458,26 @@ function getHabitGoal(){
 // ---- RECURRENCE LOGIC ----
 function occursOn(item,ds){
   const orig=item.date||item.due;
-  // Habit tasks with no recurrence should appear every day (they are ongoing)
-  if(item.habit&&!item.recur){return !orig||ds>=orig;}
-  if(!item.recur)return orig===ds;
-  if(item.type==='birthday'||(item.recur&&item.recur.type==='yearly'))return orig&&orig.slice(5)===ds.slice(5)&&ds>=orig;
-  const from=new Date(ds+'T00:00:00'),start=new Date(orig+'T00:00:00');if(from<start)return false;
-  const r=item.recur;let cur=new Date(start),occ=0;
-  while(cur<=from){
-    const cds=dateStr(cur);if(cds===ds)return true;
-    occ++;if(r.endType==='after'&&occ>=r.endAfter)return false;if(r.endType==='on-date'&&r.endDate&&cds>=r.endDate)return false;
-    const prev=cur.getTime();
-    if(r.type==='daily')cur.setDate(cur.getDate()+1);else if(r.type==='weekly')cur.setDate(cur.getDate()+7);else if(r.type==='monthly')cur.setMonth(cur.getMonth()+1);else if(r.type==='yearly')cur.setFullYear(cur.getFullYear()+1);else if(r.type==='interval-days')cur.setDate(cur.getDate()+r.interval);else if(r.type==='interval-weeks')cur.setDate(cur.getDate()+r.interval*7);else if(r.type==='interval-months')cur.setMonth(cur.getMonth()+r.interval);else if(r.type==='dow'){let f=false;for(let d=1;d<=7;d++){const nx=new Date(cur);nx.setDate(cur.getDate()+d);if(r.dow.includes((nx.getDay()+6)%7)){cur=nx;f=true;break;}}if(!f)return false;continue;}else cur.setDate(cur.getDate()+1);
-    if(cur.getTime()===prev)return false;
+  // Recurring items: use full recurrence engine
+  if(item.recur){
+    if(item.type==='birthday'||(item.recur&&item.recur.type==='yearly'))return orig&&orig.slice(5)===ds.slice(5)&&ds>=orig;
+    const from=new Date(ds+'T00:00:00'),start=new Date(orig+'T00:00:00');if(from<start)return false;
+    const r=item.recur;let cur=new Date(start),occ=0;
+    while(cur<=from){
+      const cds=dateStr(cur);if(cds===ds)return true;
+      occ++;if(r.endType==='after'&&occ>=r.endAfter)return false;if(r.endType==='on-date'&&r.endDate&&cds>=r.endDate)return false;
+      const prev=cur.getTime();
+      if(r.type==='daily')cur.setDate(cur.getDate()+1);else if(r.type==='weekly')cur.setDate(cur.getDate()+7);else if(r.type==='monthly')cur.setMonth(cur.getMonth()+1);else if(r.type==='yearly')cur.setFullYear(cur.getFullYear()+1);else if(r.type==='interval-days')cur.setDate(cur.getDate()+r.interval);else if(r.type==='interval-weeks')cur.setDate(cur.getDate()+r.interval*7);else if(r.type==='interval-months')cur.setMonth(cur.getMonth()+r.interval);else if(r.type==='dow'){let f=false;for(let d=1;d<=7;d++){const nx=new Date(cur);nx.setDate(cur.getDate()+d);if(r.dow.includes((nx.getDay()+6)%7)){cur=nx;f=true;break;}}if(!f)return false;continue;}else cur.setDate(cur.getDate()+1);
+      if(cur.getTime()===prev)return false;
+    }
+    return false;
   }
-  return false;
+  // Events: appear on their exact date
+  if(item.date!==undefined)return orig===ds;
+  // Tasks with no due date → task list only, not schedule
+  if(!item.due)return false;
+  // Tasks with due date → appear in schedule on due date AND remain until done
+  return item.due<=ds;
 }
 
 function recurSummary(r){if(!r)return '';const m={daily:'Daily',weekly:'Weekly',monthly:'Monthly',yearly:'Yearly','interval-days':`Every ${r.interval}d`,'interval-weeks':`Every ${r.interval}w`,'interval-months':`Every ${r.interval}mo`,dow:r.dow&&r.dow.length?DOW_LABELS.filter((_,i)=>r.dow.includes(i)).join(', '):'Days','on-completion':`+${r.completionDays}d on done`};let s=m[r.type]||r.type;if(r.endType==='after')s+=` · ${r.endAfter}x`;if(r.endType==='on-date'&&r.endDate)s+=` · until ${formatDate(r.endDate)}`;return s;}
@@ -1609,7 +1642,7 @@ function renderHabits(){
   container.innerHTML=hts.map(t=>{
     const g=t.habit;
     const cat=categories.find(c=>c.id===t.catId);
-    const borderColor=cat?cat.color:'var(--border)';
+    const borderColor='var(--accent)';
     let progressHtml='',actionsHtml='';
 
     if(g.type==='quantity'){
@@ -1745,7 +1778,7 @@ function renderTasks(){
   list.innerHTML=filtered.map(t=>{
     const cat=categories.find(c=>c.id===t.catId),dc=dueClass(t.due),rs=recurSummary(t.recur);
     const isOverdue=!t.done&&t.due&&t.due<today()&&!t.recur;
-    const bg=isOverdue?'rgba(192,85,74,.06)':(cat?hexToRgba(cat.color,.12):'var(--bg)');
+    const bg=isOverdue?'rgba(192,85,74,.06)':'var(--bg)';
     return `<div class="task-item ${t.done?'done':''}" style="background:${bg};${isOverdue?'border-left:3px solid #c0554a;':''}">
       <input type="checkbox" ${t.done?'checked':''} onchange="toggleTask('${t.id}')" style="margin-top:3px">
       <div class="item-info">
@@ -1770,7 +1803,7 @@ function renderTasks(){
             <div class="form-group full"><label class="form-label">Category</label>
               <select class="form-select" id="ecat-${t.id}">
                 <option value="" ${!t.catId?'selected':''}>— none —</option>
-                ${categories.map(c=>`<option value="${c.id}" ${t.catId===c.id?'selected':''}>${escHtml(c.name)}</option>`).join('')}
+                ${categories.map(c=>`<option value="${c.id}" ${t.catId===c.id?'selected':''}>${catIcon(c)} ${escHtml(c.name)}</option>`).join('')}
               </select>
             </div>
           </div>
@@ -1805,21 +1838,21 @@ function renderEventList(){
   const t=today();
   const sorted=[...events].sort((a,b)=>{const na=a.recur?nextOccurrence(a,t):a.date||'9999',nb=b.recur?nextOccurrence(b,t):b.date||'9999';return(na||'9999').localeCompare(nb||'9999');});
   list.innerHTML=sorted.map(ev=>{
-    const cat=categories.find(c=>c.id===ev.catId),rs=recurSummary(ev.recur),bg=cat?hexToRgba(cat.color,.12):'var(--bg)';
+    const cat=categories.find(c=>c.id===ev.catId),rs=recurSummary(ev.recur),bg='var(--bg)';
     const nextDate=ev.recur?nextOccurrence(ev,t):ev.date;
     const gcalUrl=makeGCalUrl(ev,nextDate);
     const catOpts=`<option value="">— none —</option>`+categories.map(c=>`<option value="${c.id}" ${ev.catId===c.id?'selected':''}>${escHtml(c.name)}</option>`).join('');
     return `<div class="event-item" style="background:${bg}" id="evitem-${ev.id}">
       <div class="item-info">
         <div style="display:flex;align-items:center;gap:8px">
-          <div class="item-name" style="flex:1;display:flex;align-items:center;">${evEmoji(ev,cat?cat.color:'var(--accent)')}${escHtml(ev.name)}</div>
+          <div class="item-name" style="flex:1;display:flex;align-items:center;">${evEmoji(ev,'var(--accent)')}${escHtml(ev.name)}</div>
           <a href="${gcalUrl}" target="_blank" style="display:none"></a>
           <button class="edit-btn" onclick="toggleEvEdit('${ev.id}')">edit</button>
           <button class="delete-btn" onclick="deleteEvent('${ev.id}')">×</button>
         </div>
         <div class="item-meta" style="margin-top:4px">
           ${ev.type && ev.type !== 'event' ? `<span class="meta-tag" style="background:var(--bg);color:var(--muted);border:1px solid var(--border)">${ev.type}</span>` : ''}
-          ${cat?`<span class="meta-tag" style="background:${cat.color};color:white">${escHtml(cat.name)}</span>`:''}
+          ${cat?`<span class="cat-icon-badge">${catIcon(cat)} ${escHtml(cat.name)}</span>`:''}
           ${nextDate?`<span class="meta-tag meta-due ${dueClass(nextDate)}">${formatDate(nextDate)}</span>`:''}
           ${ev.time?`<span class="meta-tag" style="background:#f0f0f0;color:var(--muted)">${fmtTimeStr(ev.time)}${ev.timeEnd?' – '+fmtTimeStr(ev.timeEnd):''}</span>`:''}
           ${ev.busyStatus==='busy'?`<span class="meta-tag" style="background:#e05555;color:white;">busy</span>`:''}
@@ -1951,8 +1984,10 @@ function savePlannerEvent() {
 
 function renderPlannerMonthDots() {
   const t = today();
-  const now = new Date(t + 'T00:00:00');
-  const year = now.getFullYear(), month = now.getMonth();
+  const base = new Date(t + 'T00:00:00');
+  base.setMonth(base.getMonth() + plannerMonthOffset);
+  const year = base.getFullYear(), month = base.getMonth();
+  const now = base;
   const daysInMonth = new Date(year, month + 1, 0).getDate();
   const firstDay = new Date(year, month, 1).getDay();
   const startOffset = (firstDay + 6) % 7; // Mon-first
@@ -1979,6 +2014,13 @@ function renderPlannerMonthDots() {
     if (c > maxEvCount) maxEvCount = c;
   }
 
+  // Precompute accent luma once (not per cell)
+  const accentHex = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim()||'#93aacd';
+  const ar=parseInt(accentHex.slice(1,3),16)||0x93,ag=parseInt(accentHex.slice(3,5),16)||0xaa,ab=parseInt(accentHex.slice(5,7),16)||0xcd;
+  const accentLuma = 0.299*ar + 0.587*ag + 0.114*ab;
+  const accentOnDark = '#ffffff', accentOnLight = '#1a1a1a';
+  const accentText = accentLuma > 140 ? accentOnLight : accentOnDark;
+
   const cellHtml = cells.map(d => {
     if (!d) return `<div></div>`;
     const ds = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
@@ -1986,15 +2028,21 @@ function renderPlannerMonthDots() {
     const isPast = ds < t;
     const count = events.filter(ev => occursOn(ev, ds)).length;
 
-    // Circle opacity: 0 events = 0.07 (ghost), maxEvCount = 0.85
-    const circleOpacity = isToday ? 1 : (count === 0 ? 0.07 : Math.min(0.85, 0.18 + (count / maxEvCount) * 0.67));
-    const numColor = isToday ? 'white' : (isPast ? 'var(--muted)' : 'var(--text)');
+    // Circle opacity: ghost for 0 events, darker for busy days, solid for today
+    const circleOpacity = isToday ? 1 : (count === 0 ? 0.08 : Math.min(0.82, 0.2 + (count / maxEvCount) * 0.62));
+    // Text colour: on solid circle use contrast colour; on ghost circle use bg-appropriate text
+    const circleIsSolid = circleOpacity > 0.45;
+    const numColor = isToday ? accentText
+      : circleIsSolid ? accentText
+      : isPast ? 'var(--muted)' : 'var(--text)';
 
-    return `<div style="display:flex;flex-direction:column;align-items:center;padding:3px 0;">
-      <div style="width:26px;height:26px;border-radius:50%;background:var(--accent);opacity:${circleOpacity};display:flex;align-items:center;justify-content:center;position:relative;">
-      </div>
-      <div style="font-family:'Handwriting',Georgia,serif;font-size:.65rem;color:${numColor.replace('white','var(--muted)')};margin-top:-20px;position:relative;z-index:1;text-align:center;width:26px;line-height:26px;${isPast?'opacity:.6;':''}">${d}</div>
-    </div>`;
+    // Use rgba for circle so opacity doesn't cascade to the number
+    const circleRgba = 'rgba('+ar+','+ag+','+ab+','+circleOpacity+')';
+    const spanOpacity = (isPast && !isToday) ? 'opacity:.7;' : '';
+    return `<div style="position:relative;display:flex;align-items:center;justify-content:center;padding:3px 0;">` +
+      `<div style="width:28px;height:28px;border-radius:50%;background:${circleRgba};flex-shrink:0;"></div>` +
+      `<span style="position:absolute;font-family:'Noto Serif Display',Georgia,serif;font-stretch:extra-condensed;font-size:.72rem;color:${numColor};text-align:center;line-height:1;user-select:none;${spanOpacity}">${d}</span>` +
+      `</div>`;
   }).join('');
 
   const dotsEl = document.getElementById('plannerMonthDots');
@@ -2003,6 +2051,12 @@ function renderPlannerMonthDots() {
       ${headerRow}
       ${cellHtml}
     </div>`;
+}
+
+
+function shiftPlannerMonth(dir) {
+  plannerMonthOffset += dir;
+  renderPlannerMonthDots();
 }
 
 
@@ -2019,14 +2073,14 @@ function renderPlannerEventList() {
   list.innerHTML = sorted.map(ev => {
     const cat = categories.find(c => c.id === ev.catId);
     const rs = recurSummary(ev.recur);
-    const bg = cat ? hexToRgba(cat.color, .12) : 'var(--bg)';
+    const bg = 'var(--bg)';
     const nextDate = ev.recur ? nextOccurrence(ev, t) : ev.date;
     return `<div class="event-item" style="background:${bg}">
       <div class="item-info">
         <div style="display:flex;align-items:center;gap:8px"><div class="item-name" style="flex:1">${escHtml(ev.name)}</div><button class="delete-btn" onclick="deleteEvent('${ev.id}');renderPlannerEventList()">×</button></div>
         <div class="item-meta" style="margin-top:4px">
           ${ev.type && ev.type !== 'event' ? `<span class="meta-tag" style="background:var(--bg);color:var(--muted);border:1px solid var(--border)">${ev.type}</span>` : ''}
-          ${cat ? `<span class="meta-tag" style="background:${cat.color};color:white">${escHtml(cat.name)}</span>` : ''}
+          ${cat ? `<span class="meta-tag" style="background:rgba(147,170,205,.12);color:var(--text);border:1px solid rgba(147,170,205,.4)">${catIcon(cat)} ${escHtml(cat.name)}</span>` : ''}
           ${nextDate ? `<span class="meta-tag meta-due ${dueClass(nextDate)}">${formatDate(nextDate)}</span>` : ''}
           ${ev.time ? `<span class="meta-tag" style="background:#f0f0f0;color:var(--muted)">${fmtTimeStr(ev.time)}</span>` : ''}
           ${rs ? `<span class="meta-tag meta-recur">${rs}</span>` : ''}
@@ -2057,8 +2111,8 @@ function renderWeek(){
     return `<div class="day-col ${isToday?'is-today':''}">
       <div class="day-header"><div class="day-name">${DN[i]}</div><div class="day-num">${d.getDate()}</div><div style="display:flex;align-items:center;justify-content:center;gap:2px;height:10px;">${_wcDot}<div class="day-weather" data-weather-day="${ds}"></div></div></div>
       <div class="day-items">
-        ${dayEvents.map(ev=>{const cat=categories.find(c=>c.id===ev.catId);const bg=cat?hexToRgba(cat.color,.18):'rgba(147,170,205,.15)';return `<div class="day-event" style="background:${bg}" title="${escHtml(ev.name)}">${evEmoji(ev,cat?cat.color:'var(--accent)')}${escHtml(ev.name)}</div>`;}).join('')}
-        ${dayTasks.map(tk=>{const cat=categories.find(c=>c.id===tk.catId);const bg=cat?hexToRgba(cat.color,.12):'';return `<div class="day-task" style="${bg?'background:'+bg:''}" title="${escHtml(tk.name)}">${escHtml(tk.name)}</div>`;}).join('')}
+        ${dayEvents.map(ev=>{const cat=categories.find(c=>c.id===ev.catId);const bg='var(--bg)';return `<div class="day-event" style="background:${bg}" title="${escHtml(ev.name)}">${evEmoji(ev,'var(--accent)')}${escHtml(ev.name)}</div>`;}).join('')}
+        ${dayTasks.map(tk=>{const cat=categories.find(c=>c.id===tk.catId);const bg='';return `<div class="day-task" style="${bg?'background:'+bg:''}" title="${escHtml(tk.name)}">${escHtml(tk.name)}</div>`;}).join('')}
         ${meals.filter(m=>m.date===ds).map(m=>`<div class="day-meal" title="${escHtml(m.name)}">${m.type[0].toUpperCase()}: ${escHtml(m.name)}</div>`).join('')}
       </div>
       <button class="day-add-btn" onclick="openModal('${ds}')">+</button>
@@ -2152,11 +2206,11 @@ function renderOverviewEvents(){
   container.innerHTML=header+`<div class="events-strip">
     ${todayEvs.map(ev=>{
       const cat=categories.find(c=>c.id===ev.catId);
-      const bg=cat?hexToRgba(cat.color,.12):'var(--bg)';
-      const iconCol=cat?cat.color:'var(--accent)';
+      const bg='var(--bg)';
+      const iconCol='var(--accent)';
       return `<div class="event-pill" style="background:${bg}">
-        ${cat?`<span class="meta-tag" style="background:${cat.color};color:white;font-size:.65rem">${escHtml(cat.name)}</span>`:''}
-        <span style="flex:1;display:flex;align-items:center;gap:2px;">${evEmoji(ev,iconCol)}${escHtml(ev.name)}</span>
+        ${cat?`<span class="meta-tag" style="background:rgba(147,170,205,.12);color:var(--text);border:1px solid rgba(147,170,205,.4);font-size:.65rem">${catIcon(cat)} ${escHtml(cat.name)}</span>`:''}
+        <span style="flex:1;display:flex;align-items:center;gap:2px;">${evEmoji(ev,'var(--accent)')}${escHtml(ev.name)}</span>
         ${ev.time?`<span style="font-size:.72rem;color:var(--muted)">${fmtTimeStr(ev.time)}</span>`:''}
       </div>`;
     }).join('')}
@@ -2173,34 +2227,44 @@ function assignBlocks(tl, viewDate){
   const vd=viewDate||today();
   const isToday=vd===today();
   const nowMins=isToday?(new Date().getHours()*60+new Date().getMinutes()):0;
-  const td=tl.filter(t=>occursOn(t,vd)).sort((a,b)=>{
+  // Show all non-done tasks (schedule = everything pending)
+  // Done tasks are shown dimmed if due on or before this date
+  const td=tl.filter(t=>{
+    // Events handled separately via renderOverviewEvents
+    if(t.date!==undefined)return false;
+    // Skip habit-only items with recurrence (they show via habit log)
+    if(!t.name)return false;
+    // Show undone tasks always; show recently-done tasks too (done today)
+    if(!t.done)return true;
+    // Show done tasks if they were due on this date or earlier (so you can see completed work)
+    return t.due&&t.due<=vd;
+  }).sort((a,b)=>{
     if(a.done!==b.done)return a.done?1:-1;
+    // Sort by due date (soonest first), then by duration
+    if(a.due&&b.due&&a.due!==b.due)return a.due<b.due?-1:1;
     return (a.dur||30)-(b.dur||30);
   });
   const bl={},asgn={};TIME_BLOCKS.forEach(b=>{bl[b.id]=0;asgn[b.id]=[];});
   td.forEach(t=>{
     const dur=t.dur||30;
-    // 1. Explicit drag-and-drop pin for this date takes highest priority
+    // 1. Explicit block pin (drag-and-drop)
     const pin=t.blockPins&&t.blockPins[vd];
     if(pin&&TIME_BLOCKS.find(b=>b.id===pin)){
       asgn[pin].push(t);bl[pin]+=dur;return;
     }
-    // 2. Note hints
+    // 2. Keyword hint in task notes
     const hint=noteBlockHint(t.notes);
     if(hint&&TIME_BLOCKS.find(b=>b.id===hint)){
       asgn[hint].push(t);bl[hint]+=dur;return;
     }
-    // 3. Capacity-based
+    // 3. Capacity-based: for today prefer future/current blocks, fallback to any
     let best=null,bc=-1;
-    if(isToday){
-      TIME_BLOCKS.forEach(b=>{
-        const cap=(b.end-b.start)-bl[b.id];
-        const blockActive=b.end>nowMins;
-        if((t.done||blockActive)&&cap>=dur&&cap>bc){best=b;bc=cap;}
-      });
-    } else {
-      TIME_BLOCKS.forEach(b=>{const cap=(b.end-b.start)-bl[b.id];if(cap>=dur&&cap>bc){best=b;bc=cap;}});
-    }
+    TIME_BLOCKS.forEach(b=>{
+      const cap=(b.end-b.start)-bl[b.id];
+      const active=!isToday||b.end>nowMins;
+      if(active&&cap>=dur&&cap>bc){best=b;bc=cap;}
+    });
+    // Fallback: if no active block fits (e.g. late at night), use largest capacity block
     if(!best)TIME_BLOCKS.forEach(b=>{const cap=(b.end-b.start)-bl[b.id];if(cap>bc){best=b;bc=cap;}});
     if(!best)best=TIME_BLOCKS[TIME_BLOCKS.length-1];
     asgn[best.id].push(t);
@@ -2274,12 +2338,13 @@ function renderAllOverviewForDate() {
   const ds = getCentreDate();
   scheduleViewDate = ds === today() ? null : ds;
   eventsViewDate   = ds === today() ? null : ds;
-  renderOverview();
-  renderOverviewEvents();
-  renderWater();
-  renderOverviewMeals();
-  renderOverviewUpcoming();
-  renderCycleOverview();
+  const _safe = (name, fn) => { try { fn(); } catch(e) { console.error('[Centre] '+name+' failed:', e.message, e.stack); } };
+  _safe('renderOverview', renderOverview);
+  _safe('renderOverviewEvents', renderOverviewEvents);
+  _safe('renderWater', renderWater);
+  _safe('renderOverviewMeals', renderOverviewMeals);
+  _safe('renderOverviewUpcoming', renderOverviewUpcoming);
+  _safe('renderCycleOverview', renderCycleOverview);
 }
 
 function initCentreSwipe() {
@@ -2310,6 +2375,7 @@ function initCentreSwipe() {
 }
 
 
+
 function renderOverview(){
   const vd=scheduleViewDate||today();
   const isToday=vd===today();
@@ -2317,13 +2383,13 @@ function renderOverview(){
   const nextD=addDays(vd,1);
   const labelStr=isToday?'Today':formatDate(vd);
   const container=document.getElementById('overviewBlocks');
+  if(!container)return;
   const asgn=assignBlocks(tasks,vd);
   const now=new Date(),nowMins=isToday?(now.getHours()*60+now.getMinutes()):0;
   // Timed events for this view date (shown inside block stripes only)
   const timedEvs=events.filter(ev=>occursOn(ev,vd)&&ev.time).sort((a,b)=>a.time.localeCompare(b.time));
 
   const header=`<div style="display:flex;align-items:center;margin-bottom:18px"><span class="card-title" style="margin-bottom:0">Schedule</span></div>`;
-
   container.innerHTML=header+TIME_BLOCKS.map(b=>{
     const items=asgn[b.id]||[];
     const undone=items.filter(t=>!t.done);
@@ -2349,12 +2415,12 @@ function renderOverview(){
     // Event rows shown inside the tasks wrap as slim coloured stripes
     const evRows=blockEvs.map(ev=>{
       const cat=categories.find(c=>c.id===ev.catId);
-      const col=cat?cat.color:'var(--accent)';
+      const col='var(--accent)';
       const timeLabel=ev.timeEnd?`${fmtTimeStr(ev.time)} – ${fmtTimeStr(ev.timeEnd)}`:fmtTimeStr(ev.time);
       const isBusy=ev.busyStatus==='busy';
       return `<div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;">
         <div style="width:2px;height:100%;min-height:20px;background:${col};border-radius:2px;flex-shrink:0;align-self:stretch;"></div>
-        <span style="flex:1;font-family:var(--font-body,Georgia,serif);font-size:.82rem;color:var(--text);">${evEmoji(ev,col)}${escHtml(ev.name)}</span>
+        <span style="flex:1;font-family:var(--font-body,Georgia,serif);font-size:.82rem;color:var(--text);">${evEmoji(ev,'var(--accent)')}${escHtml(ev.name)}</span>
         <span style="font-family:var(--font-body,Georgia,serif);font-size:.72rem;color:var(--muted);">${timeLabel}</span>
         ${isBusy?`<span style="font-size:.62rem;background:${col};color:white;border-radius:4px;padding:1px 5px;font-family:var(--font-body,Georgia,serif);">busy</span>`:''}
       </div>`;
@@ -2365,7 +2431,7 @@ function renderOverview(){
       <div class="block-tasks-wrap" data-block-id="${b.id}" ondragover="dndOver(event)" ondrop="dndDrop(event,'${b.id}','${vd}')" ondragleave="dndLeave(event)">
         ${evRows}
         <div class="block-tasks">${items.length?items.map(t=>{
-          const cat=categories.find(c=>c.id===t.catId);const bg=cat?hexToRgba(cat.color,.1):'var(--bg)';
+          const cat=categories.find(c=>c.id===t.catId);const bg='var(--bg)';
           const isDone=t.habit?habitLog.some(e=>e.taskId===t.id&&e.date===vd&&!e.frozen):t.done;
           return `<div class="block-task-item ${isDone?'done':''}" style="background:${bg}" draggable="true" data-task-id="${t.id}" data-from-block="${b.id}" ondragstart="dndStart(event)" ondragend="dndEnd(event)">
             <span class="dnd-handle" title="Drag to move">⠿</span>
@@ -2384,39 +2450,32 @@ function renderOverview(){
 function renderWater(){
   const goal=waterGoal||8;
   const totalMl=goal*250;
-  const filledMl=waterFilled*250;
-  const centreDs=getCentreDate();
-  const isToday=centreDs===today();
-  // For past days via centre swipe, show that day's ml from history
-  let displayFilled=waterFilled;
-  let displayMl=waterFilled*250;
-  if(!isToday){
-    const history=getWaterHistoryByDate();
-    displayMl=history[centreDs]||0;
-    displayFilled=Math.round(displayMl/250);
-  }
+  const history=getWaterHistoryByDate();
+  const displayMl=history[today()]||0;
+  const displayFilled=Math.min(goal,Math.round(displayMl/250));
+  waterFilled=displayFilled;
   const pct=goal>0?Math.round(displayFilled/goal*100):0;
-  // Settings labels
+
+  const gl=document.getElementById('waterGoalLabel');
+  if(gl)gl.textContent=displayMl.toLocaleString()+' / '+totalMl.toLocaleString()+' ml';
+  const wml=document.getElementById('waterMl');
+  if(wml)wml.textContent=displayMl.toLocaleString()+' ml today';
+  const wp=document.getElementById('waterPct');
+  if(wp)wp.textContent=pct>0?pct+'%':'';
+
+  const row=document.getElementById('waterCupsRow');
+  if(row){
+    row.innerHTML=Array.from({length:goal},(_,i)=>
+      '<div class="water-bar '+(i<displayFilled?'filled':'')+'" onclick="tapWater('+i+')" title="'+(i+1)*250+' ml"><div class="wfill"></div></div>'
+    ).join('');
+  }
+
+  // Settings page labels
   const sv=document.getElementById('settingsWaterGoalVal');if(sv)sv.textContent=goal;
   const sm=document.getElementById('settingsWaterMl');if(sm)sm.textContent=totalMl.toLocaleString()+' ml';
-  // Centre card header
-  const gl=document.getElementById('waterGoalLabel');if(gl)gl.textContent=`${displayMl.toLocaleString()} / ${totalMl.toLocaleString()} ml`;
-  const wml=document.getElementById('waterMl');if(wml){
-    const label=isToday?'today':new Date(centreDs+'T00:00:00').toLocaleDateString('en-AU',{weekday:'short',day:'numeric',month:'short'});
-    wml.textContent=`${displayMl.toLocaleString()} ml ${label}`;
-  }
-  const wp=document.getElementById('waterPct');if(wp)wp.textContent=pct>0?`${pct}%`:'';
-  // Cup row
-  const row=document.getElementById('waterCupsRow');if(!row)return;
-  if(isToday){
-    row.innerHTML=Array.from({length:goal},(_,i)=>`<div class="water-bar ${i<waterFilled?'filled':''}" onclick="tapWater(${i})" title="${(i+1)*250} ml"><div class="wfill"></div></div>`).join('');
-  } else {
-    row.innerHTML=Array.from({length:goal},(_,i)=>`<div class="water-bar ${i<displayFilled?'filled':''}" style="cursor:default"><div class="wfill"></div></div>`).join('')
-      +`<div style="margin-top:8px;display:flex;justify-content:flex-end;">
-        <button onclick="editWaterDay('${centreDs}')" id="waterbar-${centreDs}" style="font-family:'Handwriting',Georgia,serif;font-size:.72rem;border:1.5px dashed var(--border);border-radius:8px;padding:3px 10px;background:none;color:var(--muted);cursor:pointer;">Edit this day</button>
-      </div>`;
-  }
 }
+
+
 function tapWater(i){
   if(i<waterFilled){ waterFilled=i; }
   else { waterFilled=i+1; }
@@ -2606,7 +2665,7 @@ function renderHabitsDashboard(){
       ${hts.map(t=>{
         const done=habitIsDoneToday(t);
         const cat=categories.find(c=>c.id===t.catId);
-        const col=cat?cat.color:'var(--accent)';
+        const col='var(--accent)';
         return `<div style="display:flex;align-items:center;gap:6px;padding:5px 12px;border-radius:20px;background:${done?hexToRgba(col,.15):'var(--bg)'};border:1.5px solid ${done?col:'var(--border)'};">
           <span style="width:8px;height:8px;border-radius:50%;background:${done?col:'var(--border)'};flex-shrink:0;display:inline-block;"></span>
           <span style="font-size:.8rem;font-family:var(--font-display,Georgia,serif);color:${done?'var(--text)':'var(--muted)'};">${escHtml(t.name)}</span>
@@ -2614,76 +2673,193 @@ function renderHabitsDashboard(){
       }).join('')}
     </div>`;
 
-  // Full habit cards
-  cardsContainer.innerHTML=`<div class="habit-cards" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;">
-    ${hts.map(t=>{
-      const g=t.habit;
-      const cat=categories.find(c=>c.id===t.catId);
-      const borderColor=cat?cat.color:'var(--border)';
-      const done=habitIsDoneToday(t);
-      let progressHtml='',actionsHtml='';
+  // Group habits by type
+  const types=[
+    {key:'streak',  label:'Streaks'},
+    {key:'frequency',label:'Frequency'},
+    {key:'quantity', label:'Quantity'},
+    {key:'cumulative',label:'Cumulative'},
+  ];
 
-      if(g.type==='quantity'){
-        const qty=getTodayQty(t.id),pct=Math.min(100,Math.round(qty/g.target*100));
-        const steps=Math.round(g.target/g.increment);
-        const filledSteps=Math.min(steps,Math.round(qty/g.increment));
-        const size=Math.max(22,Math.min(40,Math.floor(280/(steps+2))));
-        progressHtml=`
-          <div class="qty-circles" style="gap:${steps>8?'4px':'8px'};flex-wrap:wrap;">
-            ${Array.from({length:steps},(_,i)=>`<div class="qty-circle ${i<filledSteps?'filled':''}" style="width:${size}px;height:${size}px" onclick="logHabit('${t.id}',${g.increment})"><div class="fill"></div></div>`).join('')}
-          </div>
-          <div class="progress-label" style="margin-top:6px"><span>${qty.toLocaleString()} ${g.unit}</span><span>${g.target.toLocaleString()} ${g.unit}</span></div>`;
-        actionsHtml=`<button class="habit-action-btn" onclick="unlogHabit('${t.id}')">− ${g.increment}${g.unit}</button><button class="habit-action-btn primary" onclick="logHabit('${t.id}',${g.increment})">+ ${g.increment}${g.unit}</button>`;
-      }
+  let html='';
+  types.forEach(({key,label})=>{
+    const group=hts.filter(t=>t.habit.type===key);
+    if(!group.length)return;
 
-      if(g.type==='frequency'){
-        const{done:d,target}=getFreqProgress(t);
-        const pct=Math.min(100,Math.round(d/target*100));
-        const periodLabel=g.period==='custom'?`per ${g.customDays} days`:g.period;
-        progressHtml=`<div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:${pct}%"></div></div><div class="progress-label"><span>${d} / ${target} ${periodLabel}</span><span>${pct}%</span></div>`;
-        const todayLogged=getHabitLogToday(t.id).length>0;
-        actionsHtml=`<button class="habit-action-btn ${todayLogged?'':'primary'}" onclick="${todayLogged?`unlogHabit('${t.id}');renderHabitsDashboard()`:`logHabit('${t.id}')`}">${todayLogged?'Undo':'Done today'}</button>`;
-      }
+    html+=`<div style="margin-bottom:28px;">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;">
+        <span style="font-family:var(--font-display,Georgia,serif);font-weight:400;font-stretch:extra-condensed;text-transform:uppercase;letter-spacing:.12em;font-size:1.05rem;color:var(--text);">${label}</span>
+        <div style="flex:1;height:1.5px;background:var(--border);"></div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:14px;">
+        ${group.map(t=>renderHabitCard(t)).join('')}
+      </div>
+    </div>`;
+  });
 
-      if(g.type==='streak'){
-        const{current,best}=getStreak(t);
-        const ms=MILESTONES.map(m=>({val:m,achieved:current>=m}));
-        const last7=Array.from({length:7},(_,i)=>{const d2=new Date();d2.setDate(d2.getDate()-(6-i));const ds=dateStr(d2);const wasDone=habitLog.some(e=>e.taskId===t.id&&e.date===ds);return`<div class="streak-dot ${wasDone?'done':''}" title="${ds}"></div>`;}).join('');
-        progressHtml=`
-          <div class="streak-display">
-            <div><div class="streak-num">${current}</div><div class="streak-label">day streak</div></div>
-            <div class="streak-dots">${last7}</div>
-            <div class="streak-best">Best<br>${best} days</div>
-          </div>
-          <div class="milestones">${ms.map(m=>`<span class="milestone ${m.achieved?'achieved':''}">${m.val}d</span>`).join('')}</div>`;
-        const todayLogged=habitLog.some(e=>e.taskId===t.id&&e.date===today());
-        const freezeLeft=(g.freezes||0)-(g.freezesUsed||0);
-        actionsHtml=`
-          <button class="habit-action-btn ${todayLogged?'':'primary'}" onclick="${todayLogged?`unlogHabit('${t.id}')`:`logHabit('${t.id}')`}">${todayLogged?'Undo':'Done today'}</button>
-          ${freezeLeft>0?`<button class="habit-action-btn" onclick="useFreeze('${t.id}')" title="Protect streak without completing">Freeze (${freezeLeft})</button>`:''}`;
-      }
+  cardsContainer.innerHTML=html;
+}
 
-      if(g.type==='cumulative'){
-        const cp=getCumProgress(t);
-        const pct=Math.min(100,Math.round(cp.done/cp.target*100));
-        const dl=g.deadline?` · by ${formatDate(g.deadline)}`:'';
-        progressHtml=`<div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:${pct}%"></div></div><div class="progress-label"><span>${cp.done.toLocaleString()} / ${cp.target.toLocaleString()} ${g.unit}${dl}</span><span>${pct}%</span></div>`;
-        actionsHtml=`<input class="form-input" type="number" id="cumInput-${t.id}" min="1" value="1" style="width:72px;padding:4px 8px;flex-shrink:0;"><button class="habit-action-btn primary" onclick="logHabit('${t.id}',parseInt(document.getElementById('cumInput-${t.id}').value)||1)">Add</button><button class="habit-action-btn" onclick="unlogHabit('${t.id}')">Undo</button>`;
-      }
+function renderHabitCard(t){
+  const g=t.habit;
+  const cat=categories.find(c=>c.id===t.catId);
+  const col='var(--accent)';
+  const done=habitIsDoneToday(t);
+  const borderCol=done?col:'var(--border)';
 
-      return `<div class="habit-card" style="border-color:${done?borderColor:'var(--border)'};${done?'opacity:.7':''}">
-        <div class="habit-card-header">
-          <div>
-            <div class="habit-card-name">${escHtml(t.name)}</div>
-            <div class="habit-card-type">${g.type}${g.unit?' · '+g.unit:''}</div>
-          </div>
-          <div class="habit-card-actions">${actionsHtml}</div>
+  let graphHtml='', actionsHtml='';
+
+  // ── STREAK: 30-day GitHub heatmap ──────────────────────────────────────────
+  if(g.type==='streak'){
+    const{current,best}=getStreak(t);
+    const todayLogged=habitLog.some(e=>e.taskId===t.id&&e.date===today());
+    const freezeLeft=(g.freezes||0)-(g.freezesUsed||0);
+
+    // Build 30-day heatmap (5 rows × 6 cols, newest bottom-right)
+    const DAYS=30;
+    const cells=[];
+    for(let i=DAYS-1;i>=0;i--){
+      const d=new Date();d.setDate(d.getDate()-i);
+      const ds=dateStr(d);
+      const wasDone=habitLog.some(e=>e.taskId===t.id&&e.date===ds&&!e.frozen);
+      const isFrozen=habitLog.some(e=>e.taskId===t.id&&e.date===ds&&e.frozen);
+      const isToday=ds===today();
+      const bg=wasDone?col:isFrozen?'var(--water-border)':'var(--bg)';
+      const border=isToday?col:'transparent';
+      cells.push(`<div title="${ds}" style="width:18px;height:18px;border-radius:4px;background:${bg};border:2px solid ${border};flex-shrink:0;"></div>`);
+    }
+
+    // 6 cols of 5 rows
+    const cols=[];
+    for(let c=0;c<6;c++){
+      cols.push(`<div style="display:flex;flex-direction:column;gap:3px;">${cells.slice(c*5,(c+1)*5).join('')}</div>`);
+    }
+
+    // Milestones row
+    const ms=MILESTONES.map(m=>`<span style="font-family:var(--font-body,Georgia,serif);font-size:.65rem;padding:2px 7px;border-radius:20px;background:${current>=m?col:'var(--bg)'};color:${current>=m?'white':'var(--muted)'};border:1px solid ${current>=m?col:'var(--border)'};">${m}d</span>`).join('');
+
+    graphHtml=`
+      <div style="display:flex;gap:16px;align-items:flex-start;margin-bottom:14px;">
+        <div>
+          <div style="font-family:var(--font-display,Georgia,serif);font-weight:400;font-stretch:extra-condensed;font-size:2.8rem;letter-spacing:.02em;color:${col};line-height:1;">${current}</div>
+          <div style="font-size:.68rem;color:var(--muted);font-family:var(--font-body,Georgia,serif);margin-top:1px;">day streak</div>
+          <div style="font-size:.65rem;color:var(--muted);font-family:var(--font-body,Georgia,serif);margin-top:4px;">Best: ${best}d</div>
         </div>
-        ${progressHtml}
+        <div style="flex:1;">
+          <div style="display:flex;gap:3px;flex-wrap:nowrap;overflow:hidden;">
+            ${cols.join('')}
+          </div>
+          <div style="display:flex;justify-content:space-between;margin-top:4px;font-size:.6rem;color:var(--muted);font-family:var(--font-body,Georgia,serif);">
+            <span>30 days ago</span><span>today</span>
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:12px;">${ms}</div>`;
+
+    actionsHtml=`<button class="habit-action-btn ${todayLogged?'':'primary'}" onclick="${todayLogged?`unlogHabit('${t.id}');renderHabitsDashboard()`:`logHabit('${t.id}')`}">${todayLogged?'Undo today':'Done today'}</button>${freezeLeft>0?`<button class="habit-action-btn" onclick="useFreeze('${t.id}')" title="Protect streak">Freeze (${freezeLeft})</button>`:''}`;
+  }
+
+  // ── QUANTITY: 7-day vertical bar chart ────────────────────────────────────
+  if(g.type==='quantity'){
+    const todayQty=getTodayQty(t.id);
+    const pct=Math.min(100,Math.round(todayQty/g.target*100));
+
+    // 7-day history bars
+    const DAYS=7;
+    const history=[];
+    for(let i=DAYS-1;i>=0;i--){
+      const d=new Date();d.setDate(d.getDate()-i);
+      const ds=dateStr(d);
+      const ml=habitLog.filter(e=>e.taskId===t.id&&e.date===ds).reduce((s,e)=>s+(e.value||0),0);
+      const isToday=ds===today();
+      const dayLabel=i===0?'T':i===1?'Y':d.toLocaleDateString('en-AU',{weekday:'short'}).charAt(0);
+      history.push({ds,ml,isToday,dayLabel});
+    }
+    const maxVal=Math.max(...history.map(h=>h.ml), g.target, 1);
+
+    const bars=history.map(h=>{
+      const barH=Math.round((h.ml/maxVal)*56);
+      const op=h.isToday?'1':'0.45';
+      const targetH=Math.round((g.target/maxVal)*56);
+      return `<div style="display:flex;flex-direction:column;align-items:center;gap:3px;flex:1;">
+        <div style="position:relative;width:100%;height:60px;display:flex;align-items:flex-end;justify-content:center;">
+          <div style="position:absolute;bottom:${targetH}px;left:0;right:0;height:1px;background:var(--border);"></div>
+          <div style="width:70%;background:${col};opacity:${op};border-radius:3px 3px 0 0;height:${barH}px;min-height:${h.ml>0?2:0}px;transition:height .3s;"></div>
+        </div>
+        <span style="font-size:.58rem;color:${h.isToday?col:'var(--muted)'};font-family:var(--font-body,Georgia,serif);">${h.dayLabel}</span>
       </div>`;
-    }).join('')}
+    }).join('');
+
+    graphHtml=`
+      <div style="display:flex;align-items:center;gap:16px;margin-bottom:12px;">
+        <div>
+          <div style="font-family:var(--font-display,Georgia,serif);font-weight:400;font-stretch:extra-condensed;font-size:2.4rem;letter-spacing:.02em;color:${col};line-height:1;">${pct}%</div>
+          <div style="font-size:.68rem;color:var(--muted);font-family:var(--font-body,Georgia,serif);margin-top:1px;">${todayQty.toLocaleString()} / ${g.target.toLocaleString()} ${g.unit}</div>
+        </div>
+        <div style="flex:1;display:flex;gap:3px;align-items:flex-end;">${bars}</div>
+      </div>`;
+    actionsHtml=`<button class="habit-action-btn" onclick="unlogHabit('${t.id}')">− ${g.increment}${g.unit}</button><button class="habit-action-btn primary" onclick="logHabit('${t.id}',${g.increment})">+ ${g.increment}${g.unit}</button>`;
+  }
+
+  // ── FREQUENCY: SVG ring chart ──────────────────────────────────────────────
+  if(g.type==='frequency'){
+    const{done:doneCount,target}=getFreqProgress(t);
+    const ringPct=Math.min(1,doneCount/target);
+    const R=32, C=2*Math.PI*R;
+    const dash=ringPct*C, gap=C-dash;
+    const periodLabel=g.period==='custom'?`per ${g.customDays}d`:g.period;
+    const todayLogged=getHabitLogToday(t.id).length>0;
+
+    graphHtml=`
+      <div style="display:flex;align-items:center;gap:18px;margin-bottom:12px;">
+        <svg width="80" height="80" viewBox="0 0 80 80" style="flex-shrink:0;">
+          <circle cx="40" cy="40" r="${R}" fill="none" stroke="var(--bg)" stroke-width="10"/>
+          <circle cx="40" cy="40" r="${R}" fill="none" stroke="${col}" stroke-width="10"
+            stroke-dasharray="${dash.toFixed(2)} ${gap.toFixed(2)}"
+            stroke-linecap="round"
+            transform="rotate(-90 40 40)"
+            style="transition:stroke-dasharray .4s;"/>
+          <text x="40" y="36" text-anchor="middle" font-family="var(--font-display,Georgia,serif)" font-size="18" fill="var(--text)" font-stretch="extra-condensed">${doneCount}</text>
+          <text x="40" y="50" text-anchor="middle" font-family="var(--font-body,Georgia,serif)" font-size="9" fill="var(--muted)">of ${target}</text>
+        </svg>
+        <div>
+          <div style="font-size:.9rem;font-family:var(--font-body,Georgia,serif);color:var(--text);margin-bottom:4px;">${doneCount} of ${target} ${periodLabel}</div>
+          <div style="font-size:.72rem;color:var(--muted);font-family:var(--font-body,Georgia,serif);">${Math.round(ringPct*100)}% complete</div>
+        </div>
+      </div>`;
+    actionsHtml=`<button class="habit-action-btn ${todayLogged?'':'primary'}" onclick="${todayLogged?`unlogHabit('${t.id}');renderHabitsDashboard()`:`logHabit('${t.id}')`}">${todayLogged?'Undo':'Done today'}</button>`;
+  }
+
+  // ── CUMULATIVE: horizontal fill bar ───────────────────────────────────────
+  if(g.type==='cumulative'){
+    const cp=getCumProgress(t);
+    const pct=Math.min(100,Math.round(cp.done/cp.target*100));
+    const dl=g.deadline?` · by ${formatDate(g.deadline)}`:'';
+    graphHtml=`
+      <div style="margin-bottom:12px;">
+        <div style="display:flex;justify-content:space-between;font-size:.75rem;color:var(--muted);font-family:var(--font-body,Georgia,serif);margin-bottom:6px;">
+          <span>${cp.done.toLocaleString()} ${g.unit}</span><span>${cp.target.toLocaleString()} ${g.unit}${dl}</span>
+        </div>
+        <div style="height:10px;background:var(--bg);border-radius:20px;overflow:hidden;">
+          <div style="height:100%;width:${pct}%;background:${col};border-radius:20px;transition:width .4s;"></div>
+        </div>
+        <div style="font-size:.68rem;color:var(--muted);margin-top:4px;font-family:var(--font-body,Georgia,serif);">${pct}% complete</div>
+      </div>`;
+    actionsHtml=`<input class="form-input" type="number" id="cumInput-${t.id}" min="1" value="1" style="width:72px;padding:4px 8px;flex-shrink:0;"><button class="habit-action-btn primary" onclick="logHabit('${t.id}',parseInt(document.getElementById('cumInput-${t.id}').value)||1)">Add</button><button class="habit-action-btn" onclick="unlogHabit('${t.id}')">Undo</button>`;
+  }
+
+  return `<div class="habit-card" style="border-left:3px solid ${col};border-top:1.5px solid ${borderCol};border-right:1.5px solid ${borderCol};border-bottom:1.5px solid ${borderCol};${done?'opacity:.75':''}">
+    <div class="habit-card-header">
+      <div>
+        <div class="habit-card-name">${escHtml(t.name)}</div>
+        <div class="habit-card-type">${g.type}${g.unit?' · '+g.unit:''}</div>
+      </div>
+      <div class="habit-card-actions">${actionsHtml}</div>
+    </div>
+    ${graphHtml}
   </div>`;
 }
+
 
 // ---- TEMPLATES ----
 function addTemplate(){
@@ -2713,12 +2889,12 @@ function renderTemplateList(){
   if(!templates.length){el.innerHTML=`<div class="empty-msg">No templates yet.</div>`;return;}
   el.innerHTML=`<div style="display:flex;flex-direction:column;gap:8px;">${templates.map(t=>{
     const cat=categories.find(c=>c.id===t.catId);
-    const bg=cat?hexToRgba(cat.color,.1):'var(--bg)';
+    const bg='var(--bg)';
     return `<div style="display:flex;align-items:flex-start;gap:10px;padding:11px 13px;border-radius:12px;background:${bg};">
       <div style="flex:1;min-width:0;">
         <div style="display:flex;align-items:center;gap:7px;margin-bottom:4px;">
           <span style="font-size:.88rem;">${escHtml(t.name)}</span>
-          ${cat?`<span class="meta-tag" style="background:${cat.color};color:white;font-size:.62rem">${escHtml(cat.name)}</span>`:''}
+          ${cat?`<span class="meta-tag" style="background:rgba(147,170,205,.12);color:var(--text);border:1px solid rgba(147,170,205,.4);font-size:.62rem">${catIcon(cat)} ${escHtml(cat.name)}</span>`:''}
           
         </div>
         ${t.notes?`<div style="font-size:.74rem;color:var(--muted);margin-bottom:4px;">${escHtml(t.notes)}</div>`:''}
@@ -2733,34 +2909,50 @@ function renderTemplateList(){
 }
 
 // ---- CATEGORIES ----
-function previewCatColor(){const hex=document.getElementById('catHex').value.trim();if(/^#[0-9a-fA-F]{6}$/.test(hex))document.getElementById('catSwatch').style.background=hex;}
+// previewCatColor removed - now uses icons
 function addCategory(){
   const name=document.getElementById('catName').value.trim();if(!name)return;
-  const hex=document.getElementById('catHex').value.trim();
-  categories.push({id:newCatId(),name,color:/^#[0-9a-fA-F]{6}$/.test(hex)?hex:'#93aacd'});
-  document.getElementById('catName').value='';document.getElementById('catHex').value='';document.getElementById('catSwatch').style.background='#93aacd';
+  const icon=document.getElementById('catIconVal').value||'★';
+  categories.push({id:newCatId(),name,icon});
+  document.getElementById('catName').value='';
+  document.getElementById('catIconVal').value='👤';
+  document.getElementById('catIconPreview').textContent='👤';
+  document.querySelectorAll('.icon-pick-btn').forEach(b=>b.classList.remove('sel'));
   scheduleSave();renderCategories();renderCatSelects();
+}
+function selectCatIcon(ic){
+  document.getElementById('catIconVal').value=ic;
+  document.getElementById('catIconPreview').textContent=ic;
+  document.querySelectorAll('.icon-pick-btn').forEach(b=>b.classList.toggle('sel',b.textContent===ic));
 }
 function deleteCategory(id){
   categories=categories.filter(c=>c.id!==id);tasks.forEach(t=>{if(t.catId===id)t.catId='';});events.forEach(e=>{if(e.catId===id)e.catId='';});
   scheduleSave();renderCategories();renderCatSelects();renderTasks();renderEventList();
 }
 function renderCategories(){
+  const ICONS=['★','♥','⚡','✦','◆','●','👤','💼','🎂','📅','✉','☎','🏠','🛒','🍽','🎵','📚','🏃','💊','💰','🎯','🌿','✈','🔔'];
   const sorted=[...categories].sort((a,b)=>a.name.localeCompare(b.name));
-  document.getElementById('catList').innerHTML = sorted.length ? sorted.map(c=>`
-    <div class="cat-list-row">
-      <input type="color" class="cat-color-pick" value="${c.color}" title="Change colour"
-        oninput="updateCatColor('${c.id}',this.value)"
-        style="background:${c.color};">
-      <input class="form-input cat-name-input" value="${escHtml(c.name)}"
-        onchange="updateCatName('${c.id}',this.value)"
-        onblur="updateCatName('${c.id}',this.value)">
-      <button class="delete-btn" onclick="deleteCategory('${c.id}')" title="Delete">×</button>
-    </div>`).join('') : '<p style="font-size:.82rem;color:var(--muted);">No categories yet.</p>';
+  const el=document.getElementById('catList');if(!el)return;
+  el.innerHTML = sorted.length ? sorted.map(c=>{
+    const icon=c.icon||c.color||'★';
+    const iconBtns=ICONS.map(ic=>`<button type="button" class="icon-pick-btn${ic===icon?' sel':''}" onclick="updateCatIcon('${c.id}','${ic}');this.closest('.cat-edit-icons').querySelectorAll('.icon-pick-btn').forEach(b=>b.classList.remove('sel'));this.classList.add('sel');">${ic}</button>`).join('');
+    return `<div class="cat-list-row" style="flex-direction:column;align-items:stretch;gap:6px;padding:10px;background:var(--bg);border-radius:10px;margin-bottom:6px;">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span style="font-size:1.1rem;width:24px;text-align:center;">${escHtml(icon)}</span>
+        <input class="form-input cat-name-input" value="${escHtml(c.name)}" style="flex:1;"
+          onchange="updateCatName('${c.id}',this.value)"
+          onblur="updateCatName('${c.id}',this.value)">
+        <button class="delete-btn" onclick="deleteCategory('${c.id}')" title="Delete">×</button>
+      </div>
+      <div class="icon-picker-grid cat-edit-icons" style="display:none;" id="cat-icons-${c.id}">${iconBtns}</div>
+      <button type="button" style="font-size:.72rem;background:none;border:1px dashed var(--border);border-radius:6px;padding:3px 8px;cursor:pointer;color:var(--muted);align-self:flex-start;" onclick="const g=document.getElementById('cat-icons-${c.id}');g.style.display=g.style.display==='none'?'grid':'none';">Change icon</button>
+    </div>`;
+  }).join('') : '<p style="font-size:.82rem;color:var(--muted);">No categories yet.</p>';
 }
-function updateCatColor(id,hex){const c=categories.find(c=>c.id===id);if(c){c.color=hex;scheduleSave();renderCategories();renderCatSelects();renderTasks();renderEventList();}}
+function updateCatIcon(id,icon){const c=categories.find(c=>c.id===id);if(c){c.icon=icon;scheduleSave();renderCategories();}}
+// updateCatColor removed - using icons now
 function updateCatName(id,name){const c=categories.find(c=>c.id===id);if(c&&name.trim()){c.name=name.trim();scheduleSave();renderCatSelects();renderTasks();renderEventList();}}
-function renderCatSelects(){const opts=`<option value="">— none —</option>`+categories.map(c=>`<option value="${c.id}">${escHtml(c.name)}</option>`).join('');['tCat','evCat','mEvCat','tplCat'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML=opts;});}
+function renderCatSelects(){const opts=`<option value="">— none —</option>`+categories.map(c=>`<option value="${c.id}">${c.icon||'★'} ${escHtml(c.name)}</option>`).join('');['tCat','evCat','mEvCat','tplCat'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML=opts;});}
 
 // ---- SETTINGS ----
 const PHASE_VARS = ['--phase-menstrual','--phase-follicular','--phase-ovulation','--phase-luteal'];
@@ -2827,11 +3019,11 @@ function recurToStr(r){if(!r)return '';return JSON.stringify(r);}
 function strToRecur(s){if(!s)return null;try{return JSON.parse(s);}catch{return null;}}
 function tasksToRows(){return tasks.map(t=>({ID:t.id,Name:t.name,Category:categories.find(c=>c.id===t.catId)?.name||'','Due Date':t.due||'','Duration (mins)':t.dur||'',Done:t.done?'Yes':'No',Recurrence:recurToStr(t.recur),'Is Habit':t.habit?'Yes':'No','Habit Goal':t.habit?JSON.stringify(t.habit):''}));}
 function eventsToRows(){return events.map(e=>({ID:e.id,Name:e.name,Type:e.type,Category:categories.find(c=>c.id===e.catId)?.name||'',Date:e.date||'',Time:e.time||'',Notes:e.notes||'',Recurrence:recurToStr(e.recur)}));}
-function categoriesToRows(){return categories.map(c=>({ID:c.id,Name:c.name,'Hex Colour':c.color}));}
+function categoriesToRows(){return categories.map(c=>({ID:c.id,Name:c.name,Icon:c.icon||'★'}));}
 function habitsToRows(){return habitTasks().map(t=>({ID:t.id,Name:t.name,'Goal Type':t.habit.type,'Goal Config':JSON.stringify(t.habit),'Log Entries':habitLog.filter(e=>e.taskId===t.id).length}));}
 function makeWorkbook(sheets){const wb=XLSX.utils.book_new();Object.entries(sheets).forEach(([name,rows])=>{const ws=XLSX.utils.json_to_sheet(rows.length?rows:[{}]);XLSX.utils.book_append_sheet(wb,ws,name);});return wb;}
 function exportSheet(type){let wb,fname;if(type==='tasks'){wb=makeWorkbook({Tasks:tasksToRows()});fname='centre-tasks.xlsx';}else if(type==='events'){wb=makeWorkbook({Events:eventsToRows()});fname='centre-events.xlsx';}else if(type==='categories'){wb=makeWorkbook({Categories:categoriesToRows()});fname='centre-categories.xlsx';}else if(type==='habits'){wb=makeWorkbook({Habits:habitsToRows()});fname='centre-habits.xlsx';}else{wb=makeWorkbook({Tasks:tasksToRows(),Events:eventsToRows(),Categories:categoriesToRows(),Habits:habitsToRows()});fname='centre-export.xlsx';}XLSX.writeFile(wb,fname);}
-function exportTemplate(){const wb=makeWorkbook({Tasks:[{ID:'',Name:'',Category:'','Due Date':'','Duration (mins)':'',Done:'',Recurrence:'','Is Habit':'','Habit Goal':''}],Events:[{ID:'',Name:'',Type:'',Category:'',Date:'',Time:'',Notes:'',Recurrence:''}],Categories:[{ID:'',Name:'','Hex Colour':''}],Habits:[{ID:'',Name:'','Goal Type':'','Goal Config':''}]});XLSX.writeFile(wb,'centre-template.xlsx');}
+function exportTemplate(){const wb=makeWorkbook({Tasks:[{ID:'',Name:'',Category:'','Due Date':'','Duration (mins)':'',Done:'',Recurrence:'','Is Habit':'','Habit Goal':''}],Events:[{ID:'',Name:'',Type:'',Category:'',Date:'',Time:'',Notes:'',Recurrence:''}],Categories:[{ID:'',Name:'',Icon:''}],Habits:[{ID:'',Name:'','Goal Type':'','Goal Config':''}]});XLSX.writeFile(wb,'centre-template.xlsx');}
 function importExcel(input){
   const file=input.files[0];if(!file)return;
   const fb=document.getElementById('importFeedback');
@@ -2878,11 +3070,11 @@ function importExcel(input){
         XLSX.utils.sheet_to_json(wb.Sheets[catSheet]).forEach(r=>{
           const name=col(r,['Name','Category','cat name']);
           if(!name)return;
-          const color=col(r,['Hex Colour','Hex Color','Color','Colour','hex'])||'#93aacd';
+          const icon=col(r,['Icon','icon'])||'★';
           const id=col(r,['ID','id']);
           const ex=categories.find(c=>(id&&c.id===id)||c.name.toLowerCase()===name.toLowerCase());
-          if(ex){ex.name=name;if(/^#[0-9a-fA-F]{6}$/.test(color))ex.color=color;}
-          else{categories.push({id:id||newCatId(),name,color:/^#[0-9a-fA-F]{6}$/.test(color)?color:'#93aacd'});cc++;}
+          if(ex){ex.name=name;ex.icon=icon||ex.icon||'★';}
+          else{categories.push({id:id||newCatId(),name,icon:icon||'★'});cc++;}
         });
         renderCategories();renderCatSelects();
       }
@@ -3066,7 +3258,7 @@ function addRecipeToGrocery(recipeId) {
   let added = 0;
   lines.forEach(line => {
     if (!line) return;
-    grocList.push({ id: 'GRC-'+Date.now()+'-'+added, name: line, qty: '', checked: false, note: r.name });
+    grocItems.push({ id: newGrocId(), name: line, qty: '', got: false, aisle: '', note: r.name });
     added++;
   });
   scheduleSave();
@@ -3075,6 +3267,7 @@ function addRecipeToGrocery(recipeId) {
 }
 
 function escHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function catIcon(c){return c?(c.icon||'★'):'';} // helper for legacy categories without icon
 
 // ---- CALENDAR EXPORT ----
 function icsDate(dateStr,timeStr){
@@ -3433,13 +3626,13 @@ function renderOverviewUpcoming(){
 
   function renderRow({ev,days},highlight){
     const cat=categories.find(c=>c.id===ev.catId);
-    const col=cat?cat.color:'var(--accent)';
+    const col='var(--accent)';
     const dayLabel=days===0?'Today':days===1?'Tomorrow':`${days} days`;
     const bg=highlight?`${hexToRgba(col,.08)}`:'var(--bg)';
     const labelCol=highlight?col:'var(--muted)';
     return `<div style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:11px;background:${bg};">
       <div style="width:3px;min-height:20px;align-self:stretch;border-radius:2px;background:${col};flex-shrink:0;"></div>
-      <span style="flex:1;font-family:var(--font-body,Georgia,serif);font-size:.88rem;">${evEmoji(ev,col)}${escHtml(ev.name)}</span>
+      <span style="flex:1;font-family:var(--font-body,Georgia,serif);font-size:.88rem;">${evEmoji(ev,'var(--accent)')}${escHtml(ev.name)}</span>
       <span style="font-family:var(--font-body,Georgia,serif);font-size:.8rem;color:${labelCol};">${dayLabel}</span>
     </div>`;
   }
@@ -3799,7 +3992,7 @@ function applyRemoteData(remote) {
   if (pid === 'tasks')    safeRender(renderTasks);
   if (pid === 'events')   safeRender(renderEventList);
   if (pid === 'habits')   { safeRender(renderHabitsDashboard); safeRender(renderWaterHabitCard); }
-  if (pid === 'meals')    safeRender(() => { if(typeof renderMealLog==='function') renderMealLog(); });
+  if (pid === 'meals')    { safeRender(() => { if(typeof renderMealLog==='function') renderMealLog(); }); safeRender(renderRecipeList); }
   if (pid === 'lists')    safeRender(renderGrocList);
   if (pid === 'weekly')   safeRender(renderWeek);
   if (pid === 'cycle')    safeRender(renderCyclePage);
@@ -4745,7 +4938,17 @@ function logWaterToHabit(mlAmount) {
 }
 
 function reconcileWaterFilled() {
-  // Recompute waterFilled from habitLog for today — ensures cup display matches log
+  // Collapse any multi-entry water logs per date into single totals (legacy cleanup)
+  const dates = [...new Set(habitLog.filter(e=>e.taskId===WATER_HABIT_ID).map(e=>e.date))];
+  dates.forEach(ds => {
+    const entries = habitLog.filter(e=>e.taskId===WATER_HABIT_ID&&e.date===ds);
+    if(entries.length>1){
+      const total = entries.reduce((s,e)=>s+(e.value||0),0);
+      habitLog = habitLog.filter(e=>!(e.taskId===WATER_HABIT_ID&&e.date===ds));
+      if(total>0) habitLog.push({taskId:WATER_HABIT_ID,date:ds,value:total,ts:Date.now()});
+    }
+  });
+  // Recompute waterFilled from habitLog for today only
   const todayMl = habitLog
     .filter(e => e.taskId === WATER_HABIT_ID && e.date === today())
     .reduce((s, e) => s + (e.value || 0), 0);
@@ -5052,8 +5255,8 @@ renderCategories();renderCatSelects();renderTasks();loadMilestones();
 buildSettings();
 document.getElementById('mealFilterDate').value=today();document.getElementById('mealDate').value=today();
 reconcileWaterFilled();
-renderOverview();renderOverviewEvents();renderWater();renderOverviewMeals();renderOverviewHabitsRibbon();renderGrocList();renderOverviewUpcoming();
-renderCycleOverview();
+renderAllOverviewForDate();
+renderGrocList();
 try{renderCycleWeekStrip();}catch(e){}
 initCentreSwipe();
 updateCentreDateLabel();
