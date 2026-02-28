@@ -41,11 +41,11 @@
 </script>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <style>
-@font-face{font-family:'Handwriting';src:url('Handwriting.ttf') format('truetype');}
-:root{--font-body:'Handwriting',Georgia,serif;--font-display:'Noto Serif Display',Georgia,serif;--bg:#f9f8f6;--card:#ffffff;--text:#2c2c2c;--accent:#93aacd;--accent-dark:#7a91b4;--muted:#999;--border:#e8e8e8;
+@font-face{font-family:'Noto Serif Display';src:url('Handwriting.ttf') format('truetype');}
+:root{--font-body:'Noto Serif Display',Georgia,serif;--font-display:'Noto Serif Display',Georgia,serif;--bg:#f9f8f6;--card:#ffffff;--text:#2c2c2c;--accent:#93aacd;--accent-dark:#7a91b4;--muted:#999;--border:#e8e8e8;
 --phase-menstrual:#dd2c60;--phase-follicular:#d78881;--phase-ovulation:#ac487c;--phase-luteal:#861a3a;--water-fill:var(--accent);--water-light:rgba(147,170,205,.13);--water-border:rgba(147,170,205,.25);}
 *{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:'Handwriting',Georgia,serif;font-weight:400;font-stretch:normal;font-size:14px;background:var(--bg);color:var(--text);min-height:100vh;padding:0 20px 60px;transition:background .3s,color .3s;}
+body{font-family:'Noto Serif Display',Georgia,serif;font-weight:400;font-stretch:normal;font-size:14px;background:var(--bg);color:var(--text);min-height:100vh;padding:0 20px 60px;transition:background .3s,color .3s;}
 h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.modal-save,.apply-btn,.settings-section-title,.week-label,.day-name{font-family:'Noto Serif Display',Georgia,serif;font-weight:400;font-style:normal;font-stretch:extra-condensed;text-transform:uppercase;}
 .app-title{text-align:center;font-size:2.8rem;letter-spacing:.18em;color:var(--text);margin-bottom:4px;}
 .card-title{font-size:1.25rem;letter-spacing:.12em;color:var(--text);margin-bottom:18px;}
@@ -190,7 +190,7 @@ h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.
 
 /* OVERVIEW */
 .events-strip{display:flex;flex-direction:column;gap:6px;}
-.event-pill{display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:10px;background:var(--bg);font-size:.84rem;font-family:'Handwriting',Georgia,serif;}
+.event-pill{display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:10px;background:var(--bg);font-size:.84rem;font-family:'Noto Serif Display',Georgia,serif;}
 .no-events{font-size:.85rem;color:var(--muted);font-family:'Noto Serif Display',Georgia,serif;}
 .block-tasks{display:flex;flex-direction:column;gap:7px;}
 .block-task-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:11px;background:var(--bg);}
@@ -215,6 +215,11 @@ h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.
 .water-bar .wfill{position:absolute;bottom:0;left:0;right:0;background:var(--water-fill);height:0%;transition:height .35s cubic-bezier(.34,1.4,.64,1);}
 .water-bar.filled .wfill{height:100%;}
 .water-meta{display:flex;align-items:center;justify-content:space-between;font-family:'Noto Serif Display',Georgia,serif;font-stretch:extra-condensed;font-size:.76rem;color:var(--muted);}
+.water-stepped{position:relative;height:20px;border-radius:20px;border:1.5px solid var(--water-border);background:var(--water-light);overflow:hidden;cursor:pointer;}
+.water-stepped-fill{position:absolute;left:0;top:0;bottom:0;background:var(--water-fill);border-radius:20px;transition:width .5s cubic-bezier(.34,1.2,.64,1);}
+.water-stepped-markers{position:absolute;inset:0;display:flex;pointer-events:none;}
+.water-stepped-tick{flex:1;border-right:1.5px solid rgba(255,255,255,.55);box-sizing:border-box;}
+.water-stepped-tick:last-child{border-right:none;}
 .water-goal-input{font-family:'Noto Serif Display',Georgia,serif;font-size:.82rem;border:1.5px solid var(--border);border-radius:8px;padding:4px 8px;width:58px;background:var(--bg);color:var(--text);outline:none;text-align:center;}
 .water-goal-input:focus{border-color:var(--accent);}
 
@@ -279,7 +284,7 @@ h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.
 .icon-pick-btn:hover,.icon-pick-btn.sel{border-color:var(--accent);background:rgba(147,170,205,.12);}
 .icon-pick-btn.sel{box-shadow:0 0 0 2px var(--accent);}
 .cat-icon-preview{font-size:1.1rem;width:28px;text-align:center;flex-shrink:0;}
-.cat-icon-badge{display:inline-flex;align-items:center;gap:4px;padding:2px 8px 2px 4px;border-radius:20px;border:1.5px solid rgba(147,170,205,.35);background:rgba(147,170,205,.08);font-size:.72rem;color:var(--text);font-family:'Handwriting',Georgia,serif;}
+.cat-icon-badge{display:inline-flex;align-items:center;gap:4px;padding:2px 8px 2px 4px;border-radius:20px;border:1.5px solid rgba(147,170,205,.35);background:rgba(147,170,205,.08);font-size:.72rem;color:var(--text);font-family:'Noto Serif Display',Georgia,serif;}
 .io-btn{font-family:'Noto Serif Display',Georgia,serif;font-size:.85rem;background:none;border:1.5px solid var(--border);border-radius:10px;padding:10px 14px;cursor:pointer;color:var(--text);transition:all .2s;text-align:left;display:flex;flex-direction:column;gap:3px;}
 .io-btn:hover{border-color:var(--accent);color:var(--accent);}
 .io-btn-label{font-family:'Noto Serif Display',Georgia,serif;font-stretch:extra-condensed;text-transform:uppercase;letter-spacing:.08em;font-size:.8rem;}
@@ -354,8 +359,8 @@ h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.
 .groc-item.got{opacity:.45;}
 .groc-item.got .groc-name{text-decoration:line-through;}
 .groc-item input[type="checkbox"]{accent-color:var(--accent);width:15px;height:15px;flex-shrink:0;cursor:pointer;}
-.groc-name{flex:1;font-family:'Handwriting',Georgia,serif;font-size:.9rem;}
-.groc-qty{font-family:'Handwriting',Georgia,serif;font-size:.75rem;color:var(--muted);white-space:nowrap;}
+.groc-name{flex:1;font-family:'Noto Serif Display',Georgia,serif;font-size:.9rem;}
+.groc-qty{font-family:'Noto Serif Display',Georgia,serif;font-size:.75rem;color:var(--muted);white-space:nowrap;}
 
 /* DRAG AND DROP */
 .block-task-item[draggable]{cursor:grab;}
@@ -376,19 +381,19 @@ h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.
 .multiadd-overlay.open{display:flex;}
 .multiadd-panel{background:var(--card);width:100%;max-width:600px;border-radius:20px 20px 0 0;padding:28px 28px 36px;box-shadow:0 -8px 40px rgba(0,0,0,.12);max-height:85vh;overflow-y:auto;display:flex;flex-direction:column;gap:14px;}
 .multiadd-title{font-family:'Noto Serif Display',Georgia,serif;font-weight:400;font-stretch:extra-condensed;text-transform:uppercase;letter-spacing:.12em;font-size:1.15rem;color:var(--text);}
-.multiadd-textarea{font-family:'Handwriting',Georgia,serif;font-size:.92rem;border:1.5px solid var(--border);border-radius:12px;padding:12px 14px;outline:none;background:var(--bg);color:var(--text);transition:border-color .2s;width:100%;min-height:110px;resize:vertical;line-height:1.55;}
+.multiadd-textarea{font-family:'Noto Serif Display',Georgia,serif;font-size:.92rem;border:1.5px solid var(--border);border-radius:12px;padding:12px 14px;outline:none;background:var(--bg);color:var(--text);transition:border-color .2s;width:100%;min-height:110px;resize:vertical;line-height:1.55;}
 .multiadd-textarea:focus{border-color:var(--accent);}
 .multiadd-actions{display:flex;gap:8px;flex-wrap:wrap;}
 .multiadd-go-btn{font-family:'Noto Serif Display',Georgia,serif;font-weight:400;font-stretch:extra-condensed;text-transform:uppercase;letter-spacing:.08em;font-size:.9rem;background:var(--accent);color:white;border:none;border-radius:10px;padding:10px 20px;cursor:pointer;transition:background .2s;flex:1;}
 .multiadd-go-btn:hover{background:var(--accent-dark);}
 .multiadd-go-btn:disabled{opacity:.5;cursor:not-allowed;}
-.multiadd-cancel-btn{font-family:'Handwriting',Georgia,serif;font-size:.9rem;background:none;border:1.5px solid var(--border);border-radius:10px;padding:10px 16px;cursor:pointer;color:var(--muted);}
+.multiadd-cancel-btn{font-family:'Noto Serif Display',Georgia,serif;font-size:.9rem;background:none;border:1.5px solid var(--border);border-radius:10px;padding:10px 16px;cursor:pointer;color:var(--muted);}
 .multiadd-result{display:flex;flex-direction:column;gap:7px;}
 .multiadd-item-row{display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:10px;background:var(--bg);}
 .multiadd-item-check{accent-color:var(--accent);width:15px;height:15px;flex-shrink:0;cursor:pointer;}
-.multiadd-item-text{flex:1;font-family:'Handwriting',Georgia,serif;font-size:.88rem;}
-.multiadd-item-meta{font-family:'Handwriting',Georgia,serif;font-size:.72rem;color:var(--muted);}
-.multiadd-status{font-family:'Handwriting',Georgia,serif;font-size:.8rem;color:var(--muted);text-align:center;padding:8px 0;}
+.multiadd-item-text{flex:1;font-family:'Noto Serif Display',Georgia,serif;font-size:.88rem;}
+.multiadd-item-meta{font-family:'Noto Serif Display',Georgia,serif;font-size:.72rem;color:var(--muted);}
+.multiadd-status{font-family:'Noto Serif Display',Georgia,serif;font-size:.8rem;color:var(--muted);text-align:center;padding:8px 0;}
 .multiadd-confirm-btn{font-family:'Noto Serif Display',Georgia,serif;font-weight:400;font-stretch:extra-condensed;text-transform:uppercase;letter-spacing:.08em;font-size:.9rem;background:var(--accent);color:white;border:none;border-radius:10px;padding:10px;cursor:pointer;width:100%;margin-top:4px;}
 .mic-row-inline{display:flex;gap:8px;align-items:flex-start;}
 
@@ -416,7 +421,7 @@ h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.
 .cycle-log-btn.secondary{background:none;border:1.5px solid var(--border);color:var(--muted);}
 .cycle-log-btn.secondary:hover{border-color:var(--accent);color:var(--accent);}
 .phase-dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:5px;flex-shrink:0;}
-.cycle-legend-item{font-family:'Handwriting',Georgia,serif;font-size:.73rem;color:var(--muted);display:flex;align-items:center;}
+.cycle-legend-item{font-family:'Noto Serif Display',Georgia,serif;font-size:.73rem;color:var(--muted);display:flex;align-items:center;}
 .cycle-phase-ring{transform:rotate(-90deg);overflow:visible;}
 
 /* DRAWER NAV */
@@ -447,7 +452,7 @@ h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.
 <nav id="navDrawer" style="position:fixed;top:0;left:-260px;width:240px;height:100vh;background:var(--card);z-index:300;transition:left .28s cubic-bezier(.4,0,.2,1);box-shadow:4px 0 24px rgba(0,0,0,.10);display:flex;flex-direction:column;padding:0;">
   <div style="padding:28px 24px 16px;border-bottom:1px solid var(--border);">
     <div style="font-family:'Noto Serif Display',Georgia,serif;font-weight:400;font-stretch:extra-condensed;text-transform:none;letter-spacing:.12em;font-size:1.5rem;color:var(--text);">centre</div>
-    <div id="drawerDate" style="font-family:'Handwriting',Georgia,serif;font-size:.76rem;color:var(--muted);margin-top:3px;"></div>
+    <div id="drawerDate" style="font-family:'Noto Serif Display',Georgia,serif;font-size:.76rem;color:var(--muted);margin-top:3px;"></div>
   </div>
   <div style="flex:1;overflow-y:auto;padding:12px 0;">
     <button class="drawer-item active" id="di-overview" onclick="showPage('overview');closeDrawer()">
@@ -512,28 +517,34 @@ h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.
 
     <!-- Day nav header -->
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;padding:0 2px;">
-      <button id="centrePrevBtn" onclick="shiftCentreDate(-1)" style="background:none;border:1.5px solid var(--border);border-radius:10px;padding:5px 14px;cursor:pointer;font-family:'Handwriting',Georgia,serif;font-size:.9rem;color:var(--muted);transition:all .2s;" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">&#8592;</button>
+      <button id="centrePrevBtn" onclick="shiftCentreDate(-1)" style="background:none;border:1.5px solid var(--border);border-radius:10px;padding:5px 14px;cursor:pointer;font-family:'Noto Serif Display',Georgia,serif;font-size:.9rem;color:var(--muted);transition:all .2s;" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">&#8592;</button>
       <span id="centreDateLabel" style="font-family:'Noto Serif Display',Georgia,serif;font-weight:400;font-stretch:extra-condensed;text-transform:uppercase;letter-spacing:.12em;font-size:1.1rem;color:var(--text);cursor:pointer;" onclick="resetCentreDate()"></span>
-      <button id="centreNextBtn" onclick="shiftCentreDate(1)" style="background:none;border:1.5px solid var(--border);border-radius:10px;padding:5px 14px;cursor:pointer;font-family:'Handwriting',Georgia,serif;font-size:.9rem;color:var(--muted);transition:all .2s;" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">&#8594;</button>
+      <button id="centreNextBtn" onclick="shiftCentreDate(1)" style="background:none;border:1.5px solid var(--border);border-radius:10px;padding:5px 14px;cursor:pointer;font-family:'Noto Serif Display',Georgia,serif;font-size:.9rem;color:var(--muted);transition:all .2s;" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">&#8594;</button>
     </div>
 
     <!-- Swipe container -->
     <!-- Firebase connection banner (hidden when connected or not using Firebase) -->
-    <div id="centreSyncBanner" style="display:none;background:#fef6e0;border:1px solid #f0d080;border-radius:10px;padding:8px 14px;margin-bottom:12px;font-family:'Handwriting',Georgia,serif;font-size:.8rem;color:#7a5c10;align-items:center;justify-content:space-between;gap:10px;">
+    <div id="centreSyncBanner" style="display:none;background:#fef6e0;border:1px solid #f0d080;border-radius:10px;padding:8px 14px;margin-bottom:12px;font-family:'Noto Serif Display',Georgia,serif;font-size:.8rem;color:#7a5c10;align-items:center;justify-content:space-between;gap:10px;">
       <span id="centreSyncBannerText">Connecting to database…</span>
       <button onclick="initFirebase(true)" style="font-size:.75rem;border:1px solid #c8a030;border-radius:8px;padding:2px 10px;background:none;color:#7a5c10;cursor:pointer;white-space:nowrap;">Reconnect</button>
     </div>
+    <div id="centreDebug" style="display:none;background:#fde8e8;color:#c0554a;padding:8px 12px;border-radius:8px;font-size:.78rem;font-family:monospace;margin-bottom:12px;word-break:break-all;"></div>
     <div id="centreSwipeWrap" style="position:relative;overflow:hidden;touch-action:pan-y;min-height:300px;">
       <div id="centreCardStack" style="display:flex;flex-direction:column;gap:20px;transition:opacity .22s,transform .22s;will-change:transform,opacity;">
         <div class="card" id="overviewEvents"><p class="no-events" style="margin:8px 0">Loading…</p></div>
-        <div class="card" style="padding:18px 22px;">
+        <div id="waterCardWrap" class="card" style="padding:18px 22px;">
           <div class="card-header" style="margin-bottom:10px">
             <span class="card-title" style="margin-bottom:0">Water</span>
             <span id="waterGoalLabel" style="font-size:.76rem;color:var(--muted);"></span>
           </div>
-          <!-- Today-only water tracker -->
+          <!-- Today-only water tracker — stepped fill bar -->
           <div class="water-tracker">
-            <div class="water-bars-row" id="waterCupsRow"></div>
+            <div id="waterSteppedWrap" style="margin-bottom:8px;">
+              <div class="water-stepped" id="waterSteppedBar" onclick="tapWaterStepped(event)">
+                <div class="water-stepped-fill" id="waterSteppedFill" style="width:0%"></div>
+                <div class="water-stepped-markers" id="waterSteppedMarkers"></div>
+              </div>
+            </div>
             <div class="water-meta">
               <span id="waterMl">0 ml today</span>
               <span id="waterPct" style="color:var(--accent);"></span>
@@ -575,9 +586,9 @@ h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.
     <!-- 3. Mini month dot row -->
     <div class="card" id="plannerMonthCard">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
-        <button onclick="shiftPlannerMonth(-1)" style="background:none;border:1.5px solid var(--border);border-radius:10px;padding:5px 12px;cursor:pointer;font-family:'Handwriting',Georgia,serif;font-size:.9rem;color:var(--muted);">&#8592;</button>
+        <button onclick="shiftPlannerMonth(-1)" style="background:none;border:1.5px solid var(--border);border-radius:10px;padding:5px 12px;cursor:pointer;font-family:'Noto Serif Display',Georgia,serif;font-size:.9rem;color:var(--muted);">&#8592;</button>
         <span class="card-title" style="margin-bottom:0;" id="plannerMonthLabel"></span>
-        <button onclick="shiftPlannerMonth(1)" style="background:none;border:1.5px solid var(--border);border-radius:10px;padding:5px 12px;cursor:pointer;font-family:'Handwriting',Georgia,serif;font-size:.9rem;color:var(--muted);">&#8594;</button>
+        <button onclick="shiftPlannerMonth(1)" style="background:none;border:1.5px solid var(--border);border-radius:10px;padding:5px 12px;cursor:pointer;font-family:'Noto Serif Display',Georgia,serif;font-size:.9rem;color:var(--muted);">&#8594;</button>
       </div>
       <div id="plannerMonthDots"></div>
     </div>
@@ -741,14 +752,14 @@ h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.
         <div class="cat-form" style="flex-direction:column;gap:10px;">
           <div class="form-group"><label class="form-label">Name</label><input class="form-input" id="catName" placeholder="e.g. Wellness"/></div>
           <div class="form-group">
-            <label class="form-label">Icon <span id="catIconPreview" style="font-size:1rem;margin-left:6px;">👤</span></label>
-            <input type="hidden" id="catIconVal" value="👤"/>
-            <div class="icon-picker-grid"><button type="button" class="icon-pick-btn" onclick="selectCatIcon('★')">★</button><button type="button" class="icon-pick-btn" onclick="selectCatIcon('♥')">♥</button><button type="button" class="icon-pick-btn" onclick="selectCatIcon('⚡')">⚡</button><button type="button" class="icon-pick-btn" onclick="selectCatIcon('✦')">✦</button><button type="button" class="icon-pick-btn" onclick="selectCatIcon('◆')">◆</button><button type="button" class="icon-pick-btn" onclick="selectCatIcon('●')">●</button><button type="button" class="icon-pick-btn" onclick="selectCatIcon('👤')">👤</button><button type="button" class="icon-pick-btn" onclick="selectCatIcon('💼')">💼</button><button type="button" class="icon-pick-btn" onclick="selectCatIcon('🎂')">🎂</button><button type="button" class="icon-pick-btn" onclick="selectCatIcon('📅')">📅</button><button type="button" class="icon-pick-btn" onclick="selectCatIcon('✉')">✉</button><button type="button" class="icon-pick-btn" onclick="selectCatIcon('☎')">☎</button><button type="button" class="icon-pick-btn" onclick="selectCatIcon('🏠')">🏠</button><button type="button" class="icon-pick-btn" onclick="selectCatIcon('🛒')">🛒</button><button type="button" class="icon-pick-btn" onclick="selectCatIcon('🍽')">🍽</button><button type="button" class="icon-pick-btn" onclick="selectCatIcon('🎵')">🎵</button><button type="button" class="icon-pick-btn" onclick="selectCatIcon('📚')">📚</button><button type="button" class="icon-pick-btn" onclick="selectCatIcon('🏃')">🏃</button><button type="button" class="icon-pick-btn" onclick="selectCatIcon('💊')">💊</button><button type="button" class="icon-pick-btn" onclick="selectCatIcon('💰')">💰</button><button type="button" class="icon-pick-btn" onclick="selectCatIcon('🎯')">🎯</button><button type="button" class="icon-pick-btn" onclick="selectCatIcon('🌿')">🌿</button><button type="button" class="icon-pick-btn" onclick="selectCatIcon('✈')">✈</button><button type="button" class="icon-pick-btn" onclick="selectCatIcon('🔔')">🔔</button></div>
+            <label class="form-label">Icon <span id="catIconPreview" style="display:inline-flex;align-items:center;margin-left:6px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/></svg></span></label>
+            <input type="hidden" id="catIconVal" value="★"/>
+            <div class="icon-picker-grid"><button type="button" class="icon-pick-btn" title="star" onclick="selectCatIcon(&apos;★&apos;)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/></svg></button><button type="button" class="icon-pick-btn" title="heart" onclick="selectCatIcon(&apos;♥&apos;)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button><button type="button" class="icon-pick-btn" title="person" onclick="selectCatIcon(&apos;👤&apos;)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></button><button type="button" class="icon-pick-btn" title="work" onclick="selectCatIcon(&apos;💼&apos;)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg></button><button type="button" class="icon-pick-btn" title="birthday" onclick="selectCatIcon(&apos;🎂&apos;)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-8a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8"/><path d="M4 16s.5-1 2-1 2.5 2 4 2 2.5-2 4-2 2.5 2 4 2 2-1 2-1"/><line x1="12" y1="11" x2="12" y2="4"/><path d="M10 4s.5-2 2-2 2 2 2 2"/></svg></button><button type="button" class="icon-pick-btn" title="calendar" onclick="selectCatIcon(&apos;📅&apos;)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></button><button type="button" class="icon-pick-btn" title="mail" onclick="selectCatIcon(&apos;✉&apos;)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></button><button type="button" class="icon-pick-btn" title="phone" onclick="selectCatIcon(&apos;☎&apos;)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.15 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.06 1.18h3a2 2 0 0 1 2 1.72c.127.96.362 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.09 9.1a16 16 0 0 0 5.82 5.82l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7a2 2 0 0 1 1.72 2.03z"/></svg></button><button type="button" class="icon-pick-btn" title="home" onclick="selectCatIcon(&apos;🏠&apos;)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/></svg></button><button type="button" class="icon-pick-btn" title="shopping" onclick="selectCatIcon(&apos;🛒&apos;)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg></button><button type="button" class="icon-pick-btn" title="food" onclick="selectCatIcon(&apos;🍽&apos;)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg></button><button type="button" class="icon-pick-btn" title="music" onclick="selectCatIcon(&apos;🎵&apos;)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></button><button type="button" class="icon-pick-btn" title="book" onclick="selectCatIcon(&apos;📚&apos;)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></button><button type="button" class="icon-pick-btn" title="fitness" onclick="selectCatIcon(&apos;🏃&apos;)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="2.5"/><path d="M10 8l-3 5 3 1.5L8.5 20"/><path d="M14 8l3 5-3 1.5"/><line x1="8" y1="13" x2="6" y2="16"/><line x1="14.5" y1="14" x2="16.5" y2="17"/></svg></button><button type="button" class="icon-pick-btn" title="health" onclick="selectCatIcon(&apos;💊&apos;)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></button><button type="button" class="icon-pick-btn" title="finance" onclick="selectCatIcon(&apos;💰&apos;)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></button><button type="button" class="icon-pick-btn" title="target" onclick="selectCatIcon(&apos;🎯&apos;)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg></button><button type="button" class="icon-pick-btn" title="nature" onclick="selectCatIcon(&apos;🌿&apos;)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 8C8 10 5.9 16.17 3.82 19H2"/><path d="M5 9c0 4.5 2.5 6.75 4 8"/><path d="M12 2c0 6-4 9.14-5 10"/></svg></button><button type="button" class="icon-pick-btn" title="travel" onclick="selectCatIcon(&apos;✈&apos;)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17.8 19.2L16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z"/></svg></button><button type="button" class="icon-pick-btn" title="alert" onclick="selectCatIcon(&apos;🔔&apos;)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></button><button type="button" class="icon-pick-btn" title="bolt" onclick="selectCatIcon(&apos;⚡&apos;)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></button><button type="button" class="icon-pick-btn" title="social" onclick="selectCatIcon(&apos;✦&apos;)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></button><button type="button" class="icon-pick-btn" title="creative" onclick="selectCatIcon(&apos;◆&apos;)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></button><button type="button" class="icon-pick-btn" title="dot" onclick="selectCatIcon(&apos;●&apos;)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/></svg></button></div>
           </div>
           <button class="cat-add-btn" onclick="addCategory()">Add category</button>
         </div>
         <div class="cat-list" id="catList" style="margin-top:16px;"></div>
-        <p style="font-size:.78rem;color:var(--muted);font-family:'Handwriting',Georgia,serif;margin-top:10px;">Categories are shared between tasks and events.</p>
+        <p style="font-size:.78rem;color:var(--muted);font-family:'Noto Serif Display',Georgia,serif;margin-top:10px;">Categories are shared between tasks and events.</p>
       </div>
       <!-- TEMPLATES TAB -->
       <div id="tab-ttpl" style="display:none">
@@ -908,6 +919,24 @@ h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.
     <div class="card" id="habitsSummaryCard"></div>
     <div id="habitCardsContainer"></div>
     <div class="card" id="waterHabitCard"></div>
+    <div class="card" id="negHabitsCard">
+      <div class="card-header" style="margin-bottom:16px;">
+        <span class="card-title">Days Since</span>
+        <button class="habit-action-btn primary" onclick="toggleNegHabitForm()" id="negHabitAddBtn" style="font-size:.75rem;">+ Add</button>
+      </div>
+      <div id="negHabitForm" style="display:none;background:var(--bg);border-radius:12px;padding:14px;margin-bottom:16px;">
+        <div class="form-grid" style="margin-bottom:10px;">
+          <div class="form-group full"><label class="form-label">What are you tracking?</label><input class="form-input" id="negHabitName" placeholder="e.g. Smoking, Biting nails, Alcohol…"/></div>
+          <div class="form-group full"><label class="form-label">When did it last happen?</label><input class="form-input" type="date" id="negHabitLastDate"/></div>
+        </div>
+        <div style="display:flex;gap:8px;">
+          <button class="add-btn" style="margin:0;flex:1;" onclick="addNegHabit()">+ Add</button>
+          <button class="modal-cancel" onclick="toggleNegHabitForm()">Cancel</button>
+        </div>
+      </div>
+      <div id="negHabitList"></div>
+      <div class="empty-msg" id="negHabitEmpty">No "days since" habits yet. Track things you want to stop.</div>
+    </div>
   </div>
 
   <!-- LISTS -->
@@ -960,7 +989,7 @@ h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.
         <div id="notesList" style="display:flex;flex-direction:column;gap:10px;"></div>
       </div>
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:8px;">
-          <span id="grocCount" style="font-size:.8rem;color:var(--muted);font-family:'Handwriting',Georgia,serif;"></span>
+          <span id="grocCount" style="font-size:.8rem;color:var(--muted);font-family:'Noto Serif Display',Georgia,serif;"></span>
           <div style="display:flex;gap:6px;">
             <button class="filter-btn active" id="grocFilterAll" onclick="setGrocFilter('all',this)">All</button>
             <button class="filter-btn" id="grocFilterPending" onclick="setGrocFilter('pending',this)">Needed</button>
@@ -1058,7 +1087,7 @@ h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.
       <!-- Netlify Hosting Guide -->
       <div class="settings-section">
         <div class="settings-section-title">Enable AI Features</div>
-        <div style="background:var(--bg);border-radius:14px;padding:16px;border:1.5px solid var(--border);font-family:'Handwriting',Georgia,serif;font-size:.84rem;line-height:1.7;color:var(--text);">
+        <div style="background:var(--bg);border-radius:14px;padding:16px;border:1.5px solid var(--border);font-family:'Noto Serif Display',Georgia,serif;font-size:.84rem;line-height:1.7;color:var(--text);">
           <p style="margin-bottom:10px;">The AI list parser requires the app to be served over <strong>https://</strong> rather than opened as a local file. The easiest way is a free one-time upload to Netlify.</p>
           <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:12px;">
             <div style="display:flex;gap:10px;align-items:flex-start;">
@@ -1085,7 +1114,7 @@ h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.
       <!-- Streak Milestones -->
       <div class="settings-section">
         <div class="settings-section-title">Streak Milestones</div>
-        <p style="font-size:.82rem;color:var(--muted);font-family:'Handwriting',Georgia,serif;margin-bottom:12px;">Celebrate these streak lengths with confetti.</p>
+        <p style="font-size:.82rem;color:var(--muted);font-family:'Noto Serif Display',Georgia,serif;margin-bottom:12px;">Celebrate these streak lengths with confetti.</p>
         <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;" id="milestoneChips"></div>
         <div style="display:flex;gap:8px;align-items:flex-end;">
           <div class="form-group" style="flex:1;max-width:140px;">
@@ -1231,6 +1260,9 @@ function newCatId(){return 'CAT-'+String(++catSeq).padStart(4,'0');}
 
 // ---- STATE ----
 let tasks=[],events=[],waterFilled=0,waterGoal=8,waterWeekOffset=0,meals=[],mealSeq=0,templates=[],templateSeq=0,recipes=[],recipeSeq=0,activeFilter='all',weekOffset=0,modalDate=null,eventsViewDate=null,scheduleViewDate=null;
+let negativeHabits=[],negHabitSeq=0;
+let habitPillOffsets={};  // taskId -> day offset (0 = this week, -7 = prev week, etc.)
+function newNegHabitId(){return 'NEG-'+String(++negHabitSeq).padStart(4,'0');}
 let cycleLog=[],cycleSeq=0,cycleMonthOffset=0;
 let notes=[],noteSeq=0;
 function newNoteId(){return 'NOTE-'+String(++noteSeq).padStart(4,'0');}
@@ -1276,6 +1308,8 @@ function scheduleSave(){
       localStorage.setItem('centre_events',JSON.stringify(events));
       localStorage.setItem('centre_categories',JSON.stringify(categories));
       localStorage.setItem('centre_habitLog',JSON.stringify(habitLog));
+      localStorage.setItem('centre_negHabits',JSON.stringify(negativeHabits));
+      localStorage.setItem('centre_negHabitSeq',negHabitSeq);
       localStorage.setItem('centre_water',JSON.stringify(waterFilled));
       localStorage.setItem('centre_waterGoal',JSON.stringify(waterGoal));
       localStorage.setItem('centre_meals',JSON.stringify(meals));
@@ -1310,6 +1344,8 @@ function loadFromStorage(){
     const e=localStorage.getItem('centre_events');if(e)events=JSON.parse(e);
     const c=localStorage.getItem('centre_categories');if(c)categories=JSON.parse(c);
     const hl=localStorage.getItem('centre_habitLog');if(hl)habitLog=JSON.parse(hl);
+    const nh=localStorage.getItem('centre_negHabits');if(nh)negativeHabits=JSON.parse(nh);
+    const nhs=localStorage.getItem('centre_negHabitSeq');if(nhs)negHabitSeq=parseInt(nhs);
     const w=localStorage.getItem('centre_water');if(w)waterFilled=JSON.parse(w);
     const wg=localStorage.getItem('centre_waterGoal');if(wg)waterGoal=JSON.parse(wg);
     const ml=localStorage.getItem('centre_meals');if(ml)meals=JSON.parse(ml);
@@ -1383,7 +1419,7 @@ function showPage(p,btn){
   const di=document.getElementById('di-'+p);
   if(di)di.classList.add('active');
   if(p==='overview'){centreDate=null;renderAllOverviewForDate();setTimeout(applyWeatherToSchedule,200);}
-  if(p==='habits'){renderHabitsDashboard();renderWaterHabitCard();}
+  if(p==='habits'){renderHabitsDashboard();renderWaterHabitCard();renderNegHabits();}
   if(p==='weekly'){renderPlannerPage();setTimeout(applyWeatherToWeekly,200);}
   if(p==='events')renderEventList();
   if(p==='lists')renderGrocList();
@@ -1852,7 +1888,7 @@ function renderEventList(){
         </div>
         <div class="item-meta" style="margin-top:4px">
           ${ev.type && ev.type !== 'event' ? `<span class="meta-tag" style="background:var(--bg);color:var(--muted);border:1px solid var(--border)">${ev.type}</span>` : ''}
-          ${cat?`<span class="cat-icon-badge">${catIcon(cat)} ${escHtml(cat.name)}</span>`:''}
+          ${cat?'<span class="cat-icon-badge">'+catSvg(cat,12)+' '+escHtml(cat.name)+'</span>':''}
           ${nextDate?`<span class="meta-tag meta-due ${dueClass(nextDate)}">${formatDate(nextDate)}</span>`:''}
           ${ev.time?`<span class="meta-tag" style="background:#f0f0f0;color:var(--muted)">${fmtTimeStr(ev.time)}${ev.timeEnd?' – '+fmtTimeStr(ev.timeEnd):''}</span>`:''}
           ${ev.busyStatus==='busy'?`<span class="meta-tag" style="background:#e05555;color:white;">busy</span>`:''}
@@ -2080,7 +2116,7 @@ function renderPlannerEventList() {
         <div style="display:flex;align-items:center;gap:8px"><div class="item-name" style="flex:1">${escHtml(ev.name)}</div><button class="delete-btn" onclick="deleteEvent('${ev.id}');renderPlannerEventList()">×</button></div>
         <div class="item-meta" style="margin-top:4px">
           ${ev.type && ev.type !== 'event' ? `<span class="meta-tag" style="background:var(--bg);color:var(--muted);border:1px solid var(--border)">${ev.type}</span>` : ''}
-          ${cat ? `<span class="meta-tag" style="background:rgba(147,170,205,.12);color:var(--text);border:1px solid rgba(147,170,205,.4)">${catIcon(cat)} ${escHtml(cat.name)}</span>` : ''}
+          ${cat ? '<span class="cat-icon-badge">'+catSvg(cat,12)+' '+escHtml(cat.name)+'</span>' : ''}
           ${nextDate ? `<span class="meta-tag meta-due ${dueClass(nextDate)}">${formatDate(nextDate)}</span>` : ''}
           ${ev.time ? `<span class="meta-tag" style="background:#f0f0f0;color:var(--muted)">${fmtTimeStr(ev.time)}</span>` : ''}
           ${rs ? `<span class="meta-tag meta-recur">${rs}</span>` : ''}
@@ -2217,6 +2253,12 @@ function renderOverviewEvents(){
   </div>`;
 }
 
+const NOTE_HINTS={
+  'before bed':'winddown','bedtime':'winddown','wind down':'winddown','evening':'winddown','night':'winddown','after dinner':'winddown',
+  'morning':'morning','after breakfast':'morning','wake up':'sunrise','early morning':'sunrise','sunrise':'sunrise',
+  'lunch':'service','after lunch':'closing','midday':'service','afternoon':'closing','after work':'closing','closing':'closing',
+  'dinner':'winddown','before sleep':'winddown','at night':'winddown'
+};
 function noteBlockHint(notes){
   if(!notes)return null;
   const n=notes.toLowerCase();
@@ -2338,13 +2380,28 @@ function renderAllOverviewForDate() {
   const ds = getCentreDate();
   scheduleViewDate = ds === today() ? null : ds;
   eventsViewDate   = ds === today() ? null : ds;
-  const _safe = (name, fn) => { try { fn(); } catch(e) { console.error('[Centre] '+name+' failed:', e.message, e.stack); } };
+  const errs = [];
+  const _safe = (name, fn) => {
+    try { fn(); }
+    catch(e) {
+      console.error('[Centre] '+name+' failed:', e.message, e.stack);
+      errs.push(name+': '+e.message);
+    }
+  };
   _safe('renderOverview', renderOverview);
   _safe('renderOverviewEvents', renderOverviewEvents);
   _safe('renderWater', renderWater);
   _safe('renderOverviewMeals', renderOverviewMeals);
   _safe('renderOverviewUpcoming', renderOverviewUpcoming);
   _safe('renderCycleOverview', renderCycleOverview);
+  // Show errors visibly so user can report them
+  if (errs.length) {
+    const dbg = document.getElementById('centreDebug');
+    if (dbg) {
+      dbg.textContent = 'Centre errors: ' + errs.join(' | ');
+      dbg.style.display = 'block';
+    }
+  }
 }
 
 function initCentreSwipe() {
@@ -2414,16 +2471,15 @@ function renderOverview(){
 
     // Event rows shown inside the tasks wrap as slim coloured stripes
     const evRows=blockEvs.map(ev=>{
-      const cat=categories.find(c=>c.id===ev.catId);
       const col='var(--accent)';
-      const timeLabel=ev.timeEnd?`${fmtTimeStr(ev.time)} – ${fmtTimeStr(ev.timeEnd)}`:fmtTimeStr(ev.time);
+      const timeLabel=ev.timeEnd?(fmtTimeStr(ev.time)+' \u2013 '+fmtTimeStr(ev.timeEnd)):fmtTimeStr(ev.time);
       const isBusy=ev.busyStatus==='busy';
-      return `<div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;">
-        <div style="width:2px;height:100%;min-height:20px;background:${col};border-radius:2px;flex-shrink:0;align-self:stretch;"></div>
-        <span style="flex:1;font-family:var(--font-body,Georgia,serif);font-size:.82rem;color:var(--text);">${evEmoji(ev,'var(--accent)')}${escHtml(ev.name)}</span>
-        <span style="font-family:var(--font-body,Georgia,serif);font-size:.72rem;color:var(--muted);">${timeLabel}</span>
-        ${isBusy?`<span style="font-size:.62rem;background:${col};color:white;border-radius:4px;padding:1px 5px;font-family:var(--font-body,Georgia,serif);">busy</span>`:''}
-      </div>`;
+      return '<div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;">'
+        +'<div style="width:2px;min-height:20px;background:'+col+';border-radius:2px;flex-shrink:0;align-self:stretch;"></div>'
+        +'<span style="flex:1;font-size:.82rem;color:var(--text);">'+evEmoji(ev,col)+escHtml(ev.name)+'</span>'
+        +'<span style="font-size:.72rem;color:var(--muted);">'+timeLabel+'</span>'
+        +(isBusy?'<span style="font-size:.62rem;background:'+col+';color:white;border-radius:4px;padding:1px 5px;">busy</span>':'')
+        +'</div>';
     }).join('');
 
     return `<div class="block-section${isCurrent?' is-current':''}${isPast?' is-past':''}">
@@ -2431,15 +2487,13 @@ function renderOverview(){
       <div class="block-tasks-wrap" data-block-id="${b.id}" ondragover="dndOver(event)" ondrop="dndDrop(event,'${b.id}','${vd}')" ondragleave="dndLeave(event)">
         ${evRows}
         <div class="block-tasks">${items.length?items.map(t=>{
-          const cat=categories.find(c=>c.id===t.catId);const bg='var(--bg)';
           const isDone=t.habit?habitLog.some(e=>e.taskId===t.id&&e.date===vd&&!e.frozen):t.done;
-          return `<div class="block-task-item ${isDone?'done':''}" style="background:${bg}" draggable="true" data-task-id="${t.id}" data-from-block="${b.id}" ondragstart="dndStart(event)" ondragend="dndEnd(event)">
-            <span class="dnd-handle" title="Drag to move">⠿</span>
-            <input type="checkbox" ${isDone?'checked':''} onchange="toggleTask('${t.id}','${vd}');renderOverview()">
-            <span class="block-task-name">${escHtml(t.name)}</span>
-            
-          </div>`;
-        }).join(''):`<div class="block-empty">Nothing scheduled — enjoy the space.</div>`}</div>
+          return '<div class="block-task-item '+(isDone?'done':'')+'" draggable="true" data-task-id="'+t.id+'" data-from-block="'+b.id+'" ondragstart="dndStart(event)" ondragend="dndEnd(event)">'
+            +'<span class="dnd-handle" title="Drag to move">\u2807</span>'
+            +'<input type="checkbox" '+(isDone?'checked':'')+' onchange="toggleTask(\''+t.id+'\',\''+vd+'\');renderOverview()">'
+            +'<span class="block-task-name">'+escHtml(t.name)+'</span>'
+            +'</div>';
+        }).join(''):'<div class="block-empty">Nothing scheduled — enjoy the space.</div>'}</div>
       </div>
     </div>`;
   }).join('');
@@ -2456,6 +2510,11 @@ function renderWater(){
   waterFilled=displayFilled;
   const pct=goal>0?Math.round(displayFilled/goal*100):0;
 
+  // Only show water card when viewing today
+  const wrap=document.getElementById('waterCardWrap');
+  const isViewingToday=(scheduleViewDate===null||scheduleViewDate===today());
+  if(wrap) wrap.style.display=isViewingToday?'':'none';
+
   const gl=document.getElementById('waterGoalLabel');
   if(gl)gl.textContent=displayMl.toLocaleString()+' / '+totalMl.toLocaleString()+' ml';
   const wml=document.getElementById('waterMl');
@@ -2463,11 +2522,19 @@ function renderWater(){
   const wp=document.getElementById('waterPct');
   if(wp)wp.textContent=pct>0?pct+'%':'';
 
-  const row=document.getElementById('waterCupsRow');
-  if(row){
-    row.innerHTML=Array.from({length:goal},(_,i)=>
-      '<div class="water-bar '+(i<displayFilled?'filled':'')+'" onclick="tapWater('+i+')" title="'+(i+1)*250+' ml"><div class="wfill"></div></div>'
-    ).join('');
+  // Stepped fill bar
+  const fill=document.getElementById('waterSteppedFill');
+  if(fill) fill.style.width=pct+'%';
+
+  const markers=document.getElementById('waterSteppedMarkers');
+  if(markers){
+    markers.innerHTML=Array.from({length:goal},(_,i)=>'<div class="water-stepped-tick" title="'+(i+1)*250+' ml"></div>').join('');
+  }
+
+  // Goal label shows cup markers below bar
+  const bar=document.getElementById('waterSteppedBar');
+  if(bar){
+    bar.title='Tap to set intake · '+displayMl+' / '+totalMl+' ml';
   }
 
   // Settings page labels
@@ -2614,7 +2681,7 @@ function renderRecipeList(){
         </div>
       </div>
       <div id="rcpDetail-${r.id}" style="display:none;padding:12px 14px;border-top:1px solid var(--border);background:var(--card);">
-        ${r.ingredients?`<div style="margin-bottom:10px;"><div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:4px;"><div class="form-label">Ingredients</div><button onclick="addRecipeToGrocery('${r.id}')" style="font-family:'Handwriting',Georgia,serif;font-size:.7rem;border:1.5px solid var(--accent);border-radius:8px;padding:2px 9px;background:none;color:var(--accent);cursor:pointer;white-space:nowrap;">+ Add to Grocery</button></div><div style="font-size:.82rem;white-space:pre-line;line-height:1.7;">${escHtml(r.ingredients)}</div></div>`:''}
+        ${r.ingredients?`<div style="margin-bottom:10px;"><div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:4px;"><div class="form-label">Ingredients</div><button onclick="addRecipeToGrocery('${r.id}')" style="font-family:'Noto Serif Display',Georgia,serif;font-size:.7rem;border:1.5px solid var(--accent);border-radius:8px;padding:2px 9px;background:none;color:var(--accent);cursor:pointer;white-space:nowrap;">+ Add to Grocery</button></div><div style="font-size:.82rem;white-space:pre-line;line-height:1.7;">${escHtml(r.ingredients)}</div></div>`:''}
         ${r.method?`<div><div class="form-label" style="margin-bottom:4px;">Method</div><div style="font-size:.82rem;white-space:pre-line;line-height:1.7;">${escHtml(r.method)}</div></div>`:''}
         <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px;padding-top:10px;border-top:1px solid var(--border);">
           ${r.cal?`<div class="nut-item"><div class="nut-val">${r.cal}</div><div class="nut-lbl">kcal</div></div>`:''}
@@ -2641,6 +2708,90 @@ function habitIsDoneToday(t){
   return false;
 }
 
+// ---- NEGATIVE HABITS ----
+function toggleNegHabitForm(){
+  const f=document.getElementById('negHabitForm');
+  if(f) f.style.display=f.style.display==='none'?'block':'none';
+}
+function addNegHabit(){
+  const name=document.getElementById('negHabitName').value.trim();
+  if(!name)return;
+  const lastDate=document.getElementById('negHabitLastDate').value||today();
+  negativeHabits.push({id:newNegHabitId(),name,lastDate});
+  document.getElementById('negHabitName').value='';
+  document.getElementById('negHabitLastDate').value='';
+  toggleNegHabitForm();
+  scheduleSave();renderNegHabits();
+}
+function negHabitRelapse(id){
+  const h=negativeHabits.find(n=>n.id===id);if(!h)return;
+  // Reset: streak starts fresh from today
+  h.lastDate=today();
+  scheduleSave();renderNegHabits();
+}
+function deleteNegHabit(id){
+  if(!confirm('Remove this tracker?'))return;
+  negativeHabits=negativeHabits.filter(n=>n.id!==id);
+  scheduleSave();renderNegHabits();
+}
+function daysSince(ds){
+  if(!ds)return 0;
+  const a=new Date(today()+'T00:00:00'),b=new Date(ds+'T00:00:00');
+  return Math.max(0,Math.floor((a-b)/(1000*60*60*24)));
+}
+function renderNegHabits(){
+  const list=document.getElementById('negHabitList');
+  const empty=document.getElementById('negHabitEmpty');
+  if(!list)return;
+  if(!negativeHabits.length){if(empty)empty.style.display='block';list.innerHTML='';return;}
+  if(empty)empty.style.display='none';
+  const col='var(--accent)';
+  list.innerHTML=negativeHabits.map(function(h){
+    const days=daysSince(h.lastDate);
+    // 7-pill strip: last 7 days. A day is "clean" if it is strictly after lastDate.
+    var pillHtml='';
+    for(var di=-6;di<=0;di++){
+      var dd=new Date();dd.setDate(dd.getDate()+di);
+      var dds=dateStr(dd);
+      var isToday=di===0;
+      // Clean = the day is after the last-occurrence date (i.e. no relapse on/before it)
+      var isClean=(dds>h.lastDate);
+      var isSlipDay=(dds===h.lastDate);
+      var bg=isSlipDay?'rgba(192,85,74,.35)':isClean?col:'var(--water-light,var(--bg))';
+      var pillBorder=isToday?col:'var(--water-border,var(--border))';
+      var dayL=dd.toLocaleDateString('en-AU',{weekday:'short'}).charAt(0);
+      pillHtml+='<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;">'
+        +'<div style="width:100%;height:10px;border-radius:20px;background:'+bg+';border:1.5px solid '+pillBorder+';transition:background .3s;"></div>'
+        +'<span style="font-size:.58rem;color:'+(isToday?col:'var(--muted)')+'">'+(isToday?'today':dayL)+'</span>'
+        +'</div>';
+    }
+    // Milestone badges
+    const NEG_MILESTONES=[1,3,7,14,30,90,180,365];
+    var ms=NEG_MILESTONES.map(function(m){
+      return '<span style="font-size:.6rem;padding:2px 7px;border-radius:20px;background:'+(days>=m?col:'var(--bg)')+';color:'+(days>=m?'white':'var(--muted)')+';border:1px solid '+(days>=m?col:'var(--border)')+';">'+m+'d</span>';
+    }).join('');
+
+    var sinceLabel=days===0?'today':days===1?'yesterday':days+'d ago';
+    return '<div style="border-radius:14px;border:1.5px solid var(--border);padding:16px 18px;margin-bottom:12px;">'
+      +'<div style="display:flex;align-items:flex-end;gap:14px;margin-bottom:12px;">'
+      +'<div style="flex:1;">'
+      +'<div style="font-size:.96rem;margin-bottom:6px;">'+escHtml(h.name)+'</div>'
+      +'<div style="display:flex;gap:4px;">'+pillHtml+'</div>'
+      +'</div>'
+      +'<div style="text-align:right;flex-shrink:0;padding-bottom:16px;">'
+      +'<div style="font-size:2rem;line-height:1;color:'+col+';">'+days+'</div>'
+      +'<div style="font-size:.62rem;color:var(--muted);">days clean</div>'
+      +'<div style="font-size:.6rem;color:var(--muted);margin-top:1px;">last: '+sinceLabel+'</div>'
+      +'</div></div>'
+      +'<div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:12px;">'+ms+'</div>'
+      +'<div style="display:flex;gap:8px;align-items:center;">'
+      +'<button class="habit-action-btn" style="color:#c0554a;border-color:rgba(192,85,74,.3);" onclick="negHabitRelapse(\''+h.id+'\')" title="Reset streak to today">I slipped today</button>'
+      +'<button class="habit-action-btn" onclick="deleteNegHabit(\''+h.id+'\')" style="margin-left:auto;color:var(--muted);">Remove</button>'
+      +'</div>'
+      +'</div>';
+  }).join('');
+}
+
 function renderHabitsDashboard(){
   const hts=tasks.filter(t=>t.habit);
   const summaryCard=document.getElementById('habitsSummaryCard');
@@ -2648,216 +2799,143 @@ function renderHabitsDashboard(){
   if(!summaryCard||!cardsContainer)return;
 
   if(!hts.length){
-    summaryCard.innerHTML=`<div class="card-title" style="margin-bottom:6px">Habits</div><p class="no-events">No habits yet. Mark a task as a habit in the Tasks tab to get started.</p>`;
+    summaryCard.innerHTML='<div class="card-title" style="margin-bottom:6px">Habits</div><p class="no-events">No habits yet. Mark a task as a habit in the Tasks tab.</p>';
     cardsContainer.innerHTML='';
     return;
   }
 
   const todayDone=hts.filter(habitIsDoneToday).length;
 
-  // Summary strip
-  summaryCard.innerHTML=`
-    <div class="card-header" style="margin-bottom:16px">
-      <span class="card-title" style="margin-bottom:0">Habits</span>
-      <span style="font-size:.82rem;color:var(--muted);font-family:var(--font-display,Georgia,serif);">${todayDone} of ${hts.length} done today</span>
-    </div>
-    <div style="display:flex;gap:10px;flex-wrap:wrap;">
-      ${hts.map(t=>{
-        const done=habitIsDoneToday(t);
-        const cat=categories.find(c=>c.id===t.catId);
-        const col='var(--accent)';
-        return `<div style="display:flex;align-items:center;gap:6px;padding:5px 12px;border-radius:20px;background:${done?hexToRgba(col,.15):'var(--bg)'};border:1.5px solid ${done?col:'var(--border)'};">
-          <span style="width:8px;height:8px;border-radius:50%;background:${done?col:'var(--border)'};flex-shrink:0;display:inline-block;"></span>
-          <span style="font-size:.8rem;font-family:var(--font-display,Georgia,serif);color:${done?'var(--text)':'var(--muted)'};">${escHtml(t.name)}</span>
-        </div>`;
-      }).join('')}
-    </div>`;
+  // Summary dots row
+  summaryCard.innerHTML='<div class="card-header" style="margin-bottom:16px">'
+    +'<span class="card-title" style="margin-bottom:0">Habits</span>'
+    +'<span style="font-size:.8rem;color:var(--muted);">'+todayDone+' of '+hts.length+' done today</span>'
+    +'</div>'
+    +'<div style="display:flex;gap:8px;flex-wrap:wrap;">'
+    +hts.map(function(t){
+      const done=habitIsDoneToday(t);
+      return '<div style="display:flex;align-items:center;gap:6px;padding:4px 11px;border-radius:20px;background:'+(done?'rgba(147,170,205,.15)':'var(--bg)')+';border:1.5px solid '+(done?'var(--accent)':'var(--border)')+';">'
+        +'<span style="width:7px;height:7px;border-radius:50%;background:'+(done?'var(--accent)':'var(--border)')+';flex-shrink:0;display:inline-block;"></span>'
+        +'<span style="font-size:.78rem;color:'+(done?'var(--text)':'var(--muted)')+';">'+escHtml(t.name)+'</span>'
+        +'</div>';
+    }).join('')
+    +'</div>';
 
-  // Group habits by type
-  const types=[
-    {key:'streak',  label:'Streaks'},
-    {key:'frequency',label:'Frequency'},
-    {key:'quantity', label:'Quantity'},
-    {key:'cumulative',label:'Cumulative'},
-  ];
-
-  let html='';
-  types.forEach(({key,label})=>{
-    const group=hts.filter(t=>t.habit.type===key);
-    if(!group.length)return;
-
-    html+=`<div style="margin-bottom:28px;">
-      <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;">
-        <span style="font-family:var(--font-display,Georgia,serif);font-weight:400;font-stretch:extra-condensed;text-transform:uppercase;letter-spacing:.12em;font-size:1.05rem;color:var(--text);">${label}</span>
-        <div style="flex:1;height:1.5px;background:var(--border);"></div>
-      </div>
-      <div style="display:flex;flex-direction:column;gap:14px;">
-        ${group.map(t=>renderHabitCard(t)).join('')}
-      </div>
-    </div>`;
-  });
-
-  cardsContainer.innerHTML=html;
+  // Single unified card, one row per habit — water-tracker style
+  cardsContainer.innerHTML='<div class="card"><div style="display:flex;flex-direction:column;">'
+    +hts.map(function(t,idx){
+      return renderHabitRow(t,idx>0);
+    }).join('')
+    +'</div></div>';
 }
 
-function renderHabitCard(t){
+function shiftHabitPills(taskId, dir){
+  habitPillOffsets[taskId]=(habitPillOffsets[taskId]||0)+dir*7;
+  if(habitPillOffsets[taskId]>0) habitPillOffsets[taskId]=0;
+  renderHabitsDashboard();
+}
+
+function renderHabitRow(t, addDivider){
   const g=t.habit;
-  const cat=categories.find(c=>c.id===t.catId);
   const col='var(--accent)';
   const done=habitIsDoneToday(t);
-  const borderCol=done?col:'var(--border)';
+  const offset=habitPillOffsets[t.id]||0;
+  const isCurrentWindow=offset===0;
 
-  let graphHtml='', actionsHtml='';
+  // ── pill strip: 7 water-bar style pills ───────────────────────────────────
+  function buildPillStrip(isDayDone){
+    var pills='';
+    for(var di=6;di>=0;di--){
+      var dd=new Date();
+      dd.setDate(dd.getDate()-di+offset);
+      var dds=dateStr(dd);
+      var isTod=dds===today();
+      var filled=isDayDone(dds);
+      var dayL=dd.toLocaleDateString('en-AU',{weekday:'short'}).slice(0,1);
+      pills+='<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;">'
+        +'<div class="water-bar'+(filled?' filled':'')+'" style="height:14px;cursor:default;'+(isTod?'outline:2px solid '+col+';outline-offset:1px;border-radius:10px;':'')+'">'
+        +'<div class="wfill"></div></div>'
+        +'<span style="font-size:.56rem;color:'+(isTod?col:'var(--muted)')+';font-weight:'+(isTod?'600':'400')+';">'+dayL+'</span>'
+        +'</div>';
+    }
+    // nav arrows
+    var rangeLabel=(function(){
+      var from=new Date();from.setDate(from.getDate()-6+offset);
+      var to=new Date();to.setDate(to.getDate()+offset);
+      var fmt=function(d){return d.toLocaleDateString('en-AU',{day:'numeric',month:'short'});};
+      return fmt(from)+' – '+fmt(to);
+    })();
+    return '<div style="display:flex;align-items:center;gap:6px;margin-bottom:2px;">'
+      +'<button onclick="shiftHabitPills(\''+t.id+'\',-1)" style="background:none;border:1.5px solid var(--border);border-radius:8px;width:22px;height:22px;cursor:pointer;color:var(--muted);font-size:.75rem;flex-shrink:0;padding:0;line-height:1;">←</button>'
+      +'<div style="flex:1;display:flex;gap:5px;align-items:flex-end;">'+pills+'</div>'
+      +'<button onclick="shiftHabitPills(\''+t.id+'\',1)" '+(isCurrentWindow?'disabled style="opacity:.25;cursor:default;"':'')+' style="background:none;border:1.5px solid var(--border);border-radius:8px;width:22px;height:22px;cursor:pointer;color:var(--muted);font-size:.75rem;flex-shrink:0;padding:0;line-height:1;">→</button>'
+      +'</div>'
+      +(!isCurrentWindow?'<div style="font-size:.6rem;color:var(--muted);text-align:center;margin-bottom:4px;">'+rangeLabel+'</div>':'');
+  }
 
-  // ── STREAK: 30-day GitHub heatmap ──────────────────────────────────────────
+  var pillHtml='', progressLabel='', actionsHtml='';
+
   if(g.type==='streak'){
     const{current,best}=getStreak(t);
-    const todayLogged=habitLog.some(e=>e.taskId===t.id&&e.date===today());
+    pillHtml=buildPillStrip(function(dds){return habitLog.some(function(e){return e.taskId===t.id&&e.date===dds&&!e.frozen;});});
+    progressLabel=current+'d streak · best '+best+'d';
+    const todayLogged=habitLog.some(function(e){return e.taskId===t.id&&e.date===today();});
     const freezeLeft=(g.freezes||0)-(g.freezesUsed||0);
-
-    // Build 30-day heatmap (5 rows × 6 cols, newest bottom-right)
-    const DAYS=30;
-    const cells=[];
-    for(let i=DAYS-1;i>=0;i--){
-      const d=new Date();d.setDate(d.getDate()-i);
-      const ds=dateStr(d);
-      const wasDone=habitLog.some(e=>e.taskId===t.id&&e.date===ds&&!e.frozen);
-      const isFrozen=habitLog.some(e=>e.taskId===t.id&&e.date===ds&&e.frozen);
-      const isToday=ds===today();
-      const bg=wasDone?col:isFrozen?'var(--water-border)':'var(--bg)';
-      const border=isToday?col:'transparent';
-      cells.push(`<div title="${ds}" style="width:18px;height:18px;border-radius:4px;background:${bg};border:2px solid ${border};flex-shrink:0;"></div>`);
-    }
-
-    // 6 cols of 5 rows
-    const cols=[];
-    for(let c=0;c<6;c++){
-      cols.push(`<div style="display:flex;flex-direction:column;gap:3px;">${cells.slice(c*5,(c+1)*5).join('')}</div>`);
-    }
-
-    // Milestones row
-    const ms=MILESTONES.map(m=>`<span style="font-family:var(--font-body,Georgia,serif);font-size:.65rem;padding:2px 7px;border-radius:20px;background:${current>=m?col:'var(--bg)'};color:${current>=m?'white':'var(--muted)'};border:1px solid ${current>=m?col:'var(--border)'};">${m}d</span>`).join('');
-
-    graphHtml=`
-      <div style="display:flex;gap:16px;align-items:flex-start;margin-bottom:14px;">
-        <div>
-          <div style="font-family:var(--font-display,Georgia,serif);font-weight:400;font-stretch:extra-condensed;font-size:2.8rem;letter-spacing:.02em;color:${col};line-height:1;">${current}</div>
-          <div style="font-size:.68rem;color:var(--muted);font-family:var(--font-body,Georgia,serif);margin-top:1px;">day streak</div>
-          <div style="font-size:.65rem;color:var(--muted);font-family:var(--font-body,Georgia,serif);margin-top:4px;">Best: ${best}d</div>
-        </div>
-        <div style="flex:1;">
-          <div style="display:flex;gap:3px;flex-wrap:nowrap;overflow:hidden;">
-            ${cols.join('')}
-          </div>
-          <div style="display:flex;justify-content:space-between;margin-top:4px;font-size:.6rem;color:var(--muted);font-family:var(--font-body,Georgia,serif);">
-            <span>30 days ago</span><span>today</span>
-          </div>
-        </div>
-      </div>
-      <div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:12px;">${ms}</div>`;
-
-    actionsHtml=`<button class="habit-action-btn ${todayLogged?'':'primary'}" onclick="${todayLogged?`unlogHabit('${t.id}');renderHabitsDashboard()`:`logHabit('${t.id}')`}">${todayLogged?'Undo today':'Done today'}</button>${freezeLeft>0?`<button class="habit-action-btn" onclick="useFreeze('${t.id}')" title="Protect streak">Freeze (${freezeLeft})</button>`:''}`;
+    actionsHtml='<button class="habit-action-btn '+(todayLogged?'':'primary')+'" onclick="'+(todayLogged?'unlogHabit(\''+t.id+'\');renderHabitsDashboard()':'logHabit(\''+t.id+'\')')+'">'+(todayLogged?'Undo':'Done today')+'</button>'
+      +(freezeLeft>0?'<button class="habit-action-btn" onclick="useFreeze(\''+t.id+'\')" title="Protect streak">Freeze ('+freezeLeft+')</button>':'');
   }
 
-  // ── QUANTITY: 7-day vertical bar chart ────────────────────────────────────
-  if(g.type==='quantity'){
-    const todayQty=getTodayQty(t.id);
-    const pct=Math.min(100,Math.round(todayQty/g.target*100));
-
-    // 7-day history bars
-    const DAYS=7;
-    const history=[];
-    for(let i=DAYS-1;i>=0;i--){
-      const d=new Date();d.setDate(d.getDate()-i);
-      const ds=dateStr(d);
-      const ml=habitLog.filter(e=>e.taskId===t.id&&e.date===ds).reduce((s,e)=>s+(e.value||0),0);
-      const isToday=ds===today();
-      const dayLabel=i===0?'T':i===1?'Y':d.toLocaleDateString('en-AU',{weekday:'short'}).charAt(0);
-      history.push({ds,ml,isToday,dayLabel});
-    }
-    const maxVal=Math.max(...history.map(h=>h.ml), g.target, 1);
-
-    const bars=history.map(h=>{
-      const barH=Math.round((h.ml/maxVal)*56);
-      const op=h.isToday?'1':'0.45';
-      const targetH=Math.round((g.target/maxVal)*56);
-      return `<div style="display:flex;flex-direction:column;align-items:center;gap:3px;flex:1;">
-        <div style="position:relative;width:100%;height:60px;display:flex;align-items:flex-end;justify-content:center;">
-          <div style="position:absolute;bottom:${targetH}px;left:0;right:0;height:1px;background:var(--border);"></div>
-          <div style="width:70%;background:${col};opacity:${op};border-radius:3px 3px 0 0;height:${barH}px;min-height:${h.ml>0?2:0}px;transition:height .3s;"></div>
-        </div>
-        <span style="font-size:.58rem;color:${h.isToday?col:'var(--muted)'};font-family:var(--font-body,Georgia,serif);">${h.dayLabel}</span>
-      </div>`;
-    }).join('');
-
-    graphHtml=`
-      <div style="display:flex;align-items:center;gap:16px;margin-bottom:12px;">
-        <div>
-          <div style="font-family:var(--font-display,Georgia,serif);font-weight:400;font-stretch:extra-condensed;font-size:2.4rem;letter-spacing:.02em;color:${col};line-height:1;">${pct}%</div>
-          <div style="font-size:.68rem;color:var(--muted);font-family:var(--font-body,Georgia,serif);margin-top:1px;">${todayQty.toLocaleString()} / ${g.target.toLocaleString()} ${g.unit}</div>
-        </div>
-        <div style="flex:1;display:flex;gap:3px;align-items:flex-end;">${bars}</div>
-      </div>`;
-    actionsHtml=`<button class="habit-action-btn" onclick="unlogHabit('${t.id}')">− ${g.increment}${g.unit}</button><button class="habit-action-btn primary" onclick="logHabit('${t.id}',${g.increment})">+ ${g.increment}${g.unit}</button>`;
-  }
-
-  // ── FREQUENCY: SVG ring chart ──────────────────────────────────────────────
   if(g.type==='frequency'){
-    const{done:doneCount,target}=getFreqProgress(t);
-    const ringPct=Math.min(1,doneCount/target);
-    const R=32, C=2*Math.PI*R;
-    const dash=ringPct*C, gap=C-dash;
-    const periodLabel=g.period==='custom'?`per ${g.customDays}d`:g.period;
+    const fp=getFreqProgress(t);
+    pillHtml=buildPillStrip(function(dds){return habitLog.some(function(e){return e.taskId===t.id&&e.date===dds;});});
+    progressLabel=fp.done+' / '+fp.target+' this '+g.period;
     const todayLogged=getHabitLogToday(t.id).length>0;
-
-    graphHtml=`
-      <div style="display:flex;align-items:center;gap:18px;margin-bottom:12px;">
-        <svg width="80" height="80" viewBox="0 0 80 80" style="flex-shrink:0;">
-          <circle cx="40" cy="40" r="${R}" fill="none" stroke="var(--bg)" stroke-width="10"/>
-          <circle cx="40" cy="40" r="${R}" fill="none" stroke="${col}" stroke-width="10"
-            stroke-dasharray="${dash.toFixed(2)} ${gap.toFixed(2)}"
-            stroke-linecap="round"
-            transform="rotate(-90 40 40)"
-            style="transition:stroke-dasharray .4s;"/>
-          <text x="40" y="36" text-anchor="middle" font-family="var(--font-display,Georgia,serif)" font-size="18" fill="var(--text)" font-stretch="extra-condensed">${doneCount}</text>
-          <text x="40" y="50" text-anchor="middle" font-family="var(--font-body,Georgia,serif)" font-size="9" fill="var(--muted)">of ${target}</text>
-        </svg>
-        <div>
-          <div style="font-size:.9rem;font-family:var(--font-body,Georgia,serif);color:var(--text);margin-bottom:4px;">${doneCount} of ${target} ${periodLabel}</div>
-          <div style="font-size:.72rem;color:var(--muted);font-family:var(--font-body,Georgia,serif);">${Math.round(ringPct*100)}% complete</div>
-        </div>
-      </div>`;
-    actionsHtml=`<button class="habit-action-btn ${todayLogged?'':'primary'}" onclick="${todayLogged?`unlogHabit('${t.id}');renderHabitsDashboard()`:`logHabit('${t.id}')`}">${todayLogged?'Undo':'Done today'}</button>`;
+    actionsHtml='<button class="habit-action-btn '+(todayLogged?'':'primary')+'" onclick="'+(todayLogged?'unlogHabit(\''+t.id+'\')':'logHabit(\''+t.id+'\')')+'">'+(todayLogged?'Undo':'Done today')+'</button>';
   }
 
-  // ── CUMULATIVE: horizontal fill bar ───────────────────────────────────────
+  if(g.type==='quantity'){
+    const qty=getTodayQty(t.id);
+    const pct=Math.min(100,Math.round(qty/g.target*100));
+    const steps=Math.round(g.target/g.increment);
+    const filledSteps=Math.min(steps,Math.round(qty/g.increment));
+    // Pills for quantity: each pill = one increment
+    var qpills='';
+    for(var si=0;si<steps;si++){
+      var qfilled=si<filledSteps;
+      qpills+='<div style="flex:1;min-width:0;">'
+        +'<div class="water-bar'+(qfilled?' filled':'')+'" onclick="logHabit(\''+t.id+'\','+g.increment+')" style="height:14px;">'
+        +'<div class="wfill"></div></div>'
+        +'</div>';
+    }
+    pillHtml='<div style="display:flex;gap:5px;align-items:flex-end;margin-bottom:2px;">'+qpills+'</div>';
+    progressLabel=qty.toLocaleString()+' / '+g.target.toLocaleString()+' '+g.unit+' · '+pct+'%';
+    actionsHtml='<button class="habit-action-btn" onclick="unlogHabit(\''+t.id+'\')" title="Remove one">−'+g.increment+g.unit+'</button>'
+      +'<button class="habit-action-btn primary" onclick="logHabit(\''+t.id+'\','+g.increment+')">+'+g.increment+g.unit+'</button>';
+  }
+
   if(g.type==='cumulative'){
     const cp=getCumProgress(t);
     const pct=Math.min(100,Math.round(cp.done/cp.target*100));
-    const dl=g.deadline?` · by ${formatDate(g.deadline)}`:'';
-    graphHtml=`
-      <div style="margin-bottom:12px;">
-        <div style="display:flex;justify-content:space-between;font-size:.75rem;color:var(--muted);font-family:var(--font-body,Georgia,serif);margin-bottom:6px;">
-          <span>${cp.done.toLocaleString()} ${g.unit}</span><span>${cp.target.toLocaleString()} ${g.unit}${dl}</span>
-        </div>
-        <div style="height:10px;background:var(--bg);border-radius:20px;overflow:hidden;">
-          <div style="height:100%;width:${pct}%;background:${col};border-radius:20px;transition:width .4s;"></div>
-        </div>
-        <div style="font-size:.68rem;color:var(--muted);margin-top:4px;font-family:var(--font-body,Georgia,serif);">${pct}% complete</div>
-      </div>`;
-    actionsHtml=`<input class="form-input" type="number" id="cumInput-${t.id}" min="1" value="1" style="width:72px;padding:4px 8px;flex-shrink:0;"><button class="habit-action-btn primary" onclick="logHabit('${t.id}',parseInt(document.getElementById('cumInput-${t.id}').value)||1)">Add</button><button class="habit-action-btn" onclick="unlogHabit('${t.id}')">Undo</button>`;
+    pillHtml='<div class="water-bar" style="height:14px;cursor:default;"><div class="wfill" style="height:100%;width:'+pct+'%;position:absolute;top:0;left:0;background:var(--water-fill);border-radius:inherit;"></div></div>';
+    const dl=g.deadline?' · by '+formatDate(g.deadline):'';
+    progressLabel=cp.done.toLocaleString()+' / '+cp.target.toLocaleString()+' '+g.unit+dl+' · '+pct+'%';
+    actionsHtml='<input class="form-input" type="number" id="cumInput-'+t.id+'" min="1" value="1" style="width:64px;padding:4px 8px;flex-shrink:0;">'
+      +'<button class="habit-action-btn primary" onclick="logHabit(\''+t.id+'\',parseInt(document.getElementById(\'cumInput-'+t.id+'\').value)||1)">Add</button>'
+      +'<button class="habit-action-btn" onclick="unlogHabit(\''+t.id+'\')" title="Undo last">Undo</button>';
   }
 
-  return `<div class="habit-card" style="border-left:3px solid ${col};border-top:1.5px solid ${borderCol};border-right:1.5px solid ${borderCol};border-bottom:1.5px solid ${borderCol};${done?'opacity:.75':''}">
-    <div class="habit-card-header">
-      <div>
-        <div class="habit-card-name">${escHtml(t.name)}</div>
-        <div class="habit-card-type">${g.type}${g.unit?' · '+g.unit:''}</div>
-      </div>
-      <div class="habit-card-actions">${actionsHtml}</div>
-    </div>
-    ${graphHtml}
-  </div>`;
+  return (addDivider?'<div style="height:1px;background:var(--border);margin:0 20px;"></div>':'')
+    +'<div style="padding:16px 20px;">'
+    +'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;gap:12px;">'
+    +'<div style="flex:1;min-width:0;">'
+    +'<div style="font-size:.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+escHtml(t.name)+'</div>'
+    +'<div style="font-size:.6rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;font-family:var(--font-display,Georgia,serif);">'+g.type+(g.unit?' · '+g.unit:'')+'</div>'
+    +'</div>'
+    +'<div style="display:flex;gap:6px;flex-shrink:0;align-items:center;">'+actionsHtml+'</div>'
+    +'</div>'
+    +'<div style="width:100%;margin-bottom:'+(progressLabel?'6px':'0')+';">'+pillHtml+'</div>'
+    +(progressLabel?'<div style="font-size:.68rem;color:var(--muted);">'+progressLabel+'</div>':'')
+    +'</div>';
 }
 
 
@@ -2915,39 +2993,65 @@ function addCategory(){
   const icon=document.getElementById('catIconVal').value||'★';
   categories.push({id:newCatId(),name,icon});
   document.getElementById('catName').value='';
-  document.getElementById('catIconVal').value='👤';
-  document.getElementById('catIconPreview').textContent='👤';
+  document.getElementById('catIconVal').value='★';
+  const _cprev=document.getElementById('catIconPreview');
+  if(_cprev)_cprev.innerHTML=svgIcon('star','var(--accent)',20);
   document.querySelectorAll('.icon-pick-btn').forEach(b=>b.classList.remove('sel'));
   scheduleSave();renderCategories();renderCatSelects();
 }
 function selectCatIcon(ic){
   document.getElementById('catIconVal').value=ic;
-  document.getElementById('catIconPreview').textContent=ic;
-  document.querySelectorAll('.icon-pick-btn').forEach(b=>b.classList.toggle('sel',b.textContent===ic));
+  const prev=document.getElementById('catIconPreview');
+  if(prev) prev.innerHTML=svgIcon(CAT_ICON_KEYS[ic]||'star','var(--accent)',20);
+  document.querySelectorAll('#tab-cats .icon-pick-btn').forEach(b=>b.classList.toggle('sel',b.title===(CAT_ICON_KEYS[ic]||'star')));
 }
 function deleteCategory(id){
   categories=categories.filter(c=>c.id!==id);tasks.forEach(t=>{if(t.catId===id)t.catId='';});events.forEach(e=>{if(e.catId===id)e.catId='';});
   scheduleSave();renderCategories();renderCatSelects();renderTasks();renderEventList();
 }
+function buildIconPickerBtns(selectedSym, catId) {
+  const syms = Object.keys(CAT_ICON_KEYS);
+  return syms.map(sym => {
+    const key = CAT_ICON_KEYS[sym];
+    const p = CAT_ICON_PATHS[key] || CAT_ICON_PATHS['star'];
+    const svg = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">'+p+'</svg>';
+    const sel = sym === selectedSym ? ' sel' : '';
+    return '<button type="button" class="icon-pick-btn'+sel+'" title="'+key+'" data-cat="'+escHtml(catId)+'" data-sym="'+encodeURIComponent(sym)+'" onclick="pickCatIcon(this)">'+svg+'</button>';
+  }).join('');
+}
+function pickCatIcon(btn) {
+  const cid = btn.dataset.cat;
+  const sym = decodeURIComponent(btn.dataset.sym);
+  updateCatIcon(cid, sym);
+  const grid = document.getElementById('cat-icons-'+cid);
+  if (grid) grid.querySelectorAll('.icon-pick-btn').forEach(b => b.classList.remove('sel'));
+  btn.classList.add('sel');
+}
+
 function renderCategories(){
-  const ICONS=['★','♥','⚡','✦','◆','●','👤','💼','🎂','📅','✉','☎','🏠','🛒','🍽','🎵','📚','🏃','💊','💰','🎯','🌿','✈','🔔'];
   const sorted=[...categories].sort((a,b)=>a.name.localeCompare(b.name));
   const el=document.getElementById('catList');if(!el)return;
-  el.innerHTML = sorted.length ? sorted.map(c=>{
-    const icon=c.icon||c.color||'★';
-    const iconBtns=ICONS.map(ic=>`<button type="button" class="icon-pick-btn${ic===icon?' sel':''}" onclick="updateCatIcon('${c.id}','${ic}');this.closest('.cat-edit-icons').querySelectorAll('.icon-pick-btn').forEach(b=>b.classList.remove('sel'));this.classList.add('sel');">${ic}</button>`).join('');
-    return `<div class="cat-list-row" style="flex-direction:column;align-items:stretch;gap:6px;padding:10px;background:var(--bg);border-radius:10px;margin-bottom:6px;">
-      <div style="display:flex;align-items:center;gap:8px;">
-        <span style="font-size:1.1rem;width:24px;text-align:center;">${escHtml(icon)}</span>
-        <input class="form-input cat-name-input" value="${escHtml(c.name)}" style="flex:1;"
-          onchange="updateCatName('${c.id}',this.value)"
-          onblur="updateCatName('${c.id}',this.value)">
-        <button class="delete-btn" onclick="deleteCategory('${c.id}')" title="Delete">×</button>
-      </div>
-      <div class="icon-picker-grid cat-edit-icons" style="display:none;" id="cat-icons-${c.id}">${iconBtns}</div>
-      <button type="button" style="font-size:.72rem;background:none;border:1px dashed var(--border);border-radius:6px;padding:3px 8px;cursor:pointer;color:var(--muted);align-self:flex-start;" onclick="const g=document.getElementById('cat-icons-${c.id}');g.style.display=g.style.display==='none'?'grid':'none';">Change icon</button>
-    </div>`;
-  }).join('') : '<p style="font-size:.82rem;color:var(--muted);">No categories yet.</p>';
+  if(!sorted.length){el.innerHTML='<p style="font-size:.82rem;color:var(--muted);">No categories yet.</p>';return;}
+  el.innerHTML=sorted.map(c=>{
+    const iconSvg=catSvg(c,20);
+    const iconBtns=buildIconPickerBtns(c.icon||'★', c.id);
+    const cid=escHtml(c.id);
+    return [
+      '<div class="cat-list-row" style="flex-direction:column;align-items:stretch;gap:6px;padding:10px;background:var(--bg);border-radius:10px;margin-bottom:6px;">',
+        '<div style="display:flex;align-items:center;gap:8px;">',
+          '<span style="width:24px;text-align:center;flex-shrink:0;">'+iconSvg+'</span>',
+          '<input class="form-input cat-name-input" value="'+escHtml(c.name)+'" style="flex:1;" data-cat="'+cid+'" onchange="updateCatName(this.dataset.cat,this.value)" onblur="updateCatName(this.dataset.cat,this.value)">',
+          '<button class="delete-btn" data-cat="'+cid+'" onclick="deleteCategory(this.dataset.cat)" title="Delete">×</button>',
+        '</div>',
+        '<div class="icon-picker-grid cat-edit-icons" style="display:none;" id="cat-icons-'+cid+'">'+iconBtns+'</div>',
+        '<button type="button" class="recur-toggle" style="padding:3px 8px;font-size:.72rem;align-self:flex-start;margin-top:2px;" data-cat="'+cid+'" onclick="toggleCatIconPicker(this.dataset.cat)">Change icon</button>',
+      '</div>'
+    ].join('');
+  }).join('');
+}
+function toggleCatIconPicker(cid){
+  const g=document.getElementById('cat-icons-'+cid);
+  if(g)g.style.display=g.style.display==='none'?'grid':'none';
 }
 function updateCatIcon(id,icon){const c=categories.find(c=>c.id===id);if(c){c.icon=icon;scheduleSave();renderCategories();}}
 // updateCatColor removed - using icons now
@@ -2974,7 +3078,7 @@ function saveMilestones(){
 function renderMilestoneChips(){
   const el=document.getElementById('milestoneChips');if(!el)return;
   const sorted=[...MILESTONES].sort((a,b)=>a-b);
-  el.innerHTML=sorted.map(m=>`<span style="display:inline-flex;align-items:center;gap:4px;background:var(--accent);color:white;border-radius:20px;padding:3px 10px 3px 12px;font-family:'Handwriting',Georgia,serif;font-size:.8rem;">${m}d<button onclick="removeMilestone(${m})" style="background:none;border:none;color:rgba(255,255,255,.8);cursor:pointer;font-size:1rem;line-height:1;padding:0 2px;">×</button></span>`).join('');
+  el.innerHTML=sorted.map(m=>`<span style="display:inline-flex;align-items:center;gap:4px;background:var(--accent);color:white;border-radius:20px;padding:3px 10px 3px 12px;font-family:'Noto Serif Display',Georgia,serif;font-size:.8rem;">${m}d<button onclick="removeMilestone(${m})" style="background:none;border:none;color:rgba(255,255,255,.8);cursor:pointer;font-size:1rem;line-height:1;padding:0 2px;">×</button></span>`).join('');
 }
 function addMilestone(){
   const inp=document.getElementById('milestoneInput');
@@ -3227,9 +3331,9 @@ function renderNotes() {
         id="note-body-${n.id}"
         placeholder="Start writing…"
         oninput="saveNoteField('${n.id}','body',this.value);autoResizeTextarea(this)"
-        style="font-family:'Handwriting',Georgia,serif;font-size:.9rem;width:100%;border:none;background:transparent;resize:none;outline:none;color:var(--text);line-height:1.6;min-height:60px;overflow:hidden;"
+        style="font-family:'Noto Serif Display',Georgia,serif;font-size:.9rem;width:100%;border:none;background:transparent;resize:none;outline:none;color:var(--text);line-height:1.6;min-height:60px;overflow:hidden;"
       >${escHtml(n.body)}</textarea>
-      <div style="font-size:.65rem;color:var(--muted);margin-top:8px;font-family:'Handwriting',Georgia,serif;">${dateStr2}</div>
+      <div style="font-size:.65rem;color:var(--muted);margin-top:8px;font-family:'Noto Serif Display',Georgia,serif;">${dateStr2}</div>
     </div>`;
   }).join('');
   // Resize all textareas to fit content
@@ -3267,7 +3371,88 @@ function addRecipeToGrocery(recipeId) {
 }
 
 function escHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
-function catIcon(c){return c?(c.icon||'★'):'';} // helper for legacy categories without icon
+function catIcon(c){return c?(c.icon||'★'):'';} // symbol string for dropdowns
+// ---- CATEGORY SVG ICONS ----
+const CAT_ICON_KEYS = {
+  "★":"star","♥":"heart","👤":"person","💼":"work","🎂":"birthday","📅":"calendar","✉":"mail","☎":"phone",
+  "🏠":"home","🛒":"shopping","🍽":"food","🎵":"music","📚":"book","🏃":"fitness","💊":"health","💰":"finance",
+  "🎯":"target","🌿":"nature","✈":"travel","🔔":"alert","⚡":"bolt","✦":"social","◆":"creative","●":"dot",
+  "☕":"coffee","🔑":"key","🌙":"moon","☀":"sun","💧":"water2","✏":"pencil","📌":"pin","🚗":"car",
+  "⚙":"gear","💬":"chat","🎁":"gift","🌎":"globe","💪":"strength","🎨":"palette","📊":"chart","🏆":"trophy",
+  "🎬":"film","📷":"camera","🧘":"meditate","🌸":"flower","🔬":"lab","🎓":"graduate","🏡":"house2","🛏":"bed",
+  "🧠":"brain","👁":"eye","🤝":"handshake","🌊":"wave","🔥":"fire","❄":"snowflake","🎪":"circus","🦋":"butterfly"
+};
+const CAT_ICON_PATHS = {};
+CAT_ICON_PATHS['star'] = "<polygon points=\"12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26\"/>";
+CAT_ICON_PATHS['heart'] = "<path d=\"M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z\"/>";
+CAT_ICON_PATHS['person'] = "<path d=\"M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2\"/><circle cx=\"12\" cy=\"7\" r=\"4\"/>";
+CAT_ICON_PATHS['work'] = "<rect x=\"2\" y=\"7\" width=\"20\" height=\"14\" rx=\"2\"/><path d=\"M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16\"/>";
+CAT_ICON_PATHS['birthday'] = "<path d=\"M20 21v-8a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8\"/><path d=\"M4 16s.5-1 2-1 2.5 2 4 2 2.5-2 4-2 2.5 2 4 2 2-1 2-1\"/><line x1=\"12\" y1=\"11\" x2=\"12\" y2=\"4\"/><path d=\"M10 4s.5-2 2-2 2 2 2 2\"/>";
+CAT_ICON_PATHS['calendar'] = "<rect x=\"3\" y=\"4\" width=\"18\" height=\"18\" rx=\"2\"/><line x1=\"16\" y1=\"2\" x2=\"16\" y2=\"6\"/><line x1=\"8\" y1=\"2\" x2=\"8\" y2=\"6\"/><line x1=\"3\" y1=\"10\" x2=\"21\" y2=\"10\"/>";
+CAT_ICON_PATHS['mail'] = "<path d=\"M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z\"/><polyline points=\"22,6 12,13 2,6\"/>";
+CAT_ICON_PATHS['phone'] = "<path d=\"M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.15 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.06 1.18h3a2 2 0 0 1 2 1.72c.127.96.362 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.09 9.1a16 16 0 0 0 5.82 5.82l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7a2 2 0 0 1 1.72 2.03z\"/>";
+CAT_ICON_PATHS['home'] = "<path d=\"M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z\"/><polyline points=\"9,22 9,12 15,12 15,22\"/>";
+CAT_ICON_PATHS['shopping'] = "<circle cx=\"9\" cy=\"21\" r=\"1\"/><circle cx=\"20\" cy=\"21\" r=\"1\"/><path d=\"M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6\"/>";
+CAT_ICON_PATHS['food'] = "<path d=\"M18 8h1a4 4 0 0 1 0 8h-1\"/><path d=\"M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z\"/><line x1=\"6\" y1=\"1\" x2=\"6\" y2=\"4\"/><line x1=\"10\" y1=\"1\" x2=\"10\" y2=\"4\"/><line x1=\"14\" y1=\"1\" x2=\"14\" y2=\"4\"/>";
+CAT_ICON_PATHS['music'] = "<path d=\"M9 18V5l12-2v13\"/><circle cx=\"6\" cy=\"18\" r=\"3\"/><circle cx=\"18\" cy=\"16\" r=\"3\"/>";
+CAT_ICON_PATHS['book'] = "<path d=\"M4 19.5A2.5 2.5 0 0 1 6.5 17H20\"/><path d=\"M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z\"/>";
+CAT_ICON_PATHS['fitness'] = "<circle cx=\"12\" cy=\"5\" r=\"2.5\"/><path d=\"M10 8l-3 5 3 1.5L8.5 20\"/><path d=\"M14 8l3 5-3 1.5\"/><line x1=\"8\" y1=\"13\" x2=\"6\" y2=\"16\"/><line x1=\"14.5\" y1=\"14\" x2=\"16.5\" y2=\"17\"/>";
+CAT_ICON_PATHS['health'] = "<path d=\"M22 12h-4l-3 9L9 3l-3 9H2\"/>";
+CAT_ICON_PATHS['finance'] = "<line x1=\"12\" y1=\"1\" x2=\"12\" y2=\"23\"/><path d=\"M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6\"/>";
+CAT_ICON_PATHS['target'] = "<circle cx=\"12\" cy=\"12\" r=\"10\"/><circle cx=\"12\" cy=\"12\" r=\"6\"/><circle cx=\"12\" cy=\"12\" r=\"2\"/>";
+CAT_ICON_PATHS['nature'] = "<path d=\"M17 8C8 10 5.9 16.17 3.82 19H2\"/><path d=\"M5 9c0 4.5 2.5 6.75 4 8\"/><path d=\"M12 2c0 6-4 9.14-5 10\"/>";
+CAT_ICON_PATHS['travel'] = "<path d=\"M17.8 19.2L16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z\"/>";
+CAT_ICON_PATHS['alert'] = "<path d=\"M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9\"/><path d=\"M13.73 21a2 2 0 0 1-3.46 0\"/>";
+CAT_ICON_PATHS['bolt'] = "<polygon points=\"13 2 3 14 12 14 11 22 21 10 12 10 13 2\"/>";
+CAT_ICON_PATHS['social'] = "<path d=\"M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2\"/><circle cx=\"9\" cy=\"7\" r=\"4\"/><path d=\"M23 21v-2a4 4 0 0 0-3-3.87\"/><path d=\"M16 3.13a4 4 0 0 1 0 7.75\"/>";
+CAT_ICON_PATHS['creative'] = "<path d=\"M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z\"/>";
+CAT_ICON_PATHS['dot'] = "<circle cx=\"12\" cy=\"12\" r=\"8\"/>";
+CAT_ICON_PATHS['coffee'] = "<path d=\"M18 8h1a4 4 0 0 1 0 8h-1\"/><path d=\"M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z\"/><line x1=\"6\" y1=\"1\" x2=\"6\" y2=\"4\"/><line x1=\"10\" y1=\"1\" x2=\"10\" y2=\"4\"/><line x1=\"14\" y1=\"1\" x2=\"14\" y2=\"4\"/>";
+CAT_ICON_PATHS['key'] = "<path d=\"M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.78 7.78 5.5 5.5 0 0 1 7.77-7.77zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4\"/>";
+CAT_ICON_PATHS['moon'] = "<path d=\"M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z\"/>";
+CAT_ICON_PATHS['sun'] = "<circle cx=\"12\" cy=\"12\" r=\"5\"/><line x1=\"12\" y1=\"1\" x2=\"12\" y2=\"3\"/><line x1=\"12\" y1=\"21\" x2=\"12\" y2=\"23\"/><line x1=\"4.22\" y1=\"4.22\" x2=\"5.64\" y2=\"5.64\"/><line x1=\"18.36\" y1=\"18.36\" x2=\"19.78\" y2=\"19.78\"/><line x1=\"1\" y1=\"12\" x2=\"3\" y2=\"12\"/><line x1=\"21\" y1=\"12\" x2=\"23\" y2=\"12\"/><line x1=\"4.22\" y1=\"19.78\" x2=\"5.64\" y2=\"18.36\"/><line x1=\"18.36\" y1=\"5.64\" x2=\"19.78\" y2=\"4.22\"/>";
+CAT_ICON_PATHS['water2'] = "<path d=\"M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z\"/>";
+CAT_ICON_PATHS['pencil'] = "<path d=\"M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z\"/>";
+CAT_ICON_PATHS['pin'] = "<path d=\"M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z\"/><circle cx=\"12\" cy=\"10\" r=\"3\"/>";
+CAT_ICON_PATHS['car'] = "<rect x=\"1\" y=\"3\" width=\"15\" height=\"13\" rx=\"2\"/><polygon points=\"16 8 20 8 23 11 23 16 16 16 16 8\"/><circle cx=\"5.5\" cy=\"18.5\" r=\"2.5\"/><circle cx=\"18.5\" cy=\"18.5\" r=\"2.5\"/>";
+CAT_ICON_PATHS['gear'] = "<circle cx=\"12\" cy=\"12\" r=\"3\"/><path d=\"M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 0 2.83-2.83l-.06-.06a1.65 1.65 0 0 0-.33-1.82 1.65 1.65 0 0 0-1.51-1H21a2 2 0 0 0 0-4h-.09a1.65 1.65 0 0 0-1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 0-2.83 2.83l.06.06A1.65 1.65 0 0 0 15 9a1.65 1.65 0 0 0-1-1.51V7a2 2 0 0 0-4 0v.09A1.65 1.65 0 0 0 9 8.6a1.65 1.65 0 0 0-1.82-.33l-.06.06A2 2 0 0 0 4.29 11.1l.06.06A1.65 1.65 0 0 0 4.6 13H4a2 2 0 0 0 0 4h.09a1.65 1.65 0 0 0 1.51 1z\"/>";
+CAT_ICON_PATHS['chat'] = "<path d=\"M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z\"/>";
+CAT_ICON_PATHS['gift'] = "<polyline points=\"20 12 20 22 4 22 4 12\"/><rect x=\"2\" y=\"7\" width=\"20\" height=\"5\"/><line x1=\"12\" y1=\"22\" x2=\"12\" y2=\"7\"/><path d=\"M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z\"/><path d=\"M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z\"/>";
+CAT_ICON_PATHS['globe'] = "<circle cx=\"12\" cy=\"12\" r=\"10\"/><line x1=\"2\" y1=\"12\" x2=\"22\" y2=\"12\"/><path d=\"M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z\"/>";
+CAT_ICON_PATHS['strength'] = "<line x1=\"6\" y1=\"12\" x2=\"18\" y2=\"12\"/><line x1=\"2\" y1=\"12\" x2=\"6\" y2=\"12\"/><line x1=\"18\" y1=\"12\" x2=\"22\" y2=\"12\"/><circle cx=\"6\" cy=\"12\" r=\"2\"/><circle cx=\"18\" cy=\"12\" r=\"2\"/>";
+CAT_ICON_PATHS['palette'] = "<circle cx=\"12\" cy=\"12\" r=\"10\"/><circle cx=\"8.5\" cy=\"9\" r=\"1.5\"/><circle cx=\"15.5\" cy=\"9\" r=\"1.5\"/><circle cx=\"12\" cy=\"15\" r=\"1.5\"/>";
+CAT_ICON_PATHS['chart'] = "<line x1=\"18\" y1=\"20\" x2=\"18\" y2=\"10\"/><line x1=\"12\" y1=\"20\" x2=\"12\" y2=\"4\"/><line x1=\"6\" y1=\"20\" x2=\"6\" y2=\"14\"/>";
+CAT_ICON_PATHS['trophy'] = "<polyline points=\"8 21 12 17 16 21\"/><line x1=\"12\" y1=\"17\" x2=\"12\" y2=\"7\"/><path d=\"M17 5H7v5a5 5 0 0 0 10 0V5z\"/><line x1=\"5\" y1=\"5\" x2=\"7\" y2=\"5\"/><line x1=\"17\" y1=\"5\" x2=\"19\" y2=\"5\"/>";
+CAT_ICON_PATHS['film'] = "<rect x=\"2\" y=\"2\" width=\"20\" height=\"20\" rx=\"2\"/><line x1=\"7\" y1=\"2\" x2=\"7\" y2=\"22\"/><line x1=\"17\" y1=\"2\" x2=\"17\" y2=\"22\"/><line x1=\"2\" y1=\"12\" x2=\"22\" y2=\"12\"/><line x1=\"2\" y1=\"7\" x2=\"7\" y2=\"7\"/><line x1=\"17\" y1=\"7\" x2=\"22\" y2=\"7\"/><line x1=\"2\" y1=\"17\" x2=\"7\" y2=\"17\"/><line x1=\"17\" y1=\"17\" x2=\"22\" y2=\"17\"/>";
+CAT_ICON_PATHS['camera'] = "<path d=\"M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z\"/><circle cx=\"12\" cy=\"13\" r=\"4\"/>";
+CAT_ICON_PATHS['meditate'] = "<circle cx=\"12\" cy=\"4\" r=\"2\"/><path d=\"M8 8h8l-1 8H9z\"/><path d=\"M6 14c2 3 8 3 12 0\"/>";
+CAT_ICON_PATHS['flower'] = "<circle cx=\"12\" cy=\"12\" r=\"2\"/><circle cx=\"12\" cy=\"6\" r=\"2\"/><circle cx=\"12\" cy=\"18\" r=\"2\"/><circle cx=\"6\" cy=\"12\" r=\"2\"/><circle cx=\"18\" cy=\"12\" r=\"2\"/><circle cx=\"7.76\" cy=\"7.76\" r=\"2\"/><circle cx=\"16.24\" cy=\"16.24\" r=\"2\"/><circle cx=\"7.76\" cy=\"16.24\" r=\"2\"/><circle cx=\"16.24\" cy=\"7.76\" r=\"2\"/>";
+CAT_ICON_PATHS['lab'] = "<path d=\"M14.5 2v10l4 8H5.5l4-8V2\"/><line x1=\"8.5\" y1=\"2\" x2=\"15.5\" y2=\"2\"/>";
+CAT_ICON_PATHS['graduate'] = "<path d=\"M22 10v6\"/><path d=\"M2 10l10-5 10 5-10 5z\"/><path d=\"M6 12v5c3 3 9 3 12 0v-5\"/>";
+CAT_ICON_PATHS['house2'] = "<path d=\"M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z\"/><polyline points=\"9,22 9,12 15,12 15,22\"/>";
+CAT_ICON_PATHS['bed'] = "<path d=\"M2 4v16\"/><path d=\"M22 4v16\"/><path d=\"M2 12h20\"/><rect x=\"6\" y=\"8\" width=\"12\" height=\"8\" rx=\"1\"/>";
+CAT_ICON_PATHS['brain'] = "<path d=\"M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96-.46 2.5 2.5 0 0 1-1.1-4.65A4 4 0 0 1 5 11a4 4 0 0 1 4-4v-.5A2.5 2.5 0 0 1 9.5 2z\"/><path d=\"M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96-.46 2.5 2.5 0 0 0 1.1-4.65A4 4 0 0 0 19 11a4 4 0 0 0-4-4v-.5A2.5 2.5 0 0 0 14.5 2z\"/>";
+CAT_ICON_PATHS['eye'] = "<path d=\"M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z\"/><circle cx=\"12\" cy=\"12\" r=\"3\"/>";
+CAT_ICON_PATHS['handshake'] = "<path d=\"M20.42 4.58a5.4 5.4 0 0 0-7.65 0l-.77.78-.77-.78a5.4 5.4 0 0 0-7.65 0C1.46 6.7 1.33 10.28 4 13l8 8 8-8c2.67-2.72 2.54-6.3.42-8.42z\"/>";
+CAT_ICON_PATHS['wave'] = "<path d=\"M2 12c2-4 4-6 6-6s4 6 6 6 4-6 6-6\"/><path d=\"M2 18c2-4 4-6 6-6s4 6 6 6 4-6 6-6\"/>";
+CAT_ICON_PATHS['fire'] = "<path d=\"M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3C9 7 10 5 12 3c.5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z\"/>";
+CAT_ICON_PATHS['snowflake'] = "<line x1=\"12\" y1=\"2\" x2=\"12\" y2=\"22\"/><line x1=\"2\" y1=\"12\" x2=\"22\" y2=\"12\"/><polyline points=\"8,6 12,2 16,6\"/><polyline points=\"8,18 12,22 16,18\"/><polyline points=\"6,8 2,12 6,16\"/><polyline points=\"18,8 22,12 18,16\"/>";
+CAT_ICON_PATHS['butterfly'] = "<path d=\"M12 12c-2-2.5-4-4-6-4a4 4 0 0 0 0 8c2 0 4-1.5 6-4z\"/><path d=\"M12 12c2-2.5 4-4 6-4a4 4 0 0 1 0 8c-2 0-4-1.5-6-4z\"/><line x1=\"12\" y1=\"12\" x2=\"12\" y2=\"20\"/>";
+
+function svgIcon(name, col, sz) {
+  sz = sz || 16;
+  const p = CAT_ICON_PATHS[name] || CAT_ICON_PATHS['star'];
+  const c = col || 'var(--accent)';
+  return '<svg width="'+sz+'" height="'+sz+'" viewBox="0 0 24 24" fill="none" stroke="'+c+'" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;">'+p+'</svg>';
+}
+
+function catSvg(c, sz) {
+  if (!c) return svgIcon('star', 'var(--accent)', sz);
+  const key = CAT_ICON_KEYS[c.icon] || 'star';
+  return svgIcon(key, 'var(--accent)', sz);
+}
+
+
 
 // ---- CALENDAR EXPORT ----
 function icsDate(dateStr,timeStr){
@@ -4645,7 +4830,7 @@ function renderCycleHistory() {
   const el = document.getElementById('cycleHistory');
   if (!el) return;
   // Add manual entry button at top
-  const addBtn = `<button onclick="addManualCycleEntry()" style="font-family:'Handwriting',Georgia,serif;font-size:.82rem;background:none;border:1.5px dashed var(--border);border-radius:10px;padding:7px 14px;cursor:pointer;color:var(--muted);margin-bottom:12px;width:100%;">+ Add past period</button>`;
+  const addBtn = `<button onclick="addManualCycleEntry()" style="font-family:'Noto Serif Display',Georgia,serif;font-size:.82rem;background:none;border:1.5px dashed var(--border);border-radius:10px;padding:7px 14px;cursor:pointer;color:var(--muted);margin-bottom:12px;width:100%;">+ Add past period</button>`;
   if (!cycleLog.length) { el.innerHTML = addBtn + '<div class="empty-msg" style="margin-top:8px;">No cycles logged yet.</div>'; return; }
   const sorted = [...cycleLog].sort((a,b) => b.startDate.localeCompare(a.startDate));
   el.innerHTML = addBtn + sorted.map((c,i) => {
@@ -5257,6 +5442,7 @@ document.getElementById('mealFilterDate').value=today();document.getElementById(
 reconcileWaterFilled();
 renderAllOverviewForDate();
 renderGrocList();
+renderNegHabits();
 try{renderCycleWeekStrip();}catch(e){}
 initCentreSwipe();
 updateCentreDateLabel();
@@ -5312,7 +5498,7 @@ setInterval(tickLive,1000);
 <div class="multiadd-overlay" id="multiAddOverlay">
   <div class="multiadd-panel">
     <div class="multiadd-title" id="multiAddTitle">Add Multiple</div>
-    <p style="font-size:.8rem;color:var(--muted);font-family:'Handwriting',Georgia,serif;margin-top:-6px;">Type or speak a list of items — AI will parse and add them all at once.</p>
+    <p style="font-size:.8rem;color:var(--muted);font-family:'Noto Serif Display',Georgia,serif;margin-top:-6px;">Type or speak a list of items — AI will parse and add them all at once.</p>
     <div class="mic-row-inline">
       <textarea class="multiadd-textarea" id="multiAddText" placeholder="e.g. 3 apples, almond milk, sourdough bread, cheddar cheese…&#10;or for tasks: call dentist, pick up dry cleaning, book Airbnb for July…"></textarea>
       <button type="button" class="mic-btn" id="micbtn-multiAddText" onclick="startVoice('multiAddText','multiAddVoiceStatus')" title="Speak your list"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="11" rx="3"/><path d="M5 10a7 7 0 0 0 14 0"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="8" y1="22" x2="16" y2="22"/></svg></button>
@@ -5325,8 +5511,8 @@ setInterval(tickLive,1000);
     <div id="multiAddStatus" class="multiadd-status" style="display:none;"></div>
     <div id="multiAddResult" style="display:none;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-        <span style="font-family:'Handwriting',Georgia,serif;font-size:.8rem;color:var(--muted);" id="multiAddResultLabel">Uncheck any you don't want to add:</span>
-        <button style="font-family:'Handwriting',Georgia,serif;font-size:.75rem;background:none;border:none;color:var(--accent);cursor:pointer;" onclick="runMultiAdd()">Re-parse</button>
+        <span style="font-family:'Noto Serif Display',Georgia,serif;font-size:.8rem;color:var(--muted);" id="multiAddResultLabel">Uncheck any you don't want to add:</span>
+        <button style="font-family:'Noto Serif Display',Georgia,serif;font-size:.75rem;background:none;border:none;color:var(--accent);cursor:pointer;" onclick="runMultiAdd()">Re-parse</button>
       </div>
       <div class="multiadd-result" id="multiAddItems"></div>
       <button class="multiadd-confirm-btn" id="multiAddConfirmBtn" onclick="confirmMultiAdd()">Add All to List</button>
