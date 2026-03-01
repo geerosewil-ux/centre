@@ -1525,7 +1525,7 @@ function loadFromStorage(){
     const ms2=localStorage.getItem('centre_mealSeq');if(ms2)mealSeq=parseInt(ms2);
     const tpl=localStorage.getItem('centre_templates');if(tpl)templates=JSON.parse(tpl);
     const tplSeq=localStorage.getItem('centre_templateSeq');if(tplSeq)templateSeq=parseInt(tplSeq);
-    const rcp=localStorage.getItem('centre_recipes');if(rcp)recipes=JSON.parse(rcp);
+    const rcp=localStorage.getItem('centre_recipes');if(rcp){recipes=JSON.parse(rcp);normaliseRecipes();}
     const rcpSeq=localStorage.getItem('centre_recipeSeq');if(rcpSeq)recipeSeq=parseInt(rcpSeq);
     const ts=localStorage.getItem('centre_taskSeq');if(ts)taskSeq=parseInt(ts);
     const es=localStorage.getItem('centre_eventSeq');if(es)eventSeq=parseInt(es);
@@ -1685,7 +1685,7 @@ function showPage(p,btn){
   if(p==='events')renderEventList();
   if(p==='lists')renderGrocList();
   if(p==='cycle')renderCyclePage();
-  if(p==='meals'){document.getElementById('mealFilterDate').value=today();document.getElementById('mealDate').value=today();const mte=document.getElementById('mealType');if(mte)mte.value=smartMealType();renderMealLog();}
+  if(p==='meals'){document.getElementById('mealFilterDate').value=today();document.getElementById('mealDate').value=today();const mte=document.getElementById('mealType');if(mte)mte.value=smartMealType();renderCatSelects();renderMealLog();renderRecipeList();}
   if(p==='settings'){buildSettings();loadGoogleApiKey();loadGeminiApiKey();renderWater();renderMilestoneChips();applyWorkMode();}
 }
 
@@ -3169,6 +3169,19 @@ function toggleRecipeDetail(id){
   const el=document.getElementById('rcpDetail-'+id);
   if(el)el.style.display=el.style.display==='none'?'block':'none';
 }
+// Normalise recipe objects — safe-guard against old schema (missing tags, type, etc.)
+function normaliseRecipes(){
+  recipes.forEach(r=>{
+    if(!Array.isArray(r.tags))r.tags=r.tags?String(r.tags).split(',').map(s=>s.trim()).filter(Boolean):[];
+    if(r.cal===undefined||r.cal===null)r.cal=0;
+    if(r.protein===undefined||r.protein===null)r.protein=0;
+    if(r.carbs===undefined||r.carbs===null)r.carbs=0;
+    if(r.fat===undefined||r.fat===null)r.fat=0;
+    if(!r.ingredients)r.ingredients='';
+    if(!r.method)r.method='';
+  });
+}
+
 function renderRecipeList(){
   const el=document.getElementById('recipeList');if(!el)return;
   if(!recipes.length){el.innerHTML=`<div class="empty-msg">No recipes yet. Add one above.</div>`;return;}
@@ -3178,7 +3191,7 @@ function renderRecipeList(){
         <div style="flex:1;min-width:0;">
           <div style="font-size:.88rem;margin-bottom:3px;">${escHtml(r.name)}</div>
           <div style="display:flex;gap:5px;flex-wrap:wrap;">
-            ${r.tags.map(t=>`<span class="meta-tag" style="background:var(--bg);border:1px solid var(--border);color:var(--muted);">${escHtml(t)}</span>`).join('')}
+            ${(r.tags||[]).map(t=>`<span class="meta-tag" style="background:var(--bg);border:1px solid var(--border);color:var(--muted);">${escHtml(t)}</span>`).join('')}
             ${r.cal?`<span class="macro-pill cal">${r.cal}kcal</span>`:''}
             ${r.protein?`<span class="macro-pill protein">${r.protein}g P</span>`:''}
           </div>
@@ -3787,7 +3800,7 @@ function updateCatIcon(id, icon) {
   if (cat) { cat.icon = resolveIconKey(icon); scheduleSave(); renderCategories(); }
 }
 function updateCatName(id,name){const c=categories.find(c=>c.id===id);if(c&&name.trim()){c.name=name.trim();scheduleSave();renderCatSelects();renderTasks();renderEventList();}}
-function renderCatSelects(){const opts=`<option value="">— none —</option>`+categories.map(c=>`<option value="${c.id}">${c.icon||'★'} ${escHtml(c.name)}</option>`).join('');['tCat','evCat','mEvCat','tplCat'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML=opts;});}
+function renderCatSelects(){const opts=`<option value="">— none —</option>`+categories.map(c=>`<option value="${c.id}">${c.icon||'★'} ${escHtml(c.name)}</option>`).join('');['tCat','evCat','mEvCat','tplCat','psEvCat'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML=opts;});}
 
 // ---- SETTINGS ----
 const PHASE_VARS = ['--phase-menstrual','--phase-follicular','--phase-ovulation','--phase-luteal'];
@@ -5122,7 +5135,7 @@ function applyRemoteData(remote) {
   if (remote.mealSeq) mealSeq = remote.mealSeq;
   if (remote.templates) templates = remote.templates;
   if (remote.templateSeq) templateSeq = remote.templateSeq;
-  if (remote.recipes) recipes = remote.recipes;
+  if (remote.recipes) { recipes = remote.recipes; normaliseRecipes(); }
   if (remote.recipeSeq) recipeSeq = remote.recipeSeq;
   if (remote.taskSeq) taskSeq = remote.taskSeq;
   if (remote.eventSeq) eventSeq = remote.eventSeq;
