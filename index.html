@@ -261,6 +261,67 @@ h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.
 .day-add-btn{font-family:'Noto Serif Display',Georgia,serif;font-size:.68rem;background:none;border:1px dashed var(--border);border-radius:6px;padding:3px;color:var(--muted);cursor:pointer;transition:all .2s;text-align:center;margin-top:2px;}
 .day-add-btn:hover{border-color:var(--accent);color:var(--accent);}
 
+/* ---- MOBILE WEEKLY: Stacked Days ---- */
+@media(max-width:640px){
+  .week-grid{
+    display:flex;
+    flex-direction:column;
+    gap:0;
+  }
+  .day-col{
+    gap:6px;
+    padding:14px 0;
+  }
+  /* Thin horizontal rule between days */
+  .day-col+.day-col{
+    border-top:1px solid var(--border);
+  }
+  /* Today gets a coloured left accent stripe */
+  .day-col.is-today{
+    padding-left:10px;
+    border-left:2.5px solid var(--accent);
+    margin-left:-2px;
+  }
+  /* Horizontal day header: "MON 3" on one line, left-aligned */
+  .day-header{
+    display:flex;
+    align-items:baseline;
+    gap:7px;
+    text-align:left;
+    border-bottom:none;
+    padding-bottom:0;
+  }
+  .day-name{
+    font-size:.72rem;
+    letter-spacing:.1em;
+  }
+  .day-num{
+    font-size:1.15rem;
+  }
+  /* Items stack naturally, slightly larger text on mobile */
+  .day-task,.day-event{
+    font-size:.78rem;
+    padding:4px 7px;
+  }
+  .day-items{
+    min-height:0;
+  }
+  /* "+ add" button full width on mobile */
+  .day-add-btn{
+    font-size:.75rem;
+    padding:5px;
+    width:100%;
+  }
+  /* Empty day: hide to reduce scroll clutter — show only if items exist */
+  .day-col.mobile-empty .day-items,
+  .day-col.mobile-empty .day-add-btn{
+    display:none;
+  }
+  .day-col.mobile-empty .day-header{
+    opacity:.45;
+  }
+}
+
 /* SETTINGS */
 .settings-section{margin-bottom:28px;}
 .settings-section-title{font-size:1rem;letter-spacing:.1em;color:var(--muted);margin-bottom:14px;padding-bottom:6px;border-bottom:1px solid var(--border);}
@@ -932,11 +993,6 @@ h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.
       <div id="tab-mrcp" style="display:none">
         <div class="form-grid" style="margin-bottom:18px;">
           <div class="form-group full"><label class="form-label">Recipe name</label><input class="form-input" id="rcpName" placeholder="e.g. Salmon Bowl"/></div>
-          <div class="form-group"><label class="form-label">Meal type</label>
-            <select class="form-select" id="rcpType">
-              <option value="breakfast">Breakfast</option><option value="lunch">Lunch</option><option value="dinner">Dinner</option><option value="snack">Snack</option>
-            </select>
-          </div>
           <div class="form-group"><label class="form-label">Tags (comma separated)</label><input class="form-input" id="rcpTags" placeholder="e.g. high protein, quick"/></div>
           <div class="form-group full"><label class="form-label">Ingredients</label><textarea class="form-input" id="rcpIngredients" rows="3" placeholder="150g salmon&#10;½ cup rice&#10;Cucumber, avocado…" style="resize:vertical;line-height:1.6;"></textarea></div>
           <div class="form-group full"><label class="form-label">Method</label><textarea class="form-input" id="rcpMethod" rows="3" placeholder="1. Cook rice…&#10;2. Pan fry salmon…" style="resize:vertical;line-height:1.6;"></textarea></div>
@@ -948,6 +1004,25 @@ h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.
         </div>
         <div class="form-label" style="margin-bottom:10px;display:block;">Recipe Library</div>
         <div id="recipeList"></div>
+
+        <!-- GOOGLE SHEETS SYNC -->
+        <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--border);">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+            <span style="font-family:'Noto Serif Display',Georgia,serif;font-weight:400;font-stretch:extra-condensed;text-transform:uppercase;letter-spacing:.1em;font-size:.8rem;color:var(--text);">Sheets Sync</span>
+            <span id="rcpSheetsStatus" style="font-size:.72rem;color:var(--muted);"></span>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            <div style="display:flex;gap:8px;align-items:center;">
+              <input class="form-input" id="rcpSheetId" placeholder="Google Sheet ID (from URL)" style="flex:1;font-size:.82rem;"/>
+              <button onclick="saveRcpSheetId()" style="font-family:'Noto Serif Display',Georgia,serif;font-size:.78rem;background:none;border:1.5px solid var(--border);border-radius:8px;padding:6px 12px;cursor:pointer;color:var(--muted);white-space:nowrap;">Save</button>
+            </div>
+            <div style="font-size:.72rem;color:var(--muted);line-height:1.5;">Paste your Sheet ID from the URL: docs.google.com/spreadsheets/d/<strong>SHEET_ID</strong>/edit</div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+              <button onclick="rcpSheetsPush()" style="font-family:'Noto Serif Display',Georgia,serif;font-stretch:extra-condensed;text-transform:uppercase;letter-spacing:.08em;font-size:.78rem;background:var(--accent);color:var(--on-accent);border:none;border-radius:8px;padding:7px 14px;cursor:pointer;">↑ Push to Sheet</button>
+              <button onclick="rcpSheetsPull()" style="font-family:'Noto Serif Display',Georgia,serif;font-stretch:extra-condensed;text-transform:uppercase;letter-spacing:.08em;font-size:.78rem;background:none;border:1.5px solid var(--accent);border-radius:8px;padding:7px 14px;cursor:pointer;color:var(--accent);">↓ Pull from Sheet</button>
+            </div>
+          </div>
+        </div>
       </div>
       <div id="tab-mcycle" style="display:none;padding-top:8px;"></div>
     </div>
@@ -1265,6 +1340,7 @@ h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.
               <button class="io-btn" onclick="exportSheet('events')"><span class="io-btn-label">Events</span></button>
               <button class="io-btn" onclick="exportSheet('categories')"><span class="io-btn-label">Categories</span></button>
               <button class="io-btn" onclick="exportSheet('habits')"><span class="io-btn-label">Habits</span></button>
+              <button class="io-btn" onclick="exportSheet('recipes')"><span class="io-btn-label">Recipes</span></button>
               <button class="io-btn" onclick="exportSheet('all')"><span class="io-btn-label">Export All</span></button>
               <button class="io-btn" onclick="exportICS()"><span class="io-btn-label">Calendar .ics</span></button>
             </div>
@@ -2488,12 +2564,14 @@ function renderWeek(){
     const dayEvents=events.filter(ev=>occursOn(ev,ds));
     const _wcDay=getCycleDay(ds);const _wcPhase=getPhase(_wcDay);const _wcCfg=_wcPhase?getPhaseConfig()[_wcPhase]:null;
     const _wcDot=_wcCfg?`<span class="week-cycle-dot" style="background:${_wcCfg.color};opacity:.8;" title="${_wcCfg.name} · Day ${_wcDay}"></span>`:'';
-    return `<div class="day-col ${isToday?'is-today':''}">
+    const _dayMeals=meals.filter(m=>m.date===ds);
+    const _isEmpty=!dayEvents.length&&!dayTasks.length&&!_dayMeals.length;
+    return `<div class="day-col ${isToday?'is-today':''}${_isEmpty?' mobile-empty':''}">
       <div class="day-header"><div class="day-name">${DN[i]}</div><div class="day-num">${d.getDate()}</div><div style="display:flex;align-items:center;justify-content:center;gap:2px;height:10px;">${_wcDot}<div class="day-weather" data-weather-day="${ds}"></div></div></div>
       <div class="day-items">
         ${dayEvents.map(ev=>{const cat=categories.find(c=>c.id===ev.catId);const bg='var(--bg)';return `<div class="day-event" style="background:${bg}" title="${escHtml(ev.name)}">${evEmoji(ev,'var(--accent)')}${escHtml(ev.name)}</div>`;}).join('')}
         ${dayTasks.map(tk=>{const cat=categories.find(c=>c.id===tk.catId);const bg='';return `<div class="day-task" style="${bg?'background:'+bg:''}" title="${escHtml(tk.name)}">${escHtml(tk.name)}</div>`;}).join('')}
-        ${meals.filter(m=>m.date===ds).map(m=>`<div class="day-meal" title="${escHtml(m.name)}">${m.type[0].toUpperCase()}: ${escHtml(m.name)}</div>`).join('')}
+        ${_dayMeals.map(m=>`<div class="day-meal" title="${escHtml(m.name)}">${m.type[0].toUpperCase()}: ${escHtml(m.name)}</div>`).join('')}
       </div>
       <button class="day-add-btn" onclick="openModal('${ds}')">+</button>
     </div>`;
@@ -2598,26 +2676,25 @@ function renderOverviewEvents(){
 
   if(!hasEvents){container.innerHTML=header+`<p class="no-events">No events${isToday?' today':' this day'}.</p>`;return;}
 
-  // Build combined section: regular events + birthday group separated by thin vertical rule
+  // Birthdays on top, horizontal divider, other events below
   let inner='';
-  if(otherEvs.length&&birthdays.length){
-    // Both present — side-by-side with vertical divider
-    const bdTitle=birthdays.length===1?'Birthday':'Birthdays';
-    inner=`<div style="display:flex;gap:0;align-items:flex-start;">
-      <div style="flex:1;min-width:0;"><div class="events-strip">${otherEvs.map(pillHtml).join('')}</div></div>
-      <div style="width:1px;background:var(--border);margin:0 14px;align-self:stretch;flex-shrink:0;"></div>
-      <div style="flex:0 0 auto;min-width:0;">
-        <div style="font-family:'Noto Serif Display',Georgia,serif;font-weight:400;font-stretch:extra-condensed;text-transform:uppercase;letter-spacing:.1em;font-size:.72rem;color:var(--muted);margin-bottom:8px;">${bdTitle}</div>
+  const bdTitle=birthdays.length===1?'Birthday':'Birthdays';
+  if(birthdays.length&&otherEvs.length){
+    // Both sections
+    inner=
+      `<div style="margin-bottom:10px;">
+        <div style="font-family:'Noto Serif Display',Georgia,serif;font-weight:400;font-stretch:extra-condensed;text-transform:uppercase;letter-spacing:.1em;font-size:.7rem;color:var(--muted);margin-bottom:7px;">${bdTitle}</div>
         <div class="events-strip">${birthdays.map(pillHtml).join('')}</div>
       </div>
-    </div>`;
-  } else if(birthdays.length&&!otherEvs.length){
+      <div style="height:1px;background:var(--border);margin:0 0 10px;"></div>
+      <div class="events-strip">${otherEvs.map(pillHtml).join('')}</div>`;
+  } else if(birthdays.length){
     // Only birthdays
-    const bdTitle=birthdays.length===1?'Birthday':'Birthdays';
-    inner=`<div>
-      <div style="font-family:'Noto Serif Display',Georgia,serif;font-weight:400;font-stretch:extra-condensed;text-transform:uppercase;letter-spacing:.1em;font-size:.72rem;color:var(--muted);margin-bottom:8px;">${bdTitle}</div>
-      <div class="events-strip">${birthdays.map(pillHtml).join('')}</div>
-    </div>`;
+    inner=
+      `<div style="margin-bottom:2px;">
+        <div style="font-family:'Noto Serif Display',Georgia,serif;font-weight:400;font-stretch:extra-condensed;text-transform:uppercase;letter-spacing:.1em;font-size:.7rem;color:var(--muted);margin-bottom:7px;">${bdTitle}</div>
+        <div class="events-strip">${birthdays.map(pillHtml).join('')}</div>
+      </div>`;
   } else {
     // Only regular events
     inner=`<div class="events-strip">${otherEvs.map(pillHtml).join('')}</div>`;
@@ -2648,15 +2725,15 @@ function assignBlocks(tl, viewDate){
     if(!t.name)return false;
     return occursOn(t, vd);
   }).sort((a,b)=>{
-    const doneA=isTaskDoneOn(a,vd), doneB=isTaskDoneOn(b,vd);
-    if(doneA!==doneB)return doneA?1:-1;
+    // Sort ONLY by due date and duration for bucketing — never by done-status,
+    // which would cause completed tasks to migrate between blocks when ticked.
     if(a.due&&b.due&&a.due!==b.due)return a.due<b.due?-1:1;
     return (a.dur||30)-(b.dur||30);
   });
   const bl={},asgn={};TIME_BLOCKS.forEach(b=>{bl[b.id]=0;asgn[b.id]=[];});
   td.forEach(t=>{
     const dur=t.dur||30;
-    // 1. Explicit block pin (drag-and-drop)
+    // 1. Explicit block pin (drag-and-drop or previously assigned)
     const pin=t.blockPins&&t.blockPins[vd];
     if(pin&&TIME_BLOCKS.find(b=>b.id===pin)){
       asgn[pin].push(t);bl[pin]+=dur;return;
@@ -2666,7 +2743,8 @@ function assignBlocks(tl, viewDate){
     if(hint&&TIME_BLOCKS.find(b=>b.id===hint)){
       asgn[hint].push(t);bl[hint]+=dur;return;
     }
-    // 3. Capacity-based: for today prefer future/current blocks, fallback to any
+    // 3. Capacity-based: for today prefer future/current blocks, fallback to any.
+    //    Uses stable sort (no done-status), so bucket assignment doesn't change on tick.
     let best=null,bc=-1;
     TIME_BLOCKS.forEach(b=>{
       const cap=(b.end-b.start)-bl[b.id];
@@ -2676,8 +2754,22 @@ function assignBlocks(tl, viewDate){
     // Fallback: if no active block fits (e.g. late at night), use largest capacity block
     if(!best)TIME_BLOCKS.forEach(b=>{const cap=(b.end-b.start)-bl[b.id];if(cap>bc){best=b;bc=cap;}});
     if(!best)best=TIME_BLOCKS[TIME_BLOCKS.length-1];
+    // Stamp a block pin so future renders (incl. after completion toggle) are stable
+    if(!t.blockPins)t.blockPins={};
+    if(!t.blockPins[vd]){
+      t.blockPins[vd]=best.id;
+      // Persist the pin without triggering a full re-render loop
+      try{localStorage.setItem('centre_tasks',JSON.stringify(tasks));}catch(e){}
+    }
     asgn[best.id].push(t);
     bl[best.id]+=dur;
+  });
+  // Within each block: sort done tasks to the bottom (visual only, not re-bucketing)
+  TIME_BLOCKS.forEach(b=>{
+    asgn[b.id].sort((a,x)=>{
+      const da=isTaskDoneOn(a,vd),dx=isTaskDoneOn(x,vd);
+      return da===dx?0:da?1:-1;
+    });
   });
   return asgn;
 }
@@ -3022,46 +3114,52 @@ function renderOverviewMeals(){
 // ---- RECIPES ----
 function addRecipe(){
   const name=document.getElementById('rcpName').value.trim();if(!name){document.getElementById('rcpName').focus();return;}
+  const _now=Date.now();
   recipes.push({
-    id:newRecipeId(),name,type:document.getElementById('rcpType').value,
+    id:newRecipeId(),name,
     tags:document.getElementById('rcpTags').value.split(',').map(s=>s.trim()).filter(Boolean),
     ingredients:document.getElementById('rcpIngredients').value.trim(),
     method:document.getElementById('rcpMethod').value.trim(),
     cal:parseInt(document.getElementById('rcpCal').value)||0,
     protein:parseInt(document.getElementById('rcpProtein').value)||0,
     carbs:parseInt(document.getElementById('rcpCarbs').value)||0,
-    fat:parseInt(document.getElementById('rcpFat').value)||0
+    fat:parseInt(document.getElementById('rcpFat').value)||0,
+    createdAt:_now,updatedAt:_now
   });
   ['rcpName','rcpTags','rcpIngredients','rcpMethod','rcpCal','rcpProtein','rcpCarbs','rcpFat'].forEach(id=>document.getElementById(id).value='');
-  // Immediate synchronous save — no debounce delay so Chrome never loses the entry
+  // Synchronous save — no debounce so Chrome never loses the entry
   try { localStorage.setItem('centre_recipes', JSON.stringify(recipes)); } catch(e) {}
   try { localStorage.setItem('centre_recipeSeq', recipeSeq); } catch(e) {}
+  // Stamp localTs so Firebase won't overwrite this just-saved data on next snapshot
+  localStorage.setItem('centre_lastSync', String(Date.now()));
   scheduleSave();
+  // Also push to Firebase quickly so cloud copy is current
+  if(typeof fbSyncEnabled!=='undefined'&&fbSyncEnabled&&window._fbReady){
+    clearTimeout(window._fbSaveTimer);
+    window._fbSaveTimer=setTimeout(pushToFirebase,400);
+  }
   // Switch to Recipes tab so the saved entry is immediately visible
-  const _mrcp = document.getElementById('tab-mrcp');
-  const _mlog = document.getElementById('tab-mlog');
-  if (_mrcp && _mlog) {
-    _mlog.style.display = 'none';
-    _mrcp.style.display = 'block';
-    document.querySelectorAll('#page-meals .tabs .tab').forEach(b => {
-      const isRcp = b.getAttribute('onclick') && b.getAttribute('onclick').includes('mrcp');
-      b.classList.toggle('active', !!isRcp);
+  const _mrcp=document.getElementById('tab-mrcp');
+  const _mlog=document.getElementById('tab-mlog');
+  if(_mrcp&&_mlog){
+    _mlog.style.display='none';
+    _mrcp.style.display='block';
+    document.querySelectorAll('#page-meals .tabs .tab').forEach(b=>{
+      const isRcp=b.getAttribute('onclick')&&b.getAttribute('onclick').includes('mrcp');
+      b.classList.toggle('active',!!isRcp);
     });
   }
   renderRecipeList();
   showToast('Recipe saved ✓');
-  setTimeout(() => {
-    const el = document.getElementById('recipeList');
-    if (el) {
-      const first = el.querySelector('[data-recipe-id]');
-      if (first) first.scrollIntoView({ behavior:'smooth', block:'nearest' });
-    }
-  }, 120);
+  setTimeout(()=>{
+    const el=document.getElementById('recipeList');
+    if(el){const first=el.querySelector('[data-recipe-id]');if(first)first.scrollIntoView({behavior:'smooth',block:'nearest'});}
+  },120);
 }
 function deleteRecipe(id){recipes=recipes.filter(r=>r.id!==id);scheduleSave();renderRecipeList();}
 function logFromRecipe(id){
   const r=recipes.find(r=>r.id===id);if(!r)return;
-  meals.push({id:newMealId(),type:r.type,name:r.name,date:today(),recipe:r.ingredients,cal:r.cal,protein:r.protein,carbs:r.carbs,fat:r.fat});
+  meals.push({id:newMealId(),type:'dinner',name:r.name,date:today(),recipe:r.ingredients,cal:r.cal,protein:r.protein,carbs:r.carbs,fat:r.fat});
   scheduleSave();renderMealLog();renderOverviewMeals();
   // Brief flash confirmation
   const btn=document.getElementById('logBtn-'+id);
@@ -3080,7 +3178,6 @@ function renderRecipeList(){
         <div style="flex:1;min-width:0;">
           <div style="font-size:.88rem;margin-bottom:3px;">${escHtml(r.name)}</div>
           <div style="display:flex;gap:5px;flex-wrap:wrap;">
-            <span class="meta-tag" style="background:#f0f0f0;color:var(--muted);">${r.type}</span>
             ${r.tags.map(t=>`<span class="meta-tag" style="background:var(--bg);border:1px solid var(--border);color:var(--muted);">${escHtml(t)}</span>`).join('')}
             ${r.cal?`<span class="macro-pill cal">${r.cal}kcal</span>`:''}
             ${r.protein?`<span class="macro-pill protein">${r.protein}g P</span>`:''}
@@ -3106,7 +3203,166 @@ function renderRecipeList(){
   }).join('')}</div>`;
 }
 
-// ---- HABITS DASHBOARD ----
+// ---- RECIPE GOOGLE SHEETS SYNC ----
+const RCP_SHEET_TAB = 'Recipes';
+const RCP_SHEET_COLS = ['ID','Name','Tags','Ingredients','Method','Calories','Protein','Carbs','Fat','Created','Updated'];
+
+let rcpSheetsToken = null;
+let rcpSheetsTokenExpiry = 0;
+
+function saveRcpSheetId(){
+  const v=document.getElementById('rcpSheetId').value.trim();
+  if(!v){showToast('Paste your Sheet ID first');return;}
+  localStorage.setItem('centre_rcpSheetId',v);
+  showToast('Sheet ID saved');
+  setRcpSheetsStatus('Sheet ID saved — connect Google to push/pull');
+}
+
+function getRcpSheetId(){
+  const stored=localStorage.getItem('centre_rcpSheetId');
+  const inp=document.getElementById('rcpSheetId');
+  if(stored&&inp&&!inp.value)inp.value=stored;
+  return (inp&&inp.value.trim())||stored||'';
+}
+
+function setRcpSheetsStatus(msg,ok){
+  const el=document.getElementById('rcpSheetsStatus');
+  if(!el)return;
+  el.textContent=msg;
+  el.style.color=ok===true?'var(--accent)':ok===false?'#c0554a':'var(--muted)';
+}
+
+function rcpSheetsSignIn(callback){
+  if(!window.google||!window.google.accounts){setRcpSheetsStatus('Google not loaded — refresh and try again',false);return;}
+  // Re-use GCal token if it has Sheets scope; otherwise request new token with both scopes
+  const SCOPES='https://www.googleapis.com/auth/spreadsheets https://www.googleapis.com/auth/calendar';
+  const client=google.accounts.oauth2.initTokenClient({
+    client_id:GCAL_CLIENT_ID,
+    scope:SCOPES,
+    prompt:'',
+    callback:(tokenResponse)=>{
+      if(tokenResponse.error){setRcpSheetsStatus('Auth error: '+tokenResponse.error,false);return;}
+      rcpSheetsToken=tokenResponse.access_token;
+      rcpSheetsTokenExpiry=Date.now()+(tokenResponse.expires_in-60)*1000;
+      // Also refresh gcalToken so calendar still works
+      gcalToken=rcpSheetsToken;
+      gcalTokenExpiry=rcpSheetsTokenExpiry;
+      localStorage.setItem('centre_gcalToken',gcalToken);
+      localStorage.setItem('centre_gcalTokenExpiry',String(gcalTokenExpiry));
+      if(callback)callback();
+    }
+  });
+  client.requestAccessToken();
+}
+
+function rcpSheetsTokenValid(){return rcpSheetsToken&&Date.now()<rcpSheetsTokenExpiry;}
+
+async function rcpSheetsFetch(url,options={}){
+  // Use GCal token if it's valid (same OAuth token)
+  const tok=rcpSheetsTokenValid()?rcpSheetsToken:(gcalToken&&Date.now()<gcalTokenExpiry?gcalToken:null);
+  if(!tok)throw new Error('Not authenticated');
+  const res=await fetch(url,{...options,headers:{...options.headers,'Authorization':'Bearer '+tok,'Content-Type':'application/json'}});
+  if(!res.ok){const txt=await res.text();throw new Error(res.status+': '+txt.slice(0,200));}
+  return res.json();
+}
+
+async function rcpSheetsPush(){
+  const sheetId=getRcpSheetId();
+  if(!sheetId){showToast('Enter your Sheet ID first');return;}
+  const doIt=async()=>{
+    setRcpSheetsStatus('Pushing…');
+    try{
+      // Ensure the sheet/tab exists; create if not
+      const meta=await rcpSheetsFetch(`https://sheets.googleapis.com/v4/spreadsheets/${sheetId}?fields=sheets.properties`);
+      const sheetNames=meta.sheets.map(s=>s.properties.title);
+      if(!sheetNames.includes(RCP_SHEET_TAB)){
+        await rcpSheetsFetch(`https://sheets.googleapis.com/v4/spreadsheets/${sheetId}:batchUpdate`,{
+          method:'POST',body:JSON.stringify({requests:[{addSheet:{properties:{title:RCP_SHEET_TAB}}}]})
+        });
+      }
+      // Build rows: header + data
+      const rows=[RCP_SHEET_COLS,...recipes.map(r=>[
+        r.id,r.name,(r.tags||[]).join(', '),r.ingredients||'',r.method||'',
+        r.cal||'',r.protein||'',r.carbs||'',r.fat||'',
+        r.createdAt?new Date(r.createdAt).toISOString():'',
+        r.updatedAt?new Date(r.updatedAt).toISOString():''
+      ])];
+      // Clear old content then write
+      await rcpSheetsFetch(`https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${RCP_SHEET_TAB}:clear`,{method:'POST',body:'{}'});
+      await rcpSheetsFetch(`https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${RCP_SHEET_TAB}!A1?valueInputOption=RAW`,{
+        method:'PUT',body:JSON.stringify({values:rows})
+      });
+      setRcpSheetsStatus(`Pushed ${recipes.length} recipe${recipes.length===1?'':'s'} ✓`,true);
+      showToast('Recipes pushed to Sheet ✓');
+    }catch(e){setRcpSheetsStatus('Push failed: '+e.message,false);showToast('Push failed — see status');}
+  };
+  if(rcpSheetsTokenValid()||(gcalToken&&Date.now()<gcalTokenExpiry)){rcpSheetsToken=gcalToken;rcpSheetsTokenExpiry=gcalTokenExpiry;doIt();}
+  else{rcpSheetsSignIn(doIt);}
+}
+
+async function rcpSheetsPull(){
+  const sheetId=getRcpSheetId();
+  if(!sheetId){showToast('Enter your Sheet ID first');return;}
+  const doIt=async()=>{
+    setRcpSheetsStatus('Pulling…');
+    try{
+      const data=await rcpSheetsFetch(`https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${RCP_SHEET_TAB}`);
+      const rows=data.values||[];
+      if(!rows.length){setRcpSheetsStatus('Sheet is empty',false);return;}
+      // First row = header
+      const hdr=rows[0].map(h=>h.trim());
+      const idxOf=k=>hdr.indexOf(k);
+      let added=0,updated=0;
+      rows.slice(1).forEach(row=>{
+        const get=k=>(row[idxOf(k)]||'').trim();
+        if(!get('Name'))return;
+        const id=get('ID')||null;
+        const existing=id?recipes.find(r=>r.id===id):null;
+        const rec={
+          id:id||newRecipeId(),
+          name:get('Name'),
+          tags:get('Tags')?get('Tags').split(',').map(t=>t.trim()).filter(Boolean):[],
+          ingredients:get('Ingredients'),
+          method:get('Method'),
+          cal:parseInt(get('Calories'))||0,
+          protein:parseInt(get('Protein'))||0,
+          carbs:parseInt(get('Carbs'))||0,
+          fat:parseInt(get('Fat'))||0,
+          createdAt:get('Created')?new Date(get('Created')).getTime():Date.now(),
+          updatedAt:get('Updated')?new Date(get('Updated')).getTime():Date.now()
+        };
+        if(existing){
+          // Last-updated wins
+          if(rec.updatedAt>=existing.updatedAt){Object.assign(existing,rec);updated++;}
+        } else {
+          recipes.push(rec);added++;
+        }
+      });
+      // Sync seq
+      if(recipes.length>0){
+        const maxNum=recipes.map(r=>parseInt((r.id||'').replace(/\D/g,''))||0).reduce((a,b)=>Math.max(a,b),recipeSeq);
+        if(maxNum>recipeSeq)recipeSeq=maxNum;
+      }
+      localStorage.setItem('centre_recipes',JSON.stringify(recipes));
+      localStorage.setItem('centre_recipeSeq',recipeSeq);
+      localStorage.setItem('centre_lastSync',String(Date.now()));
+      scheduleSave();
+      renderRecipeList();
+      setRcpSheetsStatus(`Pulled: ${added} added, ${updated} updated ✓`,true);
+      showToast(`Recipes pulled: ${added} added, ${updated} updated`);
+    }catch(e){setRcpSheetsStatus('Pull failed: '+e.message,false);showToast('Pull failed — see status');}
+  };
+  if(rcpSheetsTokenValid()||(gcalToken&&Date.now()<gcalTokenExpiry)){rcpSheetsToken=gcalToken;rcpSheetsTokenExpiry=gcalTokenExpiry;doIt();}
+  else{rcpSheetsSignIn(doIt);}
+}
+
+function initRcpSheetsUI(){
+  const stored=localStorage.getItem('centre_rcpSheetId');
+  const inp=document.getElementById('rcpSheetId');
+  if(stored&&inp)inp.value=stored;
+}
+
+
 function renderOverviewHabits(){}
 function renderOverviewHabitsRibbon(){}
 
@@ -3630,12 +3886,13 @@ function darken(hex,amt){let r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(
 function recurToStr(r){if(!r)return '';return JSON.stringify(r);}
 function strToRecur(s){if(!s)return null;try{return JSON.parse(s);}catch{return null;}}
 function tasksToRows(){return tasks.map(t=>({ID:t.id,Name:t.name,Category:categories.find(c=>c.id===t.catId)?.name||'','Due Date':t.due||'','Duration (mins)':t.dur||'',Done:t.done?'Yes':'No',Recurrence:recurToStr(t.recur),'Is Habit':t.habit?'Yes':'No','Habit Goal':t.habit?JSON.stringify(t.habit):''}));}
+function recipesToRows(){return recipes.map(r=>({ID:r.id,Name:r.name,Tags:(r.tags||[]).join(', '),Ingredients:r.ingredients||'',Method:r.method||'',Calories:r.cal||'',Protein:r.protein||'',Carbs:r.carbs||'',Fat:r.fat||'','Created':r.createdAt?new Date(r.createdAt).toISOString():'','Updated':r.updatedAt?new Date(r.updatedAt).toISOString():''}));}
 function eventsToRows(){return events.map(e=>({ID:e.id,Name:e.name,Type:e.type,Category:categories.find(c=>c.id===e.catId)?.name||'',Date:e.date||'',Time:e.time||'',Notes:e.notes||'',Recurrence:recurToStr(e.recur)}));}
 function categoriesToRows(){return categories.map(c=>({ID:c.id,Name:c.name,Icon:c.icon||'★'}));}
 function habitsToRows(){return habitTasks().map(t=>({ID:t.id,Name:t.name,'Goal Type':t.habit.type,'Goal Config':JSON.stringify(t.habit),'Log Entries':habitLog.filter(e=>e.taskId===t.id).length}));}
 function makeWorkbook(sheets){const wb=XLSX.utils.book_new();Object.entries(sheets).forEach(([name,rows])=>{const ws=XLSX.utils.json_to_sheet(rows.length?rows:[{}]);XLSX.utils.book_append_sheet(wb,ws,name);});return wb;}
-function exportSheet(type){let wb,fname;if(type==='tasks'){wb=makeWorkbook({Tasks:tasksToRows()});fname='centre-tasks.xlsx';}else if(type==='events'){wb=makeWorkbook({Events:eventsToRows()});fname='centre-events.xlsx';}else if(type==='categories'){wb=makeWorkbook({Categories:categoriesToRows()});fname='centre-categories.xlsx';}else if(type==='habits'){wb=makeWorkbook({Habits:habitsToRows()});fname='centre-habits.xlsx';}else{wb=makeWorkbook({Tasks:tasksToRows(),Events:eventsToRows(),Categories:categoriesToRows(),Habits:habitsToRows()});fname='centre-export.xlsx';}XLSX.writeFile(wb,fname);}
-function exportTemplate(){const wb=makeWorkbook({Tasks:[{ID:'',Name:'',Category:'','Due Date':'','Duration (mins)':'',Done:'',Recurrence:'','Is Habit':'','Habit Goal':''}],Events:[{ID:'',Name:'',Type:'',Category:'',Date:'',Time:'',Notes:'',Recurrence:''}],Categories:[{ID:'',Name:'',Icon:''}],Habits:[{ID:'',Name:'','Goal Type':'','Goal Config':''}]});XLSX.writeFile(wb,'centre-template.xlsx');}
+function exportSheet(type){let wb,fname;if(type==='tasks'){wb=makeWorkbook({Tasks:tasksToRows()});fname='centre-tasks.xlsx';}else if(type==='events'){wb=makeWorkbook({Events:eventsToRows()});fname='centre-events.xlsx';}else if(type==='categories'){wb=makeWorkbook({Categories:categoriesToRows()});fname='centre-categories.xlsx';}else if(type==='habits'){wb=makeWorkbook({Habits:habitsToRows()});fname='centre-habits.xlsx';}else if(type==='recipes'){wb=makeWorkbook({Recipes:recipesToRows()});fname='centre-recipes.xlsx';}else{wb=makeWorkbook({Tasks:tasksToRows(),Events:eventsToRows(),Categories:categoriesToRows(),Habits:habitsToRows(),Recipes:recipesToRows()});fname='centre-export.xlsx';}XLSX.writeFile(wb,fname);}
+function exportTemplate(){const wb=makeWorkbook({Tasks:[{ID:'',Name:'',Category:'','Due Date':'','Duration (mins)':'',Done:'',Recurrence:'','Is Habit':'','Habit Goal':''}],Events:[{ID:'',Name:'',Type:'',Category:'',Date:'',Time:'',Notes:'',Recurrence:''}],Categories:[{ID:'',Name:'',Icon:''}],Habits:[{ID:'',Name:'','Goal Type':'','Goal Config':''}],Recipes:[{ID:'',Name:'',Tags:'',Ingredients:'',Method:'',Calories:'',Protein:'',Carbs:'',Fat:'',Created:'',Updated:''}]});XLSX.writeFile(wb,'centre-template.xlsx');}
 function importExcel(input){
   const file=input.files[0];if(!file)return;
   const fb=document.getElementById('importFeedback');
@@ -6173,6 +6430,7 @@ document.getElementById('modalOverlay').addEventListener('click',function(e){if(
 document.getElementById('iconPickerModal').addEventListener('click',function(e){if(e.target===this)closeIconPicker();});
 buildDowRow('t');buildDowRow('ev');buildDowRow('m');buildDowRow('ps');
 renderCategories();renderCatSelects();renderTasks();loadMilestones();
+initRcpSheetsUI();
 // Initialise add-category icon preview
 (function(){const p=document.getElementById('catIconPreviewNew');if(p)p.innerHTML=svgIcon('star','var(--accent)',20);})();
 buildSettings();
