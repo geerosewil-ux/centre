@@ -372,6 +372,26 @@ h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.
 
 /* SETTINGS GEAR ICON */
 .app-header{position:relative;text-align:center;margin-bottom:0;}.dashboard{text-align:left;}
+
+/* ── Desktop centred layout (≥700px viewport) ─────────────────── */
+@media (min-width:700px){
+  body{padding-left:0;padding-right:0;}
+  .app-header,.dashboard{
+    max-width:900px;
+    margin-left:auto;
+    margin-right:auto;
+    padding-left:20px;
+    padding-right:20px;
+    box-sizing:border-box;
+    width:100%;
+  }
+  /* Sticky top bar inherits width from .app-header; remove its own h-padding
+     to avoid doubling the 20px gap already on the parent */
+  .top-bar{
+    padding-left:0 !important;
+    padding-right:0 !important;
+  }
+}
 .settings-icon-btn{position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:1.5px solid var(--border);border-radius:50%;width:36px;height:36px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--muted);transition:all .2s;padding:0;}
 .settings-icon-btn:hover{border-color:var(--accent);color:var(--accent);}
 .settings-icon-btn.active{border-color:var(--accent);color:var(--accent);background:rgba(147,170,205,.1);}
@@ -497,7 +517,7 @@ h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.
 </nav>
 
 <!-- TOP BAR -->
-<div style="position:sticky;top:0;z-index:200;background:var(--bg);padding:14px 20px 10px;display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+<div class="top-bar" style="position:sticky;top:0;z-index:200;background:var(--bg);padding:14px 20px 10px;display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
   <button onclick="openDrawer()" style="background:none;border:none;cursor:pointer;color:var(--text);padding:4px;display:flex;flex-direction:column;gap:5px;opacity:.7;transition:opacity .2s;" aria-label="Menu">
     <span style="display:block;width:22px;height:1.5px;background:currentColor;border-radius:2px;"></span>
     <span style="display:block;width:22px;height:1.5px;background:currentColor;border-radius:2px;"></span>
@@ -2783,7 +2803,7 @@ function renderOverviewMeals(){
 
 // ---- RECIPES ----
 function addRecipe(){
-  const name=document.getElementById('rcpName').value.trim();if(!name)return;
+  const name=document.getElementById('rcpName').value.trim();if(!name){document.getElementById('rcpName').focus();return;}
   recipes.push({
     id:newRecipeId(),name,type:document.getElementById('rcpType').value,
     tags:document.getElementById('rcpTags').value.split(',').map(s=>s.trim()).filter(Boolean),
@@ -2795,7 +2815,22 @@ function addRecipe(){
     fat:parseInt(document.getElementById('rcpFat').value)||0
   });
   ['rcpName','rcpTags','rcpIngredients','rcpMethod','rcpCal','rcpProtein','rcpCarbs','rcpFat'].forEach(id=>document.getElementById(id).value='');
-  scheduleSave();renderRecipeList();
+  scheduleSave();
+  // Ensure the recipe tab is visible before rendering list
+  const mrcp=document.getElementById('tab-mrcp');
+  if(mrcp&&mrcp.style.display==='none'){
+    mrcp.style.display='block';
+    // Update tab button state
+    document.querySelectorAll('#page-meals .tab').forEach(b=>b.classList.remove('active'));
+    const rcpTabBtn=document.querySelector('#page-meals .tab:last-child');
+    if(rcpTabBtn)rcpTabBtn.classList.add('active');
+  }
+  renderRecipeList();
+  // Scroll recipe list into view
+  setTimeout(()=>{
+    const el=document.getElementById('recipeList');
+    if(el)el.scrollIntoView({behavior:'smooth',block:'nearest'});
+  },100);
 }
 function deleteRecipe(id){recipes=recipes.filter(r=>r.id!==id);scheduleSave();renderRecipeList();}
 function logFromRecipe(id){
@@ -3019,7 +3054,7 @@ function renderHabitRow(t, addDivider){
     var rangeLabel=fmt(from)+' – '+fmt(to);
     return '<div style="display:flex;align-items:center;gap:5px;margin-bottom:4px;">'
       +'<button onclick="shiftHabitPills(\''+t.id+'\',-1)" style="background:none;border:1.5px solid var(--border);border-radius:8px;width:22px;height:22px;cursor:pointer;color:var(--muted);font-size:.75rem;flex-shrink:0;padding:0;line-height:1;">←</button>'
-      +'<div style="flex:1;display:flex;gap:3px;align-items:flex-end;">'+pills+'</div>'
+      +'<div style="flex:1;display:flex;gap:3px;align-items:flex-end;max-height:22px;">'+pills+'</div>'
       +'<button onclick="shiftHabitPills(\''+t.id+'\',1)" '+(isCurrentWindow?'disabled style="opacity:.25;cursor:default;"':'')+' style="background:none;border:1.5px solid var(--border);border-radius:8px;width:22px;height:22px;cursor:pointer;color:var(--muted);font-size:.75rem;flex-shrink:0;padding:0;line-height:1;">→</button>'
       +'</div>'
       +(!isCurrentWindow?'<div style="font-size:.58rem;color:var(--muted);text-align:center;margin-bottom:4px;">'+rangeLabel+'</div>':'');
@@ -4024,7 +4059,7 @@ function renderOverviewUpcoming(){
     const days=Math.round(diffMs/(1000*60*60*24));
     return{ev,next,days};
   }).filter(Boolean).filter(({ev,days})=>{
-    if(days<0)return false;
+    if(days<=0)return false;           // exclude today and past
     if(ev.countdown)return days<=60;   // pinned: show up to 60 days out
     return days<=14;                    // all others: within 14 days
   }).sort((a,b)=>a.days-b.days);
