@@ -663,6 +663,7 @@ h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.
           <div id="overviewMeals"></div>
         </div>
         <div class="card" id="overviewUpcoming"></div>
+        <div class="card" id="overviewWaiting" style="display:none"></div>
       </div>
     </div>
   </div>
@@ -894,6 +895,7 @@ h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.
         <button class="filter-btn" onclick="setFilter('pending',this)">Pending</button>
         <button class="filter-btn" onclick="setFilter('done',this)">Done</button>
         <button class="filter-btn" onclick="setFilter('habits',this)">Habits</button>
+        <button class="filter-btn" onclick="setFilter('waiting',this)">Waiting</button>
         <button class="filter-btn" id="filterOverdueBtn" onclick="setFilter('overdue',this)" style="display:none;border-color:#c0554a;color:#c0554a;">Overdue</button>
       </div>
       <div class="task-list" id="taskList"></div>
@@ -2064,7 +2066,7 @@ function toggleTask(id,forDate){
   }
   // Non-recurring, non-habit task: normal done toggle
   t.done=!t.done;
-  scheduleSave();renderTasks();renderOverview();
+  scheduleSave();renderTasks();renderOverview();renderOverviewWaiting();
 }
 function deleteTask(id){tasks=tasks.filter(t=>t.id!==id);habitLog=habitLog.filter(e=>e.taskId!==id);recurDoneLog=recurDoneLog.filter(e=>e.taskId!==id);scheduleSave();renderTasks();renderOverview();}
 function setFilter(f,btn){activeFilter=f;document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderTasks();}
@@ -2095,7 +2097,7 @@ function removeTaskRecur(id){
   t.recur=null;
   // clean up any done log entries
   recurDoneLog=recurDoneLog.filter(e=>e.taskId!==id);
-  scheduleSave();renderTasks();renderOverview();
+  scheduleSave();renderTasks();renderOverview();renderOverviewWaiting();
 }
 function getEditRecur(id){
   const sec=document.getElementById('er'+id+'RecurSection');
@@ -2120,9 +2122,12 @@ function saveTask(id){
   t.due=document.getElementById('edue-'+id).value;
   t.dur=parseInt(document.getElementById('edur-'+id).value)||0;
   t.catId=document.getElementById('ecat-'+id).value;
+  const waitingFor=document.getElementById('ewaiting-'+id);
+  t.waitingFor=waitingFor?waitingFor.value.trim():'';
+  t.status=t.waitingFor?'waiting':'';
   const newRecur=getEditRecur(id);
   if(newRecur!==null) t.recur=newRecur;
-  scheduleSave();renderTasks();renderOverview();
+  scheduleSave();renderTasks();renderOverview();renderOverviewWaiting();
 }
 function hexToRgba(hex,alpha){const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);return `rgba(${r},${g},${b},${alpha})`;}
 
@@ -2150,6 +2155,7 @@ function renderTasks(){
   });
   else if(activeFilter==='habits')filtered=base.filter(t=>t.habit);
   else if(activeFilter==='overdue')filtered=tasks.filter(t=>!t.recur&&!t.habit&&!t.done&&t.due&&t.due<td);
+  else if(activeFilter==='waiting')filtered=tasks.filter(t=>t.waitingFor&&!t.done);
   const pendingCount=tasks.filter(t=>t.recur?true:t.habit?!isTaskDoneOn(t,td):!t.done).length;
   document.getElementById('taskCount').textContent=`${pendingCount} pending${overdueCount>0?' · '+overdueCount+' overdue':''}`;
   const overdueBtn=document.getElementById('filterOverdueBtn');
@@ -2176,6 +2182,7 @@ function renderTasks(){
         <div style="display:flex;align-items:center;gap:8px">
           <div class="item-name" style="flex:1">${escHtml(t.name)}</div>
           ${isOverdue?`<span class="meta-tag" style="background:#fde8e8;color:#c0554a;font-size:.65rem;">overdue</span>`:''}
+          ${t.waitingFor&&!t.done?`<span class="meta-tag" style="background:#fef3e0;color:#9a6b10;font-size:.65rem;" title="Waiting for: ${escHtml(t.waitingFor)}">⏳ waiting</span>`:''}
           ${t.habit?`<span class="meta-tag meta-habit">${t.habit.type}</span>`:''}
           <button class="edit-btn" onclick="toggleEditForm('${t.id}')">edit</button>
           <button class="delete-btn" onclick="deleteTask('${t.id}')">×</button>
@@ -2195,6 +2202,10 @@ function renderTasks(){
                 <option value="" ${!t.catId?'selected':''}>— none —</option>
                 ${categories.map(c=>`<option value="${c.id}" ${t.catId===c.id?'selected':''}>${catIcon(c)} ${escHtml(c.name)}</option>`).join('')}
               </select>
+            </div>
+            <div class="form-group full">
+              <label class="form-label">Waiting for <span style="font-size:.68rem;color:var(--muted);text-transform:none;letter-spacing:0;">(leave blank if not waiting on anyone)</span></label>
+              <input class="form-input" id="ewaiting-${t.id}" value="${escHtml(t.waitingFor||'')}" placeholder="e.g. John — awaiting approval"/>
             </div>
             <div class="form-group full">
               <button class="recur-toggle ${t.recur?'active':''}" id="er${t.id}RecurToggle" onclick="toggleEditRecur('${t.id}')">${t.recur?'Edit recurrence':'+ Add recurrence'}</button>
@@ -2852,6 +2863,7 @@ function renderAllOverviewForDate() {
   _safe('renderWater', renderWater);
   _safe('renderOverviewMeals', renderOverviewMeals);
   _safe('renderOverviewUpcoming', renderOverviewUpcoming);
+  _safe('renderOverviewWaiting', renderOverviewWaiting);
   _safe('renderCycleOverview', renderCycleOverview);
   // Show errors visibly so user can report them
   if (errs.length) {
@@ -4828,6 +4840,28 @@ function renderOverviewUpcoming(){
     </div>`;
 }
 
+function renderOverviewWaiting(){
+  const container=document.getElementById('overviewWaiting');
+  if(!container)return;
+  const waiting=tasks.filter(t=>t.waitingFor&&!t.done);
+  if(!waiting.length){container.style.display='none';return;}
+  container.style.display='';
+  const amber='#9a6b10';
+  container.innerHTML=`<div class="card-title" style="margin-bottom:14px;">Waiting On</div>
+    <div style="display:flex;flex-direction:column;gap:6px;">
+      ${waiting.map(t=>{
+        const cat=categories.find(c=>c.id===t.catId);
+        const bg=cat?hexToRgba(cat.color,.1):'var(--bg)';
+        const dueLabel=t.due?` · due ${formatDate(t.due)}`:'';
+        return `<div style="display:flex;align-items:center;gap:10px;padding:9px 13px;border-radius:11px;background:${bg};border-left:3px solid #e8c060;">
+          <span style="font-size:.88rem;flex:1;">${escHtml(t.name)}</span>
+          <span style="font-size:.75rem;color:${amber};background:#fef3e0;padding:2px 8px;border-radius:20px;white-space:nowrap;">${escHtml(t.waitingFor)}</span>
+          ${t.due?`<span style="font-size:.72rem;color:var(--muted);">${formatDate(t.due)}</span>`:''}
+        </div>`;
+      }).join('')}
+    </div>`;
+}
+
 // ---- MULTI-ADD WITH AI ----
 let multiAddMode = null; // 'tasks' or 'grocery'
 let multiAddParsed = []; // parsed items from AI
@@ -5044,7 +5078,6 @@ function initFirebase(manual) {
         localStorage.setItem('centre_fbSyncEnabled', 'true');
         fbSetStatus(true, 'Connected — live sync active');
         if (!remote) {
-          // Nothing in Firebase yet — push local data up on first connect
           if (firstSnapshot && manual) pushToFirebase();
           firstSnapshot = false;
           return;
@@ -5052,16 +5085,66 @@ function initFirebase(manual) {
         firstSnapshot = false;
         const remoteTs = remote._ts || 0;
         const localTs = parseInt(localStorage.getItem('centre_lastSync') || '0');
-        if (remoteTs > localTs) {
-          try { applyRemoteData(remote); } catch(e) { console.error('sync render error:', e); }
+
+        // Merge by ID: remote wins for existing items, locally-created items not yet pushed are rescued
+        function mergeById(remoteArr, localArr) {
+          if (!remoteArr) return localArr || [];
+          if (!localArr || !localArr.length) return remoteArr;
+          const remoteIds = new Set(remoteArr.map(x => x.id));
+          const onlyLocal = localArr.filter(x => !remoteIds.has(x.id));
+          return onlyLocal.length ? [...remoteArr, ...onlyLocal] : remoteArr;
         }
+
+        if (remoteTs > localTs) {
+          let hadLocalOnly = false;
+
+          const mTasks = mergeById(remote.tasks, tasks);
+          if (mTasks !== remote.tasks) { remote.tasks = mTasks; hadLocalOnly = true; }
+
+          const mEvents = mergeById(remote.events, events);
+          if (mEvents !== remote.events) { remote.events = mEvents; hadLocalOnly = true; }
+
+          const mMeals = mergeById(remote.meals, meals);
+          if (mMeals !== remote.meals) { remote.meals = mMeals; hadLocalOnly = true; }
+
+          const mRecipes = mergeById(remote.recipes, recipes);
+          if (mRecipes !== remote.recipes) { remote.recipes = mRecipes; hadLocalOnly = true; }
+
+          const mNotes = mergeById(remote.notes, notes);
+          if (mNotes !== remote.notes) { remote.notes = mNotes; hadLocalOnly = true; }
+
+          const mGroc = mergeById(remote.grocItems, grocItems);
+          if (mGroc !== remote.grocItems) { remote.grocItems = mGroc; hadLocalOnly = true; }
+
+          // habitLog: composite key (no id field)
+          if (remote.habitLog && habitLog.length) {
+            const rKeys = new Set(remote.habitLog.map(e => e.taskId+'|'+e.date+'|'+(e.ts||0)+'|'+(e.frozen?'1':'0')));
+            const onlyLocalHL = habitLog.filter(e => !rKeys.has(e.taskId+'|'+e.date+'|'+(e.ts||0)+'|'+(e.frozen?'1':'0')));
+            if (onlyLocalHL.length) { remote.habitLog = [...remote.habitLog, ...onlyLocalHL]; hadLocalOnly = true; }
+          } else if (!remote.habitLog && habitLog.length) {
+            remote.habitLog = habitLog; hadLocalOnly = true;
+          }
+
+          try { applyRemoteData(remote); } catch(e) { console.error('sync render error:', e); }
+
+          // Push merged result back so all devices see the combined state
+          if (hadLocalOnly) {
+            clearTimeout(window._fbSaveTimer);
+            window._fbSaveTimer = setTimeout(pushToFirebase, 2000);
+          }
+        } else if (localTs > remoteTs + 3000) {
+          // Local is meaningfully newer than remote — push up
+          clearTimeout(window._fbSaveTimer);
+          window._fbSaveTimer = setTimeout(pushToFirebase, 800);
+        }
+        // Timestamps within 3 seconds: treat as in-sync, no action needed
       } catch(e) {
         console.error('onValue handler error:', e);
       }
     }, (err) => {
       fbSetStatus(false, 'Connection error: ' + err.message);
       fbConnected = false;
-      // Retry after 5s
+      // Retry after 5s      // Retry after 5s
       setTimeout(() => { if (!fbConnected) initFirebase(false); }, 5000);
     });
   } catch (e) {
@@ -5079,6 +5162,8 @@ function getLocalDataBundle() {
     grocItems, grocSeq,
     cycleLog, cycleSeq,
     notes, noteSeq,
+    negativeHabits, negHabitSeq,
+    recurDoneLog,
     _apiKeys: { google: _googleApiKey||'', gemini: _geminiApiKey||'' },
     _ts: Date.now()
   };
@@ -5146,6 +5231,9 @@ function applyRemoteData(remote) {
   if (remote.cycleSeq) cycleSeq = remote.cycleSeq;
   if (remote.notes) notes = remote.notes;
   if (remote.noteSeq) noteSeq = remote.noteSeq;
+  if (remote.negativeHabits) negativeHabits = remote.negativeHabits;
+  if (remote.negHabitSeq) negHabitSeq = remote.negHabitSeq;
+  if (remote.recurDoneLog) recurDoneLog = remote.recurDoneLog;
   if (remote._apiKeys) {
     if (remote._apiKeys.google) {
       _googleApiKey = remote._apiKeys.google;
