@@ -36,7 +36,6 @@
   window._fbOnValue = onValue;
   window._fbDb = db;
   window._fbReady = true;
-  // Notify app that Firebase is ready
   window.dispatchEvent(new Event('firebaseReady'));
 </script>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
@@ -506,7 +505,16 @@ h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.
 .block-weather{display:inline-flex;align-items:center;gap:5px;}
 .block-weather:empty{display:none;}
 .block-weather-icon{font-size:.82rem;line-height:1;}
-.day-weather{font-size:.75rem;color:var(--muted);margin-top:2px;line-height:1;}
+.day-weather{font-size:.75rem;color:var(--muted);margin-top:2px;line-height:1;cursor:pointer;}
+.weather-pop{position:fixed;z-index:300;background:var(--card);border:1.5px solid var(--border);border-radius:16px;padding:16px 18px;box-shadow:0 8px 32px rgba(0,0,0,.14);min-width:210px;max-width:260px;pointer-events:auto;}
+.weather-pop-title{font-family:'Noto Serif Display',Georgia,serif;font-weight:400;font-stretch:extra-condensed;text-transform:uppercase;letter-spacing:.1em;font-size:.95rem;margin-bottom:12px;color:var(--text);}
+.weather-pop-row{display:flex;align-items:center;gap:10px;padding:5px 0;border-bottom:1px solid var(--border);}
+.weather-pop-row:last-child{border-bottom:none;}
+.weather-pop-icon{width:22px;text-align:center;flex-shrink:0;}
+.weather-pop-label{font-size:.75rem;color:var(--muted);flex:1;}
+.weather-pop-val{font-size:.82rem;color:var(--text);font-weight:normal;}
+.weather-uv-bar{height:6px;border-radius:3px;flex:1;background:linear-gradient(to right,#68c26a,#f0c040,#e07030,#c03030);position:relative;overflow:visible;}
+.weather-uv-marker{position:absolute;top:-3px;width:12px;height:12px;border-radius:50%;background:var(--card);border:2px solid var(--text);transform:translateX(-50%);}
 
 /* CYCLE TRACKING PAGE */
 .cycle-cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:3px;}
@@ -1222,13 +1230,21 @@ h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.
         </div>
 
         <!-- Firebase row -->
-        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:10px 0;border-top:1px solid var(--border);">
-          <div id="syncStatusDot" style="width:8px;height:8px;border-radius:50%;background:var(--border);flex-shrink:0;"></div>
-          <span id="syncStatusText" style="font-size:.82rem;color:var(--muted);flex:1;">Firebase — not connected</span>
-          <button class="apply-btn" onclick="initFirebase(true)" style="padding:6px 14px;font-size:.8rem;">Connect</button>
-          <button class="reset-theme-btn" onclick="pushToFirebase()" style="padding:6px 12px;font-size:.78rem;">Push</button>
-          <button class="reset-theme-btn" onclick="pullFromFirebase()" style="padding:6px 12px;font-size:.78rem;">Pull</button>
-          <span style="font-size:.72rem;color:var(--muted);width:100%;padding-left:18px;">Last sync: <span id="lastSyncTime">never</span></span>
+        <div style="padding:10px 0;border-top:1px solid var(--border);">
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px;">
+            <div id="syncStatusDot" style="width:8px;height:8px;border-radius:50%;background:var(--border);flex-shrink:0;"></div>
+            <span id="syncStatusText" style="font-size:.82rem;color:var(--muted);flex:1;">Firebase — not connected</span>
+            <button class="apply-btn" onclick="initFirebase(true)" style="padding:6px 14px;font-size:.8rem;">Connect</button>
+            <button class="reset-theme-btn" onclick="pushToFirebase()" style="padding:6px 12px;font-size:.78rem;">Push</button>
+            <button class="reset-theme-btn" onclick="pullFromFirebase()" style="padding:6px 12px;font-size:.78rem;">Pull</button>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+            <input class="form-input" id="fbTokenInput" type="password" placeholder="Sync passphrase (same on all devices)" style="flex:1;font-size:.82rem;padding:6px 10px;" oninput="fbTokenChanged()"/>
+            <button class="reset-theme-btn" onclick="saveFbToken()" style="padding:6px 12px;font-size:.78rem;white-space:nowrap;">Save</button>
+            <button class="reset-theme-btn" id="fbTokenShowBtn" onclick="toggleFbTokenVis()" style="padding:6px 10px;font-size:.78rem;">Show</button>
+          </div>
+          <span style="font-size:.72rem;color:var(--muted);display:block;">Set the same passphrase on every device — this is your private sync key.</span>
+          <span style="font-size:.72rem;color:var(--muted);display:block;margin-top:2px;">Last sync: <span id="lastSyncTime">never</span></span>
         </div>
 
         <!-- Google Calendar row -->
@@ -3849,6 +3865,9 @@ function removeMilestone(val){
 }
 function buildSettings(){
   const sg = document.getElementById('settingsGrid');
+  // Populate token field
+  const ti = document.getElementById('fbTokenInput');
+  if (ti) { ti.value = localStorage.getItem('centre_fbToken') || ''; ti.type = 'password'; }
   if (sg) sg.innerHTML = EDITABLE.map(v => makeColourSwatch(v, THEME_LABELS[v])).join('');
   const pg = document.getElementById('phaseColourGrid');
   if (pg) pg.innerHTML = PHASE_VARS.map(v => makeColourSwatch(v, PHASE_LABELS[v])).join('');
@@ -5032,7 +5051,11 @@ document.addEventListener('click', function(e) {
 // ================================================================
 // FIREBASE SYNC
 // ================================================================
-const FB_PATH = 'centre/data';
+// getFbPath — path includes a secret token set by the user; only someone who knows the token can read/write
+function getFbPath() {
+  const token = localStorage.getItem('centre_fbToken') || 'default';
+  return 'centre/' + token + '/data';
+}
 let fbConnected = false;
 let fbSyncEnabled = localStorage.getItem('centre_fbSyncEnabled') === 'true';
 let fbUnsubscribe = null;
@@ -5063,12 +5086,12 @@ function initFirebase(manual) {
     window.addEventListener('firebaseReady', () => initFirebase(manual), { once: true });
     return;
   }
-  console.log('[Firebase] initFirebase called, _fbReady:', window._fbReady, 'manual:', manual);
+  console.log('[Firebase] initFirebase called, manual:', manual);
   fbSetStatus(false, 'Connecting…');
   try {
     if (fbUnsubscribe) { try { fbUnsubscribe(); } catch(e) {} }
     fbUnsubscribe = null;
-    const dataRef = window._fbRef(window._fbDb, FB_PATH);
+    const dataRef = window._fbRef(window._fbDb, getFbPath());
     let firstSnapshot = true;
     fbUnsubscribe = window._fbOnValue(dataRef, (snapshot) => {
       try {
@@ -5172,7 +5195,7 @@ function getLocalDataBundle() {
 function pushToFirebase() {
   if (!window._fbReady) return;
   try {
-    const dataRef = window._fbRef(window._fbDb, FB_PATH);
+    const dataRef = window._fbRef(window._fbDb, getFbPath());
     const bundle = getLocalDataBundle();
     window._fbSet(dataRef, bundle).then(() => {
       const now = Date.now();
@@ -5188,7 +5211,7 @@ function pushToFirebase() {
 
 function pullFromFirebase() {
   if (!window._fbReady) { fbSetStatus(false, 'Firebase not ready — try Connect first'); return; }
-  const dataRef = window._fbRef(window._fbDb, FB_PATH);
+  const dataRef = window._fbRef(window._fbDb, getFbPath());
   window._fbGet(dataRef).then(snapshot => {
     const remote = snapshot.val();
     if (remote) {
@@ -5280,6 +5303,38 @@ function applyRemoteData(remote) {
   }
   // Hide Centre banner — sync successful
   fbSetStatus(true, 'Connected — live sync active');
+}
+
+// ---- SYNC TOKEN (passphrase-based path security) ----
+function saveFbToken() {
+  const input = document.getElementById('fbTokenInput');
+  if (!input) return;
+  const raw = input.value.trim();
+  if (!raw) { showToast('Enter a passphrase first'); return; }
+  // Sanitise: lowercase, alphanumeric + hyphens only, max 60 chars
+  const safe = raw.toLowerCase().replace(/[^a-z0-9\-_]/g, '-').slice(0, 60);
+  localStorage.setItem('centre_fbToken', safe);
+  input.value = safe;
+  showToast('Sync passphrase saved — reconnecting…');
+  // Reconnect with new path
+  if (typeof fbUnsubscribe === 'function') { try { fbUnsubscribe(); } catch(e){} }
+  fbUnsubscribe = null;
+  fbConnected = false;
+  setTimeout(() => initFirebase(true), 300);
+}
+
+function fbTokenChanged() {
+  // Just visual feedback — save happens on button click
+  const btn = document.querySelector('[onclick="saveFbToken()"]');
+  if (btn) btn.style.borderColor = 'var(--accent)';
+}
+
+function toggleFbTokenVis() {
+  const input = document.getElementById('fbTokenInput');
+  const btn = document.getElementById('fbTokenShowBtn');
+  if (!input) return;
+  if (input.type === 'password') { input.type = 'text'; if(btn) btn.textContent = 'Hide'; }
+  else { input.type = 'password'; if(btn) btn.textContent = 'Show'; }
 }
 
 function updateSyncTime() {
@@ -6026,7 +6081,7 @@ async function fetchWeather() {
   const t = today();
   if (weatherCache && weatherCacheDate === t) return weatherCache;
   try {
-    const url = `https://api.open-meteo.com/v1/forecast?latitude=${WEATHER_LAT}&longitude=${WEATHER_LON}&hourly=temperature_2m,precipitation_probability,uv_index,weathercode&daily=weathercode,temperature_2m_max,precipitation_probability_max&timezone=Australia%2FPerth&forecast_days=7`;
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${WEATHER_LAT}&longitude=${WEATHER_LON}&hourly=temperature_2m,apparent_temperature,precipitation_probability,uv_index,weathercode,windspeed_10m&daily=weathercode,temperature_2m_max,temperature_2m_min,precipitation_probability_max,uv_index_max,sunrise,sunset&timezone=Australia%2FPerth&forecast_days=7`;
     const res = await fetch(url, { mode:'cors' });
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const data = await res.json();
@@ -6098,6 +6153,9 @@ async function applyWeatherToSchedule() {
   });
 }
 
+// Store weather data per day for popup access
+const _weatherDayData = {};
+
 async function applyWeatherToWeekly() {
   const data = await fetchWeather();
   if (!data || !data.daily) return;
@@ -6108,10 +6166,160 @@ async function applyWeatherToWeekly() {
     if (fi < 0) return;
     const el = document.querySelector(`[data-weather-day="${ds}"]`);
     if (!el) return;
-    el.innerHTML = weatherSVG(data.daily.weathercode[fi], 12);
+
+    // Store full day data for popup
+    _weatherDayData[ds] = {
+      code: data.daily.weathercode[fi],
+      tMax: Math.round(data.daily.temperature_2m_max[fi]),
+      tMin: Math.round(data.daily.temperature_2m_min[fi]),
+      rain: data.daily.precipitation_probability_max[fi],
+      uv: Math.round(data.daily.uv_index_max ? data.daily.uv_index_max[fi] : 0),
+      sunrise: data.daily.sunrise ? data.daily.sunrise[fi] : null,
+      sunset: data.daily.sunset ? data.daily.sunset[fi] : null,
+      // Hourly arrays for the day's daytime (7am-7pm hours = index fi*24+7 to fi*24+19)
+      _hourlyTemp: data.hourly.temperature_2m ? data.hourly.temperature_2m.slice(fi*24, fi*24+24) : [],
+      _hourlyRain: data.hourly.precipitation_probability ? data.hourly.precipitation_probability.slice(fi*24, fi*24+24) : [],
+      _hourlyUV: data.hourly.uv_index ? data.hourly.uv_index.slice(fi*24, fi*24+24) : [],
+      _hourlyFeels: data.hourly.apparent_temperature ? data.hourly.apparent_temperature.slice(fi*24, fi*24+24) : [],
+      _hourlyWind: data.hourly.windspeed_10m ? data.hourly.windspeed_10m.slice(fi*24, fi*24+24) : [],
+    };
+
+    el.innerHTML = `<span style="display:inline-flex;align-items:center;gap:2px;cursor:pointer;" onclick="showWeatherPop('${ds}',this)" title="Tap for weather details">${weatherSVG(data.daily.weathercode[fi], 12)}<span style="font-size:.65rem;color:var(--accent);">${Math.round(data.daily.temperature_2m_max[fi])}°</span></span>`;
     el.style.cssText += ';display:flex;justify-content:center;margin-top:2px;';
   });
 }
+
+function uvLabel(uv) {
+  if (uv <= 2) return { text: 'Low', color: '#6abf82' };
+  if (uv <= 5) return { text: 'Moderate', color: '#f0c040' };
+  if (uv <= 7) return { text: 'High', color: '#e09030' };
+  if (uv <= 10) return { text: 'Very High', color: '#d04040' };
+  return { text: 'Extreme', color: '#9b30c0' };
+}
+
+function showWeatherPop(ds, triggerEl) {
+  // Close any existing popup
+  const existing = document.getElementById('weatherPop');
+  if (existing) {
+    existing.remove();
+    // If clicking the same day, just close
+    if (existing.dataset.day === ds) return;
+  }
+
+  const wd = _weatherDayData[ds];
+  if (!wd) return;
+
+  const dateObj = new Date(ds + 'T00:00:00');
+  const dayName = dateObj.toLocaleDateString('en-AU', { weekday: 'long', day: 'numeric', month: 'short' });
+
+  // Peak daytime UV (10am-2pm = hours 10-14)
+  const peakUV = wd._hourlyUV.length ? Math.round(Math.max(...wd._hourlyUV.slice(10, 15))) : wd.uv;
+  const uvInfo = uvLabel(peakUV);
+
+  // Peak rain probability (daytime)
+  const peakRain = wd._hourlyRain.length ? Math.round(Math.max(...wd._hourlyRain.slice(7, 20))) : wd.rain;
+
+  // Apparent temp range (7am-7pm)
+  const feelsDay = wd._hourlyFeels.slice(7, 20);
+  const feelsMax = feelsDay.length ? Math.round(Math.max(...feelsDay)) : null;
+  const feelsMin = feelsDay.length ? Math.round(Math.min(...feelsDay)) : null;
+
+  // Wind peak (daytime)
+  const windDay = wd._hourlyWind.slice(7, 20);
+  const windPeak = windDay.length ? Math.round(Math.max(...windDay)) : null;
+
+  // Sunrise/sunset — strip the date prefix (format: "2025-03-03T06:24")
+  const fmtSunTime = s => { if (!s) return '—'; const parts = s.split('T'); if (!parts[1]) return s; const [h,m] = parts[1].split(':'); const hr = parseInt(h); return `${hr > 12 ? hr-12 : hr}:${m}${hr >= 12 ? 'pm':'am'}`; };
+
+  // Mini hourly bar — temperature sparkline for 7am-7pm
+  const tempHours = wd._hourlyTemp.slice(7, 20);
+  const tMin2 = Math.min(...tempHours), tMax2 = Math.max(...tempHours);
+  const tRange = tMax2 - tMin2 || 1;
+  const sparkBars = tempHours.map((t,i) => {
+    const h = Math.round(((t - tMin2) / tRange) * 28 + 6);
+    const rainH = wd._hourlyRain[7+i] || 0;
+    const rainAlpha = (rainH/100 * 0.7).toFixed(2);
+    return `<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;">
+      <div style="width:100%;height:${h}px;background:var(--accent);opacity:.7;border-radius:2px 2px 0 0;min-height:4px;"></div>
+      ${rainH > 20 ? `<div style="width:100%;height:3px;background:#5899d4;opacity:${rainAlpha};border-radius:1px;"></div>` : '<div style="height:3px;"></div>'}
+    </div>`;
+  }).join('');
+  const hourLabels = ['7','8','9','10','11','12','1','2','3','4','5','6','7'].map(l =>
+    `<div style="flex:1;font-size:.58rem;color:var(--muted);text-align:center;">${l}</div>`).join('');
+
+  const pop = document.createElement('div');
+  pop.id = 'weatherPop';
+  pop.dataset.day = ds;
+  pop.className = 'weather-pop';
+  pop.innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+      <div class="weather-pop-title">${dayName}</div>
+      <button onclick="document.getElementById('weatherPop').remove()" style="background:none;border:none;font-size:1.1rem;cursor:pointer;color:var(--muted);padding:0 2px;line-height:1;">&times;</button>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+      ${weatherSVG(wd.code, 32)}
+      <div>
+        <div style="font-size:1.4rem;font-family:'Noto Serif Display',Georgia,serif;font-stretch:extra-condensed;line-height:1;">${wd.tMax}°<span style="font-size:.85rem;color:var(--muted);"> / ${wd.tMin}°</span></div>
+        ${feelsMax!==null ? `<div style="font-size:.72rem;color:var(--muted);margin-top:2px;">Feels ${feelsMin}–${feelsMax}°</div>` : ''}
+      </div>
+    </div>
+
+    <div class="weather-pop-row">
+      <div class="weather-pop-icon">🌧</div>
+      <div class="weather-pop-label">Rain chance</div>
+      <div class="weather-pop-val" style="color:${peakRain>50?'#5899d4':'var(--text)'};">${peakRain}%</div>
+    </div>
+
+    <div class="weather-pop-row" style="flex-direction:column;align-items:flex-start;gap:4px;">
+      <div style="display:flex;align-items:center;width:100%;gap:10px;">
+        <div class="weather-pop-icon">☀️</div>
+        <div class="weather-pop-label">UV index</div>
+        <div class="weather-pop-val" style="color:${uvInfo.color};">${peakUV} <span style="font-size:.68rem;">${uvInfo.text}</span></div>
+      </div>
+      <div style="width:100%;padding-left:32px;">
+        <div class="weather-uv-bar"><div class="weather-uv-marker" style="left:${Math.min(100,peakUV/11*100)}%;"></div></div>
+      </div>
+    </div>
+
+    ${windPeak !== null ? `<div class="weather-pop-row">
+      <div class="weather-pop-icon">💨</div>
+      <div class="weather-pop-label">Peak wind</div>
+      <div class="weather-pop-val">${windPeak} km/h</div>
+    </div>` : ''}
+
+    <div class="weather-pop-row">
+      <div class="weather-pop-icon">🌅</div>
+      <div class="weather-pop-label">Sunrise / Sunset</div>
+      <div class="weather-pop-val">${fmtSunTime(wd.sunrise)} · ${fmtSunTime(wd.sunset)}</div>
+    </div>
+
+    <div style="margin-top:12px;border-top:1px solid var(--border);padding-top:10px;">
+      <div style="font-size:.65rem;color:var(--muted);margin-bottom:5px;letter-spacing:.05em;">7AM – 7PM TEMPERATURE</div>
+      <div style="display:flex;align-items:flex-end;gap:1px;height:40px;">${sparkBars}</div>
+      <div style="display:flex;gap:1px;margin-top:2px;">${hourLabels}</div>
+      <div style="display:flex;justify-content:space-between;margin-top:4px;font-size:.65rem;color:var(--muted);"><span>${tMin2}°</span><span>${tMax2}°</span></div>
+    </div>`;
+
+  document.body.appendChild(pop);
+
+  // Position: below the trigger element, clamped to viewport
+  const rect = triggerEl.getBoundingClientRect();
+  const popW = 260, popH = 340;
+  let left = rect.left + rect.width/2 - popW/2;
+  let top = rect.bottom + 8;
+  left = Math.max(8, Math.min(left, window.innerWidth - popW - 8));
+  if (top + popH > window.innerHeight - 8) top = rect.top - popH - 8;
+  pop.style.left = left + 'px';
+  pop.style.top = top + 'px';
+
+  // Close on outside click
+  setTimeout(() => {
+    document.addEventListener('click', function closeWeatherPop(e) {
+      if (!pop.contains(e.target)) { pop.remove(); document.removeEventListener('click', closeWeatherPop); }
+    });
+  }, 10);
+}
+
 
 // ================================================================
 // WATER HABIT TRACKING — logs daily water to habitLog
