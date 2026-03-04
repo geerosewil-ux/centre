@@ -41,7 +41,7 @@
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <style>
 @font-face{font-family:'Noto Serif Display';src:url('Handwriting.ttf') format('truetype');}
-:root{--font-body:'Noto Serif Display',Georgia,serif;--font-display:'Noto Serif Display',Georgia,serif;--bg:#f9f8f6;--card:#ffffff;--text:#2c2c2c;--accent:#93aacd;--accent-dark:#7a91b4;--accent-normal:#93aacd;--accent-work:#7e9e8c;--accent-work-dark:#6a8a78;--muted:#999;--border:#e8e8e8;
+:root{--font-body:'Noto Serif Display',Georgia,serif;--font-display:'Noto Serif Display',Georgia,serif;--bg:#f9f8f6;--card:#ffffff;--text:#2c2c2c;--accent:#93aacd;--accent-dark:#7a91b4;--accent-normal:#93aacd;--accent-work:#7e9e8c;--accent-work-dark:#6a8a78;--muted:#999;--border:#e8e8e8;--icon-stroke:1.8;--icon-color-work:#7e9e8c;
 --phase-menstrual:#dd2c60;--phase-follicular:#d78881;--phase-ovulation:#ac487c;--phase-luteal:#861a3a;--water-fill:var(--accent);--water-light:rgba(147,170,205,.13);--water-border:rgba(147,170,205,.25);--on-accent:#ffffff;}
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:'Noto Serif Display',Georgia,serif;font-weight:400;font-stretch:normal;font-size:14px;background:var(--bg);color:var(--text);min-height:100vh;padding:0 20px 60px;transition:background .3s,color .3s;}
@@ -192,7 +192,7 @@ h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.
 .event-pill{display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:10px;background:var(--bg);font-size:.80rem;font-family:'Noto Serif Display',Georgia,serif;}
 .no-events{font-size:.85rem;color:var(--muted);font-family:'Noto Serif Display',Georgia,serif;}
 .block-tasks{display:flex;flex-direction:column;gap:7px;}
-.block-task-item{display:flex;align-items:center;gap:0;padding:9px 12px;border-radius:11px;background:var(--bg);}.block-task-icon-col{width:22px;flex-shrink:0;display:flex;align-items:center;justify-content:center;margin-right:4px;}.block-task-cb-col{width:16px;flex-shrink:0;margin-right:10px;}.block-task-name-col{flex:1;font-size:.85rem;}.block-task-handle{color:var(--border);font-size:.75rem;cursor:grab;flex-shrink:0;padding:0 2px;user-select:none;line-height:1;margin-left:8px;}.block-task-handle:hover{color:var(--muted);}
+.block-task-item{display:flex;align-items:center;gap:0;padding:9px 12px;border-radius:11px;background:transparent;}.block-task-icon-col{width:22px;flex-shrink:0;display:flex;align-items:center;justify-content:center;margin-right:4px;}.block-task-cb-col{width:16px;flex-shrink:0;margin-right:10px;}.block-task-name-col{flex:1;font-size:.85rem;}.block-task-handle{color:var(--border);font-size:.75rem;cursor:grab;flex-shrink:0;padding:0 2px;user-select:none;line-height:1;margin-left:8px;}.block-task-handle:hover{color:var(--muted);}
 .block-task-item input[type="checkbox"]{accent-color:var(--accent);width:16px;height:16px;flex-shrink:0;cursor:pointer;}
 .block-task-name{flex:1;font-size:.82rem;}
 .block-task-item.done{opacity:.55;}
@@ -421,6 +421,48 @@ h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.
 .quick-add-pop-btn{font-family:'Noto Serif Display',Georgia,serif;font-stretch:extra-condensed;text-transform:uppercase;letter-spacing:.09em;font-size:.88rem;background:none;border:none;border-radius:9px;padding:9px 14px;cursor:pointer;color:var(--text);text-align:left;display:flex;align-items:center;gap:8px;transition:background .15s;}
 .quick-add-pop-btn:hover{background:var(--bg);}
 .quick-add-trigger{position:relative;}
+.subtask-panel{display:none;margin-top:6px;padding:8px 10px 4px;border-top:1px dashed var(--border);}
+.subtask-panel.open{display:block;}
+.subtask-row{display:flex;align-items:center;gap:8px;padding:4px 2px;border-radius:6px;}
+.subtask-row input[type="checkbox"]{accent-color:var(--accent);width:13px;height:13px;flex-shrink:0;cursor:pointer;}
+.subtask-row-name{flex:1;font-size:.84rem;font-family:var(--font-body);}
+.subtask-row.done .subtask-row-name{text-decoration:line-through;opacity:.48;}
+.subtask-del{background:none;border:none;color:var(--border);font-size:.95rem;cursor:pointer;padding:0 3px;line-height:1;flex-shrink:0;transition:color .15s;}
+.subtask-del:hover{color:#e88;}
+.subtask-add-row{display:flex;gap:6px;margin-top:6px;align-items:center;}
+.subtask-add-input{font-family:var(--font-body);font-size:.82rem;border:1.5px solid var(--border);border-radius:8px;padding:5px 10px;outline:none;flex:1;background:var(--bg);color:var(--text);transition:border-color .2s;}
+.subtask-add-input:focus{border-color:var(--accent);}
+.subtask-add-btn{background:var(--accent);color:white;border:none;border-radius:8px;padding:5px 11px;font-size:.78rem;cursor:pointer;white-space:nowrap;flex-shrink:0;}
+.subtask-chevron{background:none;border:none;cursor:pointer;padding:1px 4px;color:var(--muted);font-size:.7rem;line-height:1;transition:color .15s;}
+.subtask-chevron:hover{color:var(--text);}
+.subtask-panel{display:none;padding:4px 0 2px 36px;}
+.subtask-panel.open{display:block;}
+.subtask-row{display:flex;align-items:center;gap:8px;padding:3px 4px;border-radius:6px;}
+.subtask-row input[type="checkbox"]{accent-color:var(--accent);width:13px;height:13px;flex-shrink:0;cursor:pointer;}
+.subtask-row-name{flex:1;font-size:.82rem;}
+.subtask-row.done .subtask-row-name{text-decoration:line-through;opacity:.45;}
+.subtask-del{background:none;border:none;color:transparent;font-size:.9rem;cursor:pointer;padding:0 2px;line-height:1;flex-shrink:0;transition:color .12s;}
+.subtask-row:hover .subtask-del{color:#ccc;}
+.subtask-del:hover{color:#e88 !important;}
+.subtask-chevron-btn{background:none;border:none;cursor:pointer;padding:1px 5px 1px 2px;color:var(--muted);font-size:.65rem;line-height:1;flex-shrink:0;transition:color .12s;}
+.subtask-chevron-btn:hover{color:var(--text);}
+/* add-form inside task edit */
+.subtask-edit-section{margin-top:10px;padding-top:10px;border-top:1px dashed var(--border);}
+.subtask-edit-list{display:flex;flex-direction:column;gap:4px;margin-bottom:8px;}
+.subtask-add-inline{display:flex;gap:6px;align-items:center;}
+.subtask-add-inline input{font-family:var(--font-body);font-size:.82rem;border:1.5px solid var(--border);border-radius:8px;padding:5px 10px;outline:none;flex:1;background:var(--bg);color:var(--text);transition:border-color .2s;}
+.subtask-add-inline input:focus{border-color:var(--accent);}
+.subtask-add-inline button{background:var(--accent);color:white;border:none;border-radius:8px;padding:5px 11px;font-size:.78rem;cursor:pointer;flex-shrink:0;}
+/* add-task form pending subtasks */
+.new-subtask-list{display:flex;flex-direction:column;gap:5px;margin-bottom:6px;}
+.new-subtask-row{display:flex;align-items:center;gap:6px;}
+.new-subtask-row input{font-family:var(--font-body);font-size:.82rem;border:1.5px solid var(--border);border-radius:8px;padding:5px 10px;outline:none;flex:1;background:var(--bg);color:var(--text);}
+.new-subtask-row button{background:none;border:none;color:#ccc;cursor:pointer;font-size:1rem;padding:0 3px;}
+/* Centre page subtasks */
+.centre-subtask-row{display:flex;align-items:center;gap:8px;padding:3px 6px 3px 44px;}
+.centre-subtask-row input[type="checkbox"]{accent-color:var(--accent);width:12px;height:12px;flex-shrink:0;cursor:pointer;}
+.centre-subtask-name{font-size:.78rem;color:var(--muted);flex:1;}
+.centre-subtask-name.done{text-decoration:line-through;opacity:.45;}
 .save-indicator{position:fixed;bottom:20px;right:20px;background:var(--accent);color:var(--on-accent);padding:8px 16px;border-radius:20px;font-family:'Noto Serif Display',Georgia,serif;font-size:.8rem;opacity:0;transition:opacity .3s;pointer-events:none;z-index:200;}
 .save-indicator.show{opacity:1;}
 
@@ -863,6 +905,8 @@ h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.
               </div>
             </div>
           </div>
+          <div id="newSubList" class="new-subtask-list"></div>
+          <button type="button" onclick="addNewTaskSubField()" style="background:none;border:none;padding:2px 0;font-family:var(--font-body);font-size:.8rem;color:var(--accent);cursor:pointer;text-align:left;margin-bottom:4px;">+ add subtask</button>
           <button class="add-btn" onclick="addTask()">+ Add Task</button>
           <button class="add-btn" onclick="openMultiAdd('tasks')" style="background:none;border:1.5px solid var(--accent);color:var(--accent);margin-top:4px;">+ Additions</button>
         </div>
@@ -1330,6 +1374,55 @@ h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.
         </div>
       </div>
 
+      <!-- ICON STYLE ACCORDION -->
+      <div class="settings-accordion">
+        <div class="settings-accordion-header" onclick="toggleAccordion('iconAccordion')">
+          <span class="settings-accordion-title">Icon Style</span>
+          <span class="settings-accordion-arrow" id="iconAccordionArrow">▼</span>
+        </div>
+        <div class="settings-accordion-body" id="iconAccordion">
+          <div style="padding-top:12px;display:flex;flex-direction:column;gap:18px;">
+
+            <!-- Stroke weight -->
+            <div>
+              <div style="font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px;">Stroke Weight</div>
+              <div style="display:flex;align-items:center;gap:14px;">
+                <input type="range" id="iconStrokeSlider" min="0.8" max="3.5" step="0.1" value="1.8"
+                  oninput="previewIconStroke(this.value)"
+                  style="flex:1;accent-color:var(--accent);height:4px;cursor:pointer;"/>
+                <span id="iconStrokeVal" style="font-family:'Noto Serif Display',Georgia,serif;font-stretch:extra-condensed;font-size:1.2rem;color:var(--accent);min-width:28px;text-align:right;">1.8</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;margin-top:3px;">
+                <span style="font-size:.66rem;color:var(--muted);">Thin</span>
+                <span style="font-size:.66rem;color:var(--muted);">Bold</span>
+              </div>
+            </div>
+
+            <!-- Live preview strip -->
+            <div>
+              <div style="font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px;">Preview</div>
+              <div id="iconPreviewStrip" style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;padding:10px 14px;background:var(--bg);border-radius:12px;"></div>
+            </div>
+
+            <!-- Work mode icon colour -->
+            <div>
+              <div style="font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px;">Work Mode Icon Colour</div>
+              <div style="display:flex;align-items:center;gap:10px;">
+                <input class="hex-input" id="hex--icon-color-work" placeholder="#7e9e8c" oninput="syncSwatch('--icon-color-work');updateIconWorkPreview()" style="flex:1;font-size:.85rem;"/>
+                <div class="setting-swatch"><input type="color" id="swatch--icon-color-work" oninput="syncHex('--icon-color-work');updateIconWorkPreview()"/></div>
+                <div id="iconWorkPreviewDot" style="display:flex;gap:6px;align-items:center;"></div>
+              </div>
+              <div style="font-size:.72rem;color:var(--muted);margin-top:5px;">Applied to icons when Work Mode is on.</div>
+            </div>
+
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+              <button class="apply-btn" onclick="applyIconStyle()">Apply</button>
+              <button class="reset-theme-btn" onclick="resetIconStyle()">Reset</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- WATER GOAL ACCORDION -->
       <div class="settings-accordion">
         <div class="settings-accordion-header" onclick="toggleAccordion('waterAccordion')">
@@ -1436,6 +1529,7 @@ h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.
 
 <div class="save-indicator" id="saveIndicator">Saved</div>
 
+
 <script>
 // ---- ID GENERATION ----
 let taskSeq=0,eventSeq=0,catSeq=5;
@@ -1493,6 +1587,10 @@ function scheduleSave(){
       localStorage.setItem('centre_notes',JSON.stringify(notes));
       localStorage.setItem('centre_noteSeq',noteSeq);
       localStorage.setItem('centre_tasks',JSON.stringify(tasks));
+      localStorage.setItem('centre_subtasks',JSON.stringify(subtasks));
+      localStorage.setItem('centre_subtaskSeq',subtaskSeq);
+      localStorage.setItem('centre_subtasks',JSON.stringify(subtasks));
+      localStorage.setItem('centre_subtaskSeq',subtaskSeq);
       localStorage.setItem('centre_recurDoneLog',JSON.stringify(recurDoneLog));
       localStorage.setItem('centre_events',JSON.stringify(events));
       localStorage.setItem('centre_categories',JSON.stringify(categories));
@@ -1511,7 +1609,7 @@ function scheduleSave(){
       localStorage.setItem('centre_eventSeq',eventSeq);
       localStorage.setItem('centre_catSeq',catSeq);
       // save theme
-      const theme={};EDITABLE.forEach(v=>theme[v]=getComputedStyle(document.documentElement).getPropertyValue(v).trim());PHASE_VARS.forEach(v=>theme[v]=getComputedStyle(document.documentElement).getPropertyValue(v).trim());
+      const theme={};EDITABLE.forEach(v=>theme[v]=getComputedStyle(document.documentElement).getPropertyValue(v).trim());['--icon-stroke','--icon-color-work'].forEach(v=>theme[v]=getComputedStyle(document.documentElement).getPropertyValue(v).trim());PHASE_VARS.forEach(v=>theme[v]=getComputedStyle(document.documentElement).getPropertyValue(v).trim());
       localStorage.setItem('centre_theme',JSON.stringify(theme));
       localStorage.setItem('centre_grocItems',JSON.stringify(grocItems));
       localStorage.setItem('centre_grocSeq',grocSeq);
@@ -1536,6 +1634,10 @@ function loadFromStorage(){
     const ns=localStorage.getItem('centre_notes');if(ns)notes=JSON.parse(ns);
     const nss=localStorage.getItem('centre_noteSeq');if(nss)noteSeq=parseInt(nss);
     const t=localStorage.getItem('centre_tasks');if(t)tasks=JSON.parse(t);
+    const _st=localStorage.getItem('centre_subtasks');if(_st)subtasks=JSON.parse(_st);
+    const _stseq=localStorage.getItem('centre_subtaskSeq');if(_stseq)subtaskSeq=parseInt(_stseq);
+    const st=localStorage.getItem('centre_subtasks');if(st)subtasks=JSON.parse(st);
+    const stseq=localStorage.getItem('centre_subtaskSeq');if(stseq)subtaskSeq=parseInt(stseq);
     const rdl=localStorage.getItem('centre_recurDoneLog');if(rdl)recurDoneLog=JSON.parse(rdl);
     const e=localStorage.getItem('centre_events');if(e)events=JSON.parse(e);
     const c=localStorage.getItem('centre_categories');if(c)categories=JSON.parse(c);
@@ -1567,7 +1669,7 @@ function loadFromStorage(){
       // Inline darken (darken() not yet defined at load time)
       try{const _r=Math.max(0,parseInt(_aw.slice(1,3),16)-15),_g=Math.max(0,parseInt(_aw.slice(3,5),16)-15),_b=Math.max(0,parseInt(_aw.slice(5,7),16)-15);document.documentElement.style.setProperty('--accent-work-dark','#'+[_r,_g,_b].map(x=>x.toString(16).padStart(2,'0')).join(''));}catch(e){}
     }
-    if(th){const theme=JSON.parse(th);Object.entries(theme).forEach(([k,v])=>document.documentElement.style.setProperty(k,v));}
+    if(th){const theme=JSON.parse(th);Object.entries(theme).forEach(([k,v])=>document.documentElement.style.setProperty(k,v));if(theme['--icon-stroke'])document.documentElement.style.setProperty('--icon-stroke',theme['--icon-stroke']);if(theme['--icon-color-work'])document.documentElement.style.setProperty('--icon-color-work',theme['--icon-color-work']);}
   }catch(e){console.warn('Load failed',e);}
 }
 
@@ -2051,7 +2153,11 @@ function addTask(){
   const name=document.getElementById('tName').value.trim();if(!name){document.getElementById('tName').focus();return;}
   const recur=getRecur('t'),habit=getHabitGoal();
   const notes=document.getElementById('tNotes').value.trim();
-  tasks.push({id:newTaskId(),name,notes,catId:document.getElementById('tCat').value,dur:parseInt(document.getElementById('tDur').value)||0,recur,due:document.getElementById('tDueDate').value,done:false,habit});
+  const newId=newTaskId();
+  tasks.push({id:newId,name,notes,catId:document.getElementById('tCat').value,dur:parseInt(document.getElementById('tDur').value)||0,recur,due:document.getElementById('tDueDate').value,done:false,habit});
+  // Save any pending subtasks from the add form
+  _newTaskSubs.filter(s=>s.name.trim()).forEach((s,i)=>subtasks.push({id:newStId(),taskId:newId,name:s.name.trim(),done:false,order:i}));
+  clearNewTaskSubs();
   document.getElementById('tName').value='';document.getElementById('tNotes').value='';document.getElementById('tDueDate').value='';document.getElementById('tDur').value='';document.getElementById('tDueQuick').value='';
   scheduleSave();renderTasks();
 }
@@ -2090,7 +2196,7 @@ function toggleTask(id,forDate){
   t.done=!t.done;
   scheduleSave();renderTasks();renderOverview();renderOverviewWaiting();
 }
-function deleteTask(id){tasks=tasks.filter(t=>t.id!==id);habitLog=habitLog.filter(e=>e.taskId!==id);recurDoneLog=recurDoneLog.filter(e=>e.taskId!==id);scheduleSave();renderTasks();renderOverview();}
+function deleteTask(id){tasks=tasks.filter(t=>t.id!==id);subtasks=subtasks.filter(s=>s.taskId!==id);habitLog=habitLog.filter(e=>e.taskId!==id);recurDoneLog=recurDoneLog.filter(e=>e.taskId!==id);scheduleSave();renderTasks();renderOverview();}
 function setFilter(f,btn){activeFilter=f;document.querySelectorAll('#page-tasks .filter-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderTasks();}
 function toggleEditForm(id){const f=document.getElementById('edit-'+id);if(f)f.classList.toggle('open');}
 function toggleEditRecur(id){
@@ -2152,6 +2258,151 @@ function saveTask(id){
   scheduleSave();renderTasks();renderOverview();renderOverviewWaiting();
 }
 function hexToRgba(hex,alpha){const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);return `rgba(${r},${g},${b},${alpha})`;}
+
+
+
+// ---- SUBTASKS ----
+let subtasks = [];
+let subtaskSeq = 0;
+function newStId() { return 'ST-' + String(++subtaskSeq).padStart(4,'0'); }
+
+function getSubtasks(taskId) {
+  return subtasks.filter(s => s.taskId === taskId).sort((a,b) => (a.order||0)-(b.order||0));
+}
+function stProgress(taskId) {
+  const s = getSubtasks(taskId);
+  if (!s.length) return null;
+  return { done: s.filter(x => x.done).length, total: s.length };
+}
+
+// ── Task list panel ──
+function toggleSubtaskPanel(taskId) {
+  const panel   = document.getElementById('stp-' + taskId);
+  const chevron = document.getElementById('stchev-' + taskId);
+  if (!panel) return;
+  const opening = !panel.classList.contains('open');
+  panel.classList.toggle('open', opening);
+  if (chevron) chevron.textContent = opening ? '▲' : '▼';
+  if (opening) _renderStPanel(taskId);
+}
+function _renderStPanel(taskId) {
+  const list = document.getElementById('stplist-' + taskId);
+  if (!list) return;
+  const subs = getSubtasks(taskId);
+  list.innerHTML = subs.map(s =>
+    `<div class="subtask-row ${s.done?'done':''}" id="str-${s.id}">
+      <input type="checkbox" ${s.done?'checked':''} onchange="toggleSt('${s.id}')">
+      <span class="subtask-row-name">${escHtml(s.name)}</span>
+      <button class="subtask-del" onclick="deleteSt('${s.id}')">×</button>
+    </div>`).join('') || '';
+}
+
+// ── Subtask CRUD ──
+function toggleSt(stId) {
+  const s = subtasks.find(x => x.id === stId);
+  if (!s) return;
+  s.done = !s.done;
+  scheduleSave();
+  _renderStPanel(s.taskId);
+  _renderStEditList(s.taskId);
+  renderTasks();
+  // Refresh Centre if open
+  if (document.getElementById('page-overview')?.classList.contains('active')) renderOverview();
+}
+function deleteSt(stId) {
+  const s = subtasks.find(x => x.id === stId);
+  if (!s) return;
+  const tid = s.taskId;
+  subtasks = subtasks.filter(x => x.id !== stId);
+  scheduleSave();
+  _renderStPanel(tid);
+  _renderStEditList(tid);
+  renderTasks();
+}
+function addStFromEdit(taskId) {
+  const inp = document.getElementById('steinp-' + taskId);
+  if (!inp) return;
+  const name = inp.value.trim();
+  if (!name) { inp.focus(); return; }
+  subtasks.push({ id: newStId(), taskId, name, done: false, order: getSubtasks(taskId).length });
+  inp.value = '';
+  inp.focus();
+  scheduleSave();
+  _renderStPanel(taskId);
+  _renderStEditList(taskId);
+  renderTasks();
+}
+
+// ── Edit-form subtask list ──
+function _renderStEditList(taskId) {
+  const list = document.getElementById('steditlist-' + taskId);
+  if (!list) return;
+  const subs = getSubtasks(taskId);
+  list.innerHTML = subs.map(s =>
+    `<div class="subtask-row ${s.done?'done':''}" id="str2-${s.id}">
+      <input type="checkbox" ${s.done?'checked':''} onchange="toggleSt('${s.id}')">
+      <span class="subtask-row-name">${escHtml(s.name)}</span>
+      <button class="subtask-del" onclick="deleteSt('${s.id}')" style="color:#ccc;">×</button>
+    </div>`).join('') || '<span style="font-size:.75rem;color:var(--muted);">No subtasks yet.</span>';
+}
+
+// ── Add-task form: pending new subtasks ──
+let _newTaskSubs = []; // [{tempId, name}] — cleared after addTask()
+let _newTaskSubSeq = 0;
+
+function addNewTaskSubField() {
+  const list = document.getElementById('newSubList');
+  if (!list) return;
+  const tempId = 'nst-' + (++_newTaskSubSeq);
+  _newTaskSubs.push({ tempId, name: '' });
+  const row = document.createElement('div');
+  row.className = 'new-subtask-row';
+  row.id = tempId;
+  row.innerHTML = `<input placeholder="Subtask name…" oninput="updateNewSub('${tempId}',this.value)" onkeydown="if(event.key==='Enter'){event.preventDefault();addNewTaskSubField();}"/>
+    <button onclick="removeNewSub('${tempId}')">×</button>`;
+  list.appendChild(row);
+  // Focus the new input
+  setTimeout(() => row.querySelector('input')?.focus(), 30);
+}
+function updateNewSub(tempId, val) {
+  const s = _newTaskSubs.find(x => x.tempId === tempId);
+  if (s) s.name = val;
+}
+function removeNewSub(tempId) {
+  _newTaskSubs = _newTaskSubs.filter(x => x.tempId !== tempId);
+  const el = document.getElementById(tempId);
+  if (el) el.remove();
+}
+function clearNewTaskSubs() {
+  _newTaskSubs = [];
+  _newTaskSubSeq = 0;
+  const list = document.getElementById('newSubList');
+  if (list) list.innerHTML = '';
+}
+
+// ── Centre page subtask rows (indented, collapsed) ──
+function toggleCentreSubtasks(taskId) {
+  const panel   = document.getElementById('csp-' + taskId);
+  const badge   = document.getElementById('csbadge-' + taskId);
+  if (!panel) return;
+  const opening = panel.style.display === 'none' || !panel.style.display;
+  panel.style.display = opening ? 'block' : 'none';
+  if (badge) badge.textContent = opening ? '▲' : _stBadgeLabel(taskId);
+}
+function _stBadgeLabel(taskId) {
+  const sp = stProgress(taskId);
+  return sp ? sp.done + '/' + sp.total + ' ▼' : '▼';
+}
+function _renderCentreSubPanel(taskId, vd) {
+  const subs = getSubtasks(taskId);
+  if (!subs.length) return '';
+  const rows = subs.map(s =>
+    `<div class="centre-subtask-row">
+      <input type="checkbox" ${s.done?'checked':''} onchange="toggleSt('${s.id}')">
+      <span class="centre-subtask-name ${s.done?'done':''}">${escHtml(s.name)}</span>
+    </div>`).join('');
+  return `<div id="csp-${taskId}" style="display:none;">${rows}</div>`;
+}
 
 function renderTasks(){
   const list=document.getElementById('taskList');
@@ -2215,6 +2466,7 @@ function renderTasks(){
         <div class="item-meta" style="margin-top:4px">
           ${dueLabelDate?`<span class="meta-tag meta-due ${dc}">${isRecurring&&nextOcc?'Next: ':' '}${formatDate(dueLabelDate)}</span>`:''}
           ${rs?`<span class="meta-tag meta-recur">${rs}</span>`:''}
+          ${stProgress(t.id)?(()=>{const sp=stProgress(t.id);return `<button id="stchev-${t.id}" class="subtask-chevron-btn" onclick="toggleSubtaskPanel('${t.id}')">${sp.done}/${sp.total} ▼</button>`;})():''}
         </div>
         <div class="edit-form" id="edit-${t.id}">
           <div class="edit-grid">
@@ -2276,12 +2528,22 @@ function renderTasks(){
             </div>
           </div>
           <button class="save-btn" onclick="saveTask('${t.id}')">Save changes</button>
+          <div class="subtask-edit-section">
+            <div style="font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;">Subtasks</div>
+            <div class="subtask-edit-list" id="steditlist-${t.id}"></div>
+            <div class="subtask-add-inline">
+              <input id="steinp-${t.id}" placeholder="Add subtask…" onkeydown="if(event.key==='Enter'){event.preventDefault();addStFromEdit('${t.id}');}" onfocus="_renderStEditList('${t.id}')" />
+              <button onclick="addStFromEdit('${t.id}')">Add</button>
+            </div>
+          </div>
+        </div>
+        <div class="subtask-panel" id="stp-${t.id}">
+          <div id="stplist-${t.id}"></div>
         </div>
       </div>
     </div>`;
   }).join('');
 }
-
 // ---- EVENTS ----
 function handleEvType(){
   const type=document.getElementById('evType').value;
@@ -2300,6 +2562,7 @@ function addEvent(){
   document.getElementById('evName').value='';document.getElementById('evDate').value='';document.getElementById('evTime').value='';document.getElementById('evTimeEnd').value='';document.getElementById('evBusy').value='free';document.getElementById('evCountdown').checked=false;document.getElementById('evLocation').value='';document.getElementById('evNotes').value='';
   scheduleSave();renderEventList();renderOverviewEvents();renderOverviewUpcoming();
 }
+
 function deleteEvent(id){events=events.filter(e=>e.id!==id);scheduleSave();renderEventList();renderOverviewEvents();renderOverviewUpcoming();}
 function renderEventList(){
   const list=document.getElementById('eventListFull');if(!events.length){list.innerHTML=`<div class="empty-msg">No events yet.</div>`;return;}
@@ -2987,12 +3250,16 @@ function renderOverview(){
           const isDone=isTaskDoneOn(t,vd);
           const cat=categories.find(c=>c.id===t.catId);
           const iconHtml=cat?catSvg(cat,14):'';
+          const sp=stProgress(t.id);
+          const badge=sp?'<button id="csbadge-'+t.id+'" onclick="toggleCentreSubtasks(\''+t.id+'\')" style="background:none;border:none;cursor:pointer;font-size:.65rem;color:var(--muted);padding:0 0 0 6px;line-height:1;">'+sp.done+'/'+sp.total+' \u25bc</button>':'';
+          const subPanel=sp?_renderCentreSubPanel(t.id,vd):'';
           return '<div class="block-task-item '+(isDone?'done':'')+'" draggable="true" data-task-id="'+t.id+'" data-from-block="'+b.id+'" ondragstart="dndStart(event)" ondragend="dndEnd(event)">'
             +'<span class="block-task-icon-col">'+(cat?catSvg(cat,13):'')+'</span>'
             +'<span class="block-task-cb-col"><input type="checkbox" '+(isDone?'checked':'')+' onchange="toggleTask(\''+t.id+'\',\''+vd+'\');renderOverview()" style="width:16px;height:16px;accent-color:var(--accent);cursor:pointer;"></span>'
-            +'<span class="block-task-name-col">'+escHtml(t.name)+'</span>'
+            +'<span class="block-task-name-col">'+escHtml(t.name)+badge+'</span>'
             +'<span class="block-task-handle" title="Drag to move">\u2807</span>'
-            +'</div>';
+            +'</div>'
+            +subPanel;
         }).join(''):'<div class="block-empty">Nothing scheduled — enjoy the space.</div>'}</div>
       </div>
     </div>`;
@@ -3897,6 +4164,91 @@ function removeMilestone(val){
   MILESTONES=MILESTONES.filter(m=>m!==val);
   saveMilestones();renderMilestoneChips();
 }
+
+// ---- ICON STYLE SETTINGS ----
+const ICON_PREVIEW_KEYS = ['star','check-square','calendar','heart','book','coffee','sun','moon','music','zap'];
+
+function buildIconSettings() {
+  // Stroke slider
+  const sw = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--icon-stroke').trim()) || 1.8;
+  const slider = document.getElementById('iconStrokeSlider');
+  const valEl  = document.getElementById('iconStrokeVal');
+  if (slider) { slider.value = sw; }
+  if (valEl)  { valEl.textContent = sw.toFixed(1); }
+  // Work mode icon colour
+  const wc = getComputedStyle(document.documentElement).getPropertyValue('--icon-color-work').trim() || '#7e9e8c';
+  const hexEl   = document.getElementById('hex--icon-color-work');
+  const swatchEl= document.getElementById('swatch--icon-color-work');
+  if (hexEl)    hexEl.value = wc;
+  if (swatchEl) swatchEl.value = wc;
+  renderIconPreviewStrip(sw, 'var(--accent)', wc);
+  updateIconWorkPreview();
+}
+
+function renderIconPreviewStrip(sw, col, workCol) {
+  const strip = document.getElementById('iconPreviewStrip');
+  if (!strip) return;
+  const swNum = parseFloat(sw) || 1.8;
+  // Show half normal, half work-mode colour
+  strip.innerHTML = ICON_PREVIEW_KEYS.map((k, i) => {
+    const c = i >= ICON_PREVIEW_KEYS.length / 2 ? workCol : col;
+    const paths = ICON_PATHS[k] || ICON_PATHS['star'];
+    const svg = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="'+c+'" stroke-width="'+swNum+'" stroke-linecap="round" stroke-linejoin="round">'+paths+'</svg>';
+    const label = i === 0 ? '<div style="position:absolute;bottom:-14px;left:50%;transform:translateX(-50%);font-size:.58rem;color:var(--muted);white-space:nowrap;">workspace</div>' :
+                  i === Math.floor(ICON_PREVIEW_KEYS.length / 2) ? '<div style="position:absolute;bottom:-14px;left:50%;transform:translateX(-50%);font-size:.58rem;color:var(--muted);white-space:nowrap;">work mode</div>' : '';
+    return '<div style="position:relative;display:flex;align-items:center;justify-content:center;padding-bottom:2px;">'
+      + svg + label
+      + (i === Math.floor(ICON_PREVIEW_KEYS.length / 2) - 1 ? '<div style="width:1px;height:22px;background:var(--border);margin-left:8px;"></div>' : '')
+      + '</div>';
+  }).join('');
+}
+
+function previewIconStroke(val) {
+  const v = parseFloat(val);
+  const valEl = document.getElementById('iconStrokeVal');
+  if (valEl) valEl.textContent = v.toFixed(1);
+  const wc = document.getElementById('hex--icon-color-work')?.value || '#7e9e8c';
+  renderIconPreviewStrip(v, 'var(--accent)', wc);
+}
+
+function updateIconWorkPreview() {
+  const wc = document.getElementById('hex--icon-color-work')?.value || '#7e9e8c';
+  const sw = parseFloat(document.getElementById('iconStrokeSlider')?.value) || 1.8;
+  const dot = document.getElementById('iconWorkPreviewDot');
+  if (dot) {
+    const paths = ICON_PATHS['star'] || '';
+    dot.innerHTML = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="'+wc+'" stroke-width="'+sw+'" stroke-linecap="round" stroke-linejoin="round">'+paths+'</svg>';
+  }
+  renderIconPreviewStrip(sw, 'var(--accent)', wc);
+}
+
+function applyIconStyle() {
+  const sw = parseFloat(document.getElementById('iconStrokeSlider')?.value) || 1.8;
+  document.documentElement.style.setProperty('--icon-stroke', sw);
+  const wc = document.getElementById('hex--icon-color-work')?.value.trim() || '#7e9e8c';
+  if (/^#[0-9a-fA-F]{6}$/.test(wc)) {
+    document.documentElement.style.setProperty('--icon-color-work', wc);
+  }
+  scheduleSave();
+  // Re-render current page to apply new stroke everywhere
+  const activePage = document.querySelector('.page.active');
+  if (activePage) {
+    const pid = activePage.id.replace('page-', '');
+    if (pid === 'overview') renderAllOverviewForDate();
+    else if (pid === 'tasks') renderTasks();
+    else if (pid === 'habits') renderHabitsDashboard();
+  }
+  showToast('Icon style applied');
+}
+
+function resetIconStyle() {
+  document.documentElement.style.setProperty('--icon-stroke', '1.8');
+  document.documentElement.style.setProperty('--icon-color-work', '#7e9e8c');
+  buildIconSettings();
+  scheduleSave();
+  showToast('Icon style reset');
+}
+
 function buildSettings(){
   const sg = document.getElementById('settingsGrid');
   // Populate token field
@@ -3905,6 +4257,7 @@ function buildSettings(){
   if (sg) sg.innerHTML = EDITABLE.map(v => makeColourSwatch(v, THEME_LABELS[v])).join('');
   const pg = document.getElementById('phaseColourGrid');
   if (pg) pg.innerHTML = PHASE_VARS.map(v => makeColourSwatch(v, PHASE_LABELS[v])).join('');
+  buildIconSettings();
 }
 function syncSwatch(v){const h=document.getElementById('hex'+v).value;if(/^#[0-9a-fA-F]{6}$/.test(h))document.getElementById('swatch'+v).value=h;}
 function syncHex(v){document.getElementById('hex'+v).value=document.getElementById('swatch'+v).value;}
@@ -4506,12 +4859,17 @@ function resolveIconKey(icon) {
 function svgIcon(name, col, sz) {
   const key = resolveIconKey(name);
   const p = ICON_PATHS[key] || ICON_PATHS['star'];
-  return '<svg width="'+sz+'" height="'+sz+'" viewBox="0 0 24 24" fill="none" stroke="'+col+'" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">'+p+'</svg>';
+  // Read global stroke weight from CSS variable; fall back to 1.8
+  const sw = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--icon-stroke').trim()) || 1.8;
+  return '<svg width="'+sz+'" height="'+sz+'" viewBox="0 0 24 24" fill="none" stroke="'+col+'" stroke-width="'+sw+'" stroke-linecap="round" stroke-linejoin="round">'+p+'</svg>';
 }
 function catSvg(cat, sz) {
   if (!cat) return '';
   const key = resolveIconKey(cat.icon);
-  const col = 'var(--accent)';
+  // Use work-mode icon colour when work mode is active, otherwise accent
+  const col = (typeof workMode !== 'undefined' && workMode)
+    ? (getComputedStyle(document.documentElement).getPropertyValue('--icon-color-work').trim() || 'var(--accent)')
+    : 'var(--accent)';
   return svgIcon(key, col, sz);
 }
 
@@ -5221,6 +5579,7 @@ function getLocalDataBundle() {
     notes, noteSeq,
     negativeHabits, negHabitSeq,
     recurDoneLog,
+    subtasks, subtaskSeq,
     _apiKeys: { google: _googleApiKey||'', gemini: _geminiApiKey||'' },
     _ts: Date.now()
   };
@@ -5291,6 +5650,10 @@ function applyRemoteData(remote) {
   if (remote.negativeHabits) negativeHabits = remote.negativeHabits;
   if (remote.negHabitSeq) negHabitSeq = remote.negHabitSeq;
   if (remote.recurDoneLog) recurDoneLog = remote.recurDoneLog;
+  if (remote.subtasks) subtasks = remote.subtasks;
+  if (remote.subtaskSeq) subtaskSeq = remote.subtaskSeq;
+  if (remote.subtasks) subtasks = remote.subtasks;
+  if (remote.subtaskSeq) subtaskSeq = remote.subtaskSeq;
   if (remote._apiKeys) {
     if (remote._apiKeys.google) {
       _googleApiKey = remote._apiKeys.google;
