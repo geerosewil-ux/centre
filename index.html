@@ -461,6 +461,14 @@ h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.
 .centre-subtask-row input[type="checkbox"]{accent-color:var(--accent);width:12px;height:12px;flex-shrink:0;cursor:pointer;}
 .centre-subtask-name{font-size:.78rem;color:var(--muted);flex:1;}
 .centre-subtask-name.done{text-decoration:line-through;opacity:.45;}
+.ctx-menu{position:fixed;background:var(--card);border:1.5px solid var(--border);border-radius:14px;box-shadow:0 6px 28px rgba(0,0,0,.14);padding:6px;z-index:500;min-width:170px;display:none;flex-direction:column;gap:2px;}
+.ctx-menu.open{display:flex;}
+.ctx-menu-item{font-family:var(--font-body);font-size:.88rem;padding:9px 14px;border-radius:9px;border:none;background:none;cursor:pointer;color:var(--text);text-align:left;transition:background .15s;width:100%;}
+.ctx-menu-item:hover{background:var(--bg);}
+.ctx-menu-item.danger{color:#c0554a;}
+.ctx-menu-sep{height:1px;background:var(--border);margin:3px 0;}
+.ctx-reschedule-row{display:none;padding:6px 10px 4px;flex-direction:column;gap:6px;}
+.ctx-reschedule-row.open{display:flex;}
 .save-indicator{position:fixed;bottom:20px;right:20px;background:var(--accent);color:var(--on-accent);padding:8px 16px;border-radius:20px;font-family:'Noto Serif Display',Georgia,serif;font-size:.8rem;opacity:0;transition:opacity .3s;pointer-events:none;z-index:200;}
 .save-indicator.show{opacity:1;}
 
@@ -628,10 +636,7 @@ h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.09 6.26H21l-5.47 3.97 2.09 6.26L12 14.51l-5.62 3.98 2.09-6.26L2 8.26h6.91z"/></svg>
       Habits
     </button>
-    <button class="drawer-item" id="di-events" onclick="showPage('events');closeDrawer()">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><circle cx="12" cy="16" r="1.5" fill="currentColor"/></svg>
-      Events
-    </button>
+
     <button class="drawer-item" id="di-meals" onclick="showPage('meals');closeDrawer()">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="2" x2="8" y2="22"/><path d="M8 2C8 2 5 5 5 10h6c0-5-3-8-3-8z"/><line x1="16" y1="2" x2="16" y2="22"/><line x1="13" y1="7" x2="19" y2="7"/></svg>
       Meals
@@ -756,9 +761,12 @@ h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.
       <div id="plannerMonthDots"></div>
     </div>
 
-    <!-- 4. All events list -->
+    <!-- 4. Segmented events list -->
     <div class="card">
-      <div class="card-title">All Events</div>
+      <div style="display:flex;gap:6px;margin-bottom:16px;">
+        <button id="pevTabUpcoming" onclick="setPlannerEvTab('upcoming')" style="font-family:var(--font-display,Georgia,serif);font-weight:400;font-stretch:extra-condensed;text-transform:uppercase;letter-spacing:.08em;font-size:.82rem;flex:1;padding:7px;border-radius:10px;border:none;background:var(--accent);color:var(--on-accent,white);cursor:pointer;transition:all .2s;">Upcoming</button>
+        <button id="pevTabPrevious" onclick="setPlannerEvTab('previous')" style="font-family:var(--font-display,Georgia,serif);font-weight:400;font-stretch:extra-condensed;text-transform:uppercase;letter-spacing:.08em;font-size:.82rem;flex:1;padding:7px;border-radius:10px;border:none;background:var(--bg);color:var(--muted);cursor:pointer;transition:all .2s;">Previous</button>
+      </div>
       <div class="event-list-full" id="plannerEventList"></div>
     </div>
 
@@ -783,11 +791,24 @@ h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.
         <div class="form-group"><label class="form-label">Location (optional)</label>
           <div style="position:relative"><input class="form-input loc-input" id="psEvLocation" placeholder="Search for a location…" autocomplete="off" oninput="locSearch(this,'psEvLocation','psEvLocDrop')"/><div class="loc-dropdown" id="psEvLocDrop"></div></div>
         </div>
+        <div class="form-group"><label class="form-label">End time (optional)</label><input class="form-input" type="time" id="psEvTimeEnd"/></div>
+        <div class="form-group"><label class="form-label">Status</label>
+          <select class="form-select" id="psEvBusy">
+            <option value="free">Free</option>
+            <option value="busy">Busy</option>
+          </select>
+        </div>
         <div class="form-group full"><label class="form-label">Notes (optional)</label><input class="form-input" id="psEvNotes" placeholder="Any extra details…"/></div>
         <div class="form-group full">
-          <div style="display:flex;align-items:center;gap:8px;padding:6px 0;">
-            <input type="checkbox" id="psEvCountdown" style="accent-color:var(--accent);width:15px;height:15px;cursor:pointer;">
-            <label for="psEvCountdown" class="form-label" style="margin:0;cursor:pointer;">Pin to Centre countdown</label>
+          <div style="display:flex;flex-wrap:wrap;gap:14px;padding:4px 0;">
+            <div style="display:flex;align-items:center;gap:8px;">
+              <input type="checkbox" id="psEvCountdown" style="accent-color:var(--accent);width:15px;height:15px;cursor:pointer;">
+              <label for="psEvCountdown" class="form-label" style="margin:0;cursor:pointer;">Pin countdown to Centre</label>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <input type="checkbox" id="psEvPrivate" style="accent-color:var(--accent);width:15px;height:15px;cursor:pointer;">
+              <label for="psEvPrivate" class="form-label" style="margin:0;cursor:pointer;">Private (hidden in Work Mode)</label>
+            </div>
           </div>
         </div>
         <div class="form-group full">
@@ -1574,6 +1595,18 @@ h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.
     </div>
   </div>
 </div>
+
+<!-- CONTEXT MENU -->
+<div class="ctx-menu" id="ctxMenu">
+  <button class="ctx-menu-item" onclick="ctxEdit()">Edit task</button>
+  <button class="ctx-menu-item" onclick="ctxReschedule()">Reschedule…</button>
+  <div class="ctx-reschedule-row" id="ctxRescheduleRow">
+    <input class="form-input" type="date" id="ctxDatePicker" style="font-size:.85rem;"/>
+    <button class="save-btn" style="font-size:.8rem;" onclick="ctxSaveReschedule()">Set date</button>
+  </div>
+  <div class="ctx-menu-sep"></div>
+  <button class="ctx-menu-item danger" onclick="ctxDelete()">Delete</button>
+</div>
 <div class="save-indicator" id="saveIndicator">Saved</div>
 
 
@@ -1859,9 +1892,10 @@ function showPage(p,btn){
   if(di)di.classList.add('active');
   if(p==='overview'){centreDate=null;renderAllOverviewForDate();setTimeout(applyWeatherToSchedule,200);}
   if(p==='habits'){renderHabitsDashboard();renderWaterHabitCard();renderNegHabits();}
-  if(p==='weekly'){renderPlannerPage();setTimeout(applyWeatherToWeekly,200);}
+  if(p==='weekly'){renderPlannerPage();renderPlannerEventList();setTimeout(applyWeatherToWeekly,200);}
   if(p==='tasks'){renderCatSelects();renderTasks();}
-  if(p==='events'){renderCatSelects();renderEventList();}
+  if(p==='events'){showPage('weekly',document.getElementById('di-weekly'));return;}  // merged into planner
+  if(p==='events_list'){renderCatSelects();renderPlannerEventList();}
   if(p==='lists')renderGrocList();
   if(p==='cycle')renderCyclePage();
   if(p==='health')renderMeds();
@@ -2487,6 +2521,14 @@ function renderTasks(){
   document.getElementById('taskCount').textContent=`${pendingCount} pending${overdueCount>0?' · '+overdueCount+' overdue':''}`;
   const overdueBtn=document.getElementById('filterOverdueBtn');
   if(overdueBtn){overdueBtn.style.display=overdueCount>0?'':'none';}
+  // Sort: no due date first (top), then soonest due date ascending
+  filtered = [...filtered].sort((a, b) => {
+    const noDa = !a.due, noDb = !b.due;
+    if (noDa && noDb) return 0;
+    if (noDa) return -1;  // no due → top
+    if (noDb) return 1;
+    return a.due.localeCompare(b.due);  // soonest first
+  });
   if(!filtered.length){list.innerHTML=`<div class="empty-msg">No tasks here.</div>`;return;}
   list.innerHTML=filtered.map(t=>{
     const cat=categories.find(c=>c.id===t.catId),rs=recurSummary(t.recur);
@@ -2511,11 +2553,11 @@ function renderTasks(){
       <input type="checkbox" ${isChecked?'checked':''} onchange="toggleTask('${t.id}')" style="margin-top:3px;flex-shrink:0;">
       <div class="item-info">
         <div style="display:flex;align-items:center;gap:8px">
-          <div class="item-name" style="flex:1">${escHtml(t.name)}${getSubtasks(t.id).length?` <button onclick="toggleSubtaskPanel('${t.id}')" style="background:none;border:none;cursor:pointer;font-size:.7rem;color:var(--muted);padding:0 3px;line-height:1;vertical-align:middle;opacity:.55;" title="Subtasks">+</button>`:''}</div>
+          <div class="item-name" style="flex:1;display:flex;align-items:center;gap:5px;">${escHtml(t.name)}${getSubtasks(t.id).length?`<button onclick="toggleSubtaskPanel('${t.id}')" style="background:none;border:none;cursor:pointer;font-size:.78rem;color:var(--accent);padding:0 2px;line-height:1;flex-shrink:0;font-weight:bold;" title="Show subtasks">+</button>`:''}</div>
           ${isOverdue?`<span class="meta-tag" style="background:#fde8e8;color:#c0554a;font-size:.65rem;">overdue</span>`:''}
           ${t.waitingFor&&!t.done?`<span class="meta-tag" style="background:#fef3e0;color:#9a6b10;font-size:.65rem;" title="Waiting for: ${escHtml(t.waitingFor)}">⏳ waiting</span>`:''}
           ${t.habit?`<span class="meta-tag meta-habit">${t.habit.type}</span>`:''}
-          ${(()=>{const sp=stProgress(t.id);if(!sp||sp.done===0)return '';const pct=Math.round(sp.done/sp.total*100);return `<div style="width:42px;height:4px;border-radius:20px;background:var(--border);overflow:hidden;flex-shrink:0;align-self:center;"><div style="height:100%;width:${pct}%;background:var(--accent);border-radius:20px;transition:width .3s;"></div></div>`;})()}
+          ${(()=>{const sp=stProgress(t.id);if(!sp||sp.done===0)return '';const pct=Math.round(sp.done/sp.total*100);return `<div style="width:80px;height:7px;border-radius:20px;background:var(--border);overflow:hidden;flex-shrink:0;align-self:center;margin-left:auto;" title="${sp.done} of ${sp.total} subtasks done"><div style="height:100%;width:${pct}%;background:var(--accent);border-radius:20px;transition:width .35s cubic-bezier(.34,1.56,.64,1);"></div></div>`;})()}
           <button class="edit-btn" onclick="toggleEditForm('${t.id}')">edit</button>
           <button class="delete-btn" onclick="deleteTask('${t.id}')">×</button>
         </div>
@@ -2684,6 +2726,125 @@ function saveEvent(id){
   scheduleSave();renderEventList();renderOverviewEvents();renderOverviewUpcoming();
 }
 
+
+// ---- PLANNER EVENT LIST ----
+let plannerEvTab = 'upcoming';
+
+function setPlannerEvTab(tab) {
+  plannerEvTab = tab;
+  const upBtn = document.getElementById('pevTabUpcoming');
+  const prBtn = document.getElementById('pevTabPrevious');
+  if (upBtn) { upBtn.style.background = tab==='upcoming'?'var(--accent)':'var(--bg)'; upBtn.style.color = tab==='upcoming'?'var(--on-accent,white)':'var(--muted)'; }
+  if (prBtn) { prBtn.style.background = tab==='previous'?'var(--accent)':'var(--bg)'; prBtn.style.color = tab==='previous'?'var(--on-accent,white)':'var(--muted)'; }
+  renderPlannerEventList();
+}
+
+function renderPlannerEventList() {
+  const list = document.getElementById('plannerEventList');
+  if (!list) return;
+  const t = today();
+  // Filter by work mode privacy
+  const visible = events.filter(ev => !(workMode && ev.private));
+  // Split upcoming / previous
+  let filtered;
+  if (plannerEvTab === 'upcoming') {
+    filtered = visible.filter(ev => {
+      const d = ev.recur ? nextOccurrence(ev, t) : ev.date;
+      return d && d >= t;
+    }).sort((a, b) => {
+      const da = a.recur ? nextOccurrence(a, t) : a.date;
+      const db = b.recur ? nextOccurrence(b, t) : b.date;
+      return (da||'9999').localeCompare(db||'9999');
+    });
+  } else {
+    filtered = visible.filter(ev => {
+      const d = ev.recur ? null : ev.date; // recurring = always has future occurrences
+      return d && d < t;
+    }).sort((a, b) => b.date.localeCompare(a.date)); // most recent first
+  }
+  if (!filtered.length) {
+    list.innerHTML = `<div class="empty-msg">No ${plannerEvTab} events.</div>`;
+    return;
+  }
+  list.innerHTML = filtered.map(ev => {
+    const cat = categories.find(c => c.id === ev.catId);
+    const bg = cat ? hexToRgba(cat.color, .10) : 'var(--bg)';
+    const nextDate = ev.recur ? nextOccurrence(ev, t) : ev.date;
+    const rs = recurSummary(ev.recur);
+    const catOpts = `<option value="">— none —</option>` + categories.map(c => `<option value="${c.id}" ${ev.catId===c.id?'selected':''}>${escHtml(c.name)}</option>`).join('');
+    return `<div class="event-item" style="background:${bg}" id="pevitem-${ev.id}" onclick="toggleEvDetail2('${ev.id}',event)">
+      <div class="item-info" style="width:100%">
+        <div style="display:flex;align-items:center;gap:8px">
+          <div class="item-name" style="flex:1;display:flex;align-items:center;gap:4px;">${evEmoji(ev,'var(--accent)')}${escHtml(ev.name)}${ev.private?'<span style="font-size:.65rem;color:var(--muted);padding:1px 5px;border-radius:8px;background:var(--bg);border:1px solid var(--border);">private</span>':''}</div>
+          <button class="edit-btn" onclick="togglePEvEdit('${ev.id}');event.stopPropagation()">edit</button>
+          <button class="delete-btn" onclick="deletePlannerEvent('${ev.id}');event.stopPropagation()">×</button>
+        </div>
+        <div class="item-meta" style="margin-top:5px;gap:5px;">
+          ${nextDate?`<span class="meta-tag meta-due ${dueClass(nextDate)}">${formatDate(nextDate)}</span>`:''}
+          ${ev.time?`<span class="meta-tag" style="background:#f0f0f0;color:var(--muted)">${fmtTimeStr(ev.time)}${ev.timeEnd?' – '+fmtTimeStr(ev.timeEnd):''}</span>`:''}
+          ${ev.busyStatus==='busy'?`<span class="meta-tag" style="background:#fef0e8;color:#b06030;">Busy</span>`:''}
+          ${ev.location?`<span class="meta-tag" style="background:#f0f0f0;color:var(--muted);display:inline-flex;align-items:center;gap:3px;">${svgIcon('pin','var(--muted)',10)} ${escHtml(ev.location)}</span>`:''}
+          ${rs?`<span class="meta-tag meta-recur">${rs}</span>`:''}
+        </div>
+        <div class="event-item-detail" id="pevdetail-${ev.id}">
+          ${cat?`<div class="event-detail-row"><span class="event-detail-label">Category</span><span class="event-detail-val">${catSvg(cat,11)} ${escHtml(cat.name)}</span></div>`:''}
+          ${ev.notes?`<div class="event-detail-row"><span class="event-detail-label">Notes</span><span class="event-detail-val">${escHtml(ev.notes)}</span></div>`:''}
+        </div>
+        <div class="edit-form" id="pevedit-${ev.id}">
+          <div class="edit-grid">
+            <div class="form-group full"><label class="form-label">Name</label><input class="form-input" id="pevename-${ev.id}" value="${escHtml(ev.name)}"/></div>
+            <div class="form-group"><label class="form-label">Date</label><input class="form-input" type="date" id="pevedate-${ev.id}" value="${ev.date||''}"/></div>
+            <div class="form-group"><label class="form-label">Start time</label><input class="form-input" type="time" id="pevetime-${ev.id}" value="${ev.time||''}"/></div>
+            <div class="form-group"><label class="form-label">End time</label><input class="form-input" type="time" id="pevevtimeend-${ev.id}" value="${ev.timeEnd||''}"/></div>
+            <div class="form-group"><label class="form-label">Status</label><select class="form-select" id="pevevbusy-${ev.id}"><option value="free" ${(!ev.busyStatus||ev.busyStatus==='free')?'selected':''}>Free</option><option value="busy" ${ev.busyStatus==='busy'?'selected':''}>Busy</option></select></div>
+            <div class="form-group full" style="display:flex;align-items:center;gap:10px;"><input type="checkbox" id="pevevcountdown-${ev.id}" ${ev.countdown?'checked':''} style="accent-color:var(--accent);width:15px;height:15px;cursor:pointer;flex-shrink:0;"><label for="pevevcountdown-${ev.id}" class="form-label" style="margin:0;cursor:pointer;">Pin countdown</label>
+            <input type="checkbox" id="pevevprivate-${ev.id}" ${ev.private?'checked':''} style="accent-color:var(--accent);width:15px;height:15px;cursor:pointer;flex-shrink:0;margin-left:12px;"><label for="pevevprivate-${ev.id}" class="form-label" style="margin:0;cursor:pointer;">Private</label></div>
+            <div class="form-group full"><label class="form-label">Location</label><div style="position:relative"><input class="form-input loc-input" id="peveloc-${ev.id}" value="${escHtml(ev.location||'')}" placeholder="Search location…" autocomplete="off" oninput="locSearch(this,'peveloc-${ev.id}','pevelocdrop-${ev.id}')"><div class="loc-dropdown" id="pevelocdrop-${ev.id}"></div></div></div>
+            <div class="form-group full"><label class="form-label">Notes</label><input class="form-input" id="pevenotes-${ev.id}" value="${escHtml(ev.notes||'')}"/></div>
+            <div class="form-group full"><label class="form-label">Category</label><select class="form-select" id="pevecat-${ev.id}">${catOpts}</select></div>
+          </div>
+          <button class="save-btn" onclick="savePlannerEvEdit('${ev.id}')">Save changes</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toggleEvDetail2(id, event) {
+  if (event && (event.target.closest('.edit-btn')||event.target.closest('.delete-btn')||event.target.closest('.edit-form'))) return;
+  const d = document.getElementById('pevdetail-' + id);
+  if (d) d.classList.toggle('open');
+}
+function togglePEvEdit(id) {
+  const f = document.getElementById('pevedit-' + id);
+  if (f) f.classList.toggle('open');
+}
+function deletePlannerEvent(id) {
+  events = events.filter(e => e.id !== id);
+  scheduleSave();
+  renderPlannerEventList();
+  renderOverviewEvents();
+  renderOverviewUpcoming();
+}
+function savePlannerEvEdit(id) {
+  const ev = events.find(e => e.id === id);
+  if (!ev) return;
+  ev.name     = document.getElementById('pevename-' + id)?.value.trim() || ev.name;
+  ev.date     = document.getElementById('pevedate-' + id)?.value || ev.date;
+  ev.time     = document.getElementById('pevetime-' + id)?.value || '';
+  ev.timeEnd  = document.getElementById('pevevtimeend-' + id)?.value || '';
+  ev.busyStatus = document.getElementById('pevevbusy-' + id)?.value || 'free';
+  ev.countdown  = document.getElementById('pevevcountdown-' + id)?.checked || false;
+  ev.private    = document.getElementById('pevevprivate-' + id)?.checked || false;
+  ev.location   = document.getElementById('peveloc-' + id)?.value.trim() || '';
+  ev.notes      = document.getElementById('pevenotes-' + id)?.value.trim() || '';
+  ev.catId      = document.getElementById('pevecat-' + id)?.value || '';
+  scheduleSave();
+  renderPlannerEventList();
+  renderOverviewEvents();
+  renderOverviewUpcoming();
+}
+
 // ---- WEEKLY ----
 function getWeekDates(offset){const now=new Date(),day=now.getDay(),mon=new Date(now);mon.setDate(now.getDate()-(day===0?6:day-1)+offset*7);return Array.from({length:7},(_,i)=>{const d=new Date(mon);d.setDate(mon.getDate()+i);return d;});}
 function shiftWeek(dir){weekOffset+=dir;renderWeek();}
@@ -2746,16 +2907,21 @@ function savePlannerEvent() {
     id: newEventId(), name, date, type,
     catId: document.getElementById('psEvCat').value,
     time: document.getElementById('psEvTime').value,
+    timeEnd: document.getElementById('psEvTimeEnd')?.value || '',
+    busyStatus: document.getElementById('psEvBusy')?.value || 'free',
     location: document.getElementById('psEvLocation').value.trim(),
     notes: document.getElementById('psEvNotes').value.trim(),
     countdown: document.getElementById('psEvCountdown').checked,
+    private: document.getElementById('psEvPrivate')?.checked || false,
     recur
   });
   // Reset form
-  ['psEvName','psEvDate','psEvTime','psEvLocation','psEvNotes'].forEach(id => {
+  ['psEvName','psEvDate','psEvTime','psEvTimeEnd','psEvLocation','psEvNotes'].forEach(id => {
     const el = document.getElementById(id); if (el) el.value = '';
   });
   document.getElementById('psEvCountdown').checked = false;
+  if (document.getElementById('psEvPrivate')) document.getElementById('psEvPrivate').checked = false;
+  if (document.getElementById('psEvBusy')) document.getElementById('psEvBusy').value = 'free';
   document.getElementById('psEvType').value = 'event';
   const sec = document.getElementById('psRecurSection');
   if (sec.classList.contains('open')) {
@@ -2851,55 +3017,6 @@ function shiftPlannerMonth(dir) {
 }
 
 
-function renderPlannerEventList() {
-  const list = document.getElementById('plannerEventList');
-  if (!list) return;
-  if (!events.length) { list.innerHTML = '<div class="empty-msg">No events yet.</div>'; return; }
-  const t = today();
-  const nowMins = new Date().getHours() * 60 + new Date().getMinutes();
-  // Filter to future/current events only
-  const futureEvents = events.filter(ev => {
-    const nextDate = ev.recur ? nextOccurrence(ev, t) : ev.date;
-    if (!nextDate) return false;
-    if (nextDate > t) return true;  // future date
-    if (nextDate < t) return false; // past date
-    // nextDate === today: only hide if end time has passed
-    if (ev.timeEnd) {
-      const [eh, em] = ev.timeEnd.split(':').map(Number);
-      if ((eh * 60 + em) < nowMins) return false;
-    } else if (ev.time) {
-      // No end time: hide if start time + 1hr has passed
-      const [sh, sm] = ev.time.split(':').map(Number);
-      if ((sh * 60 + sm + 60) < nowMins) return false;
-    }
-    return true;
-  });
-  if (!futureEvents.length) { list.innerHTML = '<div class="empty-msg">No upcoming events.</div>'; return; }
-  const sorted = [...futureEvents].sort((a, b) => {
-    const na = a.recur ? nextOccurrence(a,t) : a.date || '9999';
-    const nb = b.recur ? nextOccurrence(b,t) : b.date || '9999';
-    return (na||'9999').localeCompare(nb||'9999');
-  });
-  list.innerHTML = sorted.map(ev => {
-    const cat = categories.find(c => c.id === ev.catId);
-    const rs = recurSummary(ev.recur);
-    const bg = 'var(--bg)';
-    const nextDate = ev.recur ? nextOccurrence(ev, t) : ev.date;
-    return `<div class="event-item" style="background:${bg}">
-      <div class="item-info">
-        <div style="display:flex;align-items:center;gap:8px"><div class="item-name" style="flex:1">${escHtml(ev.name)}</div><button class="delete-btn" onclick="deleteEvent('${ev.id}');renderPlannerEventList()">×</button></div>
-        <div class="item-meta" style="margin-top:4px">
-          ${ev.type && ev.type !== 'event' ? `<span class="meta-tag" style="background:var(--bg);color:var(--muted);border:1px solid var(--border)">${ev.type}</span>` : ''}
-          ${cat ? '<span class="cat-icon-badge">'+catSvg(cat,12)+' '+escHtml(cat.name)+'</span>' : ''}
-          ${nextDate ? `<span class="meta-tag meta-due ${dueClass(nextDate)}">${formatDate(nextDate)}</span>` : ''}
-          ${ev.time ? `<span class="meta-tag" style="background:#f0f0f0;color:var(--muted)">${fmtTimeStr(ev.time)}</span>` : ''}
-          ${rs ? `<span class="meta-tag meta-recur">${rs}</span>` : ''}
-        </div>
-        ${ev.notes ? `<div style="font-size:.78rem;color:var(--muted);margin-top:4px;">${escHtml(ev.notes)}</div>` : ''}
-      </div>
-    </div>`;
-  }).join('');
-}
 
 function renderPlannerPage() {
   renderWeek();
@@ -2915,7 +3032,7 @@ function renderWeek(){
   document.getElementById('weekGrid').innerHTML=days.map((d,i)=>{
     const ds=dateStr(d),isToday=ds===t;
     const dayTasks=tasks.filter(tk=>occursOn(tk,ds)&&!tk.habit&&!(tk.dur>0&&tk.dur<30));
-    const dayEvents=events.filter(ev=>occursOn(ev,ds));
+    const dayEvents=events.filter(ev=>occursOn(ev,ds)&&!(workMode&&ev.private));
     const _wcDay=getCycleDay(ds);const _wcPhase=getPhase(_wcDay);const _wcCfg=_wcPhase?getPhaseConfig()[_wcPhase]:null;
     const _wcDot=_wcCfg?`<span class="week-cycle-dot" style="background:${_wcCfg.color};opacity:.8;" title="${_wcCfg.name} · Day ${_wcDay}"></span>`:'';
     const _dayMeals=meals.filter(m=>m.date===ds);
@@ -3009,7 +3126,7 @@ function evEmoji(ev,color){
 function renderOverviewEvents(){
   const viewDate=getCentreDate();
   const isToday=viewDate===today();
-  const allEvs=events.filter(ev=>occursOn(ev,viewDate)&&!ev.time).sort((a,b)=>(a.name||'').localeCompare(b.name||''));
+  const allEvs=events.filter(ev=>occursOn(ev,viewDate)&&!ev.time&&!(workMode&&ev.private)).sort((a,b)=>(a.name||'').localeCompare(b.name||''));
   const birthdays=allEvs.filter(ev=>ev.type==='birthday');
   const otherEvs=allEvs.filter(ev=>ev.type!=='birthday');
   const container=document.getElementById('overviewEvents');
@@ -3306,12 +3423,13 @@ function renderOverview(){
           const cat=categories.find(c=>c.id===t.catId);
           const iconHtml=cat?catSvg(cat,14):'';
           const sp=stProgress(t.id);
-          const badge=sp?'<button id="csbadge-'+t.id+'" onclick="toggleCentreSubtasks(\''+t.id+'\')" style="background:none;border:none;cursor:pointer;font-size:.65rem;color:var(--muted);padding:0 0 0 6px;line-height:1;">'+sp.done+'/'+sp.total+' \u25bc</button>':'';
-          const subPanel=sp?_renderCentreSubPanel(t.id,vd):'';
-          return '<div class="block-task-item '+(isDone?'done':'')+'" draggable="true" data-task-id="'+t.id+'" data-from-block="'+b.id+'" ondragstart="dndStart(event)" ondragend="dndEnd(event)">'
+          const hasSubs=getSubtasks(t.id).length>0;
+          const badge=sp&&sp.done>0?'<span style="display:inline-block;width:80px;height:7px;border-radius:20px;background:var(--border);overflow:hidden;flex-shrink:0;margin-left:auto;" title="'+sp.done+' of '+sp.total+' subtasks done"><span style="display:block;height:100%;width:'+Math.round(sp.done/sp.total*100)+'%;background:var(--accent);border-radius:20px;transition:width .35s;"></span></span>':'';
+          const subPanel=hasSubs?_renderCentreSubPanel(t.id,vd):'';
+          return '<div class="block-task-item '+(isDone?'done':'')+'" draggable="true" data-task-id="'+t.id+'" data-from-block="'+b.id+'" ondragstart="dndStart(event)" ondragend="dndEnd(event)" oncontextmenu="openCtxMenu(event,\''+t.id+'\');" onpointerdown="ctxLongPress(event,\''+t.id+'\')">'
             +'<span class="block-task-icon-col">'+(cat?catSvg(cat,13):'')+'</span>'
             +'<span class="block-task-cb-col"><input type="checkbox" '+(isDone?'checked':'')+' onchange="toggleTask(\''+t.id+'\',\''+vd+'\');renderOverview()" style="width:16px;height:16px;accent-color:var(--accent);cursor:pointer;"></span>'
-            +'<span class="block-task-name-col">'+escHtml(t.name)+badge+'</span>'
+            +'<span class="block-task-name-col" style="display:flex;align-items:center;gap:4px;">'+'<span onclick="ctxDesktopClick(event,\''+t.id+'\')" style="flex:1;cursor:pointer;">'+escHtml(t.name)+'</span>'+(hasSubs?'<button onclick="toggleCentreSubtasks(\''+t.id+'\')" style="background:none;border:none;cursor:pointer;font-size:.85rem;color:var(--accent);padding:0 3px;line-height:1;flex-shrink:0;font-weight:bold;" title="Show subtasks">+</button>':'') +badge+'</span>'
             +'<span class="block-task-handle" title="Drag to move">\u2807</span>'
             +'</div>'
             +subPanel;
@@ -3319,7 +3437,29 @@ function renderOverview(){
       </div>
     </div>`;
   }).join('');
+
+  // Overdue strip — always render (empty = hidden)
+  renderOverdueStrip(container);
   tickClockOnly();
+}
+
+function renderOverdueStrip(container) {
+  const existing = document.getElementById('overdueStrip');
+  if (existing) existing.remove();
+  const overdue = tasks.filter(t => !t.done && t.due && t.due < today() && !t.recur);
+  if (!overdue.length) return;
+  const strip = document.createElement('div');
+  strip.id = 'overdueStrip';
+  strip.style.cssText = 'margin-top:18px;padding:12px 14px;border-radius:14px;border:1px solid var(--border);background:var(--bg);opacity:.72;';
+  strip.innerHTML = `<div style="font-family:var(--font-display,Georgia,serif);font-weight:400;font-stretch:extra-condensed;text-transform:uppercase;letter-spacing:.1em;font-size:.72rem;color:var(--muted);margin-bottom:8px;">${overdue.length} overdue</div>`
+    + overdue.sort((a,b)=>a.due.localeCompare(b.due)).map(t =>
+        `<div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--border);" oncontextmenu="openCtxMenu(event,'${t.id}')" onpointerdown="ctxLongPress(event,'${t.id}')">
+          <input type="checkbox" onchange="toggleTask('${t.id}');renderAllOverviewForDate()" style="accent-color:var(--accent);width:14px;height:14px;flex-shrink:0;cursor:pointer;" onclick="event.stopPropagation()">
+          <span style="flex:1;font-size:.85rem;color:var(--text);opacity:.75;cursor:pointer;" onclick="ctxDesktopClick(event,'${t.id}')">${escHtml(t.name)}</span>
+          <span style="font-size:.7rem;color:var(--muted);">${formatDate(t.due)}</span>
+        </div>`
+    ).join('');
+  container.appendChild(strip);
 }
 
 
@@ -3434,6 +3574,108 @@ function renderMeds() {
 
 document.getElementById('medModal')?.addEventListener('click', function(e){ if(e.target===this) closeMedModal(); });
 
+
+// ---- CONTEXT MENU ----
+let _ctxTaskId = null;
+let _ctxLongTimer = null;
+let _ctxMoved = false;
+
+function openCtxMenu(e, taskId) {
+  e.preventDefault();
+  e.stopPropagation();
+  _ctxTaskId = taskId;
+  const menu = document.getElementById('ctxMenu');
+  const rr = document.getElementById('ctxRescheduleRow');
+  if (rr) rr.classList.remove('open');
+  // Position near tap/click
+  const x = e.clientX || (e.touches && e.touches[0].clientX) || 0;
+  const y = e.clientY || (e.touches && e.touches[0].clientY) || 0;
+  menu.style.left = Math.min(x, window.innerWidth - 190) + 'px';
+  menu.style.top  = Math.min(y, window.innerHeight - 200) + 'px';
+  menu.classList.add('open');
+}
+
+function closeCtxMenu() {
+  document.getElementById('ctxMenu')?.classList.remove('open');
+  const rr = document.getElementById('ctxRescheduleRow');
+  if (rr) rr.classList.remove('open');
+  _ctxTaskId = null;
+}
+
+function ctxDesktopClick(e, taskId) {
+  // Only open menu on non-touch devices (mouse click on name)
+  if (e.pointerType === 'touch') return; // touch devices use long-press instead
+  e.stopPropagation();
+  openCtxMenu(e, taskId);
+}
+
+function ctxLongPress(e, taskId) {
+  if (e.button !== undefined && e.button !== 0) return; // right-click handled by contextmenu
+  _ctxMoved = false;
+  clearTimeout(_ctxLongTimer);
+  _ctxLongTimer = setTimeout(() => {
+    if (!_ctxMoved) openCtxMenu(e, taskId);
+  }, 500);
+  // Cancel on move/up
+  const cancel = () => { clearTimeout(_ctxLongTimer); };
+  const moved  = () => { _ctxMoved = true; clearTimeout(_ctxLongTimer); };
+  e.target.addEventListener('pointermove', moved, {once:true});
+  e.target.addEventListener('pointerup',   cancel, {once:true});
+  e.target.addEventListener('pointercancel', cancel, {once:true});
+}
+
+function ctxEdit() {
+  if (!_ctxTaskId) return;
+  closeCtxMenu();
+  showPage('tasks', document.getElementById('di-tasks'));
+  closeDrawer();
+  // Open the task's edit form after render
+  setTimeout(() => {
+    const el = document.getElementById('edit-' + _ctxTaskId);
+    if (el && !el.classList.contains('open')) el.classList.add('open');
+    el?.scrollIntoView({behavior:'smooth', block:'center'});
+  }, 150);
+}
+
+function ctxReschedule() {
+  const rr = document.getElementById('ctxRescheduleRow');
+  if (!rr) return;
+  const t = tasks.find(x => x.id === _ctxTaskId);
+  const dp = document.getElementById('ctxDatePicker');
+  if (dp && t) dp.value = t.due || today();
+  rr.classList.toggle('open');
+}
+
+function ctxSaveReschedule() {
+  if (!_ctxTaskId) return;
+  const t = tasks.find(x => x.id === _ctxTaskId);
+  const dp = document.getElementById('ctxDatePicker');
+  if (t && dp && dp.value) {
+    t.due = dp.value;
+    scheduleSave();
+    renderAllOverviewForDate();
+    renderTasks();
+    showToast('Rescheduled to ' + formatDate(dp.value));
+  }
+  closeCtxMenu();
+}
+
+function ctxDelete() {
+  if (!_ctxTaskId) return;
+  if (confirm('Delete this task?')) {
+    deleteTask(_ctxTaskId);
+    renderAllOverviewForDate();
+  }
+  closeCtxMenu();
+}
+
+// Close ctx menu on outside tap
+document.addEventListener('pointerdown', function(e) {
+  const menu = document.getElementById('ctxMenu');
+  if (menu && menu.classList.contains('open') && !menu.contains(e.target)) {
+    closeCtxMenu();
+  }
+});
 // ---- WATER TRACKER ----
 function renderWater(){
   const goal=waterGoal||8;
