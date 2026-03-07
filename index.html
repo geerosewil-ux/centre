@@ -245,13 +245,12 @@ h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.
 .block-task-item input[type="checkbox"]{accent-color:var(--accent);width:16px;height:16px;flex-shrink:0;cursor:pointer;}
 .block-task-name{flex:1;font-size:.82rem;}
 .block-task-item.done{opacity:.52;}
-.block-task-item.done .block-task-name{text-decoration:line-through;}
-.block-task-item.recur-done{opacity:1 !important;}
-.block-task-item.recur-done .block-task-name{text-decoration:line-through;color:var(--muted);}
-.block-task-item.recur-done input[type="checkbox"]{accent-color:var(--accent);}
+.block-task-item.done .block-task-name-col>span{text-decoration:line-through;color:var(--muted);}
+.block-task-item.recur-done{opacity:.52;}
+.block-task-item.recur-done .block-task-name-col>span{text-decoration:line-through;color:var(--muted);}
 /* Completion animation: accent flash → strike draws → fades to grey, stays in block */
 @keyframes strikeDraw{from{clip-path:inset(0 100% 0 0)}to{clip-path:inset(0 0% 0 0)}}
-@keyframes taskDone{0%{opacity:1;background:transparent}15%{background:rgba(147,170,205,.18)}60%{background:transparent;opacity:1}100%{opacity:.52;background:transparent}}
+@keyframes taskDone{0%{opacity:1;background:transparent}18%{background:rgba(147,170,205,.22)}55%{background:transparent;opacity:1}100%{opacity:.52;background:transparent}}
 .block-task-name-col{position:relative;}
 .block-task-name-col .strike-line{display:none;position:absolute;top:50%;left:0;right:0;height:1.5px;background:var(--muted);transform:translateY(-50%);pointer-events:none;border-radius:2px;}
 .block-task-item.just-done .strike-line{display:block;animation:strikeDraw .28s ease forwards;}
@@ -1362,8 +1361,13 @@ h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.
       </div>
     </div>
     <div class="card">
-      <div class="card-title">Upcoming Events</div>
-      <div class="event-list-full" id="eventListFull"></div>
+      <div style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none;" onclick="var w=document.getElementById('evListWrap');var showing=w.style.display!='none';w.style.display=showing?'none':'block';this.querySelector('.ev-toggle-lbl').textContent=showing?'Show ▾':'Hide ▴';">
+        <span class="card-title" style="margin-bottom:0;">Upcoming Events</span>
+        <span class="ev-toggle-lbl" style="font-size:.8rem;color:var(--muted);font-family:'Handwriting',Georgia,serif;">Show ▾</span>
+      </div>
+      <div id="evListWrap" style="display:none;margin-top:16px;">
+        <div class="event-list-full" id="eventListFull"></div>
+      </div>
     </div>
   </div>
 
@@ -2078,6 +2082,7 @@ function newEventId(){return 'EVT-'+String(++eventSeq).padStart(4,'0');}
 function newCatId(){return 'CAT-'+String(++catSeq).padStart(4,'0');}
 
 // ---- STATE ----
+let _suppressOverviewRender=false;
 let tasks=[],events=[],waterFilled=0,waterGoal=8,waterWeekOffset=0,meals=[],mealSeq=0,templates=[],templateSeq=0,recipes=[],recipeSeq=0,activeFilter='all',weekOffset=0,modalDate=null,eventsViewDate=null,scheduleViewDate=null;
 let eventOverrides={};  // { 'evtId_YYYY-MM-DD': {cancelled,name,date,time,notes,catId} }
 let nutriGoals={cal:2000,protein:150,carbs:200,fat:65,fibre:30,potassium:3500,magnesium:400,sodium:2300};
@@ -2904,23 +2909,42 @@ function schedTaskTick(cb, id, vd) {
   const completing = cb.checked;
 
   if (completing && row) {
-    // Save immediately so state is correct
+    // Save state immediately (suppress the re-render calls inside toggleTask)
+    _suppressOverviewRender = true;
     toggleTask(id, vd);
+    _suppressOverviewRender = false;
+    scheduleSave();
     // Play satisfaction animation — row stays in DOM throughout
     row.classList.add('just-done');
-    // After animation ends, swap to static done state without re-rendering
-    // (re-render would rebuild entire block, wiping our animation state mid-play)
+    // After animation ends, mark as statically done (no re-render = no jump)
     setTimeout(() => {
       row.classList.remove('just-done');
       row.classList.add('done');
-      // Update the name strikethrough via done class (already in CSS)
-      const nameSpan = row.querySelector('.block-task-name-col > span');
-      if (nameSpan) nameSpan.style.opacity = '';
-    }, 800);
+    }, 820);
   } else {
-    // Unticking: toggle state and full re-render to restore
+    // Unticking: toggle and re-render to restore full state
+    _suppressOverviewRender = true;
     toggleTask(id, vd);
+    _suppressOverviewRender = false;
+    scheduleSave();
     renderOverview();
+  }
+}
+
+function overdueTaskTick(cb, id) {
+  const row = cb.closest('div[style]');
+  if (cb.checked) {
+    // Animate the row out, then save + re-render strip
+    if (row) { row.style.transition='opacity .35s'; row.style.opacity='0'; }
+    setTimeout(() => {
+      tasks.find(t=>t.id===id) && (tasks.find(t=>t.id===id).done = true);
+      scheduleSave();
+      renderOverdueStrip(document.getElementById('overviewBlocks'));
+    }, 380);
+  } else {
+    tasks.find(t=>t.id===id) && (tasks.find(t=>t.id===id).done = false);
+    scheduleSave();
+    renderOverdueStrip(document.getElementById('overviewBlocks'));
   }
 }
 
@@ -3486,22 +3510,29 @@ function renderTasks(){
 
   // Timeline view
   const in7 = new Date(td+'T00:00:00'); in7.setDate(in7.getDate()+7); const in7str = dateStr(in7);
+  // Sort helper: by effective due date ascending, no-date last
+  function sortByDue(arr) {
+    return [...arr].sort((a,b) => {
+      const da = a.due||'9999', db = b.due||'9999';
+      return da.localeCompare(db);
+    });
+  }
 
-  const overdue = base.filter(t => taskIsOverdue(t));
-  const todayTasks = base.filter(t => {
+  const overdue = sortByDue(base.filter(t => taskIsOverdue(t)));
+  const todayTasks = sortByDue(base.filter(t => {
     if (taskIsOverdue(t)) return false;
     if (t.recur) return occursOn(t, td) && !isTaskDoneOn(t, td); // pending only
     if (t.habit) return !isTaskDoneOn(t, td); // pending habits only
     return t.due === td && !t.done;
-  });
-  const todayDoneTasks = base.filter(t => {
+  }));
+  const todayDoneTasks = sortByDue(base.filter(t => {
     if (taskIsOverdue(t)) return false;
     // Recurring tasks: roll forward (shown in Next 7 days / Later), not in done-today
     if (t.recur) return false;
     if (t.habit) return isTaskDoneOn(t, td);
     return t.due === td && t.done;
-  });
-  const upcoming = base.filter(t => {
+  }));
+  const upcoming = sortByDue(base.filter(t => {
     if (taskIsOverdue(t)) return false;
     if (t.recur) {
       const doneToday = isTaskDoneOn(t, td);
@@ -3513,8 +3544,8 @@ function renderTasks(){
       return nx && nx > td && nx <= in7str;
     }
     return t.due && t.due > td && t.due <= in7str && !t.done;
-  });
-  const later = base.filter(t => {
+  }));
+  const later = sortByDue(base.filter(t => {
     if (taskIsOverdue(t)) return false;
     if (t.recur) {
       const doneToday = isTaskDoneOn(t, td);
@@ -3526,7 +3557,7 @@ function renderTasks(){
       return nx && nx > in7str;
     }
     return t.due && t.due > in7str && !t.done;
-  });
+  }));
   const noDate = base.filter(t => {
     if (t.recur || t.habit || t.done || taskIsOverdue(t)) return false;
     return !t.due;
@@ -3556,8 +3587,8 @@ function renderTasks(){
     makeSection('Today', todayTasks, 'ts-today'),
     makeDoneSection(todayDoneTasks),
     makeSection('Next 7 days', upcoming, ''),
-    makeSection('Later', later, ''),
-    makeSection('No date', noDate, ''),
+    makeSection('Later', later, 'ts-collapsed'),
+    makeSection('No date', noDate, 'ts-collapsed'),
   ].join('');
 
   list.innerHTML = html || `<div class="empty-msg">No tasks yet.</div>`;
@@ -4405,6 +4436,7 @@ function initCentreSwipe() {
 
 
 function renderOverview(){
+  if(_suppressOverviewRender)return;
   const vd=scheduleViewDate||today();
   const isToday=vd===today();
   const prevD=addDays(vd,-1);
@@ -4494,7 +4526,7 @@ function renderOverdueStrip(container) {
   strip.innerHTML = `<div style="font-family:var(--font-display,Georgia,serif);font-weight:400;font-stretch:extra-condensed;text-transform:uppercase;letter-spacing:.1em;font-size:.72rem;color:var(--muted);margin-bottom:8px;">${overdue.length} overdue</div>`
     + overdue.sort((a,b)=>a.due.localeCompare(b.due)).map(t =>
         `<div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--border);">
-          <input type="checkbox" onchange="toggleTask('${t.id}');renderAllOverviewForDate()" style="accent-color:var(--accent);width:14px;height:14px;flex-shrink:0;cursor:pointer;touch-action:manipulation;">
+          <input type="checkbox" onchange="overdueTaskTick(this,'${t.id}')" style="accent-color:var(--accent);width:14px;height:14px;flex-shrink:0;cursor:pointer;touch-action:manipulation;">
           <span style="flex:1;font-size:.85rem;color:var(--text);opacity:.75;cursor:pointer;" onclick="ctxDesktopClick(event,'${t.id}')">${escHtml(t.name)}</span>
           <span style="font-size:.7rem;color:var(--muted);">${formatDate(t.due)}</span>
         </div>`
@@ -9168,20 +9200,24 @@ function tickClockOnly(){
 }
 function tickLive(){
   const now=new Date();
-  const dateEl=document.getElementById('appDate');
-  if(dateEl)dateEl.textContent=now.toLocaleDateString('en-AU',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  // Only update clock text — no DOM re-renders every second (causes jumpiness)
   tickClockOnly();
-  // Midnight water reset
-  const storedDate=localStorage.getItem('centre_waterDate');
-  const todayStr=today();
-  if(storedDate&&storedDate!==todayStr){
-      // New day — reset counter but keep all habitLog history intact
+  // Update date label (text only, no reflow)
+  const dateEl=document.getElementById('appDate');
+  if(dateEl){const s=now.toLocaleDateString('en-AU',{weekday:'long',day:'numeric',month:'long',year:'numeric'});if(dateEl.textContent!==s)dateEl.textContent=s;}
+  // Midnight water reset (check once per minute)
+  if(now.getSeconds()===0){
+    const storedDate=localStorage.getItem('centre_waterDate');
+    const todayStr=today();
+    if(storedDate&&storedDate!==todayStr){
       waterFilled=0;
       localStorage.setItem('centre_waterDate',todayStr);
       scheduleSave();renderWater();
     }
-  else if(!storedDate){localStorage.setItem('centre_waterDate',todayStr);}
-  if(now.getSeconds()===0)renderTasks();
+    else if(!storedDate){localStorage.setItem('centre_waterDate',todayStr);}
+    // Gentle re-render only if tasks page is visible
+    if(document.getElementById('page-tasks')?.classList.contains('active'))renderTasks();
+  }
 }
 tickLive();
 setInterval(tickLive,1000);
@@ -10098,7 +10134,14 @@ function confirmPlanAdd() {
     potassium: scale(rcp?.potassium), magnesium: scale(rcp?.magnesium), sodium: scale(rcp?.sodium)
   });
   scheduleSave();
-  closePlanAddBar();
+  // Clear fields and stay open so user can add another item to same slot
+  const inp = document.getElementById('planAddInput');
+  const srv = document.getElementById('planAddServings');
+  const prev = document.getElementById('planAddPreview');
+  if (inp) { inp.value = ''; inp.focus(); }
+  if (srv) srv.value = '1';
+  if (prev) prev.textContent = '';
+  renderPlanTab();
 }
 
 function deletePlanItem(id) {
