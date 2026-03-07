@@ -42,7 +42,15 @@
 <style>
 @font-face{font-family:'Noto Serif Display';src:url('Handwriting.ttf') format('truetype');}
 :root{--font-body:'Noto Serif Display',Georgia,serif;--font-display:'Noto Serif Display',Georgia,serif;--bg:#f9f8f6;--card:#ffffff;--text:#2c2c2c;--accent:#93aacd;--accent-dark:#7a91b4;--accent-normal:#93aacd;--accent-work:#7e9e8c;--accent-work-dark:#6a8a78;--muted:#999;--border:#e8e8e8;--icon-stroke:1.8;--icon-color:#93aacd;--icon-color-work:#7e9e8c;
---phase-menstrual:#dd2c60;--phase-follicular:#d78881;--phase-ovulation:#ac487c;--phase-luteal:#861a3a;--water-fill:var(--accent);--water-light:rgba(147,170,205,.13);--water-border:rgba(147,170,205,.25);--on-accent:#ffffff;}
+--phase-menstrual:#dd2c60;--phase-follicular:#d78881;--phase-ovulation:#ac487c;--phase-luteal:#861a3a;--water-fill:var(--accent);--water-light:rgba(147,170,205,.13);--water-border:rgba(147,170,205,.25);--on-accent:#ffffff;
+--nutri-cal:var(--accent);
+--nutri-protein:var(--accent);
+--nutri-carbs:var(--accent);
+--nutri-fat:var(--accent);
+--nutri-fibre:var(--accent);
+--nutri-k:var(--accent);
+--nutri-mg:var(--accent);
+--nutri-na:var(--accent);}
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:'Noto Serif Display',Georgia,serif;font-weight:400;font-stretch:normal;font-size:14px;background:var(--bg);color:var(--text);min-height:100vh;padding:0 20px 60px;transition:background .3s,color .3s;}
 h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.modal-save,.apply-btn,.settings-section-title,.week-label,.day-name{font-family:'Noto Serif Display',Georgia,serif;font-weight:400;font-style:normal;font-stretch:extra-condensed;text-transform:uppercase;}
@@ -98,6 +106,40 @@ h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.
 
 /* ITEMS */
 .task-list,.event-list-full{display:flex;flex-direction:column;gap:8px;}
+/* Task grouped sections */
+.task-section{margin-bottom:16px;}
+.task-section:last-child{margin-bottom:0;}
+.task-section-hd{display:flex;align-items:center;gap:8px;padding:2px 0 6px;cursor:pointer;user-select:none;}
+.task-section-hd::before{content:'';display:block;height:1px;width:14px;background:var(--border);flex-shrink:0;}
+.task-section-hd::after{content:'';flex:1;height:1px;background:var(--border);}
+.task-section.ts-overdue .task-section-hd::before,.task-section.ts-overdue .task-section-hd::after{background:rgba(192,85,74,.3);}
+.task-section.ts-today .task-section-hd::before,.task-section.ts-today .task-section-hd::after{background:rgba(147,170,205,.35);}
+.task-section-label{font-family:'Noto Serif Display',Georgia,serif;font-stretch:extra-condensed;text-transform:uppercase;letter-spacing:.1em;font-size:.72rem;color:var(--muted);white-space:nowrap;}
+.task-section.ts-overdue .task-section-label{color:#c0554a;}
+.task-section.ts-today .task-section-label{color:var(--accent);}
+.task-section-badge{font-family:'Noto Serif Display',Georgia,serif;font-size:.65rem;padding:1px 7px;border-radius:20px;background:var(--bg);border:1px solid var(--border);color:var(--muted);}
+.task-section.ts-overdue .task-section-badge{background:#fde8e8;border-color:rgba(192,85,74,.25);color:#c0554a;}
+.task-section.ts-today .task-section-badge{background:rgba(147,170,205,.12);border-color:rgba(147,170,205,.3);color:var(--accent);}
+.task-section-body{display:flex;flex-direction:column;gap:5px;}
+.task-section.ts-collapsed .task-section-body{display:none;}
+/* Compact task row for grouped view */
+.ctask-row{display:flex;align-items:center;gap:9px;padding:8px 11px;border-radius:10px;background:var(--bg);transition:background .15s,opacity .3s;}
+.ctask-row:hover{background:#f0eeec;}
+.ctask-row.ctask-done{opacity:.22;}
+.ctask-row.ctask-done .ctask-row-name{text-decoration:line-through;}
+.ctask-row.ctask-done .ctask-row-del,.ctask-row.ctask-done .ctask-row-edit{pointer-events:auto;}
+.ctask-row-cb{width:14px;height:14px;accent-color:var(--accent);flex-shrink:0;cursor:pointer;}
+.ctask-row-icon{flex-shrink:0;display:flex;align-items:center;}
+.ctask-row-name{flex:1;font-size:.9rem;}
+.ctask-row-name.done{text-decoration:line-through;}
+.ctask-row-right{display:flex;align-items:center;gap:5px;flex-shrink:0;}
+.ctask-row-date{font-size:.68rem;color:var(--muted);}
+.ctask-row-date.overdue{color:#c0554a;}
+.ctask-row-date.today-date{color:#b07d20;}
+.ctask-row-edit{background:none;border:none;color:var(--border);font-size:.72rem;cursor:pointer;padding:1px 4px;border-radius:5px;transition:color .15s;font-family:'Noto Serif Display',Georgia,serif;}
+.ctask-row-edit:hover{color:var(--accent);}
+.ctask-row-del{background:none;border:none;color:var(--border);font-size:.95rem;cursor:pointer;padding:1px 3px;border-radius:5px;transition:color .15s;}
+.ctask-row-del:hover{color:#e88;}
 .task-item,.event-item{display:flex;align-items:flex-start;gap:12px;padding:12px 14px;border-radius:12px;background:var(--bg);transition:background .2s;cursor:pointer;}.event-item-detail{display:none;margin-top:8px;padding-top:8px;border-top:1px solid var(--border);}.event-item-detail.open{display:block;}.event-detail-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:4px;align-items:center;}.event-detail-label{font-size:.62rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;min-width:52px;flex-shrink:0;}.event-detail-val{font-size:.78rem;color:var(--text);}
 .task-item.done{opacity:.45;}
 .task-item input[type="checkbox"]{width:16px;height:16px;accent-color:var(--accent);cursor:pointer;flex-shrink:0;margin-top:3px;}
@@ -168,6 +210,13 @@ h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.
 .milestones{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;}
 .milestone{font-family:'Noto Serif Display',Georgia,serif;font-size:.68rem;padding:2px 8px;border-radius:20px;background:var(--bg);border:1px solid var(--border);color:var(--muted);}
 .milestone.achieved{background:var(--accent);border-color:var(--accent);color:var(--on-accent);}
+/* Habit reward card pulse + inline banner */
+@keyframes rewardPulse{0%{box-shadow:0 0 0 0 rgba(147,170,205,.55)}60%{box-shadow:0 0 0 10px rgba(147,170,205,0)}100%{box-shadow:0 0 0 0 rgba(147,170,205,0)}}
+.habit-card.reward-flash{border-color:var(--accent)!important;animation:rewardPulse .9s ease 3;}
+.habit-reward-banner{display:flex;align-items:center;gap:8px;margin-top:10px;padding:9px 12px;border-radius:10px;background:rgba(147,170,205,.1);border:1px solid rgba(147,170,205,.22);}
+.habit-reward-banner-icon{font-size:1.1rem;flex-shrink:0;}
+.habit-reward-banner-text{font-size:.82rem;color:var(--accent);flex:1;line-height:1.4;}
+.habit-reward-banner-dismiss{background:none;border:none;color:var(--muted);font-size:.9rem;cursor:pointer;padding:2px 4px;flex-shrink:0;}
 
 /* CATEGORIES */
 .cat-list-row{display:flex;align-items:center;gap:10px;padding:5px 0;}
@@ -197,6 +246,13 @@ h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.
 .block-task-name{flex:1;font-size:.82rem;}
 .block-task-item.done{opacity:.55;}
 .block-task-item.done .block-task-name{text-decoration:line-through;}
+/* Completion animation — strike draws then item fades */
+@keyframes strikeDraw{from{clip-path:inset(0 100% 0 0)}to{clip-path:inset(0 0% 0 0)}}
+@keyframes taskFadeOut{0%{opacity:1}100%{opacity:.55}}
+.block-task-name-col{position:relative;}
+.block-task-name-col .strike-line{display:none;position:absolute;top:50%;left:0;right:0;height:1.5px;background:var(--muted);transform:translateY(-50%);pointer-events:none;border-radius:2px;}
+.block-task-item.just-done .strike-line{display:block;animation:strikeDraw .32s ease forwards;}
+.block-task-item.just-done{animation:taskFadeOut .45s .3s ease forwards;}
 .block-task-dur{font-size:.72rem;color:var(--muted);white-space:nowrap;}
 .block-empty{font-size:.82rem;color:var(--muted);padding:6px 0;}
 
@@ -235,6 +291,35 @@ h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.
 .macro-pill.fat{background:#f5edf5;color:#7a4a8a;}
 .macro-pill.cal{background:#f0f4f8;color:#3a5a8a;}
 .nutrition-total{display:flex;gap:16px;flex-wrap:wrap;padding:12px 0 2px;border-top:1px solid var(--border);margin-top:6px;}
+/* MEAL PLANNER */
+.plan-week-strip{display:flex;gap:5px;margin-bottom:16px;}
+.plan-week-day{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:7px 4px;border-radius:10px;cursor:pointer;border:1.5px solid transparent;transition:all .18s;}
+.plan-week-day:hover{background:var(--bg);}
+.plan-week-day.active{border-color:var(--accent);background:var(--bg);}
+.plan-week-day.is-today .plan-day-num{color:var(--accent);}
+.plan-day-name{font-family:'Noto Serif Display',Georgia,serif;font-stretch:extra-condensed;text-transform:uppercase;letter-spacing:.06em;font-size:.6rem;color:var(--muted);}
+.plan-day-num{font-family:'Noto Serif Display',Georgia,serif;font-stretch:extra-condensed;font-size:1rem;color:var(--text);line-height:1;}
+.plan-day-dots{display:flex;gap:2px;margin-top:2px;}
+.plan-day-dot{width:4px;height:4px;border-radius:50%;background:var(--border);transition:background .2s;}
+.plan-day-dot.filled{background:var(--accent);}
+.plan-slot{background:var(--bg);border-radius:12px;padding:12px 14px;margin-bottom:8px;}
+.plan-slot-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+.plan-slot-label{font-family:'Noto Serif Display',Georgia,serif;font-weight:400;font-stretch:extra-condensed;text-transform:uppercase;letter-spacing:.08em;font-size:.78rem;color:var(--text);}
+.plan-slot-cal{font-size:.7rem;color:var(--muted);}
+.plan-slot-items{display:flex;flex-direction:column;gap:4px;margin-bottom:8px;}
+.plan-slot-item{display:flex;align-items:center;gap:8px;padding:5px 8px;background:var(--card);border-radius:8px;}
+.plan-slot-item-name{flex:1;font-size:.85rem;}
+.plan-slot-item-kcal{font-size:.7rem;color:var(--muted);}
+.plan-slot-del{background:none;border:none;color:#ccc;cursor:pointer;font-size:1rem;padding:0 2px;transition:color .15s;}
+.plan-slot-del:hover{color:#e88;}
+.plan-add-row{display:flex;gap:6px;}
+.plan-add-input{font-family:'Noto Serif Display',Georgia,serif;font-size:.85rem;flex:1;border:1.5px solid var(--border);border-radius:8px;padding:6px 10px;background:var(--card);color:var(--text);outline:none;transition:border-color .2s;}
+.plan-add-input:focus{border-color:var(--accent);}
+.plan-add-btn{font-family:'Noto Serif Display',Georgia,serif;font-stretch:extra-condensed;text-transform:uppercase;letter-spacing:.07em;font-size:.75rem;background:var(--accent);color:white;border:none;border-radius:8px;padding:6px 12px;cursor:pointer;white-space:nowrap;}
+.plan-week-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+.plan-week-label{font-family:'Noto Serif Display',Georgia,serif;font-weight:400;font-stretch:extra-condensed;text-transform:uppercase;letter-spacing:.08em;font-size:.8rem;color:var(--muted);}
+.plan-week-arrow{background:none;border:1.5px solid var(--border);border-radius:8px;padding:4px 10px;cursor:pointer;font-family:'Noto Serif Display',Georgia,serif;font-size:.85rem;color:var(--muted);transition:all .18s;}
+.plan-week-arrow:hover{border-color:var(--accent);color:var(--accent);}
 .nut-item{display:flex;flex-direction:column;align-items:center;gap:2px;min-width:52px;}
 .nut-val{font-family:'Noto Serif Display',Georgia,serif;font-stretch:extra-condensed;font-size:1.5rem;color:var(--accent);line-height:1;}
 .nut-lbl{font-size:.65rem;color:var(--muted);font-family:'Noto Serif Display',Georgia,serif;}
@@ -706,7 +791,10 @@ h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.
     <h1 class="app-title" style="font-size:2.8rem;letter-spacing:.18em;margin-bottom:0;text-transform:none;">centre</h1>
     <p class="app-date" id="appDate" style="margin-bottom:0;"></p>
   </div>
-  <div style="width:30px;"></div>
+  <button id="gcalHeaderBtn" onclick="showPage('settings',document.querySelector('.nav-btn:last-child'));setTimeout(()=>document.getElementById('gcalStatusDot')?.scrollIntoView({behavior:'smooth',block:'center'}),200)" title="Google Calendar status" style="background:none;border:none;cursor:pointer;padding:4px;display:flex;align-items:center;gap:4px;opacity:.7;transition:opacity .2s;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='.7'">
+    <div id="gcalHeaderDot" style="width:7px;height:7px;border-radius:50%;background:var(--border);flex-shrink:0;transition:background .4s;"></div>
+    <span id="gcalHeaderIcon" style="display:flex;align-items:center;"></span>
+  </button>
 </div>
 
 <div class="dashboard">
@@ -1129,10 +1217,19 @@ h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.
                   </div>
                 </div>
                 <div id="thg-streak" style="display:none">
-                  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">
+                  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:10px;">
                     <div class="form-group"><label class="form-label">Target (days)</label><input class="form-input" type="number" id="tHabitStreakTarget" value="7" min="1"/></div>
                     <div class="form-group"><label class="form-label">Grace days</label><input class="form-input" type="number" id="tHabitStreakGrace" value="0" min="0"/></div>
                     <div class="form-group"><label class="form-label">Freezes</label><input class="form-input" type="number" id="tHabitStreakFreezes" value="1" min="0"/></div>
+                  </div>
+                  <div style="border-top:1px solid var(--border);padding-top:10px;">
+                    <label class="form-label" style="display:block;margin-bottom:8px;">Milestone rewards <span style="font-weight:normal;text-transform:none;font-size:.7rem;color:var(--muted);">(optional — celebrate hitting streak lengths)</span></label>
+                    <div id="tHabitMilestoneList" style="display:flex;flex-direction:column;gap:5px;margin-bottom:8px;"></div>
+                    <div style="display:grid;grid-template-columns:80px 1fr auto;gap:6px;align-items:end;">
+                      <div class="form-group" style="margin:0"><label class="form-label">Days</label><input class="form-input" type="number" id="tMilestoneDays" min="1" placeholder="30" style="padding:6px 8px;"/></div>
+                      <div class="form-group" style="margin:0"><label class="form-label">Reward (optional)</label><input class="form-input" id="tMilestoneReward" placeholder="e.g. Movie night 🎬" style="padding:6px 8px;" onkeydown="if(event.key==='Enter'){addHabitMilestone();event.preventDefault();}"/></div>
+                      <button type="button" onclick="addHabitMilestone()" style="font-family:'Noto Serif Display',Georgia,serif;font-stretch:extra-condensed;text-transform:uppercase;letter-spacing:.06em;font-size:.75rem;background:var(--accent);color:white;border:none;border-radius:8px;padding:7px 12px;cursor:pointer;white-space:nowrap;">Add</button>
+                    </div>
                   </div>
                 </div>
                 <div id="thg-quantity" style="display:none">
@@ -1191,15 +1288,15 @@ h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.
       </div>
     </div>
     <div class="card">
-      <div class="card-header"><span class="card-title">Your Tasks</span><span id="taskCount" style="font-size:.8rem;color:var(--muted);font-family:'Noto Serif Display',Georgia,serif;"></span></div>
-      <div class="filter-bar">
-        <button class="filter-btn active" onclick="setFilter('all',this)">All</button>
-        <button class="filter-btn" onclick="setFilter('today',this)">Today</button>
-        <button class="filter-btn" onclick="setFilter('pending',this)">Pending</button>
-        <button class="filter-btn" onclick="setFilter('done',this)">Done</button>
-        <button class="filter-btn" onclick="setFilter('habits',this)">Habits</button>
-        <button class="filter-btn" onclick="setFilter('waiting',this)">Waiting</button>
-        <button class="filter-btn" id="filterOverdueBtn" onclick="setFilter('overdue',this)" style="display:none;border-color:#c0554a;color:#c0554a;">Overdue</button>
+      <div class="card-header" style="margin-bottom:12px;">
+        <span class="card-title" style="margin-bottom:0;">Your Tasks</span>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span id="taskCount" style="font-size:.75rem;color:var(--muted);font-family:'Noto Serif Display',Georgia,serif;"></span>
+          <div style="display:flex;gap:3px;background:var(--bg);border-radius:10px;padding:3px;">
+            <button id="tvTimeline" class="tab active" style="font-size:.7rem;padding:4px 12px;border-radius:7px;" onclick="setTaskView('timeline',this)">Timeline</button>
+            <button id="tvCategory" class="tab" style="font-size:.7rem;padding:4px 12px;border-radius:7px;" onclick="setTaskView('category',this)">Category</button>
+          </div>
+        </div>
       </div>
       <div class="task-list" id="taskList"></div>
     </div>
@@ -1271,6 +1368,7 @@ h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.
     <div class="card">
       <div class="tabs">
         <button class="tab active" onclick="showMealsTab('mlog',this)">Log</button>
+        <button class="tab" onclick="showMealsTab('mplan',this)">Plan</button>
         <button class="tab" onclick="showMealsTab('mrcp',this)">Recipes</button>
       </div>
       <!-- LOG TAB -->
@@ -1296,6 +1394,18 @@ h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.
           <div class="form-group"><label class="form-label">Sodium (mg)</label><input class="form-input" type="number" id="mealSodium" min="0" placeholder="e.g. 300" /></div>
           <button class="add-btn" onclick="addMeal()">+ Log Meal</button>
         </div>
+      </div>
+      <!-- PLAN TAB -->
+      <div id="tab-mplan" style="display:none">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;gap:8px;">
+          <button class="week-arrow" onclick="shiftPlanWeek(-1)" style="padding:5px 12px;">&#8592;</button>
+          <span class="week-label" id="planWeekLabel" style="font-size:.85rem;"></span>
+          <button class="week-arrow" onclick="shiftPlanWeek(1)" style="padding:5px 12px;">&#8594;</button>
+        </div>
+        <div id="planWeekGrid" style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:16px;"></div>
+        <div id="planDayHeading" style="font-family:'Noto Serif Display',Georgia,serif;font-weight:400;font-stretch:extra-condensed;text-transform:uppercase;letter-spacing:.1em;font-size:.8rem;color:var(--muted);margin-bottom:12px;"></div>
+        <div id="planDaySlots" style="display:flex;flex-direction:column;gap:10px;"></div>
+        <datalist id="planRcpList"></datalist>
       </div>
       <!-- RECIPES TAB -->
       <div id="tab-mrcp" style="display:none">
@@ -1371,6 +1481,8 @@ h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.
       <div id="mealLogList"></div>
       <div class="nutrition-total" id="mealNutritionTotal"></div>
     </div>
+    <!-- NUTRITION TRACKER CARD (moved from Habits) -->
+    <div class="card" id="nutriHabitCard"></div>
   </div>
 
   <!-- HABITS -->
@@ -1378,7 +1490,7 @@ h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.
     <div class="card" id="habitsSummaryCard"></div>
     <div id="habitCardsContainer"></div>
     <div class="card" id="waterHabitCard"></div>
-    <div class="card" id="negHabitsCard">
+        <div class="card" id="negHabitsCard">
       <div class="card-header" style="margin-bottom:16px;">
         <span class="card-title">Days Since</span>
         <button class="habit-action-btn primary" onclick="toggleNegHabitForm()" id="negHabitAddBtn" style="font-size:.75rem;">+ Add</button>
@@ -1629,27 +1741,48 @@ h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.
         </div>
       </div>
 
-      <!-- Nutrition Goals -->
+      <!-- Nutrition Goals — collapsible -->
       <div class="settings-section">
-        <div class="settings-section-title">Nutrition Goals</div>
-        <p style="font-size:.82rem;color:var(--muted);margin-bottom:14px;">Set your daily targets. These show as progress bars on the Meals page and Centre overview.</p>
-        <div class="settings-grid" id="nutriGoalsGrid">
-          <!-- populated by buildNutriGoals() -->
+        <div onclick="toggleNutriAccordion()" style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none;padding-bottom:6px;border-bottom:1px solid var(--border);margin-bottom:0;">
+          <div class="settings-section-title" style="border:none;padding:0;margin:0;">Nutrition Goals</div>
+          <span id="nutriAccordionArrow" style="font-size:.75rem;color:var(--muted);transition:transform .2s;display:inline-block;">▼</span>
         </div>
-        <button class="apply-btn" onclick="saveNutriGoals()" style="margin-top:4px;">Save Goals</button>
+        <div id="nutriAccordionBody" style="overflow:hidden;max-height:0;transition:max-height .3s ease;">
+          <div style="padding-top:14px;">
+            <p style="font-size:.82rem;color:var(--muted);margin-bottom:14px;">Set your daily targets. These show as a donut indicator + expandable bar on the Centre health card, and as a habit card on the Habits page.</p>
+            <div class="settings-grid" id="nutriGoalsGrid">
+              <!-- populated by buildNutriGoals() -->
+            </div>
+            <button class="apply-btn" onclick="saveNutriGoals()" style="margin-top:4px;">Save Goals</button>
+          </div>
+        </div>
       </div>
 
-      <!-- Streak Milestones -->
+      <!-- Nutrition Colours -->
       <div class="settings-section">
-        <div class="settings-section-title">Streak Milestones</div>
-        <p style="font-size:.82rem;color:var(--muted);font-family:'Noto Serif Display',Georgia,serif;margin-bottom:12px;">Celebrate these streak lengths with confetti.</p>
-        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;" id="milestoneChips"></div>
-        <div style="display:flex;gap:8px;align-items:flex-end;">
-          <div class="form-group" style="flex:1;max-width:140px;">
-            <label class="form-label">Add milestone (days)</label>
+        <div class="settings-section-title">Nutrition Colours</div>
+        <p style="font-size:.82rem;color:var(--muted);font-family:'Noto Serif Display',Georgia,serif;margin-bottom:14px;">Leave blank to inherit your accent colour. Set a custom hex to override for any nutrient.</p>
+        <div id="nutriColourGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;margin-bottom:12px;"></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <button class="apply-btn" onclick="applyNutriColours()" style="padding:9px 18px;">Apply</button>
+          <button class="reset-theme-btn" onclick="resetNutriColours()">Reset to accent</button>
+        </div>
+      </div>
+      <!-- Streak Milestones & Rewards -->
+      <div class="settings-section">
+        <div class="settings-section-title">Streak Milestones &amp; Rewards</div>
+        <p style="font-size:.82rem;color:var(--muted);font-family:'Noto Serif Display',Georgia,serif;margin-bottom:12px;">Add milestone days and an optional reward — when you hit one, the habit card pulses and shows your reward.</p>
+        <div id="milestoneRewardList" style="display:flex;flex-direction:column;gap:6px;margin-bottom:12px;"></div>
+        <div style="display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap;">
+          <div class="form-group" style="flex:1;min-width:100px;max-width:120px;">
+            <label class="form-label">Days</label>
             <input class="form-input" type="number" id="milestoneInput" min="1" max="3650" placeholder="e.g. 21" onkeydown="if(event.key==='Enter')addMilestone()"/>
           </div>
-          <button class="apply-btn" onclick="addMilestone()" style="padding:9px 18px;">Add</button>
+          <div class="form-group" style="flex:2;min-width:160px;">
+            <label class="form-label">Reward (optional)</label>
+            <input class="form-input" id="milestoneRewardInput" placeholder="e.g. 🍕 Takeaway night" onkeydown="if(event.key==='Enter')addMilestone()"/>
+          </div>
+          <button class="apply-btn" onclick="addMilestone()" style="padding:9px 18px;margin-bottom:0;">Add</button>
         </div>
       </div>
 
@@ -1884,19 +2017,33 @@ function newCatId(){return 'CAT-'+String(++catSeq).padStart(4,'0');}
 
 // ---- STATE ----
 let tasks=[],events=[],waterFilled=0,waterGoal=8,waterWeekOffset=0,meals=[],mealSeq=0,templates=[],templateSeq=0,recipes=[],recipeSeq=0,activeFilter='all',weekOffset=0,modalDate=null,eventsViewDate=null,scheduleViewDate=null;
-let tFormRecurMode='none';let tFormAnchor='fixed';let tFormNewSts=[];let tFormNewDeps=[];
 let eventOverrides={};  // { 'evtId_YYYY-MM-DD': {cancelled,name,date,time,notes,catId} }
 let nutriGoals={cal:2000,protein:150,carbs:200,fat:65,fibre:30,potassium:3500,magnesium:400,sodium:2300};
+let _calSectionOpen=false,_nutriAccordionOpen=false,nutriWeekOffset=0,_nutriTab="today";
+let mealPlans=[],mealPlanSeq=0,planWeekOffset=0,_planSelectedDate=null;
 const NUTRI_FIELDS=[
-  {key:'cal',label:'Calories',unit:'kcal',color:'#e07050'},
-  {key:'protein',label:'Protein',unit:'g',color:'#5a90c0'},
-  {key:'carbs',label:'Carbs',unit:'g',color:'#c0a040'},
-  {key:'fat',label:'Fat',unit:'g',color:'#a060c0'},
-  {key:'fibre',label:'Fibre',unit:'g',color:'#60a060'},
-  {key:'potassium',label:'Potassium',unit:'mg',color:'#5a7a30'},
-  {key:'magnesium',label:'Magnesium',unit:'mg',color:'#7a3a9a'},
-  {key:'sodium',label:'Sodium',unit:'mg',color:'#a06020'},
+  {key:'cal',   label:'Calories',  unit:'kcal', cssVar:'--nutri-cal'},
+  {key:'protein',label:'Protein',  unit:'g',    cssVar:'--nutri-protein'},
+  {key:'carbs', label:'Carbs',     unit:'g',    cssVar:'--nutri-carbs'},
+  {key:'fat',   label:'Fat',       unit:'g',    cssVar:'--nutri-fat'},
+  {key:'fibre', label:'Fibre',     unit:'g',    cssVar:'--nutri-fibre'},
+  {key:'potassium',label:'Potassium',unit:'mg', cssVar:'--nutri-k'},
+  {key:'magnesium',label:'Magnesium',unit:'mg', cssVar:'--nutri-mg'},
+  {key:'sodium',label:'Sodium',    unit:'mg',   cssVar:'--nutri-na'},
 ];
+// Helper: get computed colour for a NUTRI_FIELD
+function nutriColor(field){return getComputedStyle(document.documentElement).getPropertyValue(field.cssVar).trim()||'var(--accent)';}
+// Default nutri colours stored separately from theme (so settings can persist them)
+const NUTRI_COLOR_DEFAULTS={
+  '--nutri-cal':'',    // empty = inherit accent
+  '--nutri-protein':'',
+  '--nutri-carbs':'',
+  '--nutri-fat':'',
+  '--nutri-fibre':'',
+  '--nutri-k':'',
+  '--nutri-mg':'',
+  '--nutri-na':''
+};
 const NUTRI_DEFAULTS={cal:2000,protein:150,carbs:200,fat:65,fibre:30,potassium:3500,magnesium:400,sodium:2300};
 let negativeHabits=[],negHabitSeq=0;
 let habitPillOffsets={};  // taskId -> day offset (0 = this week, -7 = prev week, etc.)
@@ -1935,7 +2082,7 @@ const THEME_LABELS={'--bg':'Background','--card':'Card','--text':'Text','--accen
 const EDITABLE=['--bg','--card','--text','--accent','--accent-work','--muted','--border'];
 const DOW_LABELS=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
 const EV_PROMPTS={birthday:"Whose birthday?",event:"What's happening?"};
-let MILESTONES=[7,30,100,365]; // user-editable, saved to storage
+let MILESTONES=[{days:7,reward:''},{days:30,reward:''},{days:100,reward:''},{days:365,reward:''}]; // user-editable
 
 // ---- LOCALSTORAGE ----
 let saveTimer=null;
@@ -1965,6 +2112,10 @@ function scheduleSave(){
       localStorage.setItem('centre_waterGoal',JSON.stringify(waterGoal));
       localStorage.setItem('centre_meals',JSON.stringify(meals));
       localStorage.setItem('centre_mealSeq',mealSeq);
+      localStorage.setItem('centre_mealPlans',JSON.stringify(mealPlans));
+      const _nc={};Object.keys(NUTRI_COLOR_DEFAULTS).forEach(v=>{const val=getComputedStyle(document.documentElement).getPropertyValue(v).trim();if(val&&val!==getComputedStyle(document.documentElement).getPropertyValue('--accent').trim())_nc[v]=val;});
+      localStorage.setItem('centre_nutriColors',JSON.stringify(_nc));
+      localStorage.setItem('centre_mealPlanSeq',mealPlanSeq);
       localStorage.setItem('centre_templates',JSON.stringify(templates));
       localStorage.setItem('centre_templateSeq',templateSeq);
       localStorage.setItem('centre_recipes',JSON.stringify(recipes));
@@ -2017,6 +2168,10 @@ function loadFromStorage(){
     const wg=localStorage.getItem('centre_waterGoal');if(wg)waterGoal=JSON.parse(wg);
     const ml=localStorage.getItem('centre_meals');if(ml)meals=JSON.parse(ml);
     const ms2=localStorage.getItem('centre_mealSeq');if(ms2)mealSeq=parseInt(ms2);
+    const mpl=localStorage.getItem('centre_mealPlans');if(mpl)mealPlans=JSON.parse(mpl);
+    const _ncl=localStorage.getItem('centre_nutriColors');
+    if(_ncl){try{const nc=JSON.parse(_ncl);Object.entries(nc).forEach(([k,v])=>{if(v)document.documentElement.style.setProperty(k,v);});}catch(e){}}
+    const mpls=localStorage.getItem('centre_mealPlanSeq');if(mpls)mealPlanSeq=parseInt(mpls);
     const tpl=localStorage.getItem('centre_templates');if(tpl)templates=JSON.parse(tpl);
     const tplSeq=localStorage.getItem('centre_templateSeq');if(tplSeq)templateSeq=parseInt(tplSeq);
     const rcp=localStorage.getItem('centre_recipes');if(rcp){recipes=JSON.parse(rcp);normaliseRecipes();}
@@ -2174,7 +2329,7 @@ function showPage(p,btn){
   const di=document.getElementById('di-'+p);
   if(di)di.classList.add('active');
   if(p==='overview'){centreDate=null;renderAllOverviewForDate();setTimeout(applyWeatherToSchedule,200);}
-  if(p==='habits'){renderHabitsDashboard();renderWaterHabitCard();renderNegHabits();}
+  if(p==='habits'){renderHabitsDashboard();renderWaterHabitCard();renderNutriHabitCard();renderNegHabits();}
   if(p==='weekly'){renderPlannerPage();renderPlannerEventList();setTimeout(applyWeatherToWeekly,200);}
   if(p==='tasks'){renderCatSelects();renderTasks();}
   if(p==='events'){showPage('weekly',document.getElementById('di-weekly'));return;}  // merged into planner
@@ -2182,8 +2337,17 @@ function showPage(p,btn){
   if(p==='lists')renderGrocList();
   if(p==='cycle')renderCyclePage();
   if(p==='health')renderMeds();
-  if(p==='meals'){document.getElementById('mealFilterDate').value=today();document.getElementById('mealDate').value=today();const mte=document.getElementById('mealType');if(mte)mte.value=smartMealType();renderCatSelects();renderMealLog();renderRecipeList();}
-  if(p==='settings'){buildSettings();loadGoogleApiKey();loadGeminiApiKey();renderWater();renderMilestoneChips();applyWorkMode();}
+  if(p==='meals'){document.getElementById('mealFilterDate').value=today();document.getElementById('mealDate').value=today();const mte=document.getElementById('mealType');if(mte)mte.value=smartMealType();renderCatSelects();renderMealLog();renderRecipeList();renderNutriHabitCard();}
+  if(p==='settings'){buildSettings();buildNutriColourGrid();loadGoogleApiKey();loadGeminiApiKey();renderWater();renderMilestoneChips();applyWorkMode();
+    // Restore nutrition accordion state
+    setTimeout(()=>{
+      const body=document.getElementById('nutriAccordionBody');
+      const arrow=document.getElementById('nutriAccordionArrow');
+      if(body){body.style.maxHeight=_nutriAccordionOpen?'600px':'0';}
+      if(arrow){arrow.style.transform=_nutriAccordionOpen?'rotate(180deg)':'rotate(0deg)';}
+      if(_nutriAccordionOpen)buildNutriGoals();
+    },30);
+  }
 }
 
 function showTab(id,btn){
@@ -2243,7 +2407,13 @@ function getHabitGoal(){
   const type=document.getElementById('tHabitType').value;
   const base={type};
   if(type==='frequency'){base.count=parseInt(document.getElementById('tHabitFreqCount').value)||1;base.period=document.getElementById('tHabitFreqPeriod').value;base.customDays=parseInt(document.getElementById('tHabitFreqCustom').value)||3;}
-  if(type==='streak'){base.target=parseInt(document.getElementById('tHabitStreakTarget').value)||7;base.bestStreak=0;}
+  if(type==='streak'){
+    base.target=parseInt(document.getElementById('tHabitStreakTarget').value)||7;
+    base.grace=parseInt(document.getElementById('tHabitStreakGrace').value)||0;
+    base.freezes=parseInt(document.getElementById('tHabitStreakFreezes').value)||1;
+    base.freezesUsed=0;base.bestStreak=0;
+    base.milestones=[..._newTaskMilestones];
+  }
   if(type==='quantity'){base.target=parseInt(document.getElementById('tHabitQtyTarget').value)||2500;base.unit=document.getElementById('tHabitQtyUnit').value||'units';base.increment=parseInt(document.getElementById('tHabitQtyIncrement').value)||1;}
   if(type==='cumulative'){base.target=parseInt(document.getElementById('tHabitCumTarget').value)||100;base.unit=document.getElementById('tHabitCumUnit').value||'units';base.deadline=document.getElementById('tHabitCumDeadline').value||'';}
   return base;
@@ -2401,11 +2571,14 @@ function getCumProgress(task){
   return{done,target:task.habit.target};
 }
 
-function getMilestones(streak){return MILESTONES.map(m=>({val:m,achieved:streak>=m}));}
+function getMilestones(streak){return MILESTONES.map(m=>({val:m.days,achieved:streak>=m.days}));}
 
 // ---- HABIT CARD RENDER ----
 // ---- STREAK CELEBRATION ----
-function celebrateStreak(milestone, habitName) {
+// Track which rewards have been shown (persisted per session, cleared on page load)
+const _shownRewards = new Set();
+
+function celebrateStreak(milestoneObj, habitName, taskId) {
   // Confetti burst
   const canvas = document.createElement('canvas');
   canvas.style.cssText = 'position:fixed;inset:0;z-index:9999;pointer-events:none;width:100%;height:100%;';
@@ -2414,7 +2587,6 @@ function celebrateStreak(milestone, habitName) {
   canvas.height = window.innerHeight;
   const ctx = canvas.getContext('2d');
 
-  const COLORS = ['var(--accent)', '#f4d03f', '#e8a0bf', '#a0d4b0', '#d4a0b0'];
   const HEX_COLORS = ['#93aacd','#f4d03f','#e8a0bf','#a0d4b0','#d4a0b0','#f0c060'];
   const pieces = Array.from({length: 90}, () => ({
     x: Math.random() * canvas.width,
@@ -2449,15 +2621,40 @@ function celebrateStreak(milestone, habitName) {
   }
   draw();
 
-  // Toast message
-  showToast(`🎉 ${milestone}-day streak — ${escHtml(habitName)}!`, 3500);
+  const days = typeof milestoneObj === 'object' ? milestoneObj.days : milestoneObj;
+  const reward = typeof milestoneObj === 'object' ? milestoneObj.reward : '';
+  showToast(`🎉 ${days}-day streak — ${escHtml(habitName)}!`, 3500);
+
+  // Pulse the habit card and show reward banner if reward text set
+  if (reward && taskId) {
+    setTimeout(() => {
+      const card = document.querySelector(`.habit-card[data-task-id="${taskId}"]`);
+      if (card) {
+        card.classList.add('reward-flash');
+        // Inject reward banner if not already there
+        if (!card.querySelector('.habit-reward-banner')) {
+          const banner = document.createElement('div');
+          banner.className = 'habit-reward-banner';
+          banner.innerHTML = `<span class="habit-reward-banner-icon">🎊</span><span class="habit-reward-banner-text"><strong>${days}-day milestone!</strong> Your reward: ${escHtml(reward)}</span><button class="habit-reward-banner-dismiss" onclick="this.closest('.habit-reward-banner').remove();this.closest('.habit-card').classList.remove('reward-flash');" title="Dismiss">✕</button>`;
+          card.appendChild(banner);
+        }
+        setTimeout(() => card.classList.remove('reward-flash'), 3000);
+      }
+    }, 300);
+  }
 }
 
 function checkStreakMilestones(task, prevStreak, newStreak) {
-  if (!task.habit || task.habit.type !== 'streak') return;
-  MILESTONES.forEach(m => {
-    if (prevStreak < m && newStreak >= m) {
-      celebrateStreak(m, task.name);
+  // Use per-habit milestones if defined, else fall back to global MILESTONES
+  const milestones = (task.habit && task.habit.milestones && task.habit.milestones.length)
+    ? task.habit.milestones
+    : MILESTONES;
+  milestones.forEach(m => {
+    const days = m.days || m; // support both {days,reward} and legacy number
+    const key = task.id + '_' + days;
+    if (prevStreak < days && newStreak >= days && !_shownRewards.has(key)) {
+      _shownRewards.add(key);
+      celebrateStreak(typeof m === 'object' ? m : {days: m, reward: ''}, task.name, task.id);
     }
   });
 }
@@ -2529,7 +2726,7 @@ function renderHabits(){
       actionsHtml=`<input class="form-input" type="number" id="cumInput-${t.id}" min="1" value="1" style="width:80px;padding:4px 8px;"><button class="habit-action-btn primary" onclick="logHabit('${t.id}',parseInt(document.getElementById('cumInput-${t.id}').value)||1)">Add</button><button class="habit-action-btn" onclick="unlogHabit('${t.id}')">Undo</button>`;
     }
 
-    return `<div class="habit-card" style="border-color:${borderColor}">
+    return `<div class="habit-card" data-task-id="${t.id}" style="border-color:${borderColor}">
       <div class="habit-card-header">
         <div>
           <div class="habit-card-name">${escHtml(t.name)}</div>
@@ -2554,6 +2751,37 @@ function useFreeze(taskId){
 // renderOverviewHabits now defined above
 
 // ---- TASKS ----
+// ---- PER-HABIT MILESTONE HELPERS ----
+function addHabitMilestone(){
+  const daysInput=document.getElementById('tMilestoneDays');
+  const rewardInput=document.getElementById('tMilestoneReward');
+  if(!daysInput) return;
+  const days=parseInt(daysInput.value);
+  if(!days||days<1) return;
+  if(_newTaskMilestones.some(m=>m.days===days)) return; // no dupes
+  _newTaskMilestones.push({days,reward:(rewardInput?.value||'').trim()});
+  _newTaskMilestones.sort((a,b)=>a.days-b.days);
+  daysInput.value='';
+  if(rewardInput) rewardInput.value='';
+  renderHabitMilestoneList();
+}
+function removeHabitMilestone(days){
+  _newTaskMilestones=_newTaskMilestones.filter(m=>m.days!==days);
+  renderHabitMilestoneList();
+}
+function renderHabitMilestoneList(){
+  const el=document.getElementById('tHabitMilestoneList');
+  if(!el) return;
+  if(!_newTaskMilestones.length){el.innerHTML='';return;}
+  el.innerHTML=_newTaskMilestones.map(m=>`
+    <div style="display:flex;align-items:center;gap:8px;padding:5px 8px;background:var(--card);border-radius:8px;border:1px solid var(--border);">
+      <span style="font-family:'Noto Serif Display',Georgia,serif;font-stretch:extra-condensed;text-transform:uppercase;font-size:.72rem;letter-spacing:.06em;background:var(--accent);color:white;padding:2px 8px;border-radius:20px;">${m.days}d</span>
+      ${m.reward?`<span style="flex:1;font-size:.8rem;color:var(--muted);">${escHtml(m.reward)}</span>`:'<span style="flex:1;"></span>'}
+      <button onclick="removeHabitMilestone(${m.days})" style="background:none;border:none;color:var(--border);cursor:pointer;font-size:1rem;padding:0 2px;transition:color .15s;" onmouseover="this.style.color='#e88'" onmouseout="this.style.color='var(--border)'">×</button>
+    </div>`).join('');
+}
+
+
 function addTask(){
   const name=document.getElementById('tName').value.trim();
   if(!name){document.getElementById('tName').focus();return;}
@@ -2589,9 +2817,25 @@ function addTask(){
   document.getElementById('tDueDate').value='';
   document.getElementById('tDur').value='';
   tResetAccordionForm();
+  _newTaskMilestones = []; renderHabitMilestoneList();
   scheduleSave();renderTasks();
   showToast('Task added ✓');
 }
+function schedTaskTick(cb, id, vd) {
+  const row = cb.closest('.block-task-item');
+  const completing = cb.checked;
+  if (completing && row && !row.classList.contains('done')) {
+    row.classList.add('just-done');
+    setTimeout(() => {
+      toggleTask(id, vd);
+      renderOverview();
+    }, 480);
+  } else {
+    toggleTask(id, vd);
+    renderOverview();
+  }
+}
+
 function toggleTask(id,forDate){
   const t=tasks.find(t=>t.id===id);if(!t)return;
   const ds=forDate||today();
@@ -2862,6 +3106,7 @@ function checkParentAutoComplete(taskId) {
 }
 // ── Add-task form: pending new subtasks ──
 let _newTaskSubs = []; // [{tempId, name}] — cleared after addTask()
+let _newTaskMilestones = []; // [{days, reward}] — per-habit milestones for streak, cleared after addTask()
 let _newTaskSubSeq = 0;
 
 function addNewTaskSubField() {
@@ -2973,181 +3218,221 @@ function recurHasMissedOccurrence(task) {
   }
   return false;
 }
+let taskViewMode = 'timeline'; // 'timeline' | 'category'
+function setTaskView(mode, btn) {
+  taskViewMode = mode;
+  document.querySelectorAll('#page-tasks .tab').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  renderTasks();
+}
+
 function renderTasks(){
   const list=document.getElementById('taskList');
   const td=today();
-  // Work Mode: only Work-category tasks visible
   let base=tasks;
-  if(workMode){
-    const workCat=categories.find(cat=>cat.name.toLowerCase()==='work');
-    base=tasks.filter(t=>workCat&&t.catId===workCat.id);
-  }
-  let filtered=base;
-  // Helper: is this task overdue?
-  function taskIsOverdue(t) {
-    if (t.habit || t.done) return false;
-    if (t.recur) return recurHasMissedOccurrence(t);
-    return t.due && t.due < td;
-  }
-  const overdueCount = base.filter(taskIsOverdue).length;
+  if(workMode){const workCat=categories.find(cat=>cat.name.toLowerCase()==='work');base=tasks.filter(t=>workCat&&t.catId===workCat.id);}
 
-  if (activeFilter === 'today') {
-    // Recurring: only on its scheduled days
-    // Non-recurring: due today or overdue
-    filtered = base.filter(t => {
-      if (t.recur) return occursOn(t, td);
-      if (t.habit) return true;
-      return t.due === td || (!t.done && t.due && t.due < td);
-    });
-  } else if (activeFilter === 'pending') {
-    filtered = base.filter(t => {
-      if (t.recur) return true;
-      if (t.habit) return !isTaskDoneOn(t, td);
-      return !t.done;
-    });
-  } else if (activeFilter === 'done') {
-    filtered = base.filter(t => {
-      if (t.recur) return recurDoneLog.some(e => e.taskId === t.id && e.date === td);
-      return t.done;
-    });
-  } else if (activeFilter === 'habits') {
-    filtered = base.filter(t => t.habit);
-  } else if (activeFilter === 'overdue') {
-    filtered = base.filter(taskIsOverdue);
-  } else if (activeFilter === 'waiting') {
-    filtered = tasks.filter(t => t.waitingFor && !t.done);
-  }
-  const pendingCount = tasks.filter(t => t.recur ? true : t.habit ? !isTaskDoneOn(t,td) : !t.done).length;
+  function taskIsOverdue(t){if(t.habit||t.done)return false;if(t.recur)return recurHasMissedOccurrence(t);return t.due&&t.due<td;}
+  const overdueCount=base.filter(taskIsOverdue).length;
+  const pendingCount=tasks.filter(t=>t.recur?true:t.habit?!isTaskDoneOn(t,td):!t.done).length;
   document.getElementById('taskCount').textContent=`${pendingCount} pending${overdueCount>0?' · '+overdueCount+' overdue':''}`;
-  const overdueBtn=document.getElementById('filterOverdueBtn');
-  if(overdueBtn){overdueBtn.style.display=overdueCount>0?'':'none';}
-  // Sort: no due date first (top), then soonest due date ascending
-  filtered = [...filtered].sort((a, b) => {
-    const noDa = !a.due, noDb = !b.due;
-    if (noDa && noDb) return 0;
-    if (noDa) return -1;  // no due → top
-    if (noDb) return 1;
-    return a.due.localeCompare(b.due);  // soonest first
-  });
-  if(!filtered.length){list.innerHTML=`<div class="empty-msg">No tasks here.</div>`;return;}
-  list.innerHTML=filtered.map(t=>{
-    const cat=categories.find(c=>c.id===t.catId),rs=recurSummary(t.recur);
+
+  // Build a compact task row (used in both views)
+  function taskRow(t) {
+    const cat=categories.find(c=>c.id===t.catId);
+    const rs=recurSummary(t.recur);
     const isRecurring=!!t.recur;
     const isDoneToday=isTaskDoneOn(t,td);
-    // Overdue: recurring uses missed-occurrence check; non-recurring uses due date
-    const isOverdue = t.recur ? recurHasMissedOccurrence(t) : (!t.habit&&!t.done&&t.due&&t.due<td);
-    const bg=isOverdue?'rgba(192,85,74,.06)':'var(--bg)';
-    // For recurring: show checked state based on today's log
+    const isOverdue=t.recur?recurHasMissedOccurrence(t):(!t.habit&&!t.done&&t.due&&t.due<td);
     const isChecked=isRecurring?isDoneToday:t.done;
-    // Recurring always shows next upcoming due date; if done today show next after today
-    const nextOccFrom = isRecurring ? (isDoneToday ? (() => { const tom=new Date(td+'T00:00:00'); tom.setDate(tom.getDate()+1); return dateStr(tom); })() : td) : null;
-    const nextOcc=isRecurring?nextOccurrence(t, nextOccFrom):null;
+    const nextOccFrom=isRecurring?(isDoneToday?(()=>{const tom=new Date(td+'T00:00:00');tom.setDate(tom.getDate()+1);return dateStr(tom);})():td):null;
+    const nextOcc=isRecurring?nextOccurrence(t,nextOccFrom):null;
     const dueLabelDate=isRecurring?(nextOcc||t.due):t.due;
-    const dc=isOverdue?'overdue':dueClass(dueLabelDate);
-    // Task icon: use task-specific override if set, else fall back to category icon
-    const taskIconKey = t.icon ? t.icon : (cat ? resolveIconKey(cat.icon) : null);
-    const _iconCol = getComputedStyle(document.documentElement).getPropertyValue('--icon-color').trim() || 'var(--accent)';
-    const taskIconSvg = taskIconKey ? svgIcon(taskIconKey, _iconCol, 14) : '';
-    const iconHtml = '<button type="button" onclick="openIconPicker(\'task\',null,\''+t.id+'\')" title="Change task icon" style="background:none;border:none;padding:2px;cursor:pointer;display:inline-flex;align-items:center;flex-shrink:0;opacity:'+(taskIconSvg?'1':'.28')+';line-height:1;" aria-label="Change icon">'+(taskIconSvg||svgIcon('circle','var(--muted)',14))+'</button>';
-    return `<div class="task-item ${isChecked?'done':''}" style="background:${bg};${isOverdue?'border-left:3px solid #c0554a;':''}">
-      ${iconHtml}
-      <input type="checkbox" ${isChecked?'checked':''} onchange="toggleTask('${t.id}')" style="margin-top:3px;flex-shrink:0;">
-      <div class="item-info">
-        <div style="display:flex;align-items:center;gap:8px">
-          <div class="item-name" style="flex:1;display:flex;align-items:center;gap:5px;">${escHtml(t.name)}${getSubtasks(t.id).length?`<button onclick="toggleSubtaskPanel('${t.id}')" style="background:none;border:none;cursor:pointer;font-size:.78rem;color:var(--accent);padding:0 2px;line-height:1;flex-shrink:0;font-weight:bold;" title="Show subtasks">+</button>`:''}</div>
-          ${isOverdue?`<span class="meta-tag" style="background:#fde8e8;color:#c0554a;font-size:.65rem;">overdue</span>`:''}
-          ${t.waitingFor&&!t.done?`<span class="meta-tag" style="background:#fef3e0;color:#9a6b10;font-size:.65rem;" title="Waiting for: ${escHtml(t.waitingFor)}">⏳ waiting</span>`:''}
-          ${t.habit?`<span class="meta-tag meta-habit">${t.habit.type}</span>`:''}
-          ${(()=>{const sp=stProgress(t.id);if(!sp||sp.done===0)return '';const pct=Math.round(sp.done/sp.total*100);return `<div style="width:80px;height:7px;border-radius:20px;background:var(--border);overflow:hidden;flex-shrink:0;align-self:center;margin-left:auto;" title="${sp.done} of ${sp.total} subtasks done"><div style="height:100%;width:${pct}%;background:var(--accent);border-radius:20px;transition:width .35s cubic-bezier(.34,1.56,.64,1);"></div></div>`;})()}
-          <button class="edit-btn" onclick="toggleEditForm('${t.id}')">edit</button>
-          <button class="delete-btn" onclick="deleteTask('${t.id}')">×</button>
+    const taskIconKey=t.icon?t.icon:(cat?resolveIconKey(cat.icon):null);
+    const _iconCol=getComputedStyle(document.documentElement).getPropertyValue('--icon-color').trim()||'var(--accent)';
+    const taskIconSvg=taskIconKey?svgIcon(taskIconKey,_iconCol,13):'';
+    const iconBtn='<button type="button" onclick="openIconPicker(\'task\',null,\''+t.id+'\')" title="Change icon" style="background:none;border:none;padding:1px;cursor:pointer;display:inline-flex;align-items:center;opacity:'+(taskIconSvg?'.85':'.22')+';line-height:1;">'+(taskIconSvg||svgIcon('circle','var(--muted)',13))+'</button>';
+    // Date label
+    let dateLabel='', dateCls='';
+    if(isOverdue&&!isRecurring){dateLabel=formatDate(dueLabelDate);dateCls='overdue';}
+    else if(dueLabelDate===td){dateLabel='Today';dateCls='today-date';}
+    else if(dueLabelDate){dateLabel=(isRecurring&&(isDoneToday||!occursOn(t,td))?'Next: ':'')+formatDate(dueLabelDate);}
+    const waitTag=t.waitingFor&&!t.done?`<span class="meta-tag" style="background:#fef3e0;color:#9a6b10;font-size:.62rem;">⏳</span>`:'';
+    const habitTag=t.habit?`<span class="meta-tag meta-habit" style="font-size:.62rem;">${t.habit.type}</span>`:'';
+    const recurTag=rs?`<span class="meta-tag meta-recur" style="font-size:.62rem;">${rs}</span>`:'';
+    const sp=stProgress(t.id);
+    const stBar=sp&&sp.total>0?`<div style="width:36px;height:4px;border-radius:20px;background:var(--border);overflow:hidden;flex-shrink:0;" title="${sp.done}/${sp.total} subtasks"><div style="height:100%;width:${Math.round(sp.done/sp.total*100)}%;background:var(--accent);border-radius:20px;"></div></div>`:'';
+    const subBtn=getSubtasks(t.id).length?`<button onclick="toggleSubtaskPanel('${t.id}')" style="background:none;border:none;cursor:pointer;font-size:.75rem;color:var(--accent);padding:0 2px;line-height:1;" title="Subtasks">+</button>`:'';
+    return `<div class="ctask-row ${isChecked?'ctask-done':''}" style="${isOverdue?'border-left:2px solid #c0554a;':''}">
+      <input type="checkbox" class="ctask-row-cb" ${isChecked?'checked':''} onchange="toggleTask('${t.id}')">
+      <span class="ctask-row-icon">${iconBtn}</span>
+      <span class="ctask-row-name ${isChecked?'done':''}" style="flex:1;display:flex;align-items:center;gap:4px;">${escHtml(t.name)}${subBtn}</span>
+      <div class="ctask-row-right">
+        ${stBar}${waitTag}${habitTag}${recurTag}
+        ${dateLabel?`<span class="ctask-row-date ${dateCls}">${dateLabel}</span>`:''}
+        <button class="ctask-row-edit" onclick="toggleEditForm('${t.id}')">edit</button>
+        <button class="ctask-row-del" onclick="deleteTask('${t.id}')">×</button>
+      </div>
+    </div>
+    <div class="subtask-panel" id="stp-${t.id}"><div id="stplist-${t.id}"></div></div>
+    <div class="edit-form" id="edit-${t.id}" style="padding:10px 0 0;">
+      <div class="edit-grid">
+        <div class="form-group full"><label class="form-label">Name</label><input class="form-input" id="ename-${t.id}" value="${escHtml(t.name)}"/></div>
+        <div class="form-group full"><label class="form-label">Notes</label><textarea class="form-input" id="enotes-${t.id}" rows="2" style="resize:vertical;">${escHtml(t.notes||'')}</textarea></div>
+        <div class="form-group"><label class="form-label">Due date</label><input class="form-input" type="date" id="edue-${t.id}" value="${t.due||''}"/></div>
+        <div class="form-group"><label class="form-label">Duration (mins)</label><input class="form-input" type="number" id="edur-${t.id}" value="${t.dur||''}" min="1"/></div>
+        <div class="form-group full"><label class="form-label">Category</label>
+          <select class="form-select" id="ecat-${t.id}">
+            <option value="" ${!t.catId?'selected':''}>— none —</option>
+            ${categories.map(c=>`<option value="${c.id}" ${t.catId===c.id?'selected':''}>${catIcon(c)} ${escHtml(c.name)}</option>`).join('')}
+          </select>
         </div>
-        <div class="item-meta" style="margin-top:4px">
-          ${dueLabelDate?`<span class="meta-tag meta-due ${dc}">${isRecurring?(isDoneToday?'Next: ':(occursOn(t,td)?'':'Next: ')):''}${formatDate(dueLabelDate)}</span>`:''}
-          ${rs?`<span class="meta-tag meta-recur">${rs}</span>`:''}
+        <div class="form-group full">
+          <label class="form-label">Waiting for <span style="font-size:.68rem;color:var(--muted);text-transform:none;letter-spacing:0;">(leave blank if not waiting on anyone)</span></label>
+          <input class="form-input" id="ewaiting-${t.id}" value="${escHtml(t.waitingFor||'')}" placeholder="e.g. John — awaiting approval"/>
         </div>
-        <div class="edit-form" id="edit-${t.id}">
-          <div class="edit-grid">
-            <div class="form-group full"><label class="form-label">Name</label><input class="form-input" id="ename-${t.id}" value="${escHtml(t.name)}"/></div>
-            <div class="form-group full"><label class="form-label">Notes</label><textarea class="form-input" id="enotes-${t.id}" rows="2" placeholder="Add context or details…" style="resize:vertical;">${escHtml(t.notes||'')}</textarea></div>
-            <div class="form-group"><label class="form-label">Due date</label><input class="form-input" type="date" id="edue-${t.id}" value="${t.due||''}"/></div>
-            <div class="form-group"><label class="form-label">Duration (mins)</label><input class="form-input" type="number" id="edur-${t.id}" value="${t.dur||''}" min="1"/></div>
-            <div class="form-group full"><label class="form-label">Category</label>
-              <select class="form-select" id="ecat-${t.id}">
-                <option value="" ${!t.catId?'selected':''}>— none —</option>
-                ${categories.map(c=>`<option value="${c.id}" ${t.catId===c.id?'selected':''}>${catIcon(c)} ${escHtml(c.name)}</option>`).join('')}
+        <div class="form-group full">
+          <button class="recur-toggle ${t.recur?'active':''}" id="er${t.id}RecurToggle" onclick="toggleEditRecur('${t.id}')">${t.recur?'Edit recurrence':'+ Add recurrence'}</button>
+          <div class="recur-section ${t.recur?'open':''}" id="er${t.id}RecurSection">
+            <div class="form-group"><label class="form-label">Repeat type</label>
+              <select class="form-select" id="er${t.id}RecurType" onchange="updateEditRecur('${t.id}')">
+                <option value="daily" ${t.recur?.type==='daily'?'selected':''}>Daily</option>
+                <option value="weekly" ${t.recur?.type==='weekly'?'selected':''}>Weekly</option>
+                <option value="monthly" ${t.recur?.type==='monthly'?'selected':''}>Monthly</option>
+                <option value="yearly" ${t.recur?.type==='yearly'?'selected':''}>Yearly</option>
+                <option value="interval-days" ${t.recur?.type==='interval-days'?'selected':''}>Every X days</option>
+                <option value="interval-weeks" ${t.recur?.type==='interval-weeks'?'selected':''}>Every X weeks</option>
+                <option value="interval-months" ${t.recur?.type==='interval-months'?'selected':''}>Every X months</option>
+                <option value="dow" ${t.recur?.type==='dow'?'selected':''}>Specific days</option>
+                <option value="on-completion" ${t.recur?.type==='on-completion'?'selected':''}>On completion</option>
               </select>
             </div>
-            <div class="form-group full">
-              <label class="form-label">Waiting for <span style="font-size:.68rem;color:var(--muted);text-transform:none;letter-spacing:0;">(leave blank if not waiting on anyone)</span></label>
-              <input class="form-input" id="ewaiting-${t.id}" value="${escHtml(t.waitingFor||'')}" placeholder="e.g. John — awaiting approval"/>
+            <div class="form-group" id="er${t.id}IntervalGroup" style="display:${t.recur?.type?.startsWith('interval-')?'block':'none'}">
+              <label class="form-label">Interval</label><input class="form-input" type="number" id="er${t.id}Interval" min="1" value="${t.recur?.interval||1}"/>
             </div>
-            <div class="form-group full">
-              <button class="recur-toggle ${t.recur?'active':''}" id="er${t.id}RecurToggle" onclick="toggleEditRecur('${t.id}')">${t.recur?'Edit recurrence':'+ Add recurrence'}</button>
-              <div class="recur-section ${t.recur?'open':''}" id="er${t.id}RecurSection">
-                <div class="form-group"><label class="form-label">Repeat type</label>
-                  <select class="form-select" id="er${t.id}RecurType" onchange="updateEditRecur('${t.id}')">
-                    <option value="daily" ${t.recur?.type==='daily'?'selected':''}>Daily</option>
-                    <option value="weekly" ${t.recur?.type==='weekly'?'selected':''}>Weekly</option>
-                    <option value="monthly" ${t.recur?.type==='monthly'?'selected':''}>Monthly</option>
-                    <option value="yearly" ${t.recur?.type==='yearly'?'selected':''}>Yearly</option>
-                    <option value="interval-days" ${t.recur?.type==='interval-days'?'selected':''}>Every X days</option>
-                    <option value="interval-weeks" ${t.recur?.type==='interval-weeks'?'selected':''}>Every X weeks</option>
-                    <option value="interval-months" ${t.recur?.type==='interval-months'?'selected':''}>Every X months</option>
-                    <option value="dow" ${t.recur?.type==='dow'?'selected':''}>Specific days</option>
-                    <option value="on-completion" ${t.recur?.type==='on-completion'?'selected':''}>On completion</option>
-                  </select>
-                </div>
-                <div class="form-group" id="er${t.id}IntervalGroup" style="display:${t.recur?.type?.startsWith('interval-')?'block':'none'}">
-                  <label class="form-label">Interval</label><input class="form-input" type="number" id="er${t.id}Interval" min="1" value="${t.recur?.interval||1}"/>
-                </div>
-                <div id="er${t.id}DowGroup" style="display:${t.recur?.type==='dow'?'block':'none'}">
-                  <label class="form-label" style="font-size:.72rem;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:6px;">Days of week</label>
-                  <div class="dow-row" id="er${t.id}DowRow">${['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].map((d,i)=>`<button type="button" class="dow-btn${t.recur?.dow?.includes(i)?' sel':''}" data-i="${i}" onclick="this.classList.toggle('sel')">${d}</button>`).join('')}</div>
-                </div>
-                <div class="form-group" id="er${t.id}CompletionGroup" style="display:${t.recur?.type==='on-completion'?'block':'none'}">
-                  <label class="form-label">Days after completion</label><input class="form-input" type="number" id="er${t.id}CompletionDays" min="1" value="${t.recur?.completionDays||7}"/>
-                </div>
-                <div class="form-group"><label class="form-label">Ends</label>
-                  <select class="form-select" id="er${t.id}EndType" onchange="updateEditRecurEnd('${t.id}')">
-                    <option value="never" ${(t.recur?.endType||'never')==='never'?'selected':''}>Never</option>
-                    <option value="after" ${t.recur?.endType==='after'?'selected':''}>After X occurrences</option>
-                    <option value="on-date" ${t.recur?.endType==='on-date'?'selected':''}>On a date</option>
-                  </select>
-                </div>
-                <div class="form-group" id="er${t.id}EndAfterGroup" style="display:${t.recur?.endType==='after'?'block':'none'}">
-                  <label class="form-label">Occurrences</label><input class="form-input" type="number" id="er${t.id}EndAfter" min="1" value="${t.recur?.endAfter||10}"/>
-                </div>
-                <div class="form-group" id="er${t.id}EndDateGroup" style="display:${t.recur?.endType==='on-date'?'block':'none'}">
-                  <label class="form-label">End date</label><input class="form-input" type="date" id="er${t.id}EndDate" value="${t.recur?.endDate||''}"/>
-                </div>
-                <button type="button" class="recur-toggle" style="border-color:#e88;color:#c0554a;margin-top:4px;" onclick="removeTaskRecur('${t.id}')">✕ Remove recurrence</button>
-              </div>
+            <div id="er${t.id}DowGroup" style="display:${t.recur?.type==='dow'?'block':'none'}">
+              <label class="form-label" style="font-size:.72rem;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:6px;">Days of week</label>
+              <div class="dow-row" id="er${t.id}DowRow">${['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].map((d,i)=>`<button type="button" class="dow-btn${t.recur?.dow?.includes(i)?' sel':''}" data-i="${i}" onclick="this.classList.toggle('sel')">${d}</button>`).join('')}</div>
             </div>
-          </div>
-          <button class="save-btn" onclick="saveTask('${t.id}')">Save changes</button>
-          <div class="subtask-edit-section">
-            <div style="font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;">Subtasks</div>
-            <div class="subtask-edit-list" id="steditlist-${t.id}"></div>
-            <div class="subtask-add-inline" style="flex-direction:column;gap:5px;">
-              <div style="display:flex;gap:5px;">
-                <input id="steinp-${t.id}" placeholder="Add subtask…" style="flex:1" onkeydown="if(event.key==='Enter'){event.preventDefault();addStFromEdit('${t.id}');}" onfocus="_renderStEditList('${t.id}')" />
-                <button onclick="addStFromEdit('${t.id}')">Add</button>
-              </div>
-              <div style="display:flex;gap:5px;">
-                <input class="form-input" type="date" id="steinpdue-${t.id}" max="${t.due||''}" title="Due date (cannot exceed parent task)" style="flex:1;font-size:.78rem;padding:5px 8px;" />
-                <input class="form-input" type="time" id="steinptime-${t.id}" style="flex:1;font-size:.78rem;padding:5px 8px;" />
-              </div>
+            <div class="form-group" id="er${t.id}CompletionGroup" style="display:${t.recur?.type==='on-completion'?'block':'none'}">
+              <label class="form-label">Days after completion</label><input class="form-input" type="number" id="er${t.id}CompletionDays" min="1" value="${t.recur?.completionDays||7}"/>
             </div>
+            <div class="form-group"><label class="form-label">Ends</label>
+              <select class="form-select" id="er${t.id}EndType" onchange="updateEditRecurEnd('${t.id}')">
+                <option value="never" ${(t.recur?.endType||'never')==='never'?'selected':''}>Never</option>
+                <option value="after" ${t.recur?.endType==='after'?'selected':''}>After X occurrences</option>
+                <option value="on-date" ${t.recur?.endType==='on-date'?'selected':''}>On a date</option>
+              </select>
+            </div>
+            <div class="form-group" id="er${t.id}EndAfterGroup" style="display:${t.recur?.endType==='after'?'block':'none'}">
+              <label class="form-label">Occurrences</label><input class="form-input" type="number" id="er${t.id}EndAfter" min="1" value="${t.recur?.endAfter||10}"/>
+            </div>
+            <div class="form-group" id="er${t.id}EndDateGroup" style="display:${t.recur?.endType==='on-date'?'block':'none'}">
+              <label class="form-label">End date</label><input class="form-input" type="date" id="er${t.id}EndDate" value="${t.recur?.endDate||''}"/>
+            </div>
+            <button type="button" class="recur-toggle" style="border-color:#e88;color:#c0554a;margin-top:4px;" onclick="removeTaskRecur('${t.id}')">✕ Remove recurrence</button>
           </div>
         </div>
-        <div class="subtask-panel" id="stp-${t.id}">
-          <div id="stplist-${t.id}"></div>
+      </div>
+      <button class="save-btn" onclick="saveTask('${t.id}')">Save changes</button>
+      <div class="subtask-edit-section">
+        <div style="font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;">Subtasks</div>
+        <div class="subtask-edit-list" id="steditlist-${t.id}"></div>
+        <div class="subtask-add-inline" style="flex-direction:column;gap:5px;">
+          <div style="display:flex;gap:5px;">
+            <input id="steinp-${t.id}" placeholder="Add subtask…" style="flex:1" onkeydown="if(event.key==='Enter'){event.preventDefault();addStFromEdit('${t.id}');}" onfocus="_renderStEditList('${t.id}')" />
+            <button onclick="addStFromEdit('${t.id}')">Add</button>
+          </div>
+          <div style="display:flex;gap:5px;">
+            <input class="form-input" type="date" id="steinpdue-${t.id}" max="${t.due||''}" style="flex:1;font-size:.78rem;padding:5px 8px;" />
+            <input class="form-input" type="time" id="steinptime-${t.id}" style="flex:1;font-size:.78rem;padding:5px 8px;" />
+          </div>
         </div>
       </div>
     </div>`;
-  }).join('');
+  }
+
+  function makeSection(label, tasks, cls) {
+    if (!tasks.length) return '';
+    const id = 'ts-' + label.replace(/\s+/g,'-').toLowerCase();
+    return `<div class="task-section ${cls||''}" id="${id}">
+      <div class="task-section-hd" onclick="this.closest('.task-section').classList.toggle('ts-collapsed')">
+        <span class="task-section-label">${label}</span>
+        <span class="task-section-badge">${tasks.length}</span>
+      </div>
+      <div class="task-section-body">${tasks.map(taskRow).join('')}</div>
+    </div>`;
+  }
+
+  if (taskViewMode === 'category') {
+    // Group by category
+    const catGroups = {};
+    base.forEach(t => {
+      const key = t.catId || '__none__';
+      if (!catGroups[key]) catGroups[key] = [];
+      catGroups[key].push(t);
+    });
+    const sections = [];
+    categories.forEach(cat => {
+      const group = catGroups[cat.id];
+      if (!group || !group.length) return;
+      const _iconCol = getComputedStyle(document.documentElement).getPropertyValue('--icon-color').trim() || 'var(--accent)';
+      const icon = catSvg(cat, 12);
+      sections.push(makeSection((icon?icon+' ':'')+escHtml(cat.name), group));
+    });
+    if (catGroups['__none__'] && catGroups['__none__'].length) {
+      sections.push(makeSection('Uncategorised', catGroups['__none__']));
+    }
+    list.innerHTML = sections.join('') || `<div class="empty-msg">No tasks yet.</div>`;
+    return;
+  }
+
+  // Timeline view
+  const in7 = new Date(td+'T00:00:00'); in7.setDate(in7.getDate()+7); const in7str = dateStr(in7);
+
+  const overdue = base.filter(t => taskIsOverdue(t));
+  const todayTasks = base.filter(t => {
+    if (taskIsOverdue(t)) return false;
+    if (t.recur) return occursOn(t, td);
+    if (t.habit) return true;
+    return t.due === td;
+  });
+  const upcoming = base.filter(t => {
+    if (taskIsOverdue(t)) return false;
+    if (t.recur) {
+      const nx = nextOccurrence(t, td);
+      return nx && nx > td && nx <= in7str;
+    }
+    return t.due && t.due > td && t.due <= in7str && !t.done;
+  });
+  const later = base.filter(t => {
+    if (taskIsOverdue(t)) return false;
+    if (t.recur) {
+      const nx = nextOccurrence(t, td);
+      return nx && nx > in7str;
+    }
+    return t.due && t.due > in7str && !t.done;
+  });
+  const noDate = base.filter(t => {
+    if (t.recur || t.habit || t.done || taskIsOverdue(t)) return false;
+    return !t.due;
+  });
+  const doneItems = base.filter(t => {
+    if (t.recur) return isTaskDoneOn(t, td);
+    return t.done;
+  });
+
+  const html = [
+    makeSection('Overdue', overdue, 'ts-overdue'),
+    makeSection('Today', todayTasks, 'ts-today'),
+    makeSection('Next 7 days', upcoming, ''),
+    makeSection('Later', later, ''),
+    makeSection('No date', noDate, ''),
+  ].join('');
+
+  list.innerHTML = html || `<div class="empty-msg">No tasks yet.</div>`;
 }
+
 // ---- EVENTS ----
 function handleEvType(){
   const type=document.getElementById('evType').value;
@@ -3206,6 +3491,35 @@ function renderEventList(){
             <div class="form-group full"><label class="form-label">Location</label><div style="position:relative"><input class="form-input loc-input" id="eveloc-${ev.id}" value="${escHtml(ev.location||'')}" placeholder="Search location…" autocomplete="off" oninput="locSearch(this,'eveloc-${ev.id}','evelocdrop-${ev.id}')"><div class="loc-dropdown" id="evelocdrop-${ev.id}"></div></div></div>
             <div class="form-group full"><label class="form-label">Notes</label><input class="form-input" id="evenotes-${ev.id}" value="${escHtml(ev.notes||'')}"/></div>
             <div class="form-group full"><label class="form-label">Category</label><select class="form-select" id="evecat-${ev.id}">${catOpts}</select></div>
+            <div class="form-group full">
+              <button class="recur-toggle ${ev.recur?'active':''}" id="ever${ev.id}RecurToggle" onclick="toggleEvEditRecur('${ev.id}','ever')">${ev.recur?'Edit recurrence':'+ Add recurrence'}</button>
+              <div class="recur-section ${ev.recur?'open':''}" id="ever${ev.id}RecurSection">
+                <div class="form-group"><label class="form-label">Repeat type</label>
+                  <select class="form-select" id="ever${ev.id}RecurType" onchange="updateEvEditRecur('${ev.id}','ever')">
+                    <option value="daily" ${ev.recur?.type==='daily'?'selected':''}>Daily</option>
+                    <option value="weekly" ${ev.recur?.type==='weekly'?'selected':''}>Weekly</option>
+                    <option value="monthly" ${ev.recur?.type==='monthly'?'selected':''}>Monthly</option>
+                    <option value="yearly" ${ev.recur?.type==='yearly'?'selected':''}>Yearly</option>
+                    <option value="interval-days" ${ev.recur?.type==='interval-days'?'selected':''}>Every X days</option>
+                    <option value="interval-weeks" ${ev.recur?.type==='interval-weeks'?'selected':''}>Every X weeks</option>
+                    <option value="interval-months" ${ev.recur?.type==='interval-months'?'selected':''}>Every X months</option>
+                    <option value="dow" ${ev.recur?.type==='dow'?'selected':''}>Specific days</option>
+                  </select>
+                </div>
+                <div class="form-group" id="ever${ev.id}IntervalGroup" style="display:${ev.recur?.type?.startsWith('interval-')?'block':'none'}"><label class="form-label">Interval</label><input class="form-input" type="number" id="ever${ev.id}Interval" min="1" value="${ev.recur?.interval||1}"/></div>
+                <div id="ever${ev.id}DowGroup" style="display:${ev.recur?.type==='dow'?'block':'none'}"><label class="form-label" style="font-size:.72rem;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:6px;">Days of week</label><div class="dow-row" id="ever${ev.id}DowRow">${DOW_LABELS.map((d,i)=>'<button type="button" class="dow-btn'+(ev.recur?.dow?.includes(i)?' sel':'')+'\" data-i="'+i+'" onclick="this.classList.toggle(\'sel\')">'+d+'</button>').join('')}</div></div>
+                <div class="form-group"><label class="form-label">Ends</label>
+                  <select class="form-select" id="ever${ev.id}EndType" onchange="updateEvEditRecurEnd('${ev.id}','ever')">
+                    <option value="never" ${(!ev.recur?.endType||ev.recur?.endType==='never')?'selected':''}>Never</option>
+                    <option value="after" ${ev.recur?.endType==='after'?'selected':''}>After X occurrences</option>
+                    <option value="on-date" ${ev.recur?.endType==='on-date'?'selected':''}>On a date</option>
+                  </select>
+                </div>
+                <div class="form-group" id="ever${ev.id}EndAfterGroup" style="display:${ev.recur?.endType==='after'?'block':'none'}"><label class="form-label">Occurrences</label><input class="form-input" type="number" id="ever${ev.id}EndAfter" min="1" value="${ev.recur?.endAfter||10}"/></div>
+                <div class="form-group" id="ever${ev.id}EndDateGroup" style="display:${ev.recur?.endType==='on-date'?'block':'none'}"><label class="form-label">End date</label><input class="form-input" type="date" id="ever${ev.id}EndDate" value="${ev.recur?.endDate||''}"/></div>
+                <button type="button" style="font-family:'Noto Serif Display',Georgia,serif;font-size:.78rem;background:none;border:1.5px dashed #e88;border-radius:8px;padding:5px 12px;cursor:pointer;color:#c0554a;margin-top:4px;" onclick="removeEvRecur('${ev.id}','ever')">Remove recurrence</button>
+              </div>
+            </div>
           </div>
           <button class="save-btn" onclick="saveEvent('${ev.id}')">Save changes</button>
         </div>
@@ -3213,6 +3527,50 @@ function renderEventList(){
     </div>`;
   }).join('');
 }
+function toggleEvEditRecur(id, pfx) {
+  const sec = document.getElementById(pfx+id+'RecurSection');
+  const btn = document.getElementById(pfx+id+'RecurToggle');
+  if (!sec) return;
+  const open = sec.classList.toggle('open');
+  btn.classList.toggle('active', open);
+  btn.textContent = open ? 'Edit recurrence' : '+ Add recurrence';
+}
+function updateEvEditRecur(id, pfx) {
+  const type = document.getElementById(pfx+id+'RecurType')?.value;
+  const ig = document.getElementById(pfx+id+'IntervalGroup');
+  const dg = document.getElementById(pfx+id+'DowGroup');
+  if (ig) ig.style.display = type?.startsWith('interval-') ? 'block' : 'none';
+  if (dg) dg.style.display = type === 'dow' ? 'block' : 'none';
+}
+function updateEvEditRecurEnd(id, pfx) {
+  const type = document.getElementById(pfx+id+'EndType')?.value;
+  const ag = document.getElementById(pfx+id+'EndAfterGroup');
+  const dg = document.getElementById(pfx+id+'EndDateGroup');
+  if (ag) ag.style.display = type === 'after' ? 'block' : 'none';
+  if (dg) dg.style.display = type === 'on-date' ? 'block' : 'none';
+}
+function removeEvRecur(id, pfx) {
+  const sec = document.getElementById(pfx+id+'RecurSection');
+  const btn = document.getElementById(pfx+id+'RecurToggle');
+  if (sec) sec.classList.remove('open');
+  if (btn) { btn.classList.remove('active'); btn.textContent = '+ Add recurrence'; }
+}
+function getEvEditRecur(id, pfx) {
+  const sec = document.getElementById(pfx+id+'RecurSection');
+  if (!sec || !sec.classList.contains('open')) return null;
+  const type = document.getElementById(pfx+id+'RecurType')?.value || 'weekly';
+  const endType = document.getElementById(pfx+id+'EndType')?.value || 'never';
+  const dow = [...(document.querySelectorAll('#'+pfx+id+'DowRow .dow-btn.sel')||[])].map(b=>parseInt(b.dataset.i));
+  return {
+    type,
+    interval: parseInt(document.getElementById(pfx+id+'Interval')?.value) || 1,
+    dow,
+    endType,
+    endAfter: parseInt(document.getElementById(pfx+id+'EndAfter')?.value) || 10,
+    endDate: document.getElementById(pfx+id+'EndDate')?.value || ''
+  };
+}
+
 function toggleEvDetail(id,event){
   if(event&&(event.target.closest('.edit-btn')||event.target.closest('.delete-btn')||event.target.closest('.edit-form')))return;
   const d=document.getElementById('evdetail-'+id);
@@ -3230,6 +3588,8 @@ function saveEvent(id){
   ev.location=document.getElementById('eveloc-'+id).value.trim();
   ev.notes=document.getElementById('evenotes-'+id).value.trim();
   ev.catId=document.getElementById('evecat-'+id).value;
+  const newRecur = getEvEditRecur(id, 'ever');
+  if (newRecur !== undefined) ev.recur = newRecur;
   scheduleSave();renderEventList();renderOverviewEvents();renderOverviewUpcoming();
 }
 
@@ -3309,6 +3669,35 @@ function renderPlannerEventList() {
             <div class="form-group full"><label class="form-label">Location</label><div style="position:relative"><input class="form-input loc-input" id="peveloc-${ev.id}" value="${escHtml(ev.location||'')}" placeholder="Search location…" autocomplete="off" oninput="locSearch(this,'peveloc-${ev.id}','pevelocdrop-${ev.id}')"><div class="loc-dropdown" id="pevelocdrop-${ev.id}"></div></div></div>
             <div class="form-group full"><label class="form-label">Notes</label><input class="form-input" id="pevenotes-${ev.id}" value="${escHtml(ev.notes||'')}"/></div>
             <div class="form-group full"><label class="form-label">Category</label><select class="form-select" id="pevecat-${ev.id}">${catOpts}</select></div>
+            <div class="form-group full">
+              <button class="recur-toggle ${ev.recur?'active':''}" id="pever${ev.id}RecurToggle" onclick="toggleEvEditRecur('${ev.id}','pever')">${ev.recur?'Edit recurrence':'+ Add recurrence'}</button>
+              <div class="recur-section ${ev.recur?'open':''}" id="pever${ev.id}RecurSection">
+                <div class="form-group"><label class="form-label">Repeat type</label>
+                  <select class="form-select" id="pever${ev.id}RecurType" onchange="updateEvEditRecur('${ev.id}','pever')">
+                    <option value="daily" ${ev.recur?.type==='daily'?'selected':''}>Daily</option>
+                    <option value="weekly" ${ev.recur?.type==='weekly'?'selected':''}>Weekly</option>
+                    <option value="monthly" ${ev.recur?.type==='monthly'?'selected':''}>Monthly</option>
+                    <option value="yearly" ${ev.recur?.type==='yearly'?'selected':''}>Yearly</option>
+                    <option value="interval-days" ${ev.recur?.type==='interval-days'?'selected':''}>Every X days</option>
+                    <option value="interval-weeks" ${ev.recur?.type==='interval-weeks'?'selected':''}>Every X weeks</option>
+                    <option value="interval-months" ${ev.recur?.type==='interval-months'?'selected':''}>Every X months</option>
+                    <option value="dow" ${ev.recur?.type==='dow'?'selected':''}>Specific days</option>
+                  </select>
+                </div>
+                <div class="form-group" id="pever${ev.id}IntervalGroup" style="display:${ev.recur?.type?.startsWith('interval-')?'block':'none'}"><label class="form-label">Interval</label><input class="form-input" type="number" id="pever${ev.id}Interval" min="1" value="${ev.recur?.interval||1}"/></div>
+                <div id="pever${ev.id}DowGroup" style="display:${ev.recur?.type==='dow'?'block':'none'}"><label class="form-label" style="font-size:.72rem;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:6px;">Days of week</label><div class="dow-row" id="pever${ev.id}DowRow">${DOW_LABELS.map((d,i)=>'<button type="button" class="dow-btn'+(ev.recur?.dow?.includes(i)?' sel':'')+'\" data-i="'+i+'" onclick="this.classList.toggle(\'sel\')">'+d+'</button>').join('')}</div></div>
+                <div class="form-group"><label class="form-label">Ends</label>
+                  <select class="form-select" id="pever${ev.id}EndType" onchange="updateEvEditRecurEnd('${ev.id}','pever')">
+                    <option value="never" ${(!ev.recur?.endType||ev.recur?.endType==='never')?'selected':''}>Never</option>
+                    <option value="after" ${ev.recur?.endType==='after'?'selected':''}>After X occurrences</option>
+                    <option value="on-date" ${ev.recur?.endType==='on-date'?'selected':''}>On a date</option>
+                  </select>
+                </div>
+                <div class="form-group" id="pever${ev.id}EndAfterGroup" style="display:${ev.recur?.endType==='after'?'block':'none'}"><label class="form-label">Occurrences</label><input class="form-input" type="number" id="pever${ev.id}EndAfter" min="1" value="${ev.recur?.endAfter||10}"/></div>
+                <div class="form-group" id="pever${ev.id}EndDateGroup" style="display:${ev.recur?.endType==='on-date'?'block':'none'}"><label class="form-label">End date</label><input class="form-input" type="date" id="pever${ev.id}EndDate" value="${ev.recur?.endDate||''}"/></div>
+                <button type="button" style="font-family:'Noto Serif Display',Georgia,serif;font-size:.78rem;background:none;border:1.5px dashed #e88;border-radius:8px;padding:5px 12px;cursor:pointer;color:#c0554a;margin-top:4px;" onclick="removeEvRecur('${ev.id}','pever')">Remove recurrence</button>
+              </div>
+            </div>
           </div>
           <button class="save-btn" onclick="savePlannerEvEdit('${ev.id}')">Save changes</button>
         </div>
@@ -3346,6 +3735,8 @@ function savePlannerEvEdit(id) {
   ev.location   = document.getElementById('peveloc-' + id)?.value.trim() || '';
   ev.notes      = document.getElementById('pevenotes-' + id)?.value.trim() || '';
   ev.catId      = document.getElementById('pevecat-' + id)?.value || '';
+  const newRecur = getEvEditRecur(id, 'pever');
+  if (newRecur !== undefined) ev.recur = newRecur;
   scheduleSave();
   renderPlannerEventList();
   renderOverviewEvents();
@@ -3947,8 +4338,8 @@ function renderOverview(){
           const subPanel=hasSubs?_renderCentreSubPanel(t.id,vd):'';
           return '<div class="block-task-item '+(isDone?'done':'')+'" draggable="true" data-task-id="'+t.id+'" data-from-block="'+b.id+'" ondragstart="dndStart(event)" ondragend="dndEnd(event)" oncontextmenu="openCtxMenu(event,\''+t.id+'\');" onpointerdown="ctxLongPress(event,\''+t.id+'\')">'
             +'<span class="block-task-icon-col">'+(cat?catSvg(cat,13):'')+'</span>'
-            +'<span class="block-task-cb-col"><input type="checkbox" '+(isDone?'checked':'')+' onchange="toggleTask(\''+t.id+'\',\''+vd+'\');renderOverview()" style="width:16px;height:16px;accent-color:var(--accent);cursor:pointer;"></span>'
-            +'<span class="block-task-name-col" style="display:flex;align-items:center;gap:4px;">'+'<span onclick="ctxDesktopClick(event,\''+t.id+'\')" style="flex:1;cursor:pointer;">'+escHtml(t.name)+'</span>'+(hasSubs?'<button onclick="toggleCentreSubtasks(\''+t.id+'\')" style="background:none;border:none;cursor:pointer;font-size:.85rem;color:var(--accent);padding:0 3px;line-height:1;flex-shrink:0;font-weight:bold;" title="Show subtasks">+</button>':'') +badge+'</span>'
+            +'<span class="block-task-cb-col"><input type="checkbox" '+(isDone?'checked':'')+' onchange="schedTaskTick(this,\''+t.id+'\',\''+vd+'\')" style="width:16px;height:16px;accent-color:var(--accent);cursor:pointer;"></span>'
+            +'<span class="block-task-name-col" style="display:flex;align-items:center;gap:4px;"><span class="strike-line"></span>'+'<span onclick="ctxDesktopClick(event,\''+t.id+'\')" style="flex:1;cursor:pointer;">'+escHtml(t.name)+'</span>'+(hasSubs?'<button onclick="toggleCentreSubtasks(\''+t.id+'\')" style="background:none;border:none;cursor:pointer;font-size:.85rem;color:var(--accent);padding:0 3px;line-height:1;flex-shrink:0;font-weight:bold;" title="Show subtasks">+</button>':'') +badge+'</span>'
             +'<span class="block-task-handle" title="Drag to move">\u2807</span>'
             +'</div>'
             +subPanel;
@@ -3965,7 +4356,7 @@ function renderOverview(){
 function renderOverdueStrip(container) {
   const existing = document.getElementById('overdueStrip');
   if (existing) existing.remove();
-  const overdue = tasks.filter(t => !t.done && !t.habit && t.due && t.due < today() && (!t.recur || isInfrequentRecur(t)) && !recurDoneLog.some(e=>e.taskId===t.id&&e.date===today()));
+  const overdue = tasks.filter(t => !t.done && !t.habit && t.due && t.due < today() && (!t.recur || isInfrequentRecur(t)));
   if (!overdue.length) return;
   const strip = document.createElement('div');
   strip.id = 'overdueStrip';
@@ -4270,11 +4661,12 @@ function setWaterGoal(v){waterGoal=Math.max(1,Math.min(20,parseInt(v)||8));if(wa
 
 // ---- MEALS ----
 function showMealsTab(id,btn){
-  ['tab-mlog','tab-mrcp'].forEach(t=>document.getElementById(t).style.display='none');
+  ['tab-mlog','tab-mplan','tab-mrcp'].forEach(t=>document.getElementById(t).style.display='none');
   document.getElementById('tab-'+id).style.display='block';
   document.querySelectorAll('#page-meals .tab').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
   if(id==='mrcp')renderRecipeList();
+  if(id==='mplan')renderPlanTab();
 }
 function addMeal(){
   const name=document.getElementById('mealName').value.trim();
@@ -4291,8 +4683,9 @@ function addMeal(){
     sodium:parseInt(document.getElementById('mealSodium').value)||0});
   ['mealName','mealRecipe','mealCal','mealProtein','mealCarbs','mealFat','mealPotassium','mealMagnesium','mealSodium'].forEach(id=>document.getElementById(id).value='');
   scheduleSave();renderMealLog();renderOverviewMeals();
+  if(document.getElementById('nutriHabitCard'))renderNutriHabitCard();
 }
-function deleteMeal(id){meals=meals.filter(m=>m.id!==id);scheduleSave();renderMealLog();renderOverviewMeals();}
+function deleteMeal(id){meals=meals.filter(m=>m.id!==id);scheduleSave();renderMealLog();renderOverviewMeals();if(document.getElementById('nutriHabitCard'))renderNutriHabitCard();}
 function renderMealLog(){
   const filterDate=document.getElementById('mealFilterDate')?.value||today();
   const dayMeals=meals.filter(m=>m.date===filterDate);
@@ -5089,13 +5482,7 @@ function buildIconPickerBtns(selectedSym, catId) {
 function pickCatIcon(btn) {
   // No longer used — modal handles selection
 }
-function selectCatIcon(ic) {
-  // Legacy: called from old inline grid — redirect to new system
-  const key = resolveIconKey(ic);
-  document.getElementById('catIconVal').value = key;
-  const prev = document.getElementById('catIconPreviewNew');
-  if (prev) prev.innerHTML = svgIcon(key, 'var(--accent)', 20);
-}
+// selectCatIcon: see line ~5319
 function toggleCatIconPicker(cid) {
   openIconPicker('edit', cid);
 }
@@ -5118,25 +5505,42 @@ function makeColourSwatch(v, label) {
 
 function loadMilestones(){
   const saved=localStorage.getItem('centre_milestones');
-  if(saved){try{const m=JSON.parse(saved);if(Array.isArray(m)&&m.length)MILESTONES=m;}catch(e){}}
+  if(saved){try{
+    const m=JSON.parse(saved);
+    if(Array.isArray(m)&&m.length){
+      // Migrate old number[] format to {days,reward}[]
+      MILESTONES=m.map(x=>typeof x==='number'?{days:x,reward:''}:x);
+    }
+  }catch(e){}}
 }
 function saveMilestones(){
   localStorage.setItem('centre_milestones',JSON.stringify(MILESTONES));
 }
 function renderMilestoneChips(){
-  const el=document.getElementById('milestoneChips');if(!el)return;
-  const sorted=[...MILESTONES].sort((a,b)=>a-b);
-  el.innerHTML=sorted.map(m=>`<span style="display:inline-flex;align-items:center;gap:4px;background:var(--accent);color:var(--on-accent);border-radius:20px;padding:3px 10px 3px 12px;font-family:'Noto Serif Display',Georgia,serif;font-size:.8rem;">${m}d<button onclick="removeMilestone(${m})" style="background:none;border:none;color:var(--on-accent);opacity:.8;cursor:pointer;font-size:1rem;line-height:1;padding:0 2px;">×</button></span>`).join('');
+  // Legacy: was milestoneChips, now milestoneRewardList
+  const el=document.getElementById('milestoneRewardList');if(!el)return;
+  const sorted=[...MILESTONES].sort((a,b)=>a.days-b.days);
+  if(!sorted.length){el.innerHTML='<p style="font-size:.78rem;color:var(--muted);font-family:\'Noto Serif Display\',Georgia,serif;">No milestones yet.</p>';return;}
+  el.innerHTML=sorted.map(m=>`<div style="display:flex;align-items:center;gap:8px;padding:6px 10px;background:var(--bg);border-radius:10px;">
+    <span style="font-family:'Noto Serif Display',Georgia,serif;font-stretch:extra-condensed;text-transform:uppercase;letter-spacing:.08em;font-size:.75rem;color:var(--accent);min-width:40px;">${m.days}d</span>
+    <span style="flex:1;font-size:.82rem;color:${m.reward?'var(--text)':'var(--muted)'};font-family:'Noto Serif Display',Georgia,serif;">${m.reward||'No reward set'}</span>
+    <button onclick="removeMilestone(${m.days})" style="background:none;border:none;color:var(--border);font-size:1rem;cursor:pointer;padding:0 4px;line-height:1;transition:color .15s;" onmouseover="this.style.color='#e88'" onmouseout="this.style.color='var(--border)'">×</button>
+  </div>`).join('');
 }
 function addMilestone(){
   const inp=document.getElementById('milestoneInput');
+  const rewInp=document.getElementById('milestoneRewardInput');
   const val=parseInt(inp.value);
   if(!val||val<1||val>3650){inp.focus();return;}
-  if(!MILESTONES.includes(val)){MILESTONES.push(val);saveMilestones();renderMilestoneChips();}
-  inp.value='';inp.focus();
+  const reward=(rewInp?rewInp.value.trim():'');
+  const existing=MILESTONES.findIndex(m=>m.days===val);
+  if(existing>=0){MILESTONES[existing].reward=reward;}
+  else{MILESTONES.push({days:val,reward});}
+  saveMilestones();renderMilestoneChips();
+  inp.value='';if(rewInp)rewInp.value='';inp.focus();
 }
 function removeMilestone(val){
-  MILESTONES=MILESTONES.filter(m=>m!==val);
+  MILESTONES=MILESTONES.filter(m=>m.days!==val);
   saveMilestones();renderMilestoneChips();
 }
 
@@ -5245,6 +5649,54 @@ function resetIconStyle() {
   showToast('Icon style reset');
 }
 
+function buildNutriColourGrid(){
+  const grid = document.getElementById('nutriColourGrid'); if(!grid) return;
+  grid.innerHTML = NUTRI_FIELDS.map(f=>{
+    const cur = getComputedStyle(document.documentElement).getPropertyValue(f.cssVar).trim();
+    const accentVal = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim();
+    const isCustom = cur && cur !== accentVal && cur !== 'var(--accent)';
+    return `<div style="display:flex;flex-direction:column;gap:4px;">
+      <label style="font-size:.68rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-family:'Noto Serif Display',Georgia,serif;">${f.label}</label>
+      <div style="display:flex;gap:6px;align-items:center;">
+        <input class="hex-input" id="nc-${f.cssVar.slice(2)}" value="${isCustom?cur:''}" placeholder="accent" style="flex:1;font-size:.82rem;" oninput="syncNutriSwatch('${f.cssVar}')"/>
+        <div style="width:30px;height:30px;border-radius:7px;border:1.5px solid var(--border);overflow:hidden;flex-shrink:0;">
+          <input type="color" id="ncs-${f.cssVar.slice(2)}" value="${isCustom?cur:accentVal}" style="width:200%;height:200%;border:none;cursor:pointer;transform:translate(-25%,-25%);" oninput="syncNutriHex('${f.cssVar}')"/>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+function syncNutriSwatch(cssVar){
+  const h=document.getElementById('nc-'+cssVar.slice(2))?.value;
+  if(/^#[0-9a-fA-F]{6}$/.test(h)) document.getElementById('ncs-'+cssVar.slice(2)).value=h;
+}
+function syncNutriHex(cssVar){
+  const v=document.getElementById('ncs-'+cssVar.slice(2))?.value;
+  if(v) document.getElementById('nc-'+cssVar.slice(2)).value=v;
+}
+function applyNutriColours(){
+  NUTRI_FIELDS.forEach(f=>{
+    const hex=document.getElementById('nc-'+f.cssVar.slice(2))?.value?.trim();
+    if(hex&&/^#[0-9a-fA-F]{6}$/.test(hex)){
+      document.documentElement.style.setProperty(f.cssVar,hex);
+    } else {
+      document.documentElement.style.setProperty(f.cssVar,'var(--accent)');
+    }
+  });
+  scheduleSave();
+  if(document.getElementById('nutriHabitCard')) renderNutriHabitCard();
+}
+function resetNutriColours(){
+  NUTRI_FIELDS.forEach(f=>{
+    document.documentElement.style.setProperty(f.cssVar,'var(--accent)');
+    const inp=document.getElementById('nc-'+f.cssVar.slice(2));
+    if(inp) inp.value='';
+  });
+  scheduleSave();
+  buildNutriColourGrid();
+  if(document.getElementById('nutriHabitCard')) renderNutriHabitCard();
+}
+
 function buildSettings(){
   const sg = document.getElementById('settingsGrid');
   // Populate token field
@@ -5252,8 +5704,8 @@ function buildSettings(){
   if (ti) { ti.value = localStorage.getItem('centre_fbToken') || ''; ti.type = 'password'; }
   if (sg) sg.innerHTML = EDITABLE.map(v => makeColourSwatch(v, THEME_LABELS[v])).join('');
   const pg = document.getElementById('phaseColourGrid');
-  // Build nutrition goals inputs
-  setTimeout(()=>{try{buildNutriGoals();}catch(e){}},20);
+  // Build nutrition goals inputs — only when accordion is open
+  // setTimeout(()=>{try{buildNutriGoals();}catch(e){}},20);
   if (pg) pg.innerHTML = PHASE_VARS.map(v => makeColourSwatch(v, PHASE_LABELS[v])).join('');
   buildIconSettings();
 }
@@ -6039,7 +6491,7 @@ async function locSearch(input,inputId,dropId){
           locationBias:{
             circle:{
               center:{latitude:-31.9505,longitude:115.8605},
-              radius:200000
+              radius:50000
             }
           }
         })
@@ -6848,7 +7300,12 @@ function gcalSetStatus(connected, text) {
   const connectBtn = document.getElementById('gcalConnectBtn');
   const syncBtn = document.getElementById('gcalSyncBtn');
   const disconnectBtn = document.getElementById('gcalDisconnectBtn');
-  if (dot) dot.style.background = connected ? '#6abf82' : (text.includes('Error') || text.includes('failed') ? '#e07070' : 'var(--border)');
+  const hdrDot = document.getElementById('gcalHeaderDot');
+  const hdrIcon = document.getElementById('gcalHeaderIcon');
+  const statusColor = connected ? '#6abf82' : (text.includes('Error') || text.includes('failed') ? '#e07070' : 'var(--border)');
+  if (dot) dot.style.background = statusColor;
+  if (hdrDot) hdrDot.style.background = statusColor;
+  if (hdrIcon) hdrIcon.innerHTML = svgIcon('calendar', connected ? 'var(--accent)' : 'var(--muted)', 14);
   if (txt) txt.textContent = text;
   if (connectBtn) connectBtn.style.display = connected ? 'none' : '';
   if (syncBtn) syncBtn.style.display = connected ? '' : 'none';
@@ -8008,6 +8465,224 @@ function shiftWaterWeek(dir) {
   renderWaterHabitCard();
 }
 
+// ---- NUTRITION HABIT CARD ----
+
+// ---- NUTRITION DASHBOARD (Option A: Today / Week / Month tabs) ----
+// _nutriTab declared in top-level state
+
+function shiftNutriWeek(dir) {
+  if (dir > 0 && nutriWeekOffset >= 0) return;
+  nutriWeekOffset += dir;
+  renderNutriHabitCard();
+}
+
+function setNutriTab(tab) {
+  _nutriTab = tab;
+  renderNutriHabitCard();
+}
+
+// Aggregate meals for a date range
+function nutriAgg(dateList) {
+  const keys = ['cal','protein','carbs','fat','fibre','potassium','magnesium','sodium'];
+  return dateList.map(ds => {
+    const dm = meals.filter(m => m.date === ds);
+    const r = {ds, logged: dm.length > 0};
+    keys.forEach(k => r[k] = dm.reduce((s, m) => s + (m[k] || 0), 0));
+    return r;
+  });
+}
+
+// SVG donut ring (r=28, circ=175.9)
+function nutriDonut(pct, cssVar, size=68, over=false) {
+  const r = size*0.41, circ = +(2*Math.PI*r).toFixed(1);
+  const dash = +(Math.min(pct,100)/100*circ).toFixed(1);
+  const col = over ? 'var(--nutri-over,#c0554a)' : `var(${cssVar})`;
+  const cx = size/2, cy = size/2;
+  return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" style="display:block;flex-shrink:0;">
+    <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="var(--border)" stroke-width="${size*0.088}"/>
+    <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${col}" stroke-width="${size*0.088}"
+      stroke-dasharray="${dash} ${circ}" stroke-linecap="round" transform="rotate(-90 ${cx} ${cy})"
+      style="transition:stroke-dasharray .4s cubic-bezier(.34,1.56,.64,1);"/>
+  </svg>`;
+}
+
+// Horizontal bar (full width)
+function nutriBar(pct, cssVar, over=false, h=4) {
+  const col = over ? 'var(--nutri-over,#c0554a)' : `var(${cssVar})`;
+  return `<div style="height:${h}px;background:var(--border);border-radius:${h}px;overflow:hidden;">
+    <div style="height:100%;width:${Math.min(pct,100)}%;background:${col};border-radius:${h}px;transition:width .4s cubic-bezier(.34,1.56,.64,1);"></div>
+  </div>`;
+}
+
+// Compact nutrient row: label | bar | val/goal
+function nutriRow(label, cssVar, val, goal, unit) {
+  const pct = goal > 0 ? Math.round(val/goal*100) : 0;
+  const over = val > goal;
+  const col = over ? 'var(--nutri-over,#c0554a)' : `var(${cssVar})`;
+  return `<div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;">
+    <div style="width:62px;font-size:.68rem;color:${col};flex-shrink:0;text-align:right;">${label}</div>
+    <div style="flex:1;">${nutriBar(pct, cssVar, over, 5)}</div>
+    <div style="width:72px;font-size:.68rem;color:var(--muted);text-align:right;flex-shrink:0;">${val.toLocaleString()}${unit} <span style="opacity:.5;">/ ${goal.toLocaleString()}</span></div>
+  </div>`;
+}
+
+function renderNutriHabitCard() {
+  const container = document.getElementById('nutriHabitCard');
+  if (!container) return;
+  const t = today();
+  const goals = nutriGoals;
+
+  // ── Tab bar ──
+  const tabBar = `<div style="display:flex;gap:3px;background:var(--bg);border-radius:11px;padding:3px;margin-bottom:16px;">
+    ${['today','week','month'].map(tab=>`<button onclick="setNutriTab('${tab}')" style="flex:1;font-family:'Noto Serif Display',Georgia,serif;font-weight:400;font-stretch:extra-condensed;text-transform:uppercase;letter-spacing:.08em;font-size:.72rem;background:${_nutriTab===tab?'var(--card)':'none'};border:none;border-radius:8px;padding:6px 8px;cursor:pointer;color:${_nutriTab===tab?'var(--text)':'var(--muted)'};box-shadow:${_nutriTab===tab?'0 1px 5px rgba(0,0,0,.07)':'none'};transition:all .2s;">${tab==='today'?'Today':tab==='week'?'Week':'Month'}</button>`).join('')}
+  </div>`;
+
+  // ── Header row (week nav shown on week/month tabs) ──
+  const DISPLAY_FN = f => f.label;
+
+  if (_nutriTab === 'today') {
+    const dm = meals.filter(m => m.date === t);
+    const tot = {};
+    ['cal','protein','carbs','fat','fibre','potassium','magnesium','sodium'].forEach(k => tot[k] = dm.reduce((s,m)=>s+(m[k]||0),0));
+    const calPct = goals.cal > 0 ? Math.round(tot.cal/goals.cal*100) : 0;
+    const calOver = tot.cal > goals.cal;
+
+    // Big calorie donut + number
+    const calSection = `
+      <div style="display:flex;align-items:center;gap:14px;margin-bottom:18px;padding:14px 16px;background:var(--bg);border-radius:14px;">
+        <div style="position:relative;flex-shrink:0;">
+          ${nutriDonut(calPct,'--nutri-cal',72,calOver)}
+          <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none;">
+            <div style="font-family:'Noto Serif Display',Georgia,serif;font-stretch:extra-condensed;font-size:.95rem;color:${calOver?'var(--nutri-over,#c0554a)':'var(--nutri-cal)'};">${calPct}%</div>
+          </div>
+        </div>
+        <div style="flex:1;min-width:0;">
+          <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:3px;">
+            <span style="font-family:'Noto Serif Display',Georgia,serif;font-stretch:extra-condensed;font-size:1.7rem;letter-spacing:.02em;">${tot.cal.toLocaleString()}</span>
+            <span style="font-size:.72rem;color:var(--muted);">/ ${goals.cal.toLocaleString()} kcal</span>
+          </div>
+          ${nutriBar(calPct,'--nutri-cal',calOver,5)}
+          <div style="font-size:.7rem;color:var(--muted);margin-top:3px;">${calOver?'<span style="color:var(--nutri-over,#c0554a);">'+Math.abs(tot.cal-goals.cal).toLocaleString()+' kcal over</span>':Math.abs(goals.cal-tot.cal).toLocaleString()+' kcal remaining'} · ${dm.length} meal${dm.length!==1?'s':''} logged</div>
+        </div>
+      </div>`;
+
+    // Macro rings row
+    const macroKeys = ['protein','carbs','fat','fibre'];
+    const macroRings = `<div style="font-family:'Noto Serif Display',Georgia,serif;font-weight:400;font-stretch:extra-condensed;text-transform:uppercase;letter-spacing:.08em;font-size:.68rem;color:var(--muted);margin-bottom:8px;">Macronutrients</div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:18px;">
+        ${macroKeys.map(k=>{
+          const f = NUTRI_FIELDS.find(f=>f.key===k);
+          const val = tot[k]||0, goal = goals[k]||1;
+          const pct = Math.round(val/goal*100);
+          const over = val > goal;
+          return `<div style="display:flex;flex-direction:column;align-items:center;gap:3px;">
+            <div style="position:relative;">
+              ${nutriDonut(pct, f.cssVar, 52, over)}
+              <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;">
+                <span style="font-size:.55rem;color:${over?'var(--nutri-over,#c0554a)':`var(${f.cssVar})`};">${pct}%</span>
+              </div>
+            </div>
+            <div style="font-family:'Noto Serif Display',Georgia,serif;font-stretch:extra-condensed;font-size:.82rem;color:var(--text);">${val}${f.unit}</div>
+            <div style="font-size:.58rem;color:var(--muted);text-align:center;">${f.label}<br><span style="opacity:.5;">/ ${goal}${f.unit}</span></div>
+          </div>`;
+        }).join('')}
+      </div>`;
+
+    // Micro grid
+    const microKeys = ['potassium','magnesium','sodium'];
+    const microGrid = `<div style="font-family:'Noto Serif Display',Georgia,serif;font-weight:400;font-stretch:extra-condensed;text-transform:uppercase;letter-spacing:.08em;font-size:.68rem;color:var(--muted);margin-bottom:8px;">Micronutrients</div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
+        ${microKeys.map(k=>{
+          const f = NUTRI_FIELDS.find(f=>f.key===k);
+          const val = tot[k]||0, goal = goals[k]||1;
+          const pct = Math.round(val/goal*100);
+          const over = val > goal;
+          const col = over ? 'var(--nutri-over,#c0554a)' : `var(${f.cssVar})`;
+          return `<div style="background:var(--bg);border-radius:11px;padding:10px 12px;">
+            <div style="font-size:.6rem;color:${col};text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px;">${f.label}</div>
+            <div style="font-family:'Noto Serif Display',Georgia,serif;font-stretch:extra-condensed;font-size:.95rem;color:var(--text);">${val>=1000?(val/1000).toFixed(1)+'k':val}<span style="font-size:.62rem;color:var(--muted);"> ${f.unit}</span></div>
+            <div style="height:3px;background:var(--border);border-radius:10px;overflow:hidden;margin-top:5px;">
+              <div style="height:100%;width:${Math.min(pct,100)}%;background:${col};border-radius:10px;transition:width .4s;"></div>
+            </div>
+            <div style="font-size:.56rem;color:var(--muted);margin-top:2px;">${pct}% · ${goal>=1000?(goal/1000).toFixed(1)+'k':goal}${f.unit}</div>
+          </div>`;
+        }).join('')}
+      </div>`;
+
+    container.innerHTML = `<div class="card-title" style="margin-bottom:14px;">Nutrition</div>${tabBar}${calSection}${macroRings}${microGrid}`;
+
+  } else {
+    // ── WEEK or MONTH ──
+    const days30 = [], days7 = [];
+    for (let i = 29; i >= 0; i--) { const d=new Date(t+'T00:00:00'); d.setDate(d.getDate()-i+(nutriWeekOffset*7)); days30.push(dateStr(d)); }
+    for (let i = 6; i >= 0; i--) { const d=new Date(t+'T00:00:00'); d.setDate(d.getDate()-i+(nutriWeekOffset*7)); days7.push(dateStr(d)); }
+    const dateList = _nutriTab === 'week' ? days7 : days30;
+    const agg = nutriAgg(dateList);
+    const loggedDays = agg.filter(d=>d.logged);
+
+    // Week navigation
+    const isCurrentPeriod = nutriWeekOffset === 0;
+    const startLbl = new Date(dateList[0]+'T00:00:00').toLocaleDateString('en-AU',{day:'numeric',month:'short'});
+    const endLbl   = new Date(dateList[dateList.length-1]+'T00:00:00').toLocaleDateString('en-AU',{day:'numeric',month:'short'});
+    const periodNav = `<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+      <button onclick="shiftNutriWeek(-1)" style="background:none;border:1.5px solid var(--border);border-radius:8px;width:28px;height:28px;cursor:pointer;color:var(--muted);font-size:.9rem;line-height:1;">←</button>
+      <span style="font-size:.72rem;color:var(--muted);">${startLbl} – ${endLbl}</span>
+      <button onclick="shiftNutriWeek(1)" ${isCurrentPeriod?'disabled style="opacity:.3;cursor:default;"':''} style="background:none;border:1.5px solid var(--border);border-radius:8px;width:28px;height:28px;cursor:pointer;color:var(--muted);font-size:.9rem;line-height:1;">→</button>
+    </div>`;
+
+    // Calorie bars
+    const calGoal = goals.cal || 1;
+    const barN = dateList.length;
+    const calBars = `<div style="font-family:'Noto Serif Display',Georgia,serif;font-weight:400;font-stretch:extra-condensed;text-transform:uppercase;letter-spacing:.08em;font-size:.68rem;color:var(--muted);margin-bottom:8px;">Calories vs goal</div>
+      <div style="display:flex;align-items:flex-end;gap:${barN>7?'3':'5'}px;height:64px;margin-bottom:4px;">
+        ${agg.map((d,i)=>{
+          const pct = Math.min(100, calGoal>0?Math.round(d.cal/calGoal*100):0);
+          const over = d.cal > calGoal;
+          const isToday = d.ds === t;
+          const col = over ? 'var(--nutri-over,#c0554a)' : d.logged ? 'var(--nutri-cal)' : 'var(--border)';
+          const opacity = !d.logged ? '.35' : '1';
+          const ring = isToday ? 'outline:1.5px solid var(--accent);outline-offset:1px;border-radius:3px;' : '';
+          const filledH = Math.max(d.logged?4:0, pct);
+          const label = barN<=7 ? d.ds.slice(5).replace('-','/') : '';
+          return `<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:1px;opacity:${opacity};">
+            <div style="flex:1;width:100%;display:flex;flex-direction:column;justify-content:flex-end;${ring}">
+              <div style="flex:${100-filledH};background:var(--border);border-radius:3px 3px 0 0;min-height:2px;"></div>
+              <div style="flex:${filledH};background:${col};border-radius:${filledH===100?'3px 3px':'0'} 0 0;min-height:${d.logged?3:2}px;transition:flex .3s;"></div>
+            </div>
+            ${barN<=7?`<div style="font-size:.52rem;color:${isToday?'var(--accent)':'var(--muted)'};">${new Date(d.ds+'T00:00:00').toLocaleDateString('en-AU',{weekday:'short'}).slice(0,1)}</div>`:''}
+          </div>`;
+        }).join('')}
+      </div>`;
+
+    // Averages
+    const n = loggedDays.length || 1;
+    const avg = {};
+    ['cal','protein','carbs','fat','fibre','potassium','magnesium','sodium'].forEach(k => avg[k] = Math.round(loggedDays.reduce((s,d)=>s+d[k],0)/n));
+    const calAchieved = agg.filter(d=>d.logged&&d.cal<=calGoal*1.1&&d.cal>0).length;
+    const calSummary = `<div style="font-size:.7rem;color:var(--muted);margin-bottom:14px;">Avg ${avg.cal.toLocaleString()} kcal · ${calAchieved}/${agg.filter(d=>d.logged).length} days within goal</div>`;
+
+    // Macro averages
+    const macroAvgRows = ['protein','carbs','fat','fibre'].map(k=>{
+      const f = NUTRI_FIELDS.find(f=>f.key===k);
+      return nutriRow(f.label, f.cssVar, avg[k], goals[k]||1, f.unit);
+    }).join('');
+    const macroSection = `<div style="font-family:'Noto Serif Display',Georgia,serif;font-weight:400;font-stretch:extra-condensed;text-transform:uppercase;letter-spacing:.08em;font-size:.68rem;color:var(--muted);margin-bottom:8px;">Avg daily macros</div>
+      <div style="margin-bottom:14px;">${macroAvgRows}</div>`;
+
+    // Micro averages
+    const microAvgRows = ['potassium','magnesium','sodium'].map(k=>{
+      const f = NUTRI_FIELDS.find(f=>f.key===k);
+      return nutriRow(f.label, f.cssVar, avg[k], goals[k]||1, f.unit);
+    }).join('');
+    const microSection = `<div style="font-family:'Noto Serif Display',Georgia,serif;font-weight:400;font-stretch:extra-condensed;text-transform:uppercase;letter-spacing:.08em;font-size:.68rem;color:var(--muted);margin-bottom:8px;">Avg daily micros</div>
+      <div>${microAvgRows}</div>`;
+
+    container.innerHTML = `<div class="card-title" style="margin-bottom:14px;">Nutrition</div>${tabBar}${periodNav}${calBars}${calSummary}${macroSection}${microSection}`;
+  }
+}
+
+
+
 // ---- CYCLE DAY STRIP ----
 let cycleStripOffset = 0; // pixel offset for drag/swipe
 
@@ -8303,7 +8978,11 @@ setInterval(tickLive,1000);
 // TASK ACCORDION FORM
 // ════════════════════════════════════════════════════════════
 
-// ── State (accordion form) ──
+// ── State ──
+let tFormAnchor = 'fixed';
+let tFormRecurMode = 'none';
+let tFormNewSts = [];   // [{id,name,due,dep,depType}]
+let tFormNewDeps = [];  // [{taskId,type,lag,lagU}]
 
 // ── Accordion toggle ──
 function tToggleAcc(id) {
@@ -8356,7 +9035,7 @@ function tSetRecurMode(m, btn) {
   tFormRecurMode = m;
   ['interval','dow','dom','nth','completion'].forEach(p => {
     const el = document.getElementById('trp-' + p);
-    if (el) el.style.display = (p === m) ? 'flex' : 'none';
+    if (el) el.classList.toggle('open', p === m);
   });
   tUpdSummaries();
 }
@@ -8675,6 +9354,7 @@ function getTAccordionHabit() {
     base.grace = parseInt(document.getElementById('tHabitStreakGrace').value) || 0;
     base.freezes = parseInt(document.getElementById('tHabitStreakFreezes').value) || 1;
     base.freezesUsed = 0; base.bestStreak = 0;
+    base.milestones = [..._newTaskMilestones]; // per-habit individualised milestones
   }
   if (type === 'quantity') {
     base.target = parseInt(document.getElementById('tHabitQtyTarget').value) || 2500;
@@ -8955,6 +9635,15 @@ function reinstateOccurrence(evId, ds) {
 
 // NUTRI_FIELDS and NUTRI_DEFAULTS defined in state section above
 
+function toggleNutriAccordion() {
+  _nutriAccordionOpen = !_nutriAccordionOpen;
+  const body = document.getElementById('nutriAccordionBody');
+  const arrow = document.getElementById('nutriAccordionArrow');
+  if (body) body.style.maxHeight = _nutriAccordionOpen ? '600px' : '0';
+  if (arrow) arrow.style.transform = _nutriAccordionOpen ? 'rotate(180deg)' : 'rotate(0deg)';
+  if (_nutriAccordionOpen) { setTimeout(buildNutriGoals, 20); }
+}
+
 function buildNutriGoals() {
   const el = document.getElementById('nutriGoalsGrid');
   if (!el) return;
@@ -9028,41 +9717,179 @@ function renderMealsNutritionTotalWithGoals() {
 }
 
 // ── Patch Centre overview meals to show nutrition progress ──
+// renderOverviewMealsWithGoals replaced below
+
+// toggleCalSection replaced below
+function toggleCalSection(){_calSectionOpen=!_calSectionOpen;renderOverviewMeals();}
+
+// ---- MEAL PLANNER ----
+// ---- MEAL PLANNER ----
+const PLAN_SLOTS = ['breakfast','lunch','dinner','snack'];
+const SLOT_LABELS = {breakfast:'Breakfast',lunch:'Lunch',dinner:'Dinner',snack:'Snack'};
+const SLOT_ICONS  = {breakfast:'☀',lunch:'☁',dinner:'☽',snack:'◇'};
+const SLOT_COLORS = {breakfast:'#fef6e0',lunch:'#f0f4f8',dinner:'#f3f0fe',snack:'#edfaf1'};
+const SLOT_TEXT   = {breakfast:'#b07d20',lunch:'#4a6a8a',dinner:'#7a60c0',snack:'#2e7d52'};
+// _planSelectedDate moved to top-level state
+
+function newMealPlanId(){return 'PLAN-'+String(++mealPlanSeq).padStart(4,'0');}
+function shiftPlanWeek(dir){planWeekOffset+=dir;renderPlanTab();}
+function getPlanWeekDates(offset){
+  const now=new Date(),day=now.getDay(),mon=new Date(now);
+  mon.setDate(now.getDate()-(day===0?6:day-1)+offset*7);
+  return Array.from({length:7},(_,i)=>{const d=new Date(mon);d.setDate(mon.getDate()+i);return d;});
+}
+function getPlansFor(ds){return mealPlans.filter(p=>p.date===ds);}
+function selectPlanDay(ds){_planSelectedDate=ds;renderPlanTab();}
+
+function renderPlanTab(){
+  const days=getPlanWeekDates(planWeekOffset);
+  const t=today();
+  if(!_planSelectedDate||!days.some(d=>dateStr(d)===_planSelectedDate)) _planSelectedDate=t;
+  const s=days[0],e=days[6];
+  const lbl=document.getElementById('planWeekLabel');
+  if(lbl) lbl.textContent=s.toLocaleDateString('en-AU',{day:'numeric',month:'short'})+' – '+e.toLocaleDateString('en-AU',{day:'numeric',month:'short'});
+  const DN=['M','T','W','T','F','S','S'];
+  const grid=document.getElementById('planWeekGrid');
+  if(grid) grid.innerHTML=days.map((d,i)=>{
+    const ds=dateStr(d),plans=getPlansFor(ds),isSel=ds===_planSelectedDate,isToday=ds===t;
+    const dots=PLAN_SLOTS.map(sl=>`<div style="width:5px;height:5px;border-radius:50%;background:${plans.some(p=>p.slot===sl)?'var(--accent)':'var(--border)'};transition:background .2s;"></div>`).join('');
+    return `<div onclick="selectPlanDay('${ds}')" style="padding:6px 3px;text-align:center;cursor:pointer;border-radius:9px;border:1.5px solid ${isSel?'var(--accent)':'transparent'};background:${isSel?'rgba(147,170,205,.08)':'transparent'};transition:all .15s;">
+      <div style="font-family:'Noto Serif Display',Georgia,serif;font-stretch:extra-condensed;text-transform:uppercase;font-size:.58rem;letter-spacing:.07em;color:var(--muted);">${DN[i]}</div>
+      <div style="font-family:'Noto Serif Display',Georgia,serif;font-stretch:extra-condensed;font-size:.95rem;color:${isToday?'var(--accent)':'var(--text)'};">${d.getDate()}</div>
+      <div style="display:flex;justify-content:center;gap:2px;margin-top:3px;">${dots}</div>
+    </div>`;
+  }).join('');
+  const heading=document.getElementById('planDayHeading');
+  if(heading){
+    const selDate=new Date(_planSelectedDate+'T00:00:00');
+    heading.textContent=_planSelectedDate===t?'Today — '+selDate.toLocaleDateString('en-AU',{weekday:'long',day:'numeric',month:'long'}):selDate.toLocaleDateString('en-AU',{weekday:'long',day:'numeric',month:'long'});
+  }
+  renderPlanDaySlots(_planSelectedDate);
+}
+
+function renderPlanDaySlots(ds){
+  const container=document.getElementById('planDaySlots');
+  if(!container) return;
+  // Build recipe suggestion list for datalist
+  const allRcpOpts=recipes.map(r=>`<option value="${escHtml(r.name)}">`).join('');
+  container.innerHTML=PLAN_SLOTS.map(slot=>{
+    const items=mealPlans.filter(p=>p.date===ds&&p.slot===slot);
+    const slotCal=items.reduce((s,p)=>s+(p.cal||0),0);
+    const bg=SLOT_COLORS[slot],tc=SLOT_TEXT[slot];
+    const itemRows=items.map(p=>`
+      <div style="display:flex;align-items:center;gap:8px;padding:7px 10px;background:var(--card);border-radius:9px;border:1px solid var(--border);">
+        <span style="flex:1;font-size:.85rem;">${escHtml(p.name)}</span>
+        ${p.cal?`<span style="font-size:.7rem;color:var(--muted);white-space:nowrap;">${p.cal} kcal</span>`:''}
+        ${p.protein?`<span style="font-size:.65rem;padding:1px 5px;border-radius:20px;background:#f3f0fe;color:#7a60c0;">${p.protein}g P</span>`:''}
+        <button onclick="deletePlanItem('${p.id}')" style="background:none;border:none;color:var(--border);cursor:pointer;font-size:1rem;padding:0 2px;line-height:1;transition:color .15s;" onmouseover="this.style.color='#e88'" onmouseout="this.style.color='var(--border)'">×</button>
+      </div>`).join('');
+    return `
+      <div style="background:${bg};border-radius:14px;padding:14px 16px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:${items.length?'10px':'8px'};">
+          <span style="font-family:'Noto Serif Display',Georgia,serif;font-weight:400;font-stretch:extra-condensed;text-transform:uppercase;letter-spacing:.1em;font-size:.82rem;color:${tc};">${SLOT_ICONS[slot]} ${SLOT_LABELS[slot]}</span>
+          ${slotCal?`<span style="font-size:.7rem;color:var(--muted);">${slotCal} kcal</span>`:''}
+        </div>
+        ${itemRows?`<div style="display:flex;flex-direction:column;gap:5px;margin-bottom:9px;">${itemRows}</div>`:''}
+        <div style="display:flex;gap:6px;align-items:stretch;">
+          <div style="flex:1;position:relative;">
+            <input id="planIn-${slot}-${ds}" list="planRcpList" placeholder="Search recipes or type a meal…"
+              style="width:100%;font-family:'Handwriting',Georgia,serif;font-size:.83rem;border:1.5px dashed rgba(0,0,0,.12);border-radius:9px;padding:7px 10px;background:rgba(255,255,255,.6);color:var(--text);outline:none;box-sizing:border-box;"
+              onfocus="this.style.borderColor='var(--accent)';this.style.background='white'"
+              onblur="this.style.borderColor='rgba(0,0,0,.12)';this.style.background='rgba(255,255,255,.6)'"
+              onkeydown="if(event.key==='Enter'){addPlanItem('${slot}','${ds}');event.preventDefault();}"/>
+          </div>
+          <button onclick="addPlanItem('${slot}','${ds}')" style="font-family:'Noto Serif Display',Georgia,serif;font-stretch:extra-condensed;text-transform:uppercase;letter-spacing:.06em;font-size:.75rem;background:var(--accent);color:white;border:none;border-radius:9px;padding:7px 14px;cursor:pointer;white-space:nowrap;transition:background .15s;" onmouseover="this.style.background='var(--accent-dark)'" onmouseout="this.style.background='var(--accent)'">Add</button>
+        </div>
+      </div>`;
+  }).join('');
+  // Populate datalist separately (avoid Safari issues with datalist inside innerHTML)
+  const dl = document.getElementById('planRcpList');
+  if(dl) dl.innerHTML = allRcpOpts;
+}
+
+function addPlanItem(slot,ds){
+  const input=document.getElementById(`planIn-${slot}-${ds}`);
+  if(!input) return;
+  const name=input.value.trim(); if(!name) return;
+  const rcp=recipes.find(r=>r.name.toLowerCase()===name.toLowerCase());
+  mealPlans.push({id:newMealPlanId(),date:ds,slot,name,cal:rcp?.cal||0,protein:rcp?.protein||0,carbs:rcp?.carbs||0,fat:rcp?.fat||0,fibre:rcp?.fibre||0});
+  input.value='';
+  scheduleSave();
+  renderPlanTab();
+}
+
+function deletePlanItem(id){
+  mealPlans=mealPlans.filter(p=>p.id!==id);
+  scheduleSave();
+  renderPlanTab();
+}
+
+// ---- CALORIE ICON (custom pulse SVG) ----
 function renderOverviewMealsWithGoals() {
   const container = document.getElementById('overviewMeals'); if (!container) return;
   const todayMeals = meals.filter(m => m.date === getCentreDate());
-  const MEAL_ORDER = ['breakfast','lunch','dinner','snack'];
-  const sorted = [...todayMeals].sort((a,b) => MEAL_ORDER.indexOf(a.type)-MEAL_ORDER.indexOf(b.type));
-  if (!todayMeals.length) { container.innerHTML = `<p class="no-events" style="margin-top:2px;font-size:.82rem;">No meals logged today.</p>`; return; }
+
   const tot = todayMeals.reduce((a,m)=>({
     cal:a.cal+(m.cal||0),protein:a.protein+(m.protein||0),
-    carbs:a.carbs+(m.carbs||0),fat:a.fat+(m.fat||0),
-    fibre:a.fibre+(m.fibre||0),potassium:a.potassium+(m.potassium||0),
-    magnesium:a.magnesium+(m.magnesium||0),sodium:a.sodium+(m.sodium||0)
-  }),{cal:0,protein:0,carbs:0,fat:0,fibre:0,potassium:0,magnesium:0,sodium:0});
+    carbs:a.carbs+(m.carbs||0),fat:a.fat+(m.fat||0),fibre:a.fibre+(m.fibre||0)
+  }),{cal:0,protein:0,carbs:0,fat:0,fibre:0});
 
-  // Calories-only bar for Centre
-  const calGoal = nutriGoals.cal || NUTRI_DEFAULTS.cal || 2000;
-  const calPct = Math.min(100, Math.round(tot.cal / calGoal * 100));
+  const calGoal = nutriGoals.cal || 2000;
+  const calPct  = Math.min(100, Math.round(tot.cal / calGoal * 100));
   const calOver = tot.cal > calGoal;
-  const calBar = `<div style="margin-top:10px;">
-    <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:3px;">
-      <span style="font-size:.68rem;text-transform:uppercase;letter-spacing:.06em;color:#e07050;font-family:'Noto Serif Display',Georgia,serif;">Calories</span>
-      <span style="font-size:.72rem;color:${calOver?'#c0554a':'var(--muted)'};">${tot.cal.toLocaleString()} <span style="opacity:.55;">/ ${calGoal.toLocaleString()} kcal</span></span>
-    </div>
-    <div style="height:5px;background:var(--border);border-radius:20px;overflow:hidden;">
-      <div style="height:100%;width:${calPct}%;background:${calOver?'#c0554a':'#e07050'};border-radius:20px;transition:width .4s cubic-bezier(.34,1.56,.64,1);"></div>
-    </div>
-  </div>`;
+  const ringColor = calOver ? '#c0554a' : 'var(--accent)';
+  const isOpen  = _calSectionOpen;
+
+  // Stroke-dasharray donut (circ = 2π×8 ≈ 50.3)
+  const circ = 50.3;
+  const dash  = +(calPct / 100 * circ).toFixed(1);
+
+  // Custom pulse SVG: pulsing outer ring + filled donut
+  const pulseSvg = `<svg width="26" height="26" viewBox="0 0 26 26" style="flex-shrink:0;display:block;cursor:pointer;">
+    <!-- pulse ring (only when >0 cal) -->
+    ${tot.cal>0?`<circle cx="13" cy="13" r="7" fill="none" stroke="${ringColor}" stroke-width="1" opacity="0.35" class="cal-pulse-ring"/>`:``}
+    <!-- track -->
+    <circle cx="13" cy="13" r="8" fill="none" stroke="var(--border)" stroke-width="3" transform="rotate(-90 13 13)"/>
+    <!-- fill -->
+    <circle cx="13" cy="13" r="8" fill="none" stroke="${ringColor}" stroke-width="3"
+      stroke-dasharray="${dash} ${circ}" stroke-linecap="round" transform="rotate(-90 13 13)"
+      style="transition:stroke-dasharray .5s cubic-bezier(.34,1.2,.64,1),stroke .3s;"/>
+    <!-- centre dot -->
+    <circle cx="13" cy="13" r="2.5" fill="${tot.cal>0?ringColor:'var(--border)'}"/>
+  </svg>`;
+
+  // Subtle cal readout beside icon when collapsed
+  const aside = tot.cal > 0
+    ? `<span style="font-size:.7rem;color:${calOver?'#c0554a':'var(--muted)'};">${tot.cal.toLocaleString()}<span style="opacity:.4;"> kcal</span></span>`
+    : '';
+
+  // Expanded: bar + macros only (no meal list)
+  const expandedHtml = `
+    <div style="padding-top:10px;">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px;">
+        <span style="font-size:.68rem;text-transform:uppercase;letter-spacing:.06em;color:${calOver?'#c0554a':'var(--muted)'};font-family:'Noto Serif Display',Georgia,serif;">Calories</span>
+        <span style="font-size:.72rem;color:${calOver?'#c0554a':'var(--muted)'};">${tot.cal.toLocaleString()} <span style="opacity:.45;">/ ${calGoal.toLocaleString()} kcal</span></span>
+      </div>
+      <div style="height:4px;background:var(--border);border-radius:20px;overflow:hidden;margin-bottom:9px;">
+        <div style="height:100%;width:${calPct}%;background:${calOver?'#c0554a':'#e07050'};border-radius:20px;transition:width .4s cubic-bezier(.34,1.56,.64,1);"></div>
+      </div>
+      <div style="display:flex;gap:5px;flex-wrap:wrap;">
+        ${tot.protein?`<span style="font-size:.68rem;padding:2px 7px;border-radius:20px;background:#f3f0fe;color:#7a60c0;">${tot.protein}g protein</span>`:''}
+        ${tot.carbs?`<span style="font-size:.68rem;padding:2px 7px;border-radius:20px;background:#fff8e0;color:#b07d20;">${tot.carbs}g carbs</span>`:''}
+        ${tot.fat?`<span style="font-size:.68rem;padding:2px 7px;border-radius:20px;background:#fde8e8;color:#c0554a;">${tot.fat}g fat</span>`:''}
+        ${tot.fibre?`<span style="font-size:.68rem;padding:2px 7px;border-radius:20px;background:#edfaf1;color:#2e7d52;">${tot.fibre}g fibre</span>`:''}
+      </div>
+    </div>`;
 
   container.innerHTML = `
-    <div style="font-family:var(--font-display,Georgia,serif);font-weight:400;font-stretch:extra-condensed;text-transform:uppercase;letter-spacing:.08em;font-size:.8rem;color:var(--muted);margin-bottom:8px;margin-top:4px;">Nutrition</div>
-    <div class="meal-section" style="margin-bottom:4px">${sorted.map(m=>`
-      <div class="meal-row"><div class="meal-row-header"><span class="meal-label">${m.type}</span><span class="meal-name">${escHtml(m.name)}</span></div>
-        <div class="meal-macro-strip">${m.cal?`<span class="macro-pill cal">${m.cal} kcal</span>`:''}${m.protein?`<span class="macro-pill protein">${m.protein}g protein</span>`:''}${m.carbs?`<span class="macro-pill carbs">${m.carbs}g carbs</span>`:''}${m.fat?`<span class="macro-pill fat">${m.fat}g fat</span>`:''}</div>
-      </div>`).join('')}
+    <div onclick="toggleCalSection()" style="display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none;-webkit-tap-highlight-color:transparent;">
+      ${pulseSvg}
+      ${aside}
+      <span style="font-size:.5rem;color:var(--border);margin-left:auto;transition:transform .25s;display:inline-block;transform:rotate(${isOpen?'180':'0'}deg);">▼</span>
     </div>
-    ${calBar}`;
+    <div style="overflow:hidden;max-height:${isOpen?'200px':'0'};transition:max-height .32s ease;">
+      ${expandedHtml}
+    </div>`;
 }
 
 </script>
