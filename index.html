@@ -605,6 +605,38 @@ h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.
 .settings-accordion-arrow.open{transform:rotate(180deg);}
 .settings-accordion-body{display:none;padding:0 18px 16px;}
 .settings-accordion-body.open{display:block;}
+
+/* ── TASK ACCORDION ── */
+.tacc-section{border-top:1px solid var(--border);}
+.tacc-section:last-of-type{border-bottom:1px solid var(--border);}
+.tacc-trigger{display:flex;align-items:center;padding:10px 0;cursor:pointer;width:100%;background:none;border:none;text-align:left;gap:0;}
+.tacc-name{font-family:'Noto Serif Display',Georgia,serif;font-stretch:extra-condensed;text-transform:uppercase;letter-spacing:.1em;font-size:.72rem;color:var(--muted);flex-shrink:0;min-width:108px;transition:color .15s;}
+.tacc-name.active{color:var(--text);}
+.tacc-sum{flex:1;font-size:.68rem;color:var(--border);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 8px;font-family:'Noto Serif Display',Georgia,serif;}
+.tacc-sum.set{color:var(--accent);}
+.tacc-chev{font-size:.58rem;color:var(--muted);transition:transform .2s;flex-shrink:0;}
+.tacc-trigger.open .tacc-chev{transform:rotate(180deg);}
+.tacc-body{display:none;flex-direction:column;gap:10px;padding:6px 0 16px;}
+.tacc-body.open{display:flex;}
+.tacc-chips{display:flex;gap:5px;flex-wrap:wrap;}
+.tacc-chip{font-family:'Noto Serif Display',Georgia,serif;font-stretch:extra-condensed;text-transform:uppercase;letter-spacing:.07em;font-size:.6rem;padding:4px 10px;border-radius:20px;border:1.5px solid var(--border);background:none;color:var(--muted);cursor:pointer;transition:all .15s;}
+.tacc-chip:hover{border-color:var(--accent);color:var(--accent);}
+.tacc-chip.on{border-color:var(--accent);color:var(--accent);background:rgba(147,170,205,.12);}
+.tacc-recur-panel{display:none;flex-direction:column;gap:9px;}
+.tacc-recur-panel.open{display:flex;}
+.tacc-add-dep-btn{font-family:'Noto Serif Display',Georgia,serif;font-stretch:extra-condensed;text-transform:uppercase;letter-spacing:.08em;font-size:.65rem;background:none;border:1.5px dashed var(--border);color:var(--muted);border-radius:9px;padding:8px;cursor:pointer;width:100%;text-align:center;transition:all .15s;margin-top:2px;}
+.tacc-add-dep-btn:hover{border-color:var(--accent);color:var(--accent);}
+.tacc-dep-picker{display:none;flex-direction:column;gap:9px;background:var(--bg);border-radius:10px;padding:12px;border:1.5px solid var(--border);margin-top:4px;}
+.tacc-dep-picker.open{display:flex;}
+.tacc-dep-chain{display:flex;align-items:center;gap:5px;flex-wrap:wrap;}
+.tacc-dep-name{font-size:.75rem;padding:3px 9px;border-radius:7px;background:rgba(147,170,205,.15);color:var(--accent);font-weight:500;}
+.tacc-dep-arrow{font-size:.75rem;color:var(--muted);}
+.tacc-dep-this{font-size:.75rem;padding:3px 9px;border-radius:7px;background:var(--border);color:var(--muted);}
+.tacc-dep-item{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:9px 11px;display:flex;flex-direction:column;gap:6px;}
+.tacc-st-row{background:var(--bg);border:1px solid var(--border);border-radius:9px;overflow:hidden;}
+.tacc-st-main{display:flex;align-items:center;gap:8px;padding:8px 10px;}
+.tacc-st-detail{display:none;padding:8px 10px 10px;border-top:1px solid var(--border);flex-direction:column;gap:8px;}
+.tacc-st-detail.open{display:flex;}
 </style>
 </head>
 <body>
@@ -844,95 +876,284 @@ h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.
         <button class="tab" onclick="showTab('cats',this)">Categories</button>
       </div>
       <div id="tab-tadd">
-        <div class="form-grid">
-        <div class="form-group full"><label class="form-label">Task name</label>
-          <div class="mic-row">
-            <input class="form-input" id="tName" placeholder="What needs doing?" style="flex:1"/>
+        <!-- ── NAME ROW ── -->
+        <div style="display:flex;gap:9px;align-items:center;margin-bottom:8px;">
+          <div class="mic-row" style="flex:1;">
+            <input class="form-input" id="tName" placeholder="What needs doing?" style="flex:1;font-size:.96rem;"/>
             <button type="button" class="mic-btn" id="micbtn-tName" onclick="startVoice('tName','tVoiceStatus')" title="Speak task name"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="11" rx="3"/><path d="M5 10a7 7 0 0 0 14 0"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="8" y1="22" x2="16" y2="22"/></svg></button>
           </div>
-          <div class="voice-status" id="tVoiceStatus"></div>
+          <div id="tCatDot" onclick="tCycleCat()" title="Category" style="width:13px;height:13px;border-radius:50%;background:var(--border);border:2px solid var(--border);flex-shrink:0;cursor:pointer;transition:all .15s;"></div>
         </div>
-          <div class="form-group full"><label class="form-label">Notes <span style="font-size:.68rem;opacity:.65;font-style:italic">— context, reminders, details</span></label><textarea class="form-input" id="tNotes" rows="2" placeholder="Add any context or details…" style="resize:vertical;"></textarea></div>
-          <div class="form-group"><label class="form-label">Category</label><select class="form-select" id="tCat"><option value="">— none —</option></select></div>
-          <div class="form-group"><label class="form-label">Duration (mins)</label><input class="form-input" type="number" id="tDur" min="1" placeholder="e.g. 30" /></div>
-          <div class="form-group full">
-            <label class="form-label">Due date</label>
-            <div style="display:flex;gap:8px;">
-              <select class="form-select" id="tDueQuick" onchange="quickDue('tDueDate','tDueQuick')" style="flex:1"><option value="">Pick…</option><option value="today">Today</option><option value="tomorrow">Tomorrow</option><option value="custom">Choose…</option></select>
-              <input class="form-input" type="date" id="tDueDate" style="flex:1.5"/>
+        <div class="voice-status" id="tVoiceStatus"></div>
+
+        <!-- ── ALWAYS-VISIBLE: due + duration ── -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;">
+          <div class="form-group"><label class="form-label">Due date</label>
+            <input class="form-input" type="date" id="tDueDate" oninput="tUpdSummaries()"/>
+          </div>
+          <div class="form-group"><label class="form-label">Duration (mins)</label>
+            <input class="form-input" type="number" id="tDur" min="1" placeholder="e.g. 30" oninput="tUpdSummaries()"/>
+          </div>
+        </div>
+
+        <!-- ══ ACCORDION ══ -->
+
+        <!-- 1. BASIC -->
+        <div class="tacc-section">
+          <button class="tacc-trigger open" id="tacc-trig-basic" onclick="tToggleAcc('basic')">
+            <span class="tacc-name active" id="tacc-nm-basic">Basic</span>
+            <span class="tacc-sum" id="tacc-sm-basic">Category · notes</span>
+            <span class="tacc-chev">▾</span>
+          </button>
+          <div class="tacc-body open" id="tacc-bd-basic">
+            <div class="form-group"><label class="form-label">Category</label>
+              <select class="form-select" id="tCat" onchange="tUpdSummaries()"><option value="">— none —</option></select>
+            </div>
+            <div class="form-group"><label class="form-label">Notes</label>
+              <textarea class="form-input" id="tNotes" rows="2" placeholder="Any context or details…" style="resize:vertical;" oninput="tUpdSummaries()"></textarea>
             </div>
           </div>
-          <div class="form-group full">
-            <button class="recur-toggle" id="tRecurToggle" onclick="toggleRecurUI('t')">+ Add recurrence</button>
-            <div class="recur-section" id="tRecurSection">
-              <div class="form-group"><label class="form-label">Repeat type</label>
-                <select class="form-select" id="tRecurType" onchange="updateRecurUI('t')">
-                  <option value="daily">Daily</option><option value="weekly">Weekly</option><option value="monthly">Monthly</option><option value="yearly">Yearly</option>
-                  <option value="interval-days">Every X days</option><option value="interval-weeks">Every X weeks</option><option value="interval-months">Every X months</option>
-                  <option value="dow">Specific days of week</option><option value="on-completion">On completion</option>
-                </select>
+        </div>
+
+        <!-- 2. SCHEDULE -->
+        <div class="tacc-section">
+          <button class="tacc-trigger" id="tacc-trig-schedule" onclick="tToggleAcc('schedule')">
+            <span class="tacc-name" id="tacc-nm-schedule">Schedule</span>
+            <span class="tacc-sum" id="tacc-sm-schedule">No dates set</span>
+            <span class="tacc-chev">▾</span>
+          </button>
+          <div class="tacc-body" id="tacc-bd-schedule">
+            <div class="form-group"><label class="form-label">Anchor type</label>
+              <div class="tacc-chips" id="tAnchorChips">
+                <button class="tacc-chip on" data-a="fixed" onclick="tSetAnchor('fixed',this)">Fixed</button>
+                <button class="tacc-chip" data-a="proj-start" onclick="tSetAnchor('proj-start',this)">Project start</button>
+                <button class="tacc-chip" data-a="proj-due" onclick="tSetAnchor('proj-due',this)">Project due</button>
+                <button class="tacc-chip" data-a="parent" onclick="tSetAnchor('parent',this)">Parent task</button>
+                <button class="tacc-chip" data-a="due" onclick="tSetAnchor('due',this)">Due date</button>
               </div>
-              <div class="form-group" id="tIntervalGroup" style="display:none"><label class="form-label">Interval</label><input class="form-input" type="number" id="tInterval" min="1" value="1"/></div>
-              <div id="tDowGroup" style="display:none"><label class="form-label" style="font-size:.72rem;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:6px;">Days of week</label><div class="dow-row" id="tDowRow"></div></div>
-              <div class="form-group" id="tCompletionGroup" style="display:none"><label class="form-label">Days after completion</label><input class="form-input" type="number" id="tCompletionDays" min="1" value="7"/></div>
-              <div class="form-group"><label class="form-label">Ends</label>
-                <select class="form-select" id="tEndType" onchange="updateEndUI('t')"><option value="never">Never</option><option value="after">After X occurrences</option><option value="on-date">On a date</option></select>
+            </div>
+            <!-- Fixed dates -->
+            <div id="tAnchorFixed">
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
+                <div class="form-group"><label class="form-label">Start date</label><input class="form-input" type="date" id="tSchedStart" oninput="tUpdSummaries()"/></div>
+                <div class="form-group"><label class="form-label">End date</label><input class="form-input" type="date" id="tSchedEnd" oninput="tUpdSummaries()"/></div>
               </div>
-              <div class="form-group" id="tEndAfterGroup" style="display:none"><label class="form-label">Occurrences</label><input class="form-input" type="number" id="tEndAfter" min="1" value="10"/></div>
-              <div class="form-group" id="tEndDateGroup" style="display:none"><label class="form-label">End date</label><input class="form-input" type="date" id="tEndDate"/></div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+                <div class="form-group"><label class="form-label">Start time</label><input class="form-input" type="time" id="tSchedStartTime"/></div>
+                <div class="form-group"><label class="form-label">End time</label><input class="form-input" type="time" id="tSchedEndTime"/></div>
+              </div>
+            </div>
+            <!-- Relative anchor -->
+            <div id="tAnchorRelative" style="display:none;flex-direction:column;gap:9px;">
+              <div style="display:flex;gap:6px;align-items:flex-end;background:var(--bg);border-radius:10px;padding:10px 11px;border:1px solid var(--border);">
+                <div class="form-group" style="flex:0 0 70px"><label class="form-label">Offset</label><input class="form-input" type="number" id="tOffsetVal" value="0" min="0" oninput="tUpdSummaries()"/></div>
+                <div class="form-group" style="flex:1"><label class="form-label">Unit</label><select class="form-select" id="tOffsetUnit" onchange="tUpdSummaries()"><option value="days">days</option><option value="hours">hours</option><option value="weeks">weeks</option></select></div>
+                <div class="form-group" style="flex:1"><label class="form-label">Direction</label><select class="form-select" id="tOffsetDir" onchange="tUpdSummaries()"><option value="after">after</option><option value="before">before</option></select></div>
+              </div>
+              <div class="form-group" id="tAnchorRefGroup">
+                <label class="form-label" id="tAnchorRefLbl">Anchor task / project</label>
+                <select class="form-select" id="tAnchorRef"></select>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+                <div class="form-group"><label class="form-label">Start time</label><input class="form-input" type="time" id="tRelStartTime"/></div>
+                <div class="form-group"><label class="form-label">End time</label><input class="form-input" type="time" id="tRelEndTime"/></div>
+              </div>
             </div>
           </div>
-          <!-- HABIT TOGGLE -->
-          <div class="form-group full">
-            <button class="habit-toggle" id="tHabitToggle" onclick="toggleHabitGoalUI('tHabit')">+ Mark as habit</button>
-            <div class="habit-goal-section" id="tHabitSection">
-              <div class="form-group"><label class="form-label">Goal type</label>
-                <select class="form-select" id="tHabitType" onchange="updateHabitGoalUI('tHabit')">
-                  <option value="frequency">Frequency</option>
-                  <option value="streak">Streak</option>
-                  <option value="quantity">Quantity</option>
-                  <option value="cumulative">Cumulative</option>
+        </div>
+
+        <!-- 3. SUBTASKS -->
+        <div class="tacc-section">
+          <button class="tacc-trigger" id="tacc-trig-subtasks" onclick="tToggleAcc('subtasks')">
+            <span class="tacc-name" id="tacc-nm-subtasks">Subtasks</span>
+            <span class="tacc-sum" id="tacc-sm-subtasks">None</span>
+            <span class="tacc-chev">▾</span>
+          </button>
+          <div class="tacc-body" id="tacc-bd-subtasks">
+            <div id="tStList" style="display:flex;flex-direction:column;gap:6px;margin-bottom:8px;"></div>
+            <div style="display:flex;gap:7px;align-items:flex-end;">
+              <div class="form-group" style="flex:2"><label class="form-label">Subtask name</label><input class="form-input" id="tStNameInp" placeholder="e.g. Wash sheets"/></div>
+              <div class="form-group" style="flex:1"><label class="form-label">Due (optional)</label><input class="form-input" type="date" id="tStDueInp"/></div>
+              <button type="button" onclick="tAddSt()" style="flex-shrink:0;font-family:'Noto Serif Display',Georgia,serif;font-stretch:extra-condensed;text-transform:uppercase;letter-spacing:.07em;font-size:.63rem;background:none;border:1.5px solid var(--accent);color:var(--accent);border-radius:8px;padding:8px 11px;cursor:pointer;white-space:nowrap;margin-bottom:1px;">+ Add</button>
+            </div>
+            <div style="font-size:.68rem;color:var(--muted);margin-top:4px;">Tap ↓ on a subtask to set its dependency on another subtask within this task.</div>
+          </div>
+        </div>
+
+        <!-- 4. DEPENDENCIES -->
+        <div class="tacc-section">
+          <button class="tacc-trigger" id="tacc-trig-deps" onclick="tToggleAcc('deps')">
+            <span class="tacc-name" id="tacc-nm-deps">Dependencies</span>
+            <span class="tacc-sum" id="tacc-sm-deps">None</span>
+            <span class="tacc-chev">▾</span>
+          </button>
+          <div class="tacc-body" id="tacc-bd-deps">
+            <div id="tDepList" style="display:flex;flex-direction:column;gap:7px;"></div>
+            <button class="tacc-add-dep-btn" onclick="tOpenDepPicker()">+ Add dependency</button>
+            <div class="tacc-dep-picker" id="tDepPicker">
+              <div class="form-group"><label class="form-label">This task depends on</label>
+                <select class="form-select" id="tDpTask">
+                  <option value="">— pick a task —</option>
                 </select>
               </div>
-              <!-- Frequency -->
-              <div id="tHabitFreqGroup">
-                <div class="form-grid" style="margin:0">
-                  <div class="form-group"><label class="form-label">Target count</label><input class="form-input" type="number" id="tHabitFreqCount" min="1" value="1"/></div>
-                  <div class="form-group"><label class="form-label">Per period</label>
-                    <select class="form-select" id="tHabitFreqPeriod"><option value="day">Day</option><option value="week">Week</option><option value="month">Month</option><option value="custom">Custom (X days)</option></select>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+                <div class="form-group"><label class="form-label">Type</label>
+                  <select class="form-select" id="tDpType">
+                    <option value="FS">Finish → Start (FS)</option>
+                    <option value="SS">Start → Start (SS)</option>
+                    <option value="SF">Start → Finish (SF)</option>
+                  </select>
+                </div>
+                <div class="form-group"><label class="form-label">Lag</label>
+                  <div style="display:flex;gap:5px;">
+                    <input class="form-input" type="number" id="tDpLag" value="0" min="0" style="flex:1;"/>
+                    <select class="form-select" id="tDpLagU" style="flex:1;"><option>days</option><option>hours</option></select>
                   </div>
-                  <div class="form-group" id="tHabitFreqCustomGroup" style="display:none"><label class="form-label">Every X days</label><input class="form-input" type="number" id="tHabitFreqCustom" min="1" value="3"/></div>
                 </div>
               </div>
-              <!-- Streak -->
-              <div id="tHabitStreakGroup" style="display:none">
-                <div class="form-grid" style="margin:0">
-                  <div class="form-group"><label class="form-label">Streak target (days)</label><input class="form-input" type="number" id="tHabitStreakTarget" min="1" value="7"/></div>
+              <div style="display:flex;gap:8px;">
+                <button type="button" onclick="tCloseDepPicker()" style="font-family:'Noto Serif Display',Georgia,serif;font-size:.75rem;background:none;border:1.5px solid var(--border);border-radius:8px;padding:7px 12px;cursor:pointer;color:var(--muted);flex:1;">Cancel</button>
+                <button type="button" onclick="tConfirmDep()" style="font-family:'Noto Serif Display',Georgia,serif;font-stretch:extra-condensed;text-transform:uppercase;letter-spacing:.08em;font-size:.75rem;background:var(--accent);color:white;border:none;border-radius:8px;padding:7px 14px;cursor:pointer;flex:2;">Add dependency</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 5. RECURRENCE -->
+        <div class="tacc-section">
+          <button class="tacc-trigger" id="tacc-trig-recur" onclick="tToggleAcc('recur')">
+            <span class="tacc-name" id="tacc-nm-recur">Recurrence</span>
+            <span class="tacc-sum" id="tacc-sm-recur">Off</span>
+            <span class="tacc-chev">▾</span>
+          </button>
+          <div class="tacc-body" id="tacc-bd-recur">
+            <div class="form-group"><label class="form-label">Pattern</label>
+              <div class="tacc-chips" id="tRecurChips">
+                <button class="tacc-chip on" data-rm="none" onclick="tSetRecurMode('none',this)">None</button>
+                <button class="tacc-chip" data-rm="interval" onclick="tSetRecurMode('interval',this)">Interval</button>
+                <button class="tacc-chip" data-rm="dow" onclick="tSetRecurMode('dow',this)">Days of week</button>
+                <button class="tacc-chip" data-rm="dom" onclick="tSetRecurMode('dom',this)">Day of month</button>
+                <button class="tacc-chip" data-rm="nth" onclick="tSetRecurMode('nth',this)">Nth weekday</button>
+                <button class="tacc-chip" data-rm="completion" onclick="tSetRecurMode('completion',this)">On completion</button>
+              </div>
+            </div>
+            <!-- interval -->
+            <div class="tacc-recur-panel" id="trp-interval">
+              <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">
+                <div class="form-group"><label class="form-label">Every</label><input class="form-input" type="number" id="tRIntN" value="1" min="1" oninput="tUpdSummaries()"/></div>
+                <div class="form-group"><label class="form-label">Unit</label><select class="form-select" id="tRIntU" onchange="tUpdSummaries()"><option value="days">days</option><option value="weeks">weeks</option><option value="months">months</option></select></div>
+                <div class="form-group"><label class="form-label">Ends</label><select class="form-select" id="tRIntEnds" onchange="tShowREnd('Int',this.value)"><option value="never">Never</option><option value="after">After X</option><option value="date">On date</option></select></div>
+              </div>
+              <div class="form-group" id="tRIntEndExtra" style="display:none"><label class="form-label" id="tRIntEndLbl">Occurrences</label><input class="form-input" id="tRIntEndVal" type="number" value="10" min="1"/></div>
+            </div>
+            <!-- days of week -->
+            <div class="tacc-recur-panel" id="trp-dow">
+              <div class="form-group"><label class="form-label">On these days</label>
+                <div class="tacc-chips" id="tDowChips">
+                  <button class="tacc-chip" data-d="0" onclick="this.classList.toggle('on');tUpdSummaries()">Mon</button>
+                  <button class="tacc-chip" data-d="1" onclick="this.classList.toggle('on');tUpdSummaries()">Tue</button>
+                  <button class="tacc-chip" data-d="2" onclick="this.classList.toggle('on');tUpdSummaries()">Wed</button>
+                  <button class="tacc-chip" data-d="3" onclick="this.classList.toggle('on');tUpdSummaries()">Thu</button>
+                  <button class="tacc-chip" data-d="4" onclick="this.classList.toggle('on');tUpdSummaries()">Fri</button>
+                  <button class="tacc-chip" data-d="5" onclick="this.classList.toggle('on');tUpdSummaries()">Sat</button>
+                  <button class="tacc-chip" data-d="6" onclick="this.classList.toggle('on');tUpdSummaries()">Sun</button>
                 </div>
               </div>
-              <!-- Quantity -->
-              <div id="tHabitQtyGroup" style="display:none">
-                <div class="form-grid" style="margin:0">
-                  <div class="form-group"><label class="form-label">Daily target</label><input class="form-input" type="number" id="tHabitQtyTarget" min="1" value="2500"/></div>
-                  <div class="form-group"><label class="form-label">Unit</label><input class="form-input" id="tHabitQtyUnit" placeholder="ml, pages, mins…" value="ml"/></div>
-                  <div class="form-group"><label class="form-label">Increment</label><input class="form-input" type="number" id="tHabitQtyIncrement" min="1" value="250"/></div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+                <div class="form-group"><label class="form-label">Ends</label><select class="form-select" id="tRDowEnds" onchange="tShowREnd('Dow',this.value)"><option value="never">Never</option><option value="after">After X</option><option value="date">On date</option></select></div>
+                <div class="form-group" id="tRDowEndExtra"><label class="form-label" id="tRDowEndLbl">Count</label><input class="form-input" id="tRDowEndVal" type="number" value="10" min="1"/></div>
+              </div>
+            </div>
+            <!-- day of month -->
+            <div class="tacc-recur-panel" id="trp-dom">
+              <div class="form-group"><label class="form-label">On day(s) of month</label>
+                <div class="tacc-chips" id="tDomChips" style="gap:4px;"></div>
+              </div>
+              <div class="form-group" style="margin-top:4px;"><label class="form-label">Ends</label><select class="form-select" id="tRDomEnds"><option value="never">Never</option><option value="after">After X</option><option value="date">On date</option></select></div>
+            </div>
+            <!-- nth weekday -->
+            <div class="tacc-recur-panel" id="trp-nth">
+              <div style="display:grid;grid-template-columns:1fr 2fr 1.5fr;gap:8px;">
+                <div class="form-group"><label class="form-label">Which</label>
+                  <select class="form-select" id="tNthOrd" onchange="tUpdSummaries()"><option value="1">1st</option><option value="2">2nd</option><option value="3">3rd</option><option value="4">4th</option><option value="-1">Last</option></select>
+                </div>
+                <div class="form-group"><label class="form-label">Weekday</label>
+                  <select class="form-select" id="tNthDay" onchange="tUpdSummaries()"><option value="0">Monday</option><option value="1">Tuesday</option><option value="2">Wednesday</option><option value="3">Thursday</option><option value="4">Friday</option><option value="5">Saturday</option><option value="6">Sunday</option></select>
+                </div>
+                <div class="form-group"><label class="form-label">Of month</label>
+                  <select class="form-select" id="tNthMonth" onchange="tUpdSummaries()"><option value="every">Every month</option><option value="0">January</option><option value="1">February</option><option value="2">March</option><option value="3">April</option><option value="4">May</option><option value="5">June</option><option value="6">July</option><option value="7">August</option><option value="8">September</option><option value="9">October</option><option value="10">November</option><option value="11">December</option></select>
                 </div>
               </div>
-              <!-- Cumulative -->
-              <div id="tHabitCumGroup" style="display:none">
-                <div class="form-grid" style="margin:0">
-                  <div class="form-group"><label class="form-label">Total target</label><input class="form-input" type="number" id="tHabitCumTarget" min="1" value="100"/></div>
-                  <div class="form-group"><label class="form-label">Unit</label><input class="form-input" id="tHabitCumUnit" placeholder="books, km, hours…"/></div>
-                  <div class="form-group"><label class="form-label">By date (optional)</label><input class="form-input" type="date" id="tHabitCumDeadline"/></div>
+              <div id="tNthPreview" style="font-size:.72rem;color:var(--accent);padding:2px 0;"></div>
+              <div class="form-group"><label class="form-label">Ends</label><select class="form-select" id="tRNthEnds"><option value="never">Never</option><option value="after">After X</option><option value="date">On date</option></select></div>
+            </div>
+            <!-- on completion -->
+            <div class="tacc-recur-panel" id="trp-completion">
+              <div class="form-group"><label class="form-label">Days after completion</label><input class="form-input" type="number" id="tRCompletion" value="7" min="1" oninput="tUpdSummaries()"/></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 6. HABIT -->
+        <div class="tacc-section">
+          <button class="tacc-trigger" id="tacc-trig-habit" onclick="tToggleAcc('habit')">
+            <span class="tacc-name" id="tacc-nm-habit">Habit</span>
+            <span class="tacc-sum" id="tacc-sm-habit">Off</span>
+            <span class="tacc-chev">▾</span>
+          </button>
+          <div class="tacc-body" id="tacc-bd-habit">
+            <div style="display:flex;align-items:center;justify-content:space-between;">
+              <span style="font-size:.85rem;">Mark as habit</span>
+              <label style="position:relative;width:34px;height:19px;cursor:pointer;flex-shrink:0;">
+                <input type="checkbox" id="tHabitOn" onchange="tToggleHabit(this)" style="opacity:0;width:0;height:0;position:absolute;"/>
+                <div id="tHabitTrack" style="position:absolute;inset:0;border-radius:20px;background:var(--border);transition:background .2s;"></div>
+                <div id="tHabitThumb" style="position:absolute;top:2.5px;left:2.5px;width:14px;height:14px;border-radius:50%;background:white;transition:transform .2s;box-shadow:0 1px 3px rgba(0,0,0,.2);"></div>
+              </label>
+            </div>
+            <div id="tHabitOpts" style="display:none;flex-direction:column;gap:9px;margin-top:4px;">
+              <div class="form-group"><label class="form-label">Goal type</label>
+                <select class="form-select" id="tHabitType" onchange="tShowHabitGoal(this.value);tUpdSummaries()">
+                  <option value="frequency">Frequency — X times per period</option>
+                  <option value="streak">Streak — consecutive days</option>
+                  <option value="quantity">Quantity — daily target</option>
+                  <option value="cumulative">Cumulative — total over time</option>
+                </select>
+              </div>
+              <div style="background:var(--bg);border-radius:10px;padding:11px 12px;border:1px solid var(--border);">
+                <div id="thg-frequency">
+                  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+                    <div class="form-group"><label class="form-label">Target count</label><input class="form-input" type="number" id="tHabitFreqCount" value="1" min="1"/></div>
+                    <div class="form-group"><label class="form-label">Per</label><select class="form-select" id="tHabitFreqPeriod"><option value="day">Day</option><option value="week">Week</option><option value="month">Month</option></select></div>
+                  </div>
+                </div>
+                <div id="thg-streak" style="display:none">
+                  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">
+                    <div class="form-group"><label class="form-label">Target (days)</label><input class="form-input" type="number" id="tHabitStreakTarget" value="7" min="1"/></div>
+                    <div class="form-group"><label class="form-label">Grace days</label><input class="form-input" type="number" id="tHabitStreakGrace" value="0" min="0"/></div>
+                    <div class="form-group"><label class="form-label">Freezes</label><input class="form-input" type="number" id="tHabitStreakFreezes" value="1" min="0"/></div>
+                  </div>
+                </div>
+                <div id="thg-quantity" style="display:none">
+                  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">
+                    <div class="form-group"><label class="form-label">Daily target</label><input class="form-input" type="number" id="tHabitQtyTarget" value="2500" min="1"/></div>
+                    <div class="form-group"><label class="form-label">Unit</label><input class="form-input" id="tHabitQtyUnit" value="ml" placeholder="ml, pages…"/></div>
+                    <div class="form-group"><label class="form-label">Increment</label><input class="form-input" type="number" id="tHabitQtyIncrement" value="250" min="1"/></div>
+                  </div>
+                </div>
+                <div id="thg-cumulative" style="display:none">
+                  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">
+                    <div class="form-group"><label class="form-label">Total target</label><input class="form-input" type="number" id="tHabitCumTarget" value="100" min="1"/></div>
+                    <div class="form-group"><label class="form-label">Unit</label><input class="form-input" id="tHabitCumUnit" placeholder="books, km…"/></div>
+                    <div class="form-group"><label class="form-label">By date</label><input class="form-input" type="date" id="tHabitCumDeadline"/></div>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-          <div id="newSubList" class="new-subtask-list"></div>
-          <button type="button" onclick="addNewTaskSubField()" style="background:none;border:none;padding:2px 0;font-family:var(--font-body);font-size:.8rem;color:var(--accent);cursor:pointer;text-align:left;margin-bottom:4px;">+ add subtask</button>
-          <button class="add-btn" onclick="addTask()">+ Add Task</button>
-          <button class="add-btn" onclick="openMultiAdd('tasks')" style="background:none;border:1.5px solid var(--accent);color:var(--accent);margin-top:4px;">+ Additions</button>
         </div>
+
+        <button class="add-btn" onclick="addTask()" style="margin-top:18px;">+ Add Task</button>
+        <button class="add-btn" onclick="openMultiAdd('tasks')" style="background:none;border:1.5px solid var(--accent);color:var(--accent);margin-top:6px;">+ Additions</button>
       </div>
       <div id="tab-cats" style="display:none">
         <div class="cat-form" style="flex-direction:column;gap:10px;">
@@ -1068,6 +1289,9 @@ h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.
           <div class="form-group"><label class="form-label">Protein (g)</label><input class="form-input" type="number" id="mealProtein" min="0" placeholder="e.g. 20" /></div>
           <div class="form-group"><label class="form-label">Carbs (g)</label><input class="form-input" type="number" id="mealCarbs" min="0" placeholder="e.g. 60" /></div>
           <div class="form-group"><label class="form-label">Fat (g)</label><input class="form-input" type="number" id="mealFat" min="0" placeholder="e.g. 12" /></div>
+          <div class="form-group"><label class="form-label">Potassium (mg)</label><input class="form-input" type="number" id="mealPotassium" min="0" placeholder="e.g. 400" /></div>
+          <div class="form-group"><label class="form-label">Magnesium (mg)</label><input class="form-input" type="number" id="mealMagnesium" min="0" placeholder="e.g. 50" /></div>
+          <div class="form-group"><label class="form-label">Sodium (mg)</label><input class="form-input" type="number" id="mealSodium" min="0" placeholder="e.g. 300" /></div>
           <button class="add-btn" onclick="addMeal()">+ Log Meal</button>
         </div>
       </div>
@@ -1075,6 +1299,19 @@ h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.
       <div id="tab-mrcp" style="display:none">
         <div class="form-grid" style="margin-bottom:18px;">
           <div class="form-group full"><label class="form-label">Recipe name</label><input class="form-input" id="rcpName" placeholder="e.g. Salmon Bowl"/></div>
+          <div class="form-group"><label class="form-label">Category</label>
+            <select class="form-select" id="rcpCategory">
+              <option value="">— uncategorised —</option>
+              <option value="breakfast">Breakfast</option>
+              <option value="lunch">Lunch</option>
+              <option value="dinner">Dinner</option>
+              <option value="snack">Snack</option>
+              <option value="supplement">Supplement</option>
+              <option value="drink">Drink</option>
+              <option value="dessert">Dessert</option>
+              <option value="batch">Batch Cook</option>
+            </select>
+          </div>
           <div class="form-group"><label class="form-label">Tags (comma separated)</label><input class="form-input" id="rcpTags" placeholder="e.g. high protein, quick"/></div>
           <div class="form-group full"><label class="form-label">Ingredients</label><textarea class="form-input" id="rcpIngredients" rows="3" placeholder="150g salmon&#10;½ cup rice&#10;Cucumber, avocado…" style="resize:vertical;line-height:1.6;"></textarea></div>
           <div class="form-group full"><label class="form-label">Method</label><textarea class="form-input" id="rcpMethod" rows="3" placeholder="1. Cook rice…&#10;2. Pan fry salmon…" style="resize:vertical;line-height:1.6;"></textarea></div>
@@ -1082,9 +1319,25 @@ h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.
           <div class="form-group"><label class="form-label">Protein (g)</label><input class="form-input" type="number" id="rcpProtein" min="0"/></div>
           <div class="form-group"><label class="form-label">Carbs (g)</label><input class="form-input" type="number" id="rcpCarbs" min="0"/></div>
           <div class="form-group"><label class="form-label">Fat (g)</label><input class="form-input" type="number" id="rcpFat" min="0"/></div>
+          <div class="form-group"><label class="form-label">Potassium (mg)</label><input class="form-input" type="number" id="rcpPotassium" min="0" placeholder="e.g. 400"/></div>
+          <div class="form-group"><label class="form-label">Magnesium (mg)</label><input class="form-input" type="number" id="rcpMagnesium" min="0" placeholder="e.g. 50"/></div>
+          <div class="form-group"><label class="form-label">Sodium (mg)</label><input class="form-input" type="number" id="rcpSodium" min="0" placeholder="e.g. 300"/></div>
           <button class="add-btn" onclick="addRecipe()">+ Save Recipe</button>
         </div>
-        <div class="form-label" style="margin-bottom:10px;display:block;">Recipe Library</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:10px;">
+          <div class="form-label" style="margin-bottom:0;">Recipe Library</div>
+          <div style="display:flex;gap:5px;flex-wrap:wrap;" id="rcpCatFilter">
+            <button class="filter-btn active" onclick="setRcpFilter('',this)">All</button>
+            <button class="filter-btn" onclick="setRcpFilter('breakfast',this)">Breakfast</button>
+            <button class="filter-btn" onclick="setRcpFilter('lunch',this)">Lunch</button>
+            <button class="filter-btn" onclick="setRcpFilter('dinner',this)">Dinner</button>
+            <button class="filter-btn" onclick="setRcpFilter('snack',this)">Snack</button>
+            <button class="filter-btn" onclick="setRcpFilter('supplement',this)">Supplement</button>
+            <button class="filter-btn" onclick="setRcpFilter('drink',this)">Drink</button>
+            <button class="filter-btn" onclick="setRcpFilter('dessert',this)">Dessert</button>
+            <button class="filter-btn" onclick="setRcpFilter('batch',this)">Batch</button>
+          </div>
+        </div>
         <div id="recipeList"></div>
 
         <!-- GOOGLE SHEETS SYNC -->
@@ -1972,6 +2225,10 @@ function occursOn(item,ds){
   // Recurring items: use full recurrence engine
   if(item.recur){
     if(item.type==='birthday'||(item.recur&&item.recur.type==='yearly'))return orig&&orig.slice(5)===ds.slice(5)&&ds>=orig;
+    // New recurrence types
+    if(item.recur.type==='nth')return orig&&ds>=orig?occursOnNth(item,ds):false;
+    if(item.recur.type==='dom')return orig&&ds>=orig?occursOnDom(item,ds):false;
+    if(item.recur.type==='interval')return orig&&ds>=orig?occursOnInterval(item,ds):false;
     const from=new Date(ds+'T00:00:00'),start=new Date(orig+'T00:00:00');if(from<start)return false;
     const r=item.recur;let cur=new Date(start),occ=0;
     while(cur<=from){
@@ -2002,7 +2259,29 @@ function isTaskDoneOn(task, ds) {
   return task.done;
 }
 
-function recurSummary(r){if(!r)return '';const m={daily:'Daily',weekly:'Weekly',monthly:'Monthly',yearly:'Yearly','interval-days':`Every ${r.interval}d`,'interval-weeks':`Every ${r.interval}w`,'interval-months':`Every ${r.interval}mo`,dow:r.dow&&r.dow.length?DOW_LABELS.filter((_,i)=>r.dow.includes(i)).join(', '):'Days','on-completion':`+${r.completionDays}d on done`};let s=m[r.type]||r.type;if(r.endType==='after')s+=` · ${r.endAfter}x`;if(r.endType==='on-date'&&r.endDate)s+=` · until ${formatDate(r.endDate)}`;return s;}
+function recurSummary(r){
+  if(!r)return '';
+  const DOW=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  const NTH_ORD={1:'1st',2:'2nd',3:'3rd',4:'4th','-1':'Last'};
+  let s='';
+  if(r.type==='daily')s='Daily';
+  else if(r.type==='weekly')s='Weekly';
+  else if(r.type==='monthly')s='Monthly';
+  else if(r.type==='yearly')s='Yearly';
+  else if(r.type==='on-completion')s=`+${r.completionDays||7}d on done`;
+  else if(r.type==='interval-days')s=`Every ${r.interval}d`;
+  else if(r.type==='interval-weeks')s=`Every ${r.interval}w`;
+  else if(r.type==='interval-months')s=`Every ${r.interval}mo`;
+  else if(r.type==='interval')s=`Every ${r.interval} ${r.intervalUnit||'days'}`;
+  else if(r.type==='dow')s=r.dow&&r.dow.length?DOW.filter((_,i)=>r.dow.includes(i)).join(', '):'Days of week';
+  else if(r.type==='dom')s=r.dom&&r.dom.length?'Day '+(r.dom.map(d=>d===-1?'Last':d).join(','))+' monthly':'Day of month';
+  else if(r.type==='nth'){const ord=NTH_ORD[String(r.nthOrd)]||r.nthOrd;const day=DOW[r.nthDay]||'';const mon=r.nthMonth==='every'?'monthly':'of '+['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][parseInt(r.nthMonth)];s=`${ord} ${day} ${mon}`;}
+  else if(r.type==='completion')s=`+${r.completionDays||7}d on done`;
+  else s=r.type;
+  if(r.endType==='after'&&r.endAfter)s+=` · ${r.endAfter}x`;
+  if((r.endType==='on-date'||r.endType==='date')&&r.endDate)s+=` · until ${formatDate(r.endDate)}`;
+  return s;
+}
 
 function nextOccurrence(item,fromStr){
   const orig=item.date||item.due;if(!orig)return null;
@@ -2238,16 +2517,42 @@ function useFreeze(taskId){
 
 // ---- TASKS ----
 function addTask(){
-  const name=document.getElementById('tName').value.trim();if(!name){document.getElementById('tName').focus();return;}
-  const recur=getRecur('t'),habit=getHabitGoal();
-  const notes=document.getElementById('tNotes').value.trim();
+  const name=document.getElementById('tName').value.trim();
+  if(!name){document.getElementById('tName').focus();return;}
   const newId=newTaskId();
-  tasks.push({id:newId,name,notes,catId:document.getElementById('tCat').value,dur:parseInt(document.getElementById('tDur').value)||0,recur,due:document.getElementById('tDueDate').value,done:false,habit});
-  // Save any pending subtasks from the add form
-  _newTaskSubs.filter(s=>s.name.trim()).forEach((s,i)=>subtasks.push({id:newStId(),taskId:newId,name:s.name.trim(),done:false,order:i}));
-  clearNewTaskSubs();
-  document.getElementById('tName').value='';document.getElementById('tNotes').value='';document.getElementById('tDueDate').value='';document.getElementById('tDur').value='';document.getElementById('tDueQuick').value='';
+  const recur=getTAccordionRecur();
+  const habit=getTAccordionHabit();
+  const schedule=getTAccordionSchedule();
+  const notes=document.getElementById('tNotes')?.value.trim()||'';
+  const due=document.getElementById('tDueDate')?.value||'';
+  const dur=parseInt(document.getElementById('tDur')?.value)||0;
+  const catId=document.getElementById('tCat')?.value||'';
+
+  tasks.push({
+    id:newId,_created:Date.now(),name,notes,catId,dur,due,done:false,
+    recur,habit,schedule,
+    dependencies:tFormNewDeps.map(d=>({...d}))
+  });
+
+  // Save subtasks with their intra-task dependencies
+  tFormNewSts.forEach((s,i)=>{
+    subtasks.push({
+      id:newStId(),taskId:newId,name:s.name,done:false,order:i,
+      dueDate:s.due||'',
+      stDep:s.dep||null,stDepType:s.depType||'FS'
+    });
+  });
+
+  // Check if any existing tasks depend on something that affects this new task
+  checkDependencyWarnings(newId);
+
+  // Reset form
+  document.getElementById('tName').value='';
+  document.getElementById('tDueDate').value='';
+  document.getElementById('tDur').value='';
+  tResetAccordionForm();
   scheduleSave();renderTasks();
+  showToast('Task added ✓');
 }
 function toggleTask(id,forDate){
   const t=tasks.find(t=>t.id===id);if(!t)return;
@@ -2377,12 +2682,28 @@ function _renderStPanel(taskId) {
   const list = document.getElementById('stplist-' + taskId);
   if (!list) return;
   const subs = getSubtasks(taskId);
-  list.innerHTML = subs.map(s =>
-    `<div class="subtask-row ${s.done?'done':''}" id="str-${s.id}">
+  const parentTask = tasks.find(t => t.id === taskId);
+  list.innerHTML = subs.map(s => {
+    const dueCls = s.dueDate && s.dueDate < today() && !s.done ? 'overdue' : s.dueDate === today() && !s.done ? 'today' : '';
+    return `<div class="subtask-row ${s.done?'done':''}" id="str-${s.id}">
       <input type="checkbox" ${s.done?'checked':''} onchange="toggleSt('${s.id}')">
       <span class="subtask-row-name">${escHtml(s.name)}</span>
+      ${s.dueDate?`<span class="meta-tag meta-due ${dueCls}" style="font-size:.65rem;">${formatDate(s.dueDate)}${s.dueTime?' '+fmtTimeStr(s.dueTime):''}</span>`:''}
+      <button class="subtask-edit-btn" onclick="openStEdit('${s.id}')" style="background:none;border:none;cursor:pointer;font-size:.68rem;color:var(--muted);padding:0 3px;">edit</button>
       <button class="subtask-del" onclick="deleteSt('${s.id}')">×</button>
-    </div>`).join('') || '';
+    </div>
+    <div class="subtask-edit-form" id="stedit-${s.id}" style="display:none;padding:6px 8px 6px 22px;gap:6px;flex-direction:column;">
+      <input class="form-input" id="stname-${s.id}" value="${escHtml(s.name)}" placeholder="Subtask name" style="font-size:.82rem;"/>
+      <div style="display:flex;gap:6px;">
+        <input class="form-input" type="date" id="stdue-${s.id}" value="${s.dueDate||''}" max="${parentTask?.due||''}" style="flex:1;font-size:.82rem;" title="Cannot be later than parent task due date"/>
+        <input class="form-input" type="time" id="sttime-${s.id}" value="${s.dueTime||''}" style="flex:1;font-size:.82rem;"/>
+      </div>
+      <div style="display:flex;gap:6px;">
+        <button class="save-btn" style="font-size:.75rem;flex:1;" onclick="saveStEdit('${s.id}')">Save</button>
+        <button onclick="closeStEdit('${s.id}')" style="font-size:.75rem;background:none;border:1.5px solid var(--border);border-radius:8px;padding:6px 10px;cursor:pointer;color:var(--muted);">Cancel</button>
+      </div>
+    </div>`;
+  }).join('') || '';
 }
 
 // ── Subtask CRUD ──
@@ -2393,9 +2714,11 @@ function toggleSt(stId) {
   scheduleSave();
   _renderStPanel(s.taskId);
   _renderStEditList(s.taskId);
+  // Check if parent should auto-complete or reopen
+  checkParentAutoComplete(s.taskId);
   renderTasks();
   // Refresh Centre if open
-  if (document.getElementById('page-overview')?.classList.contains('active')) renderOverview();
+  if (document.getElementById('page-overview')?.classList.contains('active')) renderAllOverviewForDate();
 }
 function deleteSt(stId) {
   const s = subtasks.find(x => x.id === stId);
@@ -2408,12 +2731,23 @@ function deleteSt(stId) {
   renderTasks();
 }
 function addStFromEdit(taskId) {
-  const inp = document.getElementById('steinp-' + taskId);
+  const inp  = document.getElementById('steinp-' + taskId);
+  const dueI = document.getElementById('steinpdue-' + taskId);
+  const timI = document.getElementById('steinptime-' + taskId);
   if (!inp) return;
   const name = inp.value.trim();
   if (!name) { inp.focus(); return; }
-  subtasks.push({ id: newStId(), taskId, name, done: false, order: getSubtasks(taskId).length });
+  const newDue  = dueI?.value || '';
+  const newTime = timI?.value || '';
+  const parent = tasks.find(t => t.id === taskId);
+  if (newDue && parent?.due && newDue > parent.due) {
+    showToast('Subtask due date cannot be later than the parent task (' + formatDate(parent.due) + ')');
+    return;
+  }
+  subtasks.push({ id: newStId(), taskId, name, done: false, order: getSubtasks(taskId).length, dueDate: newDue, dueTime: newTime });
   inp.value = '';
+  if (dueI) dueI.value = '';
+  if (timI) timI.value = '';
   inp.focus();
   scheduleSave();
   _renderStPanel(taskId);
@@ -2434,6 +2768,60 @@ function _renderStEditList(taskId) {
     </div>`).join('') || '<span style="font-size:.75rem;color:var(--muted);">No subtasks yet.</span>';
 }
 
+
+function openStEdit(stId) {
+  const el = document.getElementById('stedit-' + stId);
+  if (el) { el.style.display = el.style.display === 'none' ? 'flex' : 'none'; }
+}
+function closeStEdit(stId) {
+  const el = document.getElementById('stedit-' + stId);
+  if (el) el.style.display = 'none';
+}
+function saveStEdit(stId) {
+  const s = subtasks.find(x => x.id === stId);
+  if (!s) return;
+  const nameEl = document.getElementById('stname-' + stId);
+  const dueEl  = document.getElementById('stdue-' + stId);
+  const timeEl = document.getElementById('sttime-' + stId);
+  const newName = nameEl?.value.trim();
+  const newDue  = dueEl?.value || '';
+  const newTime = timeEl?.value || '';
+  // Validate: subtask due date must not exceed parent task due date
+  const parent = tasks.find(t => t.id === s.taskId);
+  if (newDue && parent?.due && newDue > parent.due) {
+    showToast('Subtask due date cannot be later than the parent task (' + formatDate(parent.due) + ')');
+    return;
+  }
+  if (newName) s.name = newName;
+  s.dueDate = newDue;
+  s.dueTime = newTime;
+  closeStEdit(stId);
+  scheduleSave();
+  _renderStPanel(s.taskId);
+  renderTasks();
+}
+
+// ── Parent auto-complete when all subtasks done ──────────────────────────────
+function checkParentAutoComplete(taskId) {
+  const subs = getSubtasks(taskId);
+  if (!subs.length) return;
+  const parent = tasks.find(t => t.id === taskId);
+  if (!parent) return;
+  const allDone = subs.every(s => s.done);
+  if (allDone && !parent.done) {
+    parent.done = true;
+    scheduleSave();
+    renderTasks();
+    if (document.getElementById('page-overview')?.classList.contains('active')) renderAllOverviewForDate();
+    showToast('✓ All subtasks done — task completed');
+  } else if (!allDone && parent.done) {
+    // A subtask was reopened — reopen parent unless it was manually completed
+    parent.done = false;
+    scheduleSave();
+    renderTasks();
+    if (document.getElementById('page-overview')?.classList.contains('active')) renderAllOverviewForDate();
+  }
+}
 // ── Add-task form: pending new subtasks ──
 let _newTaskSubs = []; // [{tempId, name}] — cleared after addTask()
 let _newTaskSubSeq = 0;
@@ -2492,6 +2880,20 @@ function _renderCentreSubPanel(taskId, vd) {
   return `<div id="csp-${taskId}" style="display:none;">${rows}</div>`;
 }
 
+
+function isInfrequentRecur(task) {
+  // Returns true if recurrence is weekly or less frequent (i.e. should show as overdue-incomplete)
+  if (!task.recur) return false;
+  const r = task.recur;
+  if (r.type === 'yearly' || r.type === 'monthly' || r.type === 'interval-months') return true;
+  if (r.type === 'weekly') return true;
+  if (r.type === 'interval-weeks') return (r.interval || 1) >= 1; // any week interval
+  if (r.type === 'interval-days') return (r.interval || 1) >= 7;
+  if (r.type === 'dow') return true; // specific days — treat as frequent (daily-ish), NOT overdue
+  if (r.type === 'daily') return false;
+  if (r.type === 'on-completion') return false;
+  return false;
+}
 function renderTasks(){
   const list=document.getElementById('taskList');
   const td=today();
@@ -2503,7 +2905,7 @@ function renderTasks(){
   }
   let filtered=base;
   // Overdue = non-recurring, non-habit, not done, due before today
-  const overdueCount=base.filter(t=>!t.recur&&!t.habit&&!t.done&&t.due&&t.due<td).length;
+  const overdueCount=base.filter(t=>!t.habit&&!t.done&&t.due&&t.due<td&&(!t.recur||isInfrequentRecur(t))).length;
   if(activeFilter==='today')filtered=base.filter(t=>occursOn(t,td));
   else if(activeFilter==='pending')filtered=base.filter(t=>{
     if(t.recur) return true; // always show recurring tasks
@@ -2515,7 +2917,7 @@ function renderTasks(){
     return t.done;
   });
   else if(activeFilter==='habits')filtered=base.filter(t=>t.habit);
-  else if(activeFilter==='overdue')filtered=tasks.filter(t=>!t.recur&&!t.habit&&!t.done&&t.due&&t.due<td);
+  else if(activeFilter==='overdue')filtered=tasks.filter(t=>!t.habit&&!t.done&&t.due&&t.due<td&&(!t.recur||isInfrequentRecur(t)));
   else if(activeFilter==='waiting')filtered=tasks.filter(t=>t.waitingFor&&!t.done);
   const pendingCount=tasks.filter(t=>t.recur?true:t.habit?!isTaskDoneOn(t,td):!t.done).length;
   document.getElementById('taskCount').textContent=`${pendingCount} pending${overdueCount>0?' · '+overdueCount+' overdue':''}`;
@@ -2535,7 +2937,7 @@ function renderTasks(){
     const isRecurring=!!t.recur;
     const isDoneToday=isTaskDoneOn(t,td);
     // Overdue only applies to non-recurring, non-done tasks with a past due date
-    const isOverdue=!isRecurring&&!t.habit&&!t.done&&t.due&&t.due<td;
+    const isOverdue=!t.habit&&!t.done&&t.due&&t.due<td&&(!isRecurring||isInfrequentRecur(t));
     const bg=isOverdue?'rgba(192,85,74,.06)':'var(--bg)';
     // For recurring: show checked state based on today's log
     const isChecked=isRecurring?isDoneToday:t.done;
@@ -2628,9 +3030,15 @@ function renderTasks(){
           <div class="subtask-edit-section">
             <div style="font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;">Subtasks</div>
             <div class="subtask-edit-list" id="steditlist-${t.id}"></div>
-            <div class="subtask-add-inline">
-              <input id="steinp-${t.id}" placeholder="Add subtask…" onkeydown="if(event.key==='Enter'){event.preventDefault();addStFromEdit('${t.id}');}" onfocus="_renderStEditList('${t.id}')" />
-              <button onclick="addStFromEdit('${t.id}')">Add</button>
+            <div class="subtask-add-inline" style="flex-direction:column;gap:5px;">
+              <div style="display:flex;gap:5px;">
+                <input id="steinp-${t.id}" placeholder="Add subtask…" style="flex:1" onkeydown="if(event.key==='Enter'){event.preventDefault();addStFromEdit('${t.id}');}" onfocus="_renderStEditList('${t.id}')" />
+                <button onclick="addStFromEdit('${t.id}')">Add</button>
+              </div>
+              <div style="display:flex;gap:5px;">
+                <input class="form-input" type="date" id="steinpdue-${t.id}" max="${t.due||''}" title="Due date (cannot exceed parent task)" style="flex:1;font-size:.78rem;padding:5px 8px;" />
+                <input class="form-input" type="time" id="steinptime-${t.id}" style="flex:1;font-size:.78rem;padding:5px 8px;" />
+              </div>
             </div>
           </div>
         </div>
@@ -2655,7 +3063,7 @@ function handleModalEvType(){
 function addEvent(){
   const name=document.getElementById('evName').value.trim(),date=document.getElementById('evDate').value;if(!name||!date)return;
   const type=document.getElementById('evType').value;let recur=getRecur('ev');if(type==='birthday'&&!recur)recur={type:'yearly',endType:'never'};
-  events.push({id:newEventId(),name,date,type,busyStatus:document.getElementById('evBusy').value,countdown:document.getElementById('evCountdown').checked,catId:document.getElementById('evCat').value,time:document.getElementById('evTime').value,timeEnd:document.getElementById('evTimeEnd').value,location:document.getElementById('evLocation').value.trim(),notes:document.getElementById('evNotes').value.trim(),recur});
+  events.push({id:newEventId(),_created:Date.now(),name,date,type,busyStatus:document.getElementById('evBusy').value,countdown:document.getElementById('evCountdown').checked,catId:document.getElementById('evCat').value,time:document.getElementById('evTime').value,timeEnd:document.getElementById('evTimeEnd').value,location:document.getElementById('evLocation').value.trim(),notes:document.getElementById('evNotes').value.trim(),recur});
   document.getElementById('evName').value='';document.getElementById('evDate').value='';document.getElementById('evTime').value='';document.getElementById('evTimeEnd').value='';document.getElementById('evBusy').value='free';document.getElementById('evCountdown').checked=false;document.getElementById('evLocation').value='';document.getElementById('evNotes').value='';
   scheduleSave();renderEventList();renderOverviewEvents();renderOverviewUpcoming();
 }
@@ -2904,7 +3312,7 @@ function savePlannerEvent() {
   let recur = getRecur('ps');
   if (type === 'birthday' && !recur) recur = { type: 'yearly', endType: 'never' };
   events.push({
-    id: newEventId(), name, date, type,
+    id: newEventId(), _created: Date.now(), name, date, type,
     catId: document.getElementById('psEvCat').value,
     time: document.getElementById('psEvTime').value,
     timeEnd: document.getElementById('psEvTimeEnd')?.value || '',
@@ -3446,7 +3854,7 @@ function renderOverview(){
 function renderOverdueStrip(container) {
   const existing = document.getElementById('overdueStrip');
   if (existing) existing.remove();
-  const overdue = tasks.filter(t => !t.done && t.due && t.due < today() && !t.recur);
+  const overdue = tasks.filter(t => !t.done && !t.habit && t.due && t.due < today() && (!t.recur || isInfrequentRecur(t)));
   if (!overdue.length) return;
   const strip = document.createElement('div');
   strip.id = 'overdueStrip';
@@ -3761,13 +4169,16 @@ function addMeal(){
   const name=document.getElementById('mealName').value.trim();
   const date=document.getElementById('mealDate').value||today();
   if(!name)return;
-  meals.push({id:newMealId(),type:document.getElementById('mealType').value,name,date,
+  meals.push({id:newMealId(),_created:Date.now(),type:document.getElementById('mealType').value,name,date,
     recipe:document.getElementById('mealRecipe').value.trim(),
     cal:parseInt(document.getElementById('mealCal').value)||0,
     protein:parseInt(document.getElementById('mealProtein').value)||0,
     carbs:parseInt(document.getElementById('mealCarbs').value)||0,
-    fat:parseInt(document.getElementById('mealFat').value)||0});
-  ['mealName','mealRecipe','mealCal','mealProtein','mealCarbs','mealFat'].forEach(id=>document.getElementById(id).value='');
+    fat:parseInt(document.getElementById('mealFat').value)||0,
+    potassium:parseInt(document.getElementById('mealPotassium').value)||0,
+    magnesium:parseInt(document.getElementById('mealMagnesium').value)||0,
+    sodium:parseInt(document.getElementById('mealSodium').value)||0});
+  ['mealName','mealRecipe','mealCal','mealProtein','mealCarbs','mealFat','mealPotassium','mealMagnesium','mealSodium'].forEach(id=>document.getElementById(id).value='');
   scheduleSave();renderMealLog();renderOverviewMeals();
 }
 function deleteMeal(id){meals=meals.filter(m=>m.id!==id);scheduleSave();renderMealLog();renderOverviewMeals();}
@@ -3791,17 +4202,23 @@ function renderMealLog(){
         ${m.protein?`<span class="macro-pill protein">${m.protein}g protein</span>`:''}
         ${m.carbs?`<span class="macro-pill carbs">${m.carbs}g carbs</span>`:''}
         ${m.fat?`<span class="macro-pill fat">${m.fat}g fat</span>`:''}
+        ${m.potassium?`<span class="macro-pill" style="background:#f0f4e8;color:#5a7a30;">${m.potassium}mg K</span>`:''}
+        ${m.magnesium?`<span class="macro-pill" style="background:#f0e8f4;color:#7a3a9a;">${m.magnesium}mg Mg</span>`:''}
+        ${m.sodium?`<span class="macro-pill" style="background:#fef4e4;color:#a06020;">${m.sodium}mg Na</span>`:''}
       </div>
       ${m.recipe?`<div style="font-size:.78rem;color:var(--muted);margin-top:6px;line-height:1.5;font-family:var(--font-display,Georgia,serif);">${escHtml(m.recipe)}</div>`:''}
     </div>`).join('')}
   </div>`;
-  const tot=dayMeals.reduce((a,m)=>({cal:a.cal+m.cal,protein:a.protein+m.protein,carbs:a.carbs+m.carbs,fat:a.fat+m.fat}),{cal:0,protein:0,carbs:0,fat:0});
+  const tot=dayMeals.reduce((a,m)=>({cal:a.cal+(m.cal||0),protein:a.protein+(m.protein||0),carbs:a.carbs+(m.carbs||0),fat:a.fat+(m.fat||0),potassium:a.potassium+(m.potassium||0),magnesium:a.magnesium+(m.magnesium||0),sodium:a.sodium+(m.sodium||0)}),{cal:0,protein:0,carbs:0,fat:0,potassium:0,magnesium:0,sodium:0});
   const totEl=document.getElementById('mealNutritionTotal');
   if(totEl)totEl.innerHTML=`
     <div class="nut-item"><div class="nut-val">${tot.cal}</div><div class="nut-lbl">kcal</div></div>
     <div class="nut-item"><div class="nut-val">${tot.protein}g</div><div class="nut-lbl">protein</div></div>
     <div class="nut-item"><div class="nut-val">${tot.carbs}g</div><div class="nut-lbl">carbs</div></div>
-    <div class="nut-item"><div class="nut-val">${tot.fat}g</div><div class="nut-lbl">fat</div></div>`;
+    <div class="nut-item"><div class="nut-val">${tot.fat}g</div><div class="nut-lbl">fat</div></div>
+    ${tot.potassium?`<div class="nut-item"><div class="nut-val" style="color:#5a7a30">${tot.potassium}mg</div><div class="nut-lbl">potassium</div></div>`:''}
+    ${tot.magnesium?`<div class="nut-item"><div class="nut-val" style="color:#7a3a9a">${tot.magnesium}mg</div><div class="nut-lbl">magnesium</div></div>`:''}
+    ${tot.sodium?`<div class="nut-item"><div class="nut-val" style="color:#a06020">${tot.sodium}mg</div><div class="nut-lbl">sodium</div></div>`:''}`;
 }
 function renderOverviewMeals(){
   const container=document.getElementById('overviewMeals');if(!container)return;
@@ -3829,7 +4246,8 @@ function addRecipe(){
   const name=document.getElementById('rcpName').value.trim();if(!name){document.getElementById('rcpName').focus();return;}
   const _now=Date.now();
   recipes.push({
-    id:newRecipeId(),name,
+    id:newRecipeId(),_created:Date.now(),name,
+    category:document.getElementById('rcpCategory').value,
     tags:document.getElementById('rcpTags').value.split(',').map(s=>s.trim()).filter(Boolean),
     ingredients:document.getElementById('rcpIngredients').value.trim(),
     method:document.getElementById('rcpMethod').value.trim(),
@@ -3837,9 +4255,13 @@ function addRecipe(){
     protein:parseInt(document.getElementById('rcpProtein').value)||0,
     carbs:parseInt(document.getElementById('rcpCarbs').value)||0,
     fat:parseInt(document.getElementById('rcpFat').value)||0,
+    potassium:parseInt(document.getElementById('rcpPotassium').value)||0,
+    magnesium:parseInt(document.getElementById('rcpMagnesium').value)||0,
+    sodium:parseInt(document.getElementById('rcpSodium').value)||0,
     createdAt:_now,updatedAt:_now
   });
-  ['rcpName','rcpTags','rcpIngredients','rcpMethod','rcpCal','rcpProtein','rcpCarbs','rcpFat'].forEach(id=>document.getElementById(id).value='');
+  ['rcpName','rcpTags','rcpIngredients','rcpMethod','rcpCal','rcpProtein','rcpCarbs','rcpFat','rcpPotassium','rcpMagnesium','rcpSodium'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('rcpCategory').value='';
   // Synchronous save — no debounce so Chrome never loses the entry
   try { localStorage.setItem('centre_recipes', JSON.stringify(recipes)); } catch(e) {}
   try { localStorage.setItem('centre_recipeSeq', recipeSeq); } catch(e) {}
@@ -3872,7 +4294,7 @@ function addRecipe(){
 function deleteRecipe(id){recipes=recipes.filter(r=>r.id!==id);scheduleSave();renderRecipeList();}
 function logFromRecipe(id){
   const r=recipes.find(r=>r.id===id);if(!r)return;
-  meals.push({id:newMealId(),type:'dinner',name:r.name,date:today(),recipe:r.ingredients,cal:r.cal,protein:r.protein,carbs:r.carbs,fat:r.fat});
+  meals.push({id:newMealId(),_created:Date.now(),type:'dinner',name:r.name,date:today(),recipe:r.ingredients,cal:r.cal||0,protein:r.protein||0,carbs:r.carbs||0,fat:r.fat||0,potassium:r.potassium||0,magnesium:r.magnesium||0,sodium:r.sodium||0});
   scheduleSave();renderMealLog();renderOverviewMeals();
   // Brief flash confirmation
   const btn=document.getElementById('logBtn-'+id);
@@ -3895,15 +4317,25 @@ function normaliseRecipes(){
   });
 }
 
+const RCP_CAT_LABELS={breakfast:'Breakfast',lunch:'Lunch',dinner:'Dinner',snack:'Snack',supplement:'Supplement',drink:'Drink',dessert:'Dessert',batch:'Batch Cook'};
+let rcpFilter='';
+function setRcpFilter(cat,btn){
+  rcpFilter=cat;
+  document.querySelectorAll('#rcpCatFilter .filter-btn').forEach(b=>b.classList.remove('active'));
+  if(btn)btn.classList.add('active');
+  renderRecipeList();
+}
 function renderRecipeList(){
   const el=document.getElementById('recipeList');if(!el)return;
-  if(!recipes.length){el.innerHTML=`<div class="empty-msg">No recipes yet. Add one above.</div>`;return;}
-  el.innerHTML=`<div style="display:flex;flex-direction:column;gap:10px;">${recipes.map(r=>{
+  const filtered=rcpFilter?recipes.filter(r=>r.category===rcpFilter):recipes;
+  if(!filtered.length){el.innerHTML=`<div class="empty-msg">${rcpFilter?'No recipes in this category.':'No recipes yet. Add one above.'}</div>`;return;}
+  el.innerHTML=`<div style="display:flex;flex-direction:column;gap:10px;">${filtered.map(r=>{
     return `<div data-recipe-id="${r.id}" style="border:1.5px solid var(--border);border-radius:12px;overflow:hidden;">
       <div style="display:flex;align-items:center;gap:10px;padding:11px 14px;background:var(--bg);">
         <div style="flex:1;min-width:0;">
           <div style="font-size:.88rem;margin-bottom:3px;">${escHtml(r.name)}</div>
-          <div style="display:flex;gap:5px;flex-wrap:wrap;">
+          <div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:2px;">
+            ${r.category?`<span class="meta-tag" style="background:var(--accent);color:white;font-size:.68rem;">${escHtml(RCP_CAT_LABELS[r.category]||r.category)}</span>`:''}
             ${(r.tags||[]).map(t=>`<span class="meta-tag" style="background:var(--bg);border:1px solid var(--border);color:var(--muted);">${escHtml(t)}</span>`).join('')}
             ${r.cal?`<span class="macro-pill cal">${r.cal}kcal</span>`:''}
             ${r.protein?`<span class="macro-pill protein">${r.protein}g P</span>`:''}
@@ -3923,6 +4355,9 @@ function renderRecipeList(){
           ${r.protein?`<div class="nut-item"><div class="nut-val">${r.protein}g</div><div class="nut-lbl">protein</div></div>`:''}
           ${r.carbs?`<div class="nut-item"><div class="nut-val">${r.carbs}g</div><div class="nut-lbl">carbs</div></div>`:''}
           ${r.fat?`<div class="nut-item"><div class="nut-val">${r.fat}g</div><div class="nut-lbl">fat</div></div>`:''}
+          ${r.potassium?`<div class="nut-item"><div class="nut-val" style="color:#5a7a30">${r.potassium}mg</div><div class="nut-lbl">potassium</div></div>`:''}
+          ${r.magnesium?`<div class="nut-item"><div class="nut-val" style="color:#7a3a9a">${r.magnesium}mg</div><div class="nut-lbl">magnesium</div></div>`:''}
+          ${r.sodium?`<div class="nut-item"><div class="nut-val" style="color:#a06020">${r.sodium}mg</div><div class="nut-lbl">sodium</div></div>`:''}
         </div>
       </div>
     </div>`;
@@ -5479,11 +5914,13 @@ async function locSearch(input,inputId,dropId){
   if(q.length<2){drop.classList.remove('open');drop.innerHTML='';return;}
 
   if(!_googleApiKey){
-    drop.innerHTML=`<div class="loc-option" style="cursor:default;">
-      <div style="font-size:.8rem;color:var(--muted);">No API key set.</div>
-      <div style="font-size:.72rem;color:var(--muted);margin-top:2px;">Add your Google Places key in Settings to enable search.</div>
+    // No API key — allow free-text entry, show subtle hint
+    drop.innerHTML=`<div class="loc-option" style="cursor:default;padding:8px 12px;">
+      <div style="font-size:.78rem;color:var(--muted);">Type a location and it will save as entered.</div>
+      <div style="font-size:.7rem;color:var(--muted);margin-top:2px;opacity:.7;">Add a Google Places key in Settings for address search.</div>
     </div>`;
     drop.classList.add('open');
+    // Don't return — let the typed value be used as-is at save time
     return;
   }
 
@@ -5978,12 +6415,16 @@ function initFirebase(manual) {
         const remoteTs = remote._ts || 0;
         const localTs = parseInt(localStorage.getItem('centre_lastSync') || '0');
 
-        // Merge by ID: remote wins for existing items, locally-created items not yet pushed are rescued
+        // Merge by ID: only rescue local items created AFTER last successful push.
+        // Items created before the last push were already sent — if absent from remote,
+        // they were deleted on another device. Do not resurrect them.
+        const lastPushTs = parseInt(localStorage.getItem('centre_lastPush') || '0');
         function mergeById(remoteArr, localArr) {
           if (!remoteArr) return localArr || [];
           if (!localArr || !localArr.length) return remoteArr;
           const remoteIds = new Set(remoteArr.map(x => x.id));
-          const onlyLocal = localArr.filter(x => !remoteIds.has(x.id));
+          // Only rescue items that post-date the last push (genuinely new, not yet synced)
+          const onlyLocal = localArr.filter(x => !remoteIds.has(x.id) && (x._created || 0) > lastPushTs);
           return onlyLocal.length ? [...remoteArr, ...onlyLocal] : remoteArr;
         }
 
@@ -6046,6 +6487,14 @@ function initFirebase(manual) {
 }
 
 function getLocalDataBundle() {
+  // Capture current theme variables for cross-device sync
+  const _theme = {};
+  try {
+    const cs = getComputedStyle(document.documentElement);
+    const EDITABLE_ALL = ['--bg','--card','--text','--accent','--accent-work','--muted','--border','--icon-color','--icon-color-work','--icon-stroke'];
+    EDITABLE_ALL.forEach(v => { const val = cs.getPropertyValue(v).trim(); if (val) _theme[v] = val; });
+    if (typeof PHASE_VARS !== 'undefined') PHASE_VARS.forEach(v => { const val = cs.getPropertyValue(v).trim(); if (val) _theme[v] = val; });
+  } catch(e) {}
   return {
     tasks, events, categories, habitLog,
     waterFilled, waterGoal, meals, mealSeq,
@@ -6058,6 +6507,7 @@ function getLocalDataBundle() {
     recurDoneLog,
     subtasks, subtaskSeq,
     meds, medLog, medSeq,
+    _theme,
     _apiKeys: { google: _googleApiKey||'', gemini: _geminiApiKey||'' },
     _ts: Date.now()
   };
@@ -6071,6 +6521,7 @@ function pushToFirebase() {
     window._fbSet(dataRef, bundle).then(() => {
       const now = Date.now();
       localStorage.setItem('centre_lastSync', String(now));
+      localStorage.setItem('centre_lastPush', String(now));
       lastSyncTs = now;
       updateSyncTime();
       fbSetStatus(true, 'Connected — live sync active');
@@ -6135,6 +6586,25 @@ function applyRemoteData(remote) {
   if (remote.medSeq) medSeq = remote.medSeq;
   if (remote.subtasks) subtasks = remote.subtasks;
   if (remote.subtaskSeq) subtaskSeq = remote.subtaskSeq;
+  if (remote._theme) {
+    try {
+      Object.entries(remote._theme).forEach(([k,v]) => {
+        document.documentElement.style.setProperty(k, v);
+        if (k === '--accent') {
+          document.documentElement.style.setProperty('--accent-normal', v);
+          // derive accent-dark
+          try {
+            const r=parseInt(v.slice(1,3),16),g=parseInt(v.slice(3,5),16),b=parseInt(v.slice(5,7),16);
+            const dk='#'+[Math.max(0,r-15),Math.max(0,g-15),Math.max(0,b-15)].map(x=>x.toString(16).padStart(2,'0')).join('');
+            document.documentElement.style.setProperty('--accent-dark', dk);
+          } catch(e) {}
+        }
+        if (k === '--accent-work') document.documentElement.style.setProperty('--accent-work-dark', v);
+      });
+      // Persist locally so it survives reload
+      localStorage.setItem('centre_theme', JSON.stringify(remote._theme));
+    } catch(e) { console.warn('Theme sync error', e); }
+  }
   if (remote._apiKeys) {
     if (remote._apiKeys.google) {
       _googleApiKey = remote._apiKeys.google;
@@ -7636,6 +8106,7 @@ document.getElementById('modalOverlay').addEventListener('click',function(e){if(
 document.getElementById('iconPickerModal').addEventListener('click',function(e){if(e.target===this)closeIconPicker();});
 buildDowRow('t');buildDowRow('ev');buildDowRow('m');buildDowRow('ps');
 renderCategories();renderCatSelects();renderTasks();loadMilestones();
+setTimeout(()=>{try{tUpdSummaries();}catch(e){}},120);
 initRcpSheetsUI();
 // Initialise add-category icon preview
 (function(){const p=document.getElementById('catIconPreviewNew');if(p)p.innerHTML=svgIcon('star','var(--accent)',20);})();
@@ -7694,6 +8165,552 @@ function tickLive(){
 }
 tickLive();
 setInterval(tickLive,1000);
+
+// ════════════════════════════════════════════════════════════
+// TASK ACCORDION FORM
+// ════════════════════════════════════════════════════════════
+
+// ── State ──
+let tFormAnchor = 'fixed';
+let tFormRecurMode = 'none';
+let tFormNewSts = [];   // [{id,name,due,dep,depType}]
+let tFormNewDeps = [];  // [{taskId,type,lag,lagU}]
+
+// ── Accordion toggle ──
+function tToggleAcc(id) {
+  const trig = document.getElementById('tacc-trig-' + id);
+  const body = document.getElementById('tacc-bd-' + id);
+  if (!trig || !body) return;
+  const isOpen = body.classList.contains('open');
+  body.classList.toggle('open', !isOpen);
+  trig.classList.toggle('open', !isOpen);
+}
+
+// ── Anchor ──
+function tSetAnchor(a, btn) {
+  document.querySelectorAll('#tAnchorChips .tacc-chip').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+  tFormAnchor = a;
+  const fixEl = document.getElementById('tAnchorFixed');
+  const relEl = document.getElementById('tAnchorRelative');
+  const refGrp = document.getElementById('tAnchorRefGroup');
+  const refLbl = document.getElementById('tAnchorRefLbl');
+  const refSel = document.getElementById('tAnchorRef');
+  if (a === 'fixed') {
+    fixEl.style.display = 'block';
+    relEl.style.display = 'none';
+  } else {
+    fixEl.style.display = 'none';
+    relEl.style.display = 'flex';
+    if (a === 'due') {
+      refGrp.style.display = 'none';
+    } else {
+      refGrp.style.display = 'flex';
+      if (a === 'parent') {
+        refLbl.textContent = 'Parent task';
+        refSel.innerHTML = '<option value="">— pick task —</option>' +
+          tasks.map(t => `<option value="${t.id}">${escHtml(t.name)}</option>`).join('');
+      } else {
+        refLbl.textContent = 'Project';
+        // Future: populate from projects array
+        refSel.innerHTML = '<option value="">— pick project —</option>';
+      }
+    }
+  }
+  tUpdSummaries();
+}
+
+// ── Recurrence mode ──
+function tSetRecurMode(m, btn) {
+  document.querySelectorAll('#tRecurChips .tacc-chip').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+  tFormRecurMode = m;
+  ['interval','dow','dom','nth','completion'].forEach(p => {
+    const el = document.getElementById('trp-' + p);
+    if (el) el.classList.toggle('open', p === m);
+  });
+  tUpdSummaries();
+}
+
+function tShowREnd(pfx, v) {
+  const extra = document.getElementById('tR' + pfx + 'EndExtra');
+  const lbl = document.getElementById('tR' + pfx + 'EndLbl');
+  if (!extra) return;
+  extra.style.display = v === 'never' ? 'none' : 'flex';
+  if (lbl) {
+    lbl.textContent = v === 'after' ? 'Occurrences' : 'End date';
+    const val = document.getElementById('tR' + pfx + 'EndVal');
+    if (val) val.type = v === 'after' ? 'number' : 'date';
+  }
+}
+
+// Build day-of-month chips
+(function buildTDomChips() {
+  const el = document.getElementById('tDomChips');
+  if (!el) return;
+  const days = [...Array(28).keys()].map(i => i + 1);
+  days.push('Last');
+  el.innerHTML = days.map(d => `<button type="button" class="tacc-chip" style="min-width:28px;padding:3px 4px;" onclick="this.classList.toggle('on');tUpdSummaries()">${d}</button>`).join('');
+})();
+
+// ── Subtasks ──
+function tAddSt() {
+  const nameEl = document.getElementById('tStNameInp');
+  const dueEl = document.getElementById('tStDueInp');
+  const name = nameEl.value.trim();
+  if (!name) { nameEl.focus(); return; }
+  tFormNewSts.push({ id: 'nst' + Date.now(), name, due: dueEl.value, dep: null, depType: 'FS' });
+  nameEl.value = '';
+  dueEl.value = '';
+  tRenderSts();
+  tUpdSummaries();
+}
+function tDelSt(id) {
+  tFormNewSts = tFormNewSts.filter(s => s.id !== id);
+  tFormNewSts.forEach(s => { if (s.dep === id) s.dep = null; });
+  tRenderSts();
+  tUpdSummaries();
+}
+function tTogStDetail(id) {
+  const el = document.getElementById('tsd-' + id);
+  if (el) el.classList.toggle('open');
+}
+function tSetStDep(id, depId) {
+  const s = tFormNewSts.find(x => x.id === id);
+  if (s) s.dep = depId || null;
+  tRenderSts(); tUpdSummaries();
+}
+function tSetStDepType(id, t) {
+  const s = tFormNewSts.find(x => x.id === id);
+  if (s) s.depType = t;
+  tRenderSts();
+}
+function tSetStDue(id, d) {
+  const s = tFormNewSts.find(x => x.id === id);
+  if (s) s.due = d;
+}
+function tRenderSts() {
+  const el = document.getElementById('tStList');
+  if (!el) return;
+  if (!tFormNewSts.length) { el.innerHTML = ''; return; }
+  const DEP_TYPES = { FS:'Finish → Start', SS:'Start → Start', SF:'Start → Finish' };
+  el.innerHTML = tFormNewSts.map(s => {
+    const depTask = s.dep ? tFormNewSts.find(x => x.id === s.dep) : null;
+    const otherSts = tFormNewSts.filter(x => x.id !== s.id);
+    return `<div class="tacc-st-row">
+      <div class="tacc-st-main">
+        <div style="width:13px;height:13px;border-radius:3px;border:1.5px solid var(--border);flex-shrink:0;"></div>
+        <span style="flex:1;font-size:.83rem;">${escHtml(s.name)}</span>
+        ${s.due ? `<span style="font-size:.68rem;color:var(--muted);white-space:nowrap;">${formatDate(s.due)}</span>` : ''}
+        ${depTask ? `<span style="font-size:.63rem;padding:2px 7px;border-radius:20px;background:rgba(147,170,205,.15);color:var(--accent);white-space:nowrap;">${escHtml(depTask.name.slice(0,12))} → ${s.depType}</span>` : ''}
+        <button type="button" onclick="tTogStDetail('${s.id}')" style="background:none;border:none;font-size:.58rem;color:var(--muted);cursor:pointer;padding:0 2px;" title="Set dependency">↓</button>
+        <button type="button" onclick="tDelSt('${s.id}')" style="background:none;border:none;font-size:.85rem;color:var(--muted);cursor:pointer;padding:0 2px;">×</button>
+      </div>
+      <div class="tacc-st-detail" id="tsd-${s.id}">
+        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+          <span style="font-size:.7rem;color:var(--muted);flex-shrink:0;">Depends on:</span>
+          <select style="font-family:'Noto Serif Display',Georgia,serif;font-size:.75rem;border:1.5px solid var(--border);border-radius:7px;padding:4px 7px;background:var(--card);flex:1;" onchange="tSetStDep('${s.id}',this.value)">
+            <option value="">— none —</option>
+            ${otherSts.map(x => `<option value="${x.id}" ${s.dep===x.id?'selected':''}>${escHtml(x.name)}</option>`).join('')}
+          </select>
+          <select style="font-family:'Noto Serif Display',Georgia,serif;font-size:.75rem;border:1.5px solid var(--border);border-radius:7px;padding:4px 7px;background:var(--card);" onchange="tSetStDepType('${s.id}',this.value)">
+            ${Object.entries(DEP_TYPES).map(([k,v])=>`<option value="${k}" ${s.depType===k?'selected':''}>${v}</option>`).join('')}
+          </select>
+        </div>
+        <div class="form-group"><label class="form-label">Due date (ceiling: parent due)</label>
+          <input class="form-input" type="date" value="${s.due||''}" onchange="tSetStDue('${s.id}',this.value)"/>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── Task Dependencies ──
+function tOpenDepPicker() {
+  const picker = document.getElementById('tDepPicker');
+  if (!picker) return;
+  // Populate task select with existing tasks
+  const sel = document.getElementById('tDpTask');
+  sel.innerHTML = '<option value="">— pick a task —</option>' +
+    tasks.map(t => `<option value="${t.id}">${escHtml(t.name)}</option>`).join('');
+  picker.classList.add('open');
+}
+function tCloseDepPicker() {
+  const picker = document.getElementById('tDepPicker');
+  if (picker) picker.classList.remove('open');
+  const sel = document.getElementById('tDpTask');
+  if (sel) sel.value = '';
+  const lag = document.getElementById('tDpLag');
+  if (lag) lag.value = '0';
+}
+function tConfirmDep() {
+  const taskId = document.getElementById('tDpTask').value;
+  if (!taskId) { document.getElementById('tDpTask').focus(); return; }
+  const type = document.getElementById('tDpType').value;
+  const lag = parseInt(document.getElementById('tDpLag').value) || 0;
+  const lagU = document.getElementById('tDpLagU').value;
+  tFormNewDeps.push({ taskId, type, lag, lagU });
+  tCloseDepPicker();
+  tRenderDeps();
+  tUpdSummaries();
+  // Warn if dep task date conflicts
+  const depTask = tasks.find(t => t.id === taskId);
+  if (depTask && depTask.due) {
+    showToast(`Dependency on "${depTask.name}" added — check dates align`);
+  }
+}
+function tDelDep(i) {
+  tFormNewDeps.splice(i, 1);
+  tRenderDeps();
+  tUpdSummaries();
+}
+function tRenderDeps() {
+  const el = document.getElementById('tDepList');
+  if (!el) return;
+  if (!tFormNewDeps.length) { el.innerHTML = ''; return; }
+  const DEP_LABELS = { FS:'Finish → Start', SS:'Start → Start', SF:'Start → Finish' };
+  el.innerHTML = tFormNewDeps.map((d, i) => {
+    const depTask = tasks.find(t => t.id === d.taskId);
+    const name = depTask ? depTask.name : d.taskId;
+    return `<div class="tacc-dep-item">
+      <div class="tacc-dep-chain">
+        <span class="tacc-dep-name">${escHtml(name)}</span>
+        <span class="tacc-dep-arrow">→</span>
+        <select style="font-family:'Noto Serif Display',Georgia,serif;font-size:.72rem;border:1.5px solid var(--border);border-radius:7px;padding:3px 6px;background:var(--card);" onchange="tFormNewDeps[${i}].type=this.value;tRenderDeps()">
+          ${Object.entries(DEP_LABELS).map(([k,v])=>`<option value="${k}" ${d.type===k?'selected':''}>${v}</option>`).join('')}
+        </select>
+        <span class="tacc-dep-arrow">→</span>
+        <span class="tacc-dep-this">This task</span>
+        <button type="button" onclick="tDelDep(${i})" style="background:none;border:none;color:var(--muted);font-size:.8rem;cursor:pointer;margin-left:auto;">×</button>
+      </div>
+      ${d.lag ? `<div style="font-size:.67rem;color:var(--muted);">+ ${d.lag} ${d.lagU} lag</div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+// ── Habit toggle ──
+function tToggleHabit(cb) {
+  const opts = document.getElementById('tHabitOpts');
+  const track = document.getElementById('tHabitTrack');
+  const thumb = document.getElementById('tHabitThumb');
+  if (opts) opts.style.display = cb.checked ? 'flex' : 'none';
+  if (track) track.style.background = cb.checked ? 'var(--accent)' : 'var(--border)';
+  if (thumb) thumb.style.transform = cb.checked ? 'translateX(15px)' : '';
+  tUpdSummaries();
+}
+function tShowHabitGoal(type) {
+  ['frequency','streak','quantity','cumulative'].forEach(t => {
+    const el = document.getElementById('thg-' + t);
+    if (el) el.style.display = t === type ? 'block' : 'none';
+  });
+}
+
+// ── Category dot cycle ──
+const T_CAT_CYCLE_RESET = () => {
+  const sel = document.getElementById('tCat');
+  if (!sel) return;
+  const opts = [...sel.options].map(o => o.value);
+  return opts;
+};
+let _tCatIdx = 0;
+function tCycleCat() {
+  const sel = document.getElementById('tCat');
+  if (!sel) return;
+  const opts = [...sel.options].map(o => o.value);
+  _tCatIdx = (_tCatIdx + 1) % opts.length;
+  sel.value = opts[_tCatIdx];
+  tUpdSummaries();
+}
+
+// ── Live summaries ──
+const T_ANCHOR_LABELS = { fixed:'Fixed', 'proj-start':'Proj. start', 'proj-due':'Proj. due', parent:'Parent task', due:'Due date' };
+function tUpdSummaries() {
+  // Basic
+  const catSel = document.getElementById('tCat');
+  const cat = catSel ? catSel.value : '';
+  const catName = catSel && cat ? catSel.options[catSel.selectedIndex].text : '';
+  const notes = document.getElementById('tNotes') ? document.getElementById('tNotes').value : '';
+  const dot = document.getElementById('tCatDot');
+  if (dot && cat) {
+    const catObj = categories.find(c => c.id === cat);
+    if (catObj) { dot.style.background = catObj.color; dot.style.borderColor = catObj.color; }
+  } else if (dot) { dot.style.background = 'var(--border)'; dot.style.borderColor = 'var(--border)'; }
+  tSum('basic', [catName||null, notes?'Has notes':null].filter(Boolean).join(' · ') || 'No category', !!cat);
+
+  // Schedule
+  let schedParts = [];
+  if (tFormAnchor !== 'fixed') {
+    const off = document.getElementById('tOffsetVal')?.value || '0';
+    const unit = document.getElementById('tOffsetUnit')?.value || 'days';
+    const dir = document.getElementById('tOffsetDir')?.value || 'after';
+    schedParts.push(`${T_ANCHOR_LABELS[tFormAnchor]}: ${off} ${unit} ${dir}`);
+  } else {
+    const st = document.getElementById('tSchedStart')?.value;
+    const en = document.getElementById('tSchedEnd')?.value;
+    if (st) schedParts.push(formatDate(st));
+    if (en) schedParts.push('→ ' + formatDate(en));
+  }
+  tSum('schedule', schedParts.join(' · ') || 'No dates set', schedParts.length > 0);
+
+  // Subtasks
+  const stDeps = tFormNewSts.filter(s => s.dep).length;
+  let stParts = [];
+  if (tFormNewSts.length) stParts.push(`${tFormNewSts.length} subtask${tFormNewSts.length>1?'s':''}`);
+  if (stDeps) stParts.push(`${stDeps} dep${stDeps>1?'s':''}`);
+  tSum('subtasks', stParts.join(' · ') || 'None', tFormNewSts.length > 0);
+
+  // Dependencies
+  tSum('deps', tFormNewDeps.length ? `${tFormNewDeps.length} dep${tFormNewDeps.length>1?'s':''}` : 'None', tFormNewDeps.length > 0);
+
+  // Recurrence
+  let rSum = 'Off';
+  if (tFormRecurMode === 'interval') {
+    const n = document.getElementById('tRIntN')?.value || '1';
+    const u = document.getElementById('tRIntU')?.value || 'days';
+    rSum = `Every ${n} ${u}`;
+  } else if (tFormRecurMode === 'dow') {
+    const sel = [...document.querySelectorAll('#tDowChips .tacc-chip.on')].map(b => b.textContent);
+    rSum = sel.length ? sel.join(', ') : 'Days of week';
+  } else if (tFormRecurMode === 'dom') {
+    const sel = [...document.querySelectorAll('#tDomChips .tacc-chip.on')].map(b => b.textContent);
+    rSum = sel.length ? 'Day ' + sel.join(', ') + ' monthly' : 'Day of month';
+  } else if (tFormRecurMode === 'nth') {
+    const ord = document.getElementById('tNthOrd');
+    const day = document.getElementById('tNthDay');
+    const mon = document.getElementById('tNthMonth');
+    const ordL = ord ? ord.options[ord.selectedIndex].text : '';
+    const dayL = day ? day.options[day.selectedIndex].text : '';
+    const monL = mon && mon.value !== 'every' ? ' of ' + mon.options[mon.selectedIndex].text : ' monthly';
+    rSum = `${ordL} ${dayL}${monL}`;
+    const prev = document.getElementById('tNthPreview');
+    if (prev) prev.textContent = `→ ${rSum}`;
+  } else if (tFormRecurMode === 'completion') {
+    const n = document.getElementById('tRCompletion')?.value || '7';
+    rSum = `+${n} days on done`;
+  }
+  tSum('recur', rSum, tFormRecurMode !== 'none');
+
+  // Habit
+  const hOn = document.getElementById('tHabitOn')?.checked;
+  tSum('habit', hOn ? 'Enabled' : 'Off', !!hOn);
+}
+
+function tSum(id, text, active) {
+  const nm = document.getElementById('tacc-nm-' + id);
+  const sm = document.getElementById('tacc-sm-' + id);
+  if (nm) nm.classList.toggle('active', !!active);
+  if (sm) { sm.textContent = text; sm.classList.toggle('set', !!active); }
+}
+
+// ── Get recur from accordion form ──
+function getTAccordionRecur() {
+  if (tFormRecurMode === 'none') return null;
+  const r = { type: tFormRecurMode };
+  if (tFormRecurMode === 'interval') {
+    r.interval = parseInt(document.getElementById('tRIntN').value) || 1;
+    r.intervalUnit = document.getElementById('tRIntU').value;
+    r.endType = document.getElementById('tRIntEnds').value;
+    if (r.endType === 'after') r.endAfter = parseInt(document.getElementById('tRIntEndVal').value) || 10;
+    if (r.endType === 'date') r.endDate = document.getElementById('tRIntEndVal').value;
+  } else if (tFormRecurMode === 'dow') {
+    r.dow = [...document.querySelectorAll('#tDowChips .tacc-chip.on')].map(b => parseInt(b.dataset.d));
+    r.endType = document.getElementById('tRDowEnds').value;
+    if (r.endType === 'after') r.endAfter = parseInt(document.getElementById('tRDowEndVal').value) || 10;
+    if (r.endType === 'date') r.endDate = document.getElementById('tRDowEndVal').value;
+  } else if (tFormRecurMode === 'dom') {
+    r.dom = [...document.querySelectorAll('#tDomChips .tacc-chip.on')].map(b => b.textContent === 'Last' ? -1 : parseInt(b.textContent));
+    r.endType = document.getElementById('tRDomEnds').value;
+  } else if (tFormRecurMode === 'nth') {
+    r.nthOrd = parseInt(document.getElementById('tNthOrd').value);
+    r.nthDay = parseInt(document.getElementById('tNthDay').value);
+    r.nthMonth = document.getElementById('tNthMonth').value;
+    r.endType = document.getElementById('tRNthEnds').value;
+  } else if (tFormRecurMode === 'completion') {
+    r.completionDays = parseInt(document.getElementById('tRCompletion').value) || 7;
+    r.endType = 'never';
+  }
+  return r;
+}
+
+// ── Get habit goal from accordion form ──
+function getTAccordionHabit() {
+  if (!document.getElementById('tHabitOn')?.checked) return null;
+  const type = document.getElementById('tHabitType').value;
+  const base = { type };
+  if (type === 'frequency') {
+    base.count = parseInt(document.getElementById('tHabitFreqCount').value) || 1;
+    base.period = document.getElementById('tHabitFreqPeriod').value;
+  }
+  if (type === 'streak') {
+    base.target = parseInt(document.getElementById('tHabitStreakTarget').value) || 7;
+    base.grace = parseInt(document.getElementById('tHabitStreakGrace').value) || 0;
+    base.freezes = parseInt(document.getElementById('tHabitStreakFreezes').value) || 1;
+    base.freezesUsed = 0; base.bestStreak = 0;
+  }
+  if (type === 'quantity') {
+    base.target = parseInt(document.getElementById('tHabitQtyTarget').value) || 2500;
+    base.unit = document.getElementById('tHabitQtyUnit').value || 'units';
+    base.increment = parseInt(document.getElementById('tHabitQtyIncrement').value) || 1;
+  }
+  if (type === 'cumulative') {
+    base.target = parseInt(document.getElementById('tHabitCumTarget').value) || 100;
+    base.unit = document.getElementById('tHabitCumUnit').value || 'units';
+    base.deadline = document.getElementById('tHabitCumDeadline').value || '';
+  }
+  return base;
+}
+
+// ── Get schedule anchor data ──
+function getTAccordionSchedule() {
+  if (tFormAnchor === 'fixed') {
+    return {
+      anchor: 'fixed',
+      startDate: document.getElementById('tSchedStart')?.value || '',
+      endDate: document.getElementById('tSchedEnd')?.value || '',
+      startTime: document.getElementById('tSchedStartTime')?.value || '',
+      endTime: document.getElementById('tSchedEndTime')?.value || ''
+    };
+  } else {
+    return {
+      anchor: tFormAnchor,
+      anchorRef: document.getElementById('tAnchorRef')?.value || '',
+      offsetVal: parseInt(document.getElementById('tOffsetVal')?.value) || 0,
+      offsetUnit: document.getElementById('tOffsetUnit')?.value || 'days',
+      offsetDir: document.getElementById('tOffsetDir')?.value || 'after',
+      startTime: document.getElementById('tRelStartTime')?.value || '',
+      endTime: document.getElementById('tRelEndTime')?.value || ''
+    };
+  }
+}
+
+// ── Reset accordion form ──
+function tResetAccordionForm() {
+  tFormAnchor = 'fixed';
+  tFormRecurMode = 'none';
+  tFormNewSts = [];
+  tFormNewDeps = [];
+  // Reset recur chips
+  document.querySelectorAll('#tRecurChips .tacc-chip').forEach(b => b.classList.remove('on'));
+  const noneChip = document.querySelector('#tRecurChips [data-rm="none"]');
+  if (noneChip) noneChip.classList.add('on');
+  ['interval','dow','dom','nth','completion'].forEach(p => {
+    const el = document.getElementById('trp-' + p);
+    if (el) el.classList.remove('open');
+  });
+  // Reset anchor chips
+  document.querySelectorAll('#tAnchorChips .tacc-chip').forEach(b => b.classList.remove('on'));
+  const fixedChip = document.querySelector('#tAnchorChips [data-a="fixed"]');
+  if (fixedChip) fixedChip.classList.add('on');
+  document.getElementById('tAnchorFixed').style.display = 'block';
+  document.getElementById('tAnchorRelative').style.display = 'none';
+  // Reset habit
+  const hab = document.getElementById('tHabitOn');
+  if (hab) { hab.checked = false; tToggleHabit(hab); }
+  // Clear renders
+  tRenderSts();
+  tRenderDeps();
+  tUpdSummaries();
+}
+
+// ── Dependency warning system ──
+function checkDependencyWarnings(savedTaskId) {
+  // Find tasks that depend on this one
+  const affected = tasks.filter(t =>
+    t.id !== savedTaskId && t.dependencies && t.dependencies.some(d => d.taskId === savedTaskId)
+  );
+  if (affected.length) {
+    const names = affected.map(t => t.name).join(', ');
+    showToast(`⚠ Dependency check: "${names}" may need rescheduling`, 4000);
+  }
+}
+
+// ── Nth weekday recurrence occurrence check ──
+function occursOnNth(item, ds) {
+  const r = item.recur;
+  if (!r || r.type !== 'nth') return false;
+  const d = new Date(ds + 'T00:00:00');
+  const dow = (d.getDay() + 6) % 7; // 0=Mon
+  if (dow !== r.nthDay) return false;
+  if (r.nthMonth !== 'every' && d.getMonth() !== parseInt(r.nthMonth)) return false;
+  // Which occurrence of this weekday in the month?
+  if (r.nthOrd === -1) {
+    // Last — check if next same weekday is in next month
+    const next = new Date(d);
+    next.setDate(d.getDate() + 7);
+    return next.getMonth() !== d.getMonth();
+  } else {
+    // Nth — count how many of this weekday have occurred this month up to and including d
+    let count = 0;
+    for (let day = 1; day <= d.getDate(); day++) {
+      const t = new Date(d.getFullYear(), d.getMonth(), day);
+      if ((t.getDay() + 6) % 7 === r.nthDay) count++;
+    }
+    return count === r.nthOrd;
+  }
+}
+
+// ── DOM recurrence occurrence check ──
+function occursOnDom(item, ds) {
+  const r = item.recur;
+  if (!r || r.type !== 'dom') return false;
+  const d = new Date(ds + 'T00:00:00');
+  const dayOfMonth = d.getDate();
+  const lastDay = new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate();
+  return (r.dom || []).some(dom => dom === -1 ? dayOfMonth === lastDay : dom === dayOfMonth);
+}
+
+// ── Interval recurrence with unit support ──
+function occursOnInterval(item, ds) {
+  const r = item.recur;
+  if (!r || r.type !== 'interval') return false;
+  const orig = item.due || item.date;
+  if (!orig) return false;
+  const start = new Date(orig + 'T00:00:00');
+  const check = new Date(ds + 'T00:00:00');
+  if (check < start) return false;
+  const diffMs = check - start;
+  const diffDays = Math.round(diffMs / 86400000);
+  let intervalDays = r.interval || 1;
+  if (r.intervalUnit === 'weeks') intervalDays *= 7;
+  // months: approximate
+  if (r.intervalUnit === 'months') {
+    // use month difference
+    const monthDiff = (check.getFullYear() - start.getFullYear()) * 12 + (check.getMonth() - start.getMonth());
+    if (monthDiff % intervalDays !== 0) return false;
+    return check.getDate() === start.getDate();
+  }
+  return diffDays % intervalDays === 0;
+}
+
+// ── Dependency-aware date calculation ──
+function resolveTaskDate(task) {
+  if (!task.schedule || task.schedule.anchor === 'fixed') return task.due || '';
+  const s = task.schedule;
+  if (s.anchor === 'due') {
+    const due = task.due;
+    if (!due) return '';
+    const d = new Date(due + 'T00:00:00');
+    const off = s.offsetVal || 0;
+    const unit = s.offsetUnit || 'days';
+    const mult = unit === 'weeks' ? 7 : unit === 'hours' ? 1/24 : 1;
+    if (s.offsetDir === 'before') d.setDate(d.getDate() - Math.round(off * mult));
+    else d.setDate(d.getDate() + Math.round(off * mult));
+    return dateStr(d);
+  }
+  if (s.anchor === 'parent') {
+    const parent = tasks.find(t => t.id === s.anchorRef);
+    if (!parent) return task.due || '';
+    const parentDate = parent.due || '';
+    if (!parentDate) return task.due || '';
+    const d = new Date(parentDate + 'T00:00:00');
+    const off = s.offsetVal || 0;
+    if (s.offsetDir === 'before') d.setDate(d.getDate() - off);
+    else d.setDate(d.getDate() + off);
+    return dateStr(d);
+  }
+  return task.due || '';
+}
+
 </script>
 
 <!-- MULTI-ADD AI PANEL -->
