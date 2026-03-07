@@ -1884,6 +1884,7 @@ function newCatId(){return 'CAT-'+String(++catSeq).padStart(4,'0');}
 
 // ---- STATE ----
 let tasks=[],events=[],waterFilled=0,waterGoal=8,waterWeekOffset=0,meals=[],mealSeq=0,templates=[],templateSeq=0,recipes=[],recipeSeq=0,activeFilter='all',weekOffset=0,modalDate=null,eventsViewDate=null,scheduleViewDate=null;
+let tFormRecurMode='none';let tFormAnchor='fixed';let tFormNewSts=[];let tFormNewDeps=[];
 let eventOverrides={};  // { 'evtId_YYYY-MM-DD': {cancelled,name,date,time,notes,catId} }
 let nutriGoals={cal:2000,protein:150,carbs:200,fat:65,fibre:30,potassium:3500,magnesium:400,sodium:2300};
 const NUTRI_FIELDS=[
@@ -3964,7 +3965,7 @@ function renderOverview(){
 function renderOverdueStrip(container) {
   const existing = document.getElementById('overdueStrip');
   if (existing) existing.remove();
-  const overdue = tasks.filter(t => !t.done && !t.habit && t.due && t.due < today() && (!t.recur || isInfrequentRecur(t)));
+  const overdue = tasks.filter(t => !t.done && !t.habit && t.due && t.due < today() && (!t.recur || isInfrequentRecur(t)) && !recurDoneLog.some(e=>e.taskId===t.id&&e.date===today()));
   if (!overdue.length) return;
   const strip = document.createElement('div');
   strip.id = 'overdueStrip';
@@ -8302,11 +8303,7 @@ setInterval(tickLive,1000);
 // TASK ACCORDION FORM
 // ════════════════════════════════════════════════════════════
 
-// ── State ──
-let tFormAnchor = 'fixed';
-let tFormRecurMode = 'none';
-let tFormNewSts = [];   // [{id,name,due,dep,depType}]
-let tFormNewDeps = [];  // [{taskId,type,lag,lagU}]
+// ── State (accordion form) ──
 
 // ── Accordion toggle ──
 function tToggleAcc(id) {
@@ -8359,7 +8356,7 @@ function tSetRecurMode(m, btn) {
   tFormRecurMode = m;
   ['interval','dow','dom','nth','completion'].forEach(p => {
     const el = document.getElementById('trp-' + p);
-    if (el) el.classList.toggle('open', p === m);
+    if (el) el.style.display = (p === m) ? 'flex' : 'none';
   });
   tUpdSummaries();
 }
