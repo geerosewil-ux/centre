@@ -722,10 +722,12 @@ h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.
     </div>
 
     <!-- Swipe container -->
-    <!-- Firebase connection banner (hidden when connected or not using Firebase) -->
-    <div id="centreSyncBanner" style="display:none;background:#fef6e0;border:1px solid #f0d080;border-radius:10px;padding:8px 14px;margin-bottom:12px;font-family:'Noto Serif Display',Georgia,serif;font-size:.8rem;color:#7a5c10;align-items:center;justify-content:space-between;gap:10px;">
-      <span id="centreSyncBannerText">Connecting to database…</span>
-      <button onclick="initFirebase(true)" style="font-size:.75rem;border:1px solid #c8a030;border-radius:8px;padding:2px 10px;background:none;color:#7a5c10;cursor:pointer;white-space:nowrap;">Reconnect</button>
+    <!-- Discreet sync status pill — sits below nav, fades out when connected -->
+    <div id="centreSyncBanner" style="display:none;justify-content:center;margin-bottom:6px;transition:opacity .4s;">
+      <div style="display:inline-flex;align-items:center;gap:5px;padding:2px 10px 2px 7px;border-radius:20px;background:var(--bg);border:1px solid var(--border);">
+        <div id="centreSyncDot" style="width:6px;height:6px;border-radius:50%;background:var(--border);flex-shrink:0;transition:background .4s;"></div>
+        <span id="centreSyncBannerText" style="font-family:'Noto Serif Display',Georgia,serif;font-size:.68rem;color:var(--muted);letter-spacing:.05em;white-space:nowrap;"></span>
+      </div>
     </div>
     <div id="centreDebug" style="display:none;background:#fde8e8;color:#c0554a;padding:8px 12px;border-radius:8px;font-size:.78rem;font-family:monospace;margin-bottom:12px;word-break:break-all;"></div>
     <div id="centreSwipeWrap" style="position:relative;overflow:hidden;touch-action:pan-y;min-height:300px;">
@@ -1884,6 +1886,17 @@ function newCatId(){return 'CAT-'+String(++catSeq).padStart(4,'0');}
 let tasks=[],events=[],waterFilled=0,waterGoal=8,waterWeekOffset=0,meals=[],mealSeq=0,templates=[],templateSeq=0,recipes=[],recipeSeq=0,activeFilter='all',weekOffset=0,modalDate=null,eventsViewDate=null,scheduleViewDate=null;
 let eventOverrides={};  // { 'evtId_YYYY-MM-DD': {cancelled,name,date,time,notes,catId} }
 let nutriGoals={cal:2000,protein:150,carbs:200,fat:65,fibre:30,potassium:3500,magnesium:400,sodium:2300};
+const NUTRI_FIELDS=[
+  {key:'cal',label:'Calories',unit:'kcal',color:'#e07050'},
+  {key:'protein',label:'Protein',unit:'g',color:'#5a90c0'},
+  {key:'carbs',label:'Carbs',unit:'g',color:'#c0a040'},
+  {key:'fat',label:'Fat',unit:'g',color:'#a060c0'},
+  {key:'fibre',label:'Fibre',unit:'g',color:'#60a060'},
+  {key:'potassium',label:'Potassium',unit:'mg',color:'#5a7a30'},
+  {key:'magnesium',label:'Magnesium',unit:'mg',color:'#7a3a9a'},
+  {key:'sodium',label:'Sodium',unit:'mg',color:'#a06020'},
+];
+const NUTRI_DEFAULTS={cal:2000,protein:150,carbs:200,fat:65,fibre:30,potassium:3500,magnesium:400,sodium:2300};
 let negativeHabits=[],negHabitSeq=0;
 let habitPillOffsets={};  // taskId -> day offset (0 = this week, -7 = prev week, etc.)
 let recurDoneLog=[];  // {taskId, date} — per-date completion for recurring non-habit tasks
@@ -2936,7 +2949,14 @@ function isInfrequentRecur(task) {
 function recurHasMissedOccurrence(task) {
   if (!task.recur || !isInfrequentRecur(task)) return false;
   const td = today();
-  // Walk back up to 90 days looking for a scheduled day that wasn't logged
+
+  // If today is a scheduled day AND it's already ticked, not overdue
+  if (occursOn(task, td)) {
+    const tickedToday = recurDoneLog.some(e => e.taskId === task.id && e.date === td);
+    if (tickedToday) return false;
+  }
+
+  // Walk back up to 90 days looking for the most recent scheduled occurrence
   const limit = new Date(td + 'T00:00:00');
   limit.setDate(limit.getDate() - 90);
   let d = new Date(td + 'T00:00:00');
@@ -2944,10 +2964,9 @@ function recurHasMissedOccurrence(task) {
   while (d >= limit) {
     const ds = dateStr(d);
     if (occursOn(task, ds)) {
-      // Was this occurrence ticked?
+      // Most recent past occurrence — is it ticked?
       const ticked = recurDoneLog.some(e => e.taskId === task.id && e.date === ds);
-      if (!ticked) return true; // found a missed one
-      else return false; // ticked the most recent scheduled day → not overdue
+      return !ticked; // missed = overdue; ticked = not overdue
     }
     d.setDate(d.getDate() - 1);
   }
@@ -6452,16 +6471,28 @@ function fbSetStatus(connected, text) {
   const txt = document.getElementById('syncStatusText');
   if (dot) dot.style.background = connected ? '#6abf82' : (text.includes('Error') ? '#e07070' : 'var(--border)');
   if (txt) txt.textContent = text;
-  // Show/hide Centre banner
+
+  // Centre sync indicator — discreet dot, only visible when NOT connected (and sync enabled)
   const banner = document.getElementById('centreSyncBanner');
+  const bannerDot = document.getElementById('centreSyncDot');
   const bannerTxt = document.getElementById('centreSyncBannerText');
-  if (banner) {
-    if (connected) {
-      banner.style.display = 'none';
-    } else if (localStorage.getItem('centre_fbSyncEnabled') === 'true') {
-      banner.style.display = 'flex';
-      if (bannerTxt) bannerTxt.textContent = text || 'Reconnecting to database…';
-    }
+  if (!banner) return;
+  const syncEnabled = localStorage.getItem('centre_fbSyncEnabled') === 'true';
+  if (!syncEnabled) { banner.style.display = 'none'; return; }
+  if (connected) {
+    // Briefly flash green then fade out
+    if (bannerDot) bannerDot.style.background = '#6abf82';
+    if (bannerTxt) bannerTxt.textContent = '';
+    banner.style.display = 'flex';
+    banner.style.opacity = '1';
+    clearTimeout(banner._hideTimer);
+    banner._hideTimer = setTimeout(() => { banner.style.opacity = '0'; setTimeout(() => { banner.style.display = 'none'; }, 400); }, 1800);
+  } else {
+    // Show amber dot with short status while reconnecting
+    banner.style.display = 'flex';
+    banner.style.opacity = '1';
+    if (bannerDot) bannerDot.style.background = text.includes('Error') ? '#e07070' : '#f0c060';
+    if (bannerTxt) bannerTxt.textContent = text.includes('Connecting') || text.includes('Loading') ? 'syncing…' : 'offline';
   }
 }
 
@@ -6586,6 +6617,7 @@ function getLocalDataBundle() {
     recurDoneLog,
     subtasks, subtaskSeq,
     meds, medLog, medSeq,
+    gcalIdMap,
     _theme,
     _apiKeys: { google: _googleApiKey||'', gemini: _geminiApiKey||'' },
     _ts: Date.now()
@@ -6663,6 +6695,11 @@ function applyRemoteData(remote) {
   if (remote.meds) meds = remote.meds;
   if (remote.medLog) medLog = remote.medLog;
   if (remote.medSeq) medSeq = remote.medSeq;
+  if (remote.gcalIdMap) {
+    // Merge remote gcalIdMap with local — remote takes precedence but keep any local-only entries
+    gcalIdMap = Object.assign({}, gcalIdMap, remote.gcalIdMap);
+    localStorage.setItem('centre_gcalIdMap', JSON.stringify(gcalIdMap));
+  }
   if (remote.subtasks) subtasks = remote.subtasks;
   if (remote.subtaskSeq) subtaskSeq = remote.subtaskSeq;
   if (remote._theme) {
@@ -7064,24 +7101,40 @@ function addMinutes(timeStr, mins) {
 function gcalRestoreSession() {
   const savedToken = localStorage.getItem('centre_gcalToken');
   const savedExpiry = parseInt(localStorage.getItem('centre_gcalTokenExpiry') || '0');
-  if (!savedToken) return; // Never connected before — do nothing
+  if (!savedToken) return; // Never connected — do nothing
 
-  if (Date.now() < savedExpiry) {
-    // Token still valid in localStorage
-    gcalToken = savedToken;
-    gcalTokenExpiry = savedExpiry;
-    gcalSetStatus(true, 'Connected');
-    const lastSync = localStorage.getItem('centre_lastGcalSync');
-    const el = document.getElementById('lastGcalSync');
-    if (el && lastSync) el.textContent = lastSync;
-    // Schedule silent refresh 2 min before expiry
-    const msUntilExpiry = savedExpiry - Date.now() - 120000;
-    if (msUntilExpiry > 0) setTimeout(gcalSilentRefresh, msUntilExpiry);
-  } else {
-    // Token expired — try silent refresh; if that fails show a clear reconnect prompt
-    gcalSetStatus(false, 'Session expired — tap Connect in Settings → Connections');
-    waitForGIS(gcalSilentRefresh);
-  }
+  // Always show "Connecting…" and attempt silent refresh on load
+  // GIS tokens can't be persisted — we always need a fresh one
+  gcalSetStatus(false, 'Reconnecting…');
+  const lastSync = localStorage.getItem('centre_lastGcalSync');
+  const el = document.getElementById('lastGcalSync');
+  if (el && lastSync) el.textContent = lastSync;
+
+  // Try silent token refresh (no popup). If it works, mark connected and sync.
+  // If it fails (token expired, user revoked), show reconnect prompt.
+  waitForGIS(() => {
+    const client = google.accounts.oauth2.initTokenClient({
+      client_id: GCAL_CLIENT_ID,
+      scope: GCAL_SCOPES,
+      prompt: 'none',
+      callback: (tokenResponse) => {
+        if (tokenResponse.error) {
+          gcalToken = null;
+          gcalSetStatus(false, 'Session expired — tap Connect in Settings');
+          return;
+        }
+        gcalToken = tokenResponse.access_token;
+        gcalTokenExpiry = Date.now() + (tokenResponse.expires_in - 60) * 1000;
+        localStorage.setItem('centre_gcalToken', gcalToken);
+        localStorage.setItem('centre_gcalTokenExpiry', String(gcalTokenExpiry));
+        gcalSetStatus(true, 'Connected');
+        // Schedule next silent refresh 2 min before expiry
+        const msUntilExpiry = gcalTokenExpiry - Date.now() - 120000;
+        if (msUntilExpiry > 0) setTimeout(gcalRestoreSession, msUntilExpiry);
+      }
+    });
+    client.requestAccessToken();
+  });
 }
 
 function waitForGIS(callback, attempts) {
@@ -8903,18 +8956,7 @@ function reinstateOccurrence(evId, ds) {
 // NUTRITION GOALS
 // ════════════════════════════════════════════════════════════
 
-const NUTRI_FIELDS = [
-  { key: 'cal',       label: 'Calories',    unit: 'kcal', color: '#e07050' },
-  { key: 'protein',   label: 'Protein',     unit: 'g',    color: '#5a90c0' },
-  { key: 'carbs',     label: 'Carbs',       unit: 'g',    color: '#c0a040' },
-  { key: 'fat',       label: 'Fat',         unit: 'g',    color: '#a060c0' },
-  { key: 'fibre',     label: 'Fibre',       unit: 'g',    color: '#60a060' },
-  { key: 'potassium', label: 'Potassium',   unit: 'mg',   color: '#5a7a30' },
-  { key: 'magnesium', label: 'Magnesium',   unit: 'mg',   color: '#7a3a9a' },
-  { key: 'sodium',    label: 'Sodium',      unit: 'mg',   color: '#a06020' },
-];
-
-const NUTRI_DEFAULTS = { cal:2000, protein:150, carbs:200, fat:65, fibre:30, potassium:3500, magnesium:400, sodium:2300 };
+// NUTRI_FIELDS and NUTRI_DEFAULTS defined in state section above
 
 function buildNutriGoals() {
   const el = document.getElementById('nutriGoalsGrid');
@@ -9002,14 +9044,28 @@ function renderOverviewMealsWithGoals() {
     magnesium:a.magnesium+(m.magnesium||0),sodium:a.sodium+(m.sodium||0)
   }),{cal:0,protein:0,carbs:0,fat:0,fibre:0,potassium:0,magnesium:0,sodium:0});
 
+  // Calories-only bar for Centre
+  const calGoal = nutriGoals.cal || NUTRI_DEFAULTS.cal || 2000;
+  const calPct = Math.min(100, Math.round(tot.cal / calGoal * 100));
+  const calOver = tot.cal > calGoal;
+  const calBar = `<div style="margin-top:10px;">
+    <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:3px;">
+      <span style="font-size:.68rem;text-transform:uppercase;letter-spacing:.06em;color:#e07050;font-family:'Noto Serif Display',Georgia,serif;">Calories</span>
+      <span style="font-size:.72rem;color:${calOver?'#c0554a':'var(--muted)'};">${tot.cal.toLocaleString()} <span style="opacity:.55;">/ ${calGoal.toLocaleString()} kcal</span></span>
+    </div>
+    <div style="height:5px;background:var(--border);border-radius:20px;overflow:hidden;">
+      <div style="height:100%;width:${calPct}%;background:${calOver?'#c0554a':'#e07050'};border-radius:20px;transition:width .4s cubic-bezier(.34,1.56,.64,1);"></div>
+    </div>
+  </div>`;
+
   container.innerHTML = `
     <div style="font-family:var(--font-display,Georgia,serif);font-weight:400;font-stretch:extra-condensed;text-transform:uppercase;letter-spacing:.08em;font-size:.8rem;color:var(--muted);margin-bottom:8px;margin-top:4px;">Nutrition</div>
-    <div class="meal-section" style="margin-bottom:12px">${sorted.map(m=>`
+    <div class="meal-section" style="margin-bottom:4px">${sorted.map(m=>`
       <div class="meal-row"><div class="meal-row-header"><span class="meal-label">${m.type}</span><span class="meal-name">${escHtml(m.name)}</span></div>
         <div class="meal-macro-strip">${m.cal?`<span class="macro-pill cal">${m.cal} kcal</span>`:''}${m.protein?`<span class="macro-pill protein">${m.protein}g protein</span>`:''}${m.carbs?`<span class="macro-pill carbs">${m.carbs}g carbs</span>`:''}${m.fat?`<span class="macro-pill fat">${m.fat}g fat</span>`:''}</div>
       </div>`).join('')}
     </div>
-    ${nutriProgressBarsHtml(tot)}`;
+    ${calBar}`;
 }
 
 </script>
