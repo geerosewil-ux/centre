@@ -1627,6 +1627,16 @@ h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.
         </div>
       </div>
 
+      <!-- Nutrition Goals -->
+      <div class="settings-section">
+        <div class="settings-section-title">Nutrition Goals</div>
+        <p style="font-size:.82rem;color:var(--muted);margin-bottom:14px;">Set your daily targets. These show as progress bars on the Meals page and Centre overview.</p>
+        <div class="settings-grid" id="nutriGoalsGrid">
+          <!-- populated by buildNutriGoals() -->
+        </div>
+        <button class="apply-btn" onclick="saveNutriGoals()" style="margin-top:4px;">Save Goals</button>
+      </div>
+
       <!-- Streak Milestones -->
       <div class="settings-section">
         <div class="settings-section-title">Streak Milestones</div>
@@ -1872,6 +1882,8 @@ function newCatId(){return 'CAT-'+String(++catSeq).padStart(4,'0');}
 
 // ---- STATE ----
 let tasks=[],events=[],waterFilled=0,waterGoal=8,waterWeekOffset=0,meals=[],mealSeq=0,templates=[],templateSeq=0,recipes=[],recipeSeq=0,activeFilter='all',weekOffset=0,modalDate=null,eventsViewDate=null,scheduleViewDate=null;
+let eventOverrides={};  // { 'evtId_YYYY-MM-DD': {cancelled,name,date,time,notes,catId} }
+let nutriGoals={cal:2000,protein:150,carbs:200,fat:65,fibre:30,potassium:3500,magnesium:400,sodium:2300};
 let negativeHabits=[],negHabitSeq=0;
 let habitPillOffsets={};  // taskId -> day offset (0 = this week, -7 = prev week, etc.)
 let recurDoneLog=[];  // {taskId, date} — per-date completion for recurring non-habit tasks
@@ -1928,6 +1940,8 @@ function scheduleSave(){
       localStorage.setItem('centre_subtasks',JSON.stringify(subtasks));
       localStorage.setItem('centre_subtaskSeq',subtaskSeq);
       localStorage.setItem('centre_recurDoneLog',JSON.stringify(recurDoneLog));
+      localStorage.setItem('centre_eventOverrides',JSON.stringify(eventOverrides));
+      localStorage.setItem('centre_nutriGoals',JSON.stringify(nutriGoals));
       localStorage.setItem('centre_events',JSON.stringify(events));
       localStorage.setItem('centre_categories',JSON.stringify(categories));
       localStorage.setItem('centre_habitLog',JSON.stringify(habitLog));
@@ -1978,6 +1992,8 @@ function loadFromStorage(){
     const st=localStorage.getItem('centre_subtasks');if(st)subtasks=JSON.parse(st);
     const stseq=localStorage.getItem('centre_subtaskSeq');if(stseq)subtaskSeq=parseInt(stseq);
     const rdl=localStorage.getItem('centre_recurDoneLog');if(rdl)recurDoneLog=JSON.parse(rdl);
+    const eo=localStorage.getItem('centre_eventOverrides');if(eo)eventOverrides=JSON.parse(eo);
+    const ng=localStorage.getItem('centre_nutriGoals');if(ng)nutriGoals=JSON.parse(ng);
     const e=localStorage.getItem('centre_events');if(e)events=JSON.parse(e);
     const c=localStorage.getItem('centre_categories');if(c)categories=JSON.parse(c);
     const hl=localStorage.getItem('centre_habitLog');if(hl)habitLog=JSON.parse(hl);
@@ -2222,6 +2238,14 @@ function getHabitGoal(){
 // ---- RECURRENCE LOGIC ----
 function occursOn(item,ds){
   const orig=item.date||item.due;
+  // Check if this occurrence has been overridden (cancelled or rescheduled)
+  if(item.id && eventOverrides) {
+    const ovKey = item.id + '_' + ds;
+    const ov = eventOverrides[ovKey];
+    if(ov && ov.cancelled) return false;
+    // If rescheduled to a different date, this original slot is gone
+    if(ov && ov.reschedDate && ov.reschedDate !== ds) return false;
+  }
   // Recurring items: use full recurrence engine
   if(item.recur){
     if(item.type==='birthday'||(item.recur&&item.recur.type==='yearly'))return orig&&orig.slice(5)===ds.slice(5)&&ds>=orig;
@@ -2882,16 +2906,51 @@ function _renderCentreSubPanel(taskId, vd) {
 
 
 function isInfrequentRecur(task) {
-  // Returns true if recurrence is weekly or less frequent (i.e. should show as overdue-incomplete)
+  // true  → weekly or less frequent → missed occurrences can go overdue
+  // false → more frequent than weekly → always rolls forward silently, never overdue
   if (!task.recur) return false;
   const r = task.recur;
+  // Clearly infrequent (monthly or longer)
   if (r.type === 'yearly' || r.type === 'monthly' || r.type === 'interval-months') return true;
+  if (r.type === 'dom') return true;   // day of month = monthly
+  if (r.type === 'nth') return true;   // nth weekday of month = monthly
+  // Weekly
   if (r.type === 'weekly') return true;
-  if (r.type === 'interval-weeks') return (r.interval || 1) >= 1; // any week interval
+  if (r.type === 'interval-weeks') return true;
+  // Interval — depends on unit and value
   if (r.type === 'interval-days') return (r.interval || 1) >= 7;
-  if (r.type === 'dow') return true; // specific days — treat as frequent (daily-ish), NOT overdue
+  if (r.type === 'interval') {
+    const u = r.intervalUnit || 'days';
+    if (u === 'months' || u === 'weeks') return true;
+    return (r.interval || 1) >= 7;
+  }
+  // Frequent — never overdue
   if (r.type === 'daily') return false;
-  if (r.type === 'on-completion') return false;
+  if (r.type === 'dow') return false;         // specific weekdays, sub-weekly frequency
+  if (r.type === 'on-completion' || r.type === 'completion') return false;
+  return false;
+}
+
+// Returns true if a recurring task has at least one missed (unticked) scheduled
+// occurrence strictly before today — used for overdue detection.
+function recurHasMissedOccurrence(task) {
+  if (!task.recur || !isInfrequentRecur(task)) return false;
+  const td = today();
+  // Walk back up to 90 days looking for a scheduled day that wasn't logged
+  const limit = new Date(td + 'T00:00:00');
+  limit.setDate(limit.getDate() - 90);
+  let d = new Date(td + 'T00:00:00');
+  d.setDate(d.getDate() - 1); // start from yesterday
+  while (d >= limit) {
+    const ds = dateStr(d);
+    if (occursOn(task, ds)) {
+      // Was this occurrence ticked?
+      const ticked = recurDoneLog.some(e => e.taskId === task.id && e.date === ds);
+      if (!ticked) return true; // found a missed one
+      else return false; // ticked the most recent scheduled day → not overdue
+    }
+    d.setDate(d.getDate() - 1);
+  }
   return false;
 }
 function renderTasks(){
@@ -2904,22 +2963,41 @@ function renderTasks(){
     base=tasks.filter(t=>workCat&&t.catId===workCat.id);
   }
   let filtered=base;
-  // Overdue = non-recurring, non-habit, not done, due before today
-  const overdueCount=base.filter(t=>!t.habit&&!t.done&&t.due&&t.due<td&&(!t.recur||isInfrequentRecur(t))).length;
-  if(activeFilter==='today')filtered=base.filter(t=>occursOn(t,td));
-  else if(activeFilter==='pending')filtered=base.filter(t=>{
-    if(t.recur) return true; // always show recurring tasks
-    if(t.habit) return !isTaskDoneOn(t,td);
-    return !t.done;
-  });
-  else if(activeFilter==='done')filtered=base.filter(t=>{
-    if(t.recur) return recurDoneLog.some(e=>e.taskId===t.id&&e.date===td);
-    return t.done;
-  });
-  else if(activeFilter==='habits')filtered=base.filter(t=>t.habit);
-  else if(activeFilter==='overdue')filtered=tasks.filter(t=>!t.habit&&!t.done&&t.due&&t.due<td&&(!t.recur||isInfrequentRecur(t)));
-  else if(activeFilter==='waiting')filtered=tasks.filter(t=>t.waitingFor&&!t.done);
-  const pendingCount=tasks.filter(t=>t.recur?true:t.habit?!isTaskDoneOn(t,td):!t.done).length;
+  // Helper: is this task overdue?
+  function taskIsOverdue(t) {
+    if (t.habit || t.done) return false;
+    if (t.recur) return recurHasMissedOccurrence(t);
+    return t.due && t.due < td;
+  }
+  const overdueCount = base.filter(taskIsOverdue).length;
+
+  if (activeFilter === 'today') {
+    // Recurring: only on its scheduled days
+    // Non-recurring: due today or overdue
+    filtered = base.filter(t => {
+      if (t.recur) return occursOn(t, td);
+      if (t.habit) return true;
+      return t.due === td || (!t.done && t.due && t.due < td);
+    });
+  } else if (activeFilter === 'pending') {
+    filtered = base.filter(t => {
+      if (t.recur) return true;
+      if (t.habit) return !isTaskDoneOn(t, td);
+      return !t.done;
+    });
+  } else if (activeFilter === 'done') {
+    filtered = base.filter(t => {
+      if (t.recur) return recurDoneLog.some(e => e.taskId === t.id && e.date === td);
+      return t.done;
+    });
+  } else if (activeFilter === 'habits') {
+    filtered = base.filter(t => t.habit);
+  } else if (activeFilter === 'overdue') {
+    filtered = base.filter(taskIsOverdue);
+  } else if (activeFilter === 'waiting') {
+    filtered = tasks.filter(t => t.waitingFor && !t.done);
+  }
+  const pendingCount = tasks.filter(t => t.recur ? true : t.habit ? !isTaskDoneOn(t,td) : !t.done).length;
   document.getElementById('taskCount').textContent=`${pendingCount} pending${overdueCount>0?' · '+overdueCount+' overdue':''}`;
   const overdueBtn=document.getElementById('filterOverdueBtn');
   if(overdueBtn){overdueBtn.style.display=overdueCount>0?'':'none';}
@@ -2936,15 +3014,16 @@ function renderTasks(){
     const cat=categories.find(c=>c.id===t.catId),rs=recurSummary(t.recur);
     const isRecurring=!!t.recur;
     const isDoneToday=isTaskDoneOn(t,td);
-    // Overdue only applies to non-recurring, non-done tasks with a past due date
-    const isOverdue=!t.habit&&!t.done&&t.due&&t.due<td&&(!isRecurring||isInfrequentRecur(t));
+    // Overdue: recurring uses missed-occurrence check; non-recurring uses due date
+    const isOverdue = t.recur ? recurHasMissedOccurrence(t) : (!t.habit&&!t.done&&t.due&&t.due<td);
     const bg=isOverdue?'rgba(192,85,74,.06)':'var(--bg)';
     // For recurring: show checked state based on today's log
     const isChecked=isRecurring?isDoneToday:t.done;
-    // Next occurrence label for recurring
-    const nextOcc=isRecurring?nextOccurrence(t,td):null;
+    // Recurring always shows next upcoming due date; if done today show next after today
+    const nextOccFrom = isRecurring ? (isDoneToday ? (() => { const tom=new Date(td+'T00:00:00'); tom.setDate(tom.getDate()+1); return dateStr(tom); })() : td) : null;
+    const nextOcc=isRecurring?nextOccurrence(t, nextOccFrom):null;
     const dueLabelDate=isRecurring?(nextOcc||t.due):t.due;
-    const dc=dueClass(dueLabelDate);
+    const dc=isOverdue?'overdue':dueClass(dueLabelDate);
     // Task icon: use task-specific override if set, else fall back to category icon
     const taskIconKey = t.icon ? t.icon : (cat ? resolveIconKey(cat.icon) : null);
     const _iconCol = getComputedStyle(document.documentElement).getPropertyValue('--icon-color').trim() || 'var(--accent)';
@@ -2964,7 +3043,7 @@ function renderTasks(){
           <button class="delete-btn" onclick="deleteTask('${t.id}')">×</button>
         </div>
         <div class="item-meta" style="margin-top:4px">
-          ${dueLabelDate?`<span class="meta-tag meta-due ${dc}">${isRecurring&&nextOcc?'Next: ':' '}${formatDate(dueLabelDate)}</span>`:''}
+          ${dueLabelDate?`<span class="meta-tag meta-due ${dc}">${isRecurring?(isDoneToday?'Next: ':(occursOn(t,td)?'':'Next: ')):''}${formatDate(dueLabelDate)}</span>`:''}
           ${rs?`<span class="meta-tag meta-recur">${rs}</span>`:''}
         </div>
         <div class="edit-form" id="edit-${t.id}">
@@ -3448,7 +3527,16 @@ function renderWeek(){
     return `<div class="day-col ${isToday?'is-today':''}${_isEmpty?' mobile-empty':''}">
       <div class="day-header"><div class="day-name">${DN[i]}</div><div class="day-num">${d.getDate()}</div><div style="display:flex;align-items:center;justify-content:center;gap:2px;height:10px;">${_wcDot}<div class="day-weather" data-weather-day="${ds}"></div></div></div>
       <div class="day-items">
-        ${dayEvents.map(ev=>{const cat=categories.find(c=>c.id===ev.catId);const bg='var(--bg)';return `<div class="day-event" style="background:${bg}" title="${escHtml(ev.name)}">${evEmoji(ev,'var(--accent)')}${escHtml(ev.name)}</div>`;}).join('')}
+        ${dayEvents.map(ev=>{
+  const cat=categories.find(c=>c.id===ev.catId);
+  const ovKey=ev.id+'_'+ds;
+  const ov=ev.recur&&eventOverrides[ovKey];
+  const bg=cat?hexToRgba(cat.color,.12):'var(--bg)';
+  if(ov&&ov.cancelled) return `<div class="day-event" style="background:var(--border);opacity:.45;text-decoration:line-through;cursor:pointer;" onclick="openOccurrenceModal('${ev.id}','${ds}')" title="Cancelled — tap to reinstate">${escHtml(ov.name||ev.name)}</div>`;
+  const displayName=ov&&ov.name?ov.name:ev.name;
+  const clickable=ev.recur?`onclick="openOccurrenceModal('${ev.id}','${ds}')"`:`onclick="openOccurrenceModal('${ev.id}','${ds}')"`;
+  return `<div class="day-event" style="background:${bg};cursor:pointer;" ${clickable} title="Tap to edit">${evEmoji(ev,'var(--accent)')}${escHtml(displayName)}</div>`;
+}).join('')}
         ${dayTasks.map(tk=>{const cat=categories.find(c=>c.id===tk.catId);const bg='';return `<div class="day-task" style="${bg?'background:'+bg:''}" title="${escHtml(tk.name)}">${escHtml(tk.name)}</div>`;}).join('')}
         ${_dayMeals.map(m=>`<div class="day-meal" title="${escHtml(m.name)}">${m.type[0].toUpperCase()}: ${escHtml(m.name)}</div>`).join('')}
       </div>
@@ -3599,10 +3687,13 @@ function assignBlocks(tl, viewDate){
   const isToday=vd===today();
   const nowMins=isToday?(new Date().getHours()*60+new Date().getMinutes()):0;
   // Only show tasks that actually occur on vd — exact date match, recurring logic included
+  // For recurring tasks: exclude if already ticked on vd (they stay greyed in task list, not in schedule)
   const td=tl.filter(t=>{
     if(t.date!==undefined)return false; // events handled separately
     if(!t.name)return false;
-    return occursOn(t, vd);
+    if(!occursOn(t, vd))return false;
+    if(t.recur&&!t.habit&&recurDoneLog.some(e=>e.taskId===t.id&&e.date===vd))return false;
+    return true;
   }).sort((a,b)=>{
     // Sort ONLY by due date and duration for bucketing — never by done-status,
     // which would cause completed tasks to migrate between blocks when ticked.
@@ -4209,36 +4300,22 @@ function renderMealLog(){
       ${m.recipe?`<div style="font-size:.78rem;color:var(--muted);margin-top:6px;line-height:1.5;font-family:var(--font-display,Georgia,serif);">${escHtml(m.recipe)}</div>`:''}
     </div>`).join('')}
   </div>`;
-  const tot=dayMeals.reduce((a,m)=>({cal:a.cal+(m.cal||0),protein:a.protein+(m.protein||0),carbs:a.carbs+(m.carbs||0),fat:a.fat+(m.fat||0),potassium:a.potassium+(m.potassium||0),magnesium:a.magnesium+(m.magnesium||0),sodium:a.sodium+(m.sodium||0)}),{cal:0,protein:0,carbs:0,fat:0,potassium:0,magnesium:0,sodium:0});
+  const tot=dayMeals.reduce((a,m)=>({cal:a.cal+(m.cal||0),protein:a.protein+(m.protein||0),carbs:a.carbs+(m.carbs||0),fat:a.fat+(m.fat||0),fibre:a.fibre+(m.fibre||0),potassium:a.potassium+(m.potassium||0),magnesium:a.magnesium+(m.magnesium||0),sodium:a.sodium+(m.sodium||0)}),{cal:0,protein:0,carbs:0,fat:0,fibre:0,potassium:0,magnesium:0,sodium:0});
   const totEl=document.getElementById('mealNutritionTotal');
   if(totEl)totEl.innerHTML=`
-    <div class="nut-item"><div class="nut-val">${tot.cal}</div><div class="nut-lbl">kcal</div></div>
-    <div class="nut-item"><div class="nut-val">${tot.protein}g</div><div class="nut-lbl">protein</div></div>
-    <div class="nut-item"><div class="nut-val">${tot.carbs}g</div><div class="nut-lbl">carbs</div></div>
-    <div class="nut-item"><div class="nut-val">${tot.fat}g</div><div class="nut-lbl">fat</div></div>
-    ${tot.potassium?`<div class="nut-item"><div class="nut-val" style="color:#5a7a30">${tot.potassium}mg</div><div class="nut-lbl">potassium</div></div>`:''}
-    ${tot.magnesium?`<div class="nut-item"><div class="nut-val" style="color:#7a3a9a">${tot.magnesium}mg</div><div class="nut-lbl">magnesium</div></div>`:''}
-    ${tot.sodium?`<div class="nut-item"><div class="nut-val" style="color:#a06020">${tot.sodium}mg</div><div class="nut-lbl">sodium</div></div>`:''}`;
-}
-function renderOverviewMeals(){
-  const container=document.getElementById('overviewMeals');if(!container)return;
-  const todayMeals=meals.filter(m=>m.date===getCentreDate());
-  const MEAL_ORDER=['breakfast','lunch','dinner','snack'];
-  const sorted=[...todayMeals].sort((a,b)=>MEAL_ORDER.indexOf(a.type)-MEAL_ORDER.indexOf(b.type));
-  if(!todayMeals.length){container.innerHTML=`<p class="no-events" style="margin-top:2px;font-size:.82rem;">No meals logged today.</p>`;return;}
-  const tot=todayMeals.reduce((a,m)=>({cal:a.cal+m.cal,protein:a.protein+m.protein,carbs:a.carbs+m.carbs,fat:a.fat+m.fat}),{cal:0,protein:0,carbs:0,fat:0});
-  container.innerHTML=`<div style="font-family:var(--font-display,Georgia,serif);font-weight:400;font-stretch:extra-condensed;text-transform:uppercase;letter-spacing:.08em;font-size:.8rem;color:var(--muted);margin-bottom:8px;margin-top:4px;">Nutrition</div>
-    <div class="meal-section" style="margin-bottom:12px">${sorted.map(m=>`
-      <div class="meal-row"><div class="meal-row-header"><span class="meal-label">${m.type}</span><span class="meal-name">${escHtml(m.name)}</span></div>
-        <div class="meal-macro-strip">${m.cal?`<span class="macro-pill cal">${m.cal} kcal</span>`:''}${m.protein?`<span class="macro-pill protein">${m.protein}g protein</span>`:''}${m.carbs?`<span class="macro-pill carbs">${m.carbs}g carbs</span>`:''}${m.fat?`<span class="macro-pill fat">${m.fat}g fat</span>`:''}</div>
-      </div>`).join('')}
-    </div>
-    <div class="nutrition-total">
+    <div class="nutrition-total" style="margin-bottom:10px;">
       <div class="nut-item"><div class="nut-val">${tot.cal}</div><div class="nut-lbl">kcal</div></div>
       <div class="nut-item"><div class="nut-val">${tot.protein}g</div><div class="nut-lbl">protein</div></div>
       <div class="nut-item"><div class="nut-val">${tot.carbs}g</div><div class="nut-lbl">carbs</div></div>
       <div class="nut-item"><div class="nut-val">${tot.fat}g</div><div class="nut-lbl">fat</div></div>
-    </div>`;
+      ${tot.potassium?`<div class="nut-item"><div class="nut-val" style="color:#5a7a30">${tot.potassium}mg</div><div class="nut-lbl">potassium</div></div>`:''}
+      ${tot.magnesium?`<div class="nut-item"><div class="nut-val" style="color:#7a3a9a">${tot.magnesium}mg</div><div class="nut-lbl">magnesium</div></div>`:''}
+      ${tot.sodium?`<div class="nut-item"><div class="nut-val" style="color:#a06020">${tot.sodium}mg</div><div class="nut-lbl">sodium</div></div>`:''}
+    </div>
+    <div id="mealNutriProgress">${typeof nutriProgressBarsHtml==='function'?nutriProgressBarsHtml(tot):''}</div>`;
+}
+function renderOverviewMeals(){
+  renderOverviewMealsWithGoals();
 }
 
 // ---- RECIPES ----
@@ -5155,6 +5232,8 @@ function buildSettings(){
   if (ti) { ti.value = localStorage.getItem('centre_fbToken') || ''; ti.type = 'password'; }
   if (sg) sg.innerHTML = EDITABLE.map(v => makeColourSwatch(v, THEME_LABELS[v])).join('');
   const pg = document.getElementById('phaseColourGrid');
+  // Build nutrition goals inputs
+  setTimeout(()=>{try{buildNutriGoals();}catch(e){}},20);
   if (pg) pg.innerHTML = PHASE_VARS.map(v => makeColourSwatch(v, PHASE_LABELS[v])).join('');
   buildIconSettings();
 }
@@ -8711,6 +8790,228 @@ function resolveTaskDate(task) {
   return task.due || '';
 }
 
+
+// ════════════════════════════════════════════════════════════
+// OCCURRENCE OVERRIDES  (event-instance edits / cancellations)
+// ════════════════════════════════════════════════════════════
+
+function occurrenceKey(evId, ds) { return evId + '_' + ds; }
+
+function getEffectiveOccurrence(ev, ds) {
+  const ov = eventOverrides[occurrenceKey(ev.id, ds)];
+  if (!ov) return { name: ev.name, date: ds, time: ev.time, notes: ev.notes, catId: ev.catId, cancelled: false };
+  return {
+    name:  ov.name  !== undefined ? ov.name  : ev.name,
+    date:  ov.date  !== undefined ? ov.date  : ds,
+    time:  ov.time  !== undefined ? ov.time  : ev.time,
+    notes: ov.notes !== undefined ? ov.notes : ev.notes,
+    catId: ov.catId !== undefined ? ov.catId : ev.catId,
+    cancelled: !!ov.cancelled
+  };
+}
+
+function openOccurrenceModal(evId, ds) {
+  const ev = events.find(e => e.id === evId);
+  if (!ev) return;
+  const occ = getEffectiveOccurrence(ev, ds);
+  const d = new Date(ds + 'T00:00:00');
+  const dLabel = d.toLocaleDateString('en-AU', { weekday: 'long', day: 'numeric', month: 'long' });
+  const isRecurring = !!ev.recur;
+  const isCancelled = occ.cancelled;
+
+  document.getElementById('occModalTitle').textContent = (isRecurring ? 'Occurrence — ' : 'Event — ') + dLabel;
+
+  const catOpts = '<option value="">— none —</option>' +
+    categories.map(c => `<option value="${c.id}" ${occ.catId===c.id?'selected':''}>${escHtml(c.name)}</option>`).join('');
+
+  document.getElementById('occModalContent').innerHTML = isCancelled ? `
+    <div style="font-size:.9rem;color:var(--muted);text-align:center;padding:12px 0;">
+      This occurrence is <strong style="color:#c0554a;">cancelled</strong>.
+    </div>` : `
+    <div class="form-group"><label class="form-label">Name</label>
+      <input class="form-input" id="occName" value="${escHtml(occ.name)}"/>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+      <div class="form-group"><label class="form-label">Date</label>
+        <input class="form-input" type="date" id="occDate" value="${occ.date||ds}"/>
+      </div>
+      <div class="form-group"><label class="form-label">Time</label>
+        <input class="form-input" type="time" id="occTime" value="${occ.time||''}"/>
+      </div>
+    </div>
+    <div class="form-group"><label class="form-label">Category</label>
+      <select class="form-select" id="occCat">${catOpts}</select>
+    </div>
+    <div class="form-group"><label class="form-label">Notes</label>
+      <input class="form-input" id="occNotes" value="${escHtml(occ.notes||'')}"/>
+    </div>
+    ${isRecurring ? `<div style="font-size:.72rem;color:var(--muted);padding:2px 0;">Changes apply to this occurrence only. The series continues unchanged.</div>` : ''}`;
+
+  // Actions
+  const actions = document.getElementById('occModalActions');
+  actions.innerHTML = isCancelled ? `
+    <button class="modal-cancel" onclick="closeOccurrenceModal()">Close</button>
+    <button class="modal-save" onclick="reinstateOccurrence('${evId}','${ds}')">Reinstate</button>` : `
+    <button class="modal-cancel" onclick="closeOccurrenceModal()">Cancel</button>
+    ${isRecurring ? `<button class="modal-save" style="background:#c0554a;" onclick="cancelOccurrence('${evId}','${ds}')">Cancel this date</button>` : ''}
+    <button class="modal-save" onclick="saveOccurrence('${evId}','${ds}')">Save</button>`;
+
+  document.getElementById('occurrenceModalOverlay').classList.add('open');
+}
+
+function closeOccurrenceModal() {
+  document.getElementById('occurrenceModalOverlay').classList.remove('open');
+}
+
+function saveOccurrence(evId, ds) {
+  const key = occurrenceKey(evId, ds);
+  const name = document.getElementById('occName').value.trim();
+  const date = document.getElementById('occDate').value;
+  const time = document.getElementById('occTime').value;
+  const catId = document.getElementById('occCat').value;
+  const notes = document.getElementById('occNotes').value.trim();
+  eventOverrides[key] = { name, date, time, catId, notes, cancelled: false };
+  scheduleSave();
+  closeOccurrenceModal();
+  renderWeek();
+  if (document.getElementById('page-planner')?.classList.contains('active')) renderPlannerPage();
+  showToast('Occurrence updated ✓');
+}
+
+function cancelOccurrence(evId, ds) {
+  const ev = events.find(e => e.id === evId);
+  const key = occurrenceKey(evId, ds);
+  eventOverrides[key] = { cancelled: true, name: ev ? ev.name : '' };
+  scheduleSave();
+  closeOccurrenceModal();
+  renderWeek();
+  if (document.getElementById('page-planner')?.classList.contains('active')) renderPlannerPage();
+  showToast('Occurrence cancelled');
+}
+
+function reinstateOccurrence(evId, ds) {
+  const key = occurrenceKey(evId, ds);
+  delete eventOverrides[key];
+  scheduleSave();
+  closeOccurrenceModal();
+  renderWeek();
+  if (document.getElementById('page-planner')?.classList.contains('active')) renderPlannerPage();
+  showToast('Occurrence reinstated ✓');
+}
+
+// ════════════════════════════════════════════════════════════
+// NUTRITION GOALS
+// ════════════════════════════════════════════════════════════
+
+const NUTRI_FIELDS = [
+  { key: 'cal',       label: 'Calories',    unit: 'kcal', color: '#e07050' },
+  { key: 'protein',   label: 'Protein',     unit: 'g',    color: '#5a90c0' },
+  { key: 'carbs',     label: 'Carbs',       unit: 'g',    color: '#c0a040' },
+  { key: 'fat',       label: 'Fat',         unit: 'g',    color: '#a060c0' },
+  { key: 'fibre',     label: 'Fibre',       unit: 'g',    color: '#60a060' },
+  { key: 'potassium', label: 'Potassium',   unit: 'mg',   color: '#5a7a30' },
+  { key: 'magnesium', label: 'Magnesium',   unit: 'mg',   color: '#7a3a9a' },
+  { key: 'sodium',    label: 'Sodium',      unit: 'mg',   color: '#a06020' },
+];
+
+const NUTRI_DEFAULTS = { cal:2000, protein:150, carbs:200, fat:65, fibre:30, potassium:3500, magnesium:400, sodium:2300 };
+
+function buildNutriGoals() {
+  const el = document.getElementById('nutriGoalsGrid');
+  if (!el) return;
+  el.innerHTML = NUTRI_FIELDS.map(f => `
+    <div class="setting-item">
+      <label class="setting-label" style="color:${f.color}">${f.label} (${f.unit})</label>
+      <input class="form-input" type="number" id="ng-${f.key}" value="${nutriGoals[f.key]||NUTRI_DEFAULTS[f.key]||0}" min="0" style="border-color:${f.color}22;"/>
+    </div>`).join('');
+}
+
+function saveNutriGoals() {
+  NUTRI_FIELDS.forEach(f => {
+    const el = document.getElementById('ng-' + f.key);
+    if (el) nutriGoals[f.key] = parseInt(el.value) || 0;
+  });
+  scheduleSave();
+  showToast('Nutrition goals saved ✓');
+  // Re-render meals page if open
+  renderMealsNutritionTotal();
+}
+
+// ── Nutrition progress bars (shared util) ──
+function nutriProgressBarsHtml(totals) {
+  if (!totals) return '';
+  return NUTRI_FIELDS.map(f => {
+    const val = totals[f.key] || 0;
+    const goal = nutriGoals[f.key] || NUTRI_DEFAULTS[f.key] || 1;
+    const pct = Math.min(100, Math.round(val / goal * 100));
+    const over = val > goal;
+    return `<div style="margin-bottom:6px;">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:2px;">
+        <span style="font-size:.67rem;text-transform:uppercase;letter-spacing:.06em;color:${f.color};font-family:'Noto Serif Display',Georgia,serif;">${f.label}</span>
+        <span style="font-size:.7rem;color:${over?'#c0554a':'var(--muted)'};">${val}${f.unit !== 'kcal' ? f.unit : ''} <span style="opacity:.6;">/ ${goal}${f.unit !== 'kcal' ? f.unit : ''}</span></span>
+      </div>
+      <div style="height:5px;background:var(--border);border-radius:20px;overflow:hidden;">
+        <div style="height:100%;width:${pct}%;background:${over?'#c0554a':f.color};border-radius:20px;transition:width .4s cubic-bezier(.34,1.56,.64,1);"></div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// Nutrition goals grid is built by buildNutriGoals() — called from the original buildSettings via showPage
+
+// ── Patch renderMealsNutritionTotal to include progress bars ──
+function renderMealsNutritionTotalWithGoals() {
+  const filterDate = document.getElementById('mealFilterDate')?.value || today();
+  const todayMs = meals.filter(m => m.date === filterDate);
+  const tot = todayMs.reduce((a, m) => ({
+    cal: a.cal + (m.cal||0), protein: a.protein + (m.protein||0),
+    carbs: a.carbs + (m.carbs||0), fat: a.fat + (m.fat||0),
+    fibre: a.fibre + (m.fibre||0), potassium: a.potassium + (m.potassium||0),
+    magnesium: a.magnesium + (m.magnesium||0), sodium: a.sodium + (m.sodium||0)
+  }), { cal:0,protein:0,carbs:0,fat:0,fibre:0,potassium:0,magnesium:0,sodium:0 });
+
+  const totEl = document.getElementById('mealNutritionTotal');
+  if (!totEl) return;
+  if (!todayMs.length) { totEl.innerHTML = ''; return; }
+  totEl.innerHTML = `
+    <div style="margin-bottom:14px;">
+      <div class="nutrition-total" style="margin-bottom:12px;">
+        <div class="nut-item"><div class="nut-val">${tot.cal}</div><div class="nut-lbl">kcal</div></div>
+        <div class="nut-item"><div class="nut-val">${tot.protein}g</div><div class="nut-lbl">protein</div></div>
+        <div class="nut-item"><div class="nut-val">${tot.carbs}g</div><div class="nut-lbl">carbs</div></div>
+        <div class="nut-item"><div class="nut-val">${tot.fat}g</div><div class="nut-lbl">fat</div></div>
+        ${tot.potassium?`<div class="nut-item"><div class="nut-val" style="color:#5a7a30">${tot.potassium}mg</div><div class="nut-lbl">potassium</div></div>`:''}
+        ${tot.magnesium?`<div class="nut-item"><div class="nut-val" style="color:#7a3a9a">${tot.magnesium}mg</div><div class="nut-lbl">magnesium</div></div>`:''}
+        ${tot.sodium?`<div class="nut-item"><div class="nut-val" style="color:#a06020">${tot.sodium}mg</div><div class="nut-lbl">sodium</div></div>`:''}
+      </div>
+      ${nutriProgressBarsHtml(tot)}
+    </div>`;
+}
+
+// ── Patch Centre overview meals to show nutrition progress ──
+function renderOverviewMealsWithGoals() {
+  const container = document.getElementById('overviewMeals'); if (!container) return;
+  const todayMeals = meals.filter(m => m.date === getCentreDate());
+  const MEAL_ORDER = ['breakfast','lunch','dinner','snack'];
+  const sorted = [...todayMeals].sort((a,b) => MEAL_ORDER.indexOf(a.type)-MEAL_ORDER.indexOf(b.type));
+  if (!todayMeals.length) { container.innerHTML = `<p class="no-events" style="margin-top:2px;font-size:.82rem;">No meals logged today.</p>`; return; }
+  const tot = todayMeals.reduce((a,m)=>({
+    cal:a.cal+(m.cal||0),protein:a.protein+(m.protein||0),
+    carbs:a.carbs+(m.carbs||0),fat:a.fat+(m.fat||0),
+    fibre:a.fibre+(m.fibre||0),potassium:a.potassium+(m.potassium||0),
+    magnesium:a.magnesium+(m.magnesium||0),sodium:a.sodium+(m.sodium||0)
+  }),{cal:0,protein:0,carbs:0,fat:0,fibre:0,potassium:0,magnesium:0,sodium:0});
+
+  container.innerHTML = `
+    <div style="font-family:var(--font-display,Georgia,serif);font-weight:400;font-stretch:extra-condensed;text-transform:uppercase;letter-spacing:.08em;font-size:.8rem;color:var(--muted);margin-bottom:8px;margin-top:4px;">Nutrition</div>
+    <div class="meal-section" style="margin-bottom:12px">${sorted.map(m=>`
+      <div class="meal-row"><div class="meal-row-header"><span class="meal-label">${m.type}</span><span class="meal-name">${escHtml(m.name)}</span></div>
+        <div class="meal-macro-strip">${m.cal?`<span class="macro-pill cal">${m.cal} kcal</span>`:''}${m.protein?`<span class="macro-pill protein">${m.protein}g protein</span>`:''}${m.carbs?`<span class="macro-pill carbs">${m.carbs}g carbs</span>`:''}${m.fat?`<span class="macro-pill fat">${m.fat}g fat</span>`:''}</div>
+      </div>`).join('')}
+    </div>
+    ${nutriProgressBarsHtml(tot)}`;
+}
+
 </script>
 
 <!-- MULTI-ADD AI PANEL -->
@@ -8750,6 +9051,19 @@ function resolveTaskDate(task) {
       <input class="icon-modal-search" id="iconSearch" placeholder="Search icons…" oninput="filterIconModal()" autocomplete="off"/>
     </div>
     <div class="icon-modal-body" id="iconModalBody"></div>
+  </div>
+</div>
+
+<!-- OCCURRENCE MODAL -->
+<div class="modal-overlay" id="occurrenceModalOverlay" onclick="if(event.target===this)closeOccurrenceModal()">
+  <div class="modal" style="max-width:420px;">
+    <div class="modal-title" id="occModalTitle">Edit Occurrence</div>
+    <div id="occModalContent" style="display:flex;flex-direction:column;gap:11px;">
+      <!-- injected by openOccurrenceModal -->
+    </div>
+    <div class="modal-actions" style="margin-top:16px;" id="occModalActions">
+      <button class="modal-cancel" onclick="closeOccurrenceModal()">Close</button>
+    </div>
   </div>
 </div>
 </body>
