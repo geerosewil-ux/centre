@@ -194,6 +194,16 @@ h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.
 .qty-circle:hover{transform:scale(1.1);}
 .qty-circle .fill{position:absolute;bottom:0;left:0;right:0;background:var(--water-fill);height:0%;transition:height .4s cubic-bezier(.34,1.56,.64,1);}
 .qty-circle.filled .fill{height:100%;}
+/* Supplement circles */
+.supp-row{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:12px;background:var(--bg);}
+.supp-name{flex:1;font-size:.85rem;}
+.supp-unit{font-size:.7rem;color:var(--muted);}
+.supp-circles{display:flex;gap:6px;align-items:center;}
+.supp-circle{width:28px;height:28px;border-radius:50%;border:2px solid var(--accent);background:var(--card);position:relative;overflow:hidden;cursor:pointer;transition:transform .15s,border-color .2s;flex-shrink:0;}
+.supp-circle:hover{transform:scale(1.12);}
+.supp-circle .fill{position:absolute;bottom:0;left:0;right:0;background:var(--accent);height:0%;transition:height .35s cubic-bezier(.34,1.56,.64,1);}
+.supp-circle.filled .fill{height:100%;}
+.supp-circle.filled{border-color:var(--accent-dark);}
 
 /* STREAK */
 .streak-display{display:flex;align-items:center;gap:16px;margin:10px 0;}
@@ -1416,6 +1426,14 @@ h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.
           <div class="form-group"><label class="form-label">Sodium (mg)</label><input class="form-input" type="number" id="mealSodium" min="0" placeholder="e.g. 300" /></div>
           <button class="add-btn" onclick="addMeal()">+ Log Food</button>
         </div>
+        <!-- Supplement Quick-Log -->
+        <div style="margin-top:20px;" id="suppQuickLog">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+            <span style="font-family:'Noto Serif Display',Georgia,serif;font-weight:400;font-stretch:extra-condensed;text-transform:uppercase;letter-spacing:.1em;font-size:.9rem;">Supplements</span>
+            <span style="font-size:.72rem;color:var(--muted);font-family:'Handwriting',Georgia,serif;">tap circle to log dose</span>
+          </div>
+          <div id="suppGrid" style="display:flex;flex-direction:column;gap:10px;"></div>
+        </div>
         <!-- Meal Log - inside Log tab only -->
         <div style="margin-top:20px;">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
@@ -1487,7 +1505,7 @@ h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.
         <div class="form-grid" style="margin-bottom:18px;">
           <div class="form-group full"><label class="form-label">Recipe name</label><input class="form-input" id="rcpName" placeholder="e.g. Salmon Bowl"/></div>
           <div class="form-group"><label class="form-label">Category</label>
-            <select class="form-select" id="rcpCategory">
+            <select class="form-select" id="rcpCategory" onchange="var s=this.value==='supplement';['rcpSuppFields','rcpSuppUnit'].forEach(id=>{var el=document.getElementById(id);if(el)el.style.display=s?'block':'none';});">
               <option value="">— uncategorised —</option>
               <option value="breakfast">Breakfast</option>
               <option value="lunch">Lunch</option>
@@ -1498,6 +1516,14 @@ h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.
               <option value="dessert">Dessert</option>
               <option value="batch">Batch Cook</option>
             </select>
+          </div>
+          <div class="form-group" id="rcpSuppFields" style="display:none">
+            <label class="form-label">Doses per day</label>
+            <input class="form-input" type="number" id="rcpMaxDoses" min="1" max="12" value="3" placeholder="e.g. 3"/>
+          </div>
+          <div class="form-group" id="rcpSuppUnit" style="display:none">
+            <label class="form-label">Unit label</label>
+            <input class="form-input" id="rcpServingUnit" placeholder="e.g. capsule, tablet, ml"/>
           </div>
           <div class="form-group"><label class="form-label">Tags (comma separated)</label><input class="form-input" id="rcpTags" placeholder="e.g. high protein, quick"/></div>
           <div class="form-group full"><label class="form-label">Ingredients</label><textarea class="form-input" id="rcpIngredients" rows="3" placeholder="150g salmon&#10;½ cup rice&#10;Cucumber, avocado…" style="resize:vertical;line-height:1.6;"></textarea></div>
@@ -1617,6 +1643,7 @@ h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.
           </div>
           <button class="add-btn" onclick="addGrocItem()">+ Add Item</button>
           <button class="add-btn" onclick="openMultiAdd('grocery')" style="background:none;border:1.5px solid var(--accent);color:var(--accent);margin-top:4px;">+ Additions</button>
+          <button class="add-btn" onclick="syncGroceryFromPlan()" style="background:none;border:1.5px solid var(--border);color:var(--muted);margin-top:4px;" title="Auto-fill from this week's meal plan servings">↻ Sync from Plan</button>
         </div>
       </div><!-- /listtab-grocery -->
       <!-- NOTES TAB -->
@@ -2415,7 +2442,7 @@ function showPage(p,btn){
   if(p==='lists')renderGrocList();
   if(p==='cycle')renderCyclePage();
   if(p==='health')renderMeds();
-  if(p==='meals'){document.getElementById('mealFilterDate').value=today();document.getElementById('mealDate').value=today();const mte=document.getElementById('mealType');if(mte)mte.value=smartMealType();renderCatSelects();renderMealLog();populateLogRcpList();if(document.getElementById('nutriHabitCard'))renderNutriHabitCard();}
+  if(p==='meals'){document.getElementById('mealFilterDate').value=today();document.getElementById('mealDate').value=today();const mte=document.getElementById('mealType');if(mte)mte.value=smartMealType();renderCatSelects();renderMealLog();renderSuppGrid();populateLogRcpList();if(document.getElementById('nutriHabitCard'))renderNutriHabitCard();}
   if(p==='settings'){buildSettings();buildNutriColourGrid();loadGoogleApiKey();loadGeminiApiKey();renderWater();renderMilestoneChips();applyWorkMode();
     // Restore nutrition accordion state
     setTimeout(()=>{
@@ -3042,8 +3069,64 @@ function saveTask(id){
   t.status=t.waitingFor?'waiting':'';
   const newRecur=getEditRecur(id);
   if(newRecur!==null) t.recur=newRecur;
-  scheduleSave();renderTasks();renderOverview();renderOverviewWaiting();
+  const newHabit=getEditHabit(id);
+  if(newHabit!==undefined) t.habit=newHabit;
+  scheduleSave();renderTasks();renderOverview();renderOverviewWaiting();renderHabits();
 }
+function toggleEditHabit(id) {
+  const sec = document.getElementById('eh'+id+'HabitSection');
+  const btn = document.getElementById('eh'+id+'HabitToggle');
+  if (!sec) return;
+  const open = sec.classList.toggle('open');
+  const t = tasks.find(t=>t.id===id);
+  btn.textContent = open ? 'Hide habit goal' : (t?.habit ? 'Edit habit goal' : '+ Mark as habit');
+}
+
+function updateEditHabitUI(id) {
+  const type = document.getElementById('eh'+id+'HabitType')?.value;
+  if (!type) return;
+  document.getElementById('eh'+id+'FreqGroup').style.display = type==='frequency'?'block':'none';
+  document.getElementById('eh'+id+'StreakGroup').style.display = type==='streak'?'block':'none';
+  document.getElementById('eh'+id+'QtyGroup').style.display = type==='quantity'?'block':'none';
+  document.getElementById('eh'+id+'CumGroup').style.display = type==='cumulative'?'block':'none';
+}
+
+function getEditHabit(id) {
+  const sec = document.getElementById('eh'+id+'HabitSection');
+  if (!sec || !sec.classList.contains('open')) return undefined; // undefined = no change
+  const type = document.getElementById('eh'+id+'HabitType')?.value;
+  if (!type) return null;
+  const base = {type};
+  if (type==='frequency') {
+    base.count = parseInt(document.getElementById('eh'+id+'FreqCount')?.value)||1;
+    base.period = document.getElementById('eh'+id+'FreqPeriod')?.value||'day';
+  }
+  if (type==='streak') {
+    base.target = parseInt(document.getElementById('eh'+id+'StreakTarget')?.value)||7;
+    base.grace = parseInt(document.getElementById('eh'+id+'StreakGrace')?.value)||0;
+    base.freezes = parseInt(document.getElementById('eh'+id+'StreakFreezes')?.value)||1;
+    base.freezesUsed = tasks.find(t=>t.id===id)?.habit?.freezesUsed||0;
+    base.bestStreak = tasks.find(t=>t.id===id)?.habit?.bestStreak||0;
+  }
+  if (type==='quantity') {
+    base.target = parseInt(document.getElementById('eh'+id+'QtyTarget')?.value)||2500;
+    base.unit = document.getElementById('eh'+id+'QtyUnit')?.value||'ml';
+    base.increment = parseInt(document.getElementById('eh'+id+'QtyIncrement')?.value)||250;
+  }
+  if (type==='cumulative') {
+    base.target = parseInt(document.getElementById('eh'+id+'CumTarget')?.value)||100;
+    base.unit = document.getElementById('eh'+id+'CumUnit')?.value||'';
+    base.deadline = document.getElementById('eh'+id+'CumDeadline')?.value||'';
+  }
+  return base;
+}
+
+function removeTaskHabit(id) {
+  const t = tasks.find(t=>t.id===id); if(!t) return;
+  t.habit = null;
+  scheduleSave(); renderTasks(); renderHabits();
+}
+
 function hexToRgba(hex,alpha){const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);return `rgba(${r},${g},${b},${alpha})`;}
 
 
@@ -3342,7 +3425,7 @@ function renderTasks(){
   const list=document.getElementById('taskList');
   const td=today();
   let base=tasks;
-  if(workMode){const workCat=categories.find(cat=>cat.name.toLowerCase()==='work');base=tasks.filter(t=>workCat&&t.catId===workCat.id);}
+  if(workMode){const workCat=categories.find(cat=>cat.name.toLowerCase()==='work');base=tasks.filter(t=>!t.catId||(workCat&&t.catId===workCat.id));}
 
   function taskIsOverdue(t){if(t.habit||t.done)return false;if(t.recur)return recurHasMissedOccurrence(t);return t.due&&t.due<td;}
   const overdueCount=base.filter(taskIsOverdue).length;
@@ -3356,7 +3439,8 @@ function renderTasks(){
     const isRecurring=!!t.recur;
     const isDoneToday=isTaskDoneOn(t,td);
     const isOverdue=t.recur?recurHasMissedOccurrence(t):(!t.habit&&!t.done&&t.due&&t.due<td);
-    const isChecked=isRecurring?isDoneToday:t.done;
+    // For recurring tasks: if done today, we show next occurrence → always unchecked
+    const isChecked=isRecurring?false:t.done;
     const nextOccFrom=isRecurring?(isDoneToday?(()=>{const tom=new Date(td+'T00:00:00');tom.setDate(tom.getDate()+1);return dateStr(tom);})():td):null;
     let nextOcc=isRecurring?nextOccurrence(t,nextOccFrom):null;
     // If done today, ensure nextOcc is strictly after today
@@ -3453,6 +3537,53 @@ function renderTasks(){
             </div>
             <button type="button" class="recur-toggle" style="border-color:#e88;color:#c0554a;margin-top:4px;" onclick="removeTaskRecur('${t.id}')">✕ Remove recurrence</button>
           </div>
+        </div>
+      </div>
+      <div class="form-group full" style="margin-top:4px;">
+        <button class="habit-toggle" id="eh${t.id}HabitToggle" onclick="toggleEditHabit('${t.id}')">${t.habit?'Edit habit goal':'+ Mark as habit'}</button>
+        <div class="habit-goal-section ${t.habit?'open':''}" id="eh${t.id}HabitSection">
+          <div class="form-group"><label class="form-label">Goal type</label>
+            <select class="form-select" id="eh${t.id}HabitType" onchange="updateEditHabitUI('${t.id}')">
+              <option value="frequency" ${t.habit?.type==='frequency'?'selected':''}>Frequency</option>
+              <option value="streak" ${t.habit?.type==='streak'?'selected':''}>Streak</option>
+              <option value="quantity" ${t.habit?.type==='quantity'?'selected':''}>Quantity</option>
+              <option value="cumulative" ${t.habit?.type==='cumulative'?'selected':''}>Cumulative</option>
+            </select>
+          </div>
+          <div id="eh${t.id}FreqGroup" style="display:${(!t.habit||t.habit.type==='frequency')?'block':'none'}">
+            <div class="form-grid" style="margin:0">
+              <div class="form-group"><label class="form-label">Target count</label><input class="form-input" type="number" id="eh${t.id}FreqCount" min="1" value="${t.habit?.count||1}"/></div>
+              <div class="form-group"><label class="form-label">Per period</label>
+                <select class="form-select" id="eh${t.id}FreqPeriod">
+                  <option value="day" ${t.habit?.period==='day'?'selected':''}>Day</option>
+                  <option value="week" ${t.habit?.period==='week'?'selected':''}>Week</option>
+                  <option value="month" ${t.habit?.period==='month'?'selected':''}>Month</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div id="eh${t.id}StreakGroup" style="display:${t.habit?.type==='streak'?'block':'none'}">
+            <div class="form-grid" style="margin:0">
+              <div class="form-group"><label class="form-label">Streak target (days)</label><input class="form-input" type="number" id="eh${t.id}StreakTarget" min="1" value="${t.habit?.target||7}"/></div>
+              <div class="form-group"><label class="form-label">Grace period (days)</label><input class="form-input" type="number" id="eh${t.id}StreakGrace" min="0" value="${t.habit?.grace||0}"/></div>
+              <div class="form-group"><label class="form-label">Streak freezes</label><input class="form-input" type="number" id="eh${t.id}StreakFreezes" min="0" value="${t.habit?.freezes||1}"/></div>
+            </div>
+          </div>
+          <div id="eh${t.id}QtyGroup" style="display:${t.habit?.type==='quantity'?'block':'none'}">
+            <div class="form-grid" style="margin:0">
+              <div class="form-group"><label class="form-label">Daily target</label><input class="form-input" type="number" id="eh${t.id}QtyTarget" min="1" value="${t.habit?.target||2500}"/></div>
+              <div class="form-group"><label class="form-label">Unit</label><input class="form-input" id="eh${t.id}QtyUnit" value="${t.habit?.unit||'ml'}"/></div>
+              <div class="form-group"><label class="form-label">Increment</label><input class="form-input" type="number" id="eh${t.id}QtyIncrement" min="1" value="${t.habit?.increment||250}"/></div>
+            </div>
+          </div>
+          <div id="eh${t.id}CumGroup" style="display:${t.habit?.type==='cumulative'?'block':'none'}">
+            <div class="form-grid" style="margin:0">
+              <div class="form-group"><label class="form-label">Total target</label><input class="form-input" type="number" id="eh${t.id}CumTarget" min="1" value="${t.habit?.target||100}"/></div>
+              <div class="form-group"><label class="form-label">Unit</label><input class="form-input" id="eh${t.id}CumUnit" value="${t.habit?.unit||''}"/></div>
+              <div class="form-group"><label class="form-label">By date (optional)</label><input class="form-input" type="date" id="eh${t.id}CumDeadline" value="${t.habit?.deadline||''}"/></div>
+            </div>
+          </div>
+          ${t.habit?'<button type="button" class="recur-toggle" style="border-color:#e88;color:#c0554a;margin-top:4px;" onclick="removeTaskHabit(\'${t.id}\')">✕ Remove habit</button>':''} 
         </div>
       </div>
       <button class="save-btn" onclick="saveTask('${t.id}')">Save changes</button>
@@ -3584,11 +3715,11 @@ function renderTasks(){
 
   const html = [
     makeSection('Overdue', overdue, 'ts-overdue'),
-    makeSection('Today', todayTasks, 'ts-today'),
+    makeSection('Today', todayTasks, 'ts-today ts-collapsed'),
     makeDoneSection(todayDoneTasks),
-    makeSection('Next 7 days', upcoming, ''),
+    makeSection('Next 7 days', upcoming, 'ts-collapsed'),
     makeSection('Later', later, 'ts-collapsed'),
-    makeSection('No date', noDate, 'ts-collapsed'),
+    makeSection('No date', noDate, ''),
   ].join('');
 
   list.innerHTML = html || `<div class="empty-msg">No tasks yet.</div>`;
@@ -4830,7 +4961,7 @@ function showMealsTab(id,btn){
   btn.classList.add('active');
   if(id==='mrcp')renderRecipeList();
   if(id==='mplan')renderPlanTab();
-  if(id==='mlog'){renderMealLog();if(document.getElementById('nutriHabitCard'))renderNutriHabitCard();}
+  if(id==='mlog'){renderMealLog();renderSuppGrid();if(document.getElementById('nutriHabitCard'))renderNutriHabitCard();}
 }
 function populateLogRcpList() {
   const dl = document.getElementById('logRcpList');
@@ -4882,6 +5013,58 @@ function addMeal(){
   if(document.getElementById('nutriHabitCard'))renderNutriHabitCard();
 }
 function deleteMeal(id){meals=meals.filter(m=>m.id!==id);scheduleSave();renderMealLog();renderOverviewMeals();if(document.getElementById('nutriHabitCard'))renderNutriHabitCard();}
+function renderSuppGrid() {
+  const grid = document.getElementById('suppGrid');
+  if (!grid) return;
+  const suppRecipes = recipes.filter(r => r.category === 'supplement');
+  if (!suppRecipes.length) {
+    grid.innerHTML = '<div style="font-size:.8rem;color:var(--muted);font-family:Georgia,serif;">No supplements saved yet — add one as a recipe with category Supplement.</div>';
+    return;
+  }
+  const td = today();
+  grid.innerHTML = suppRecipes.map(r => {
+    // Count how many doses logged today for this supplement
+    const doseSize = r.servingSize || 1;
+    const maxDoses = r.maxDoses || 3;
+    const todayLogs = meals.filter(m => m.date === td && m.name.toLowerCase() === r.name.toLowerCase() && m.type === 'supplement');
+    const dosesTaken = todayLogs.length;
+    const circles = Array.from({length: maxDoses}, (_, i) => {
+      const filled = i < dosesTaken;
+      return `<div class="supp-circle ${filled?'filled':''}" onclick="logSuppDose('${r.id}','${r.name}',${filled},${i})" title="${filled?'Undo dose':'Log dose'}">
+        <div class="fill"></div>
+      </div>`;
+    }).join('');
+    return `<div class="supp-row">
+      <span class="supp-name">${escHtml(r.name)}</span>
+      <span class="supp-unit">${r.servingUnit||'dose'}</span>
+      <div class="supp-circles">${circles}</div>
+      <span style="font-size:.72rem;color:var(--muted);min-width:32px;text-align:right;">${dosesTaken}/${maxDoses}</span>
+    </div>`;
+  }).join('');
+}
+
+function logSuppDose(rcpId, name, isFilled, dotIndex) {
+  const td = today();
+  const r = recipes.find(x => x.id === rcpId);
+  if (isFilled) {
+    // Undo: remove the last log entry for this supplement today
+    const idx = [...meals].reverse().findIndex(m => m.date===td && m.name.toLowerCase()===name.toLowerCase() && m.type==='supplement');
+    if (idx >= 0) meals.splice(meals.length - 1 - idx, 1);
+  } else {
+    // Log a dose
+    meals.push({
+      id: newMealId(), date: td, type: 'supplement', name,
+      cal: r?.cal||0, protein: r?.protein||0, carbs: r?.carbs||0,
+      fat: r?.fat||0, fibre: r?.fibre||0,
+      potassium: r?.potassium||0, magnesium: r?.magnesium||0, sodium: r?.sodium||0,
+      notes: ''
+    });
+  }
+  scheduleSave();
+  renderSuppGrid();
+  renderMealLog();
+}
+
 function renderMealLog(){
   const filterDate=document.getElementById('mealFilterDate')?.value||today();
   const dayMeals=meals.filter(m=>m.date===filterDate);
@@ -4934,6 +5117,8 @@ function addRecipe(){
   recipes.push({
     id:newRecipeId(),_created:Date.now(),name,
     category:document.getElementById('rcpCategory').value,
+    maxDoses:parseInt(document.getElementById('rcpMaxDoses')?.value)||3,
+    servingUnit:document.getElementById('rcpServingUnit')?.value.trim()||'dose',
     tags:document.getElementById('rcpTags').value.split(',').map(s=>s.trim()).filter(Boolean),
     ingredients:document.getElementById('rcpIngredients').value.trim(),
     method:document.getElementById('rcpMethod').value.trim(),
@@ -6204,6 +6389,58 @@ function showListTab(tab, btn) {
     if (el) el.style.display = t === tab ? 'block' : 'none';
   });
   if (tab === 'notes') renderNotes();
+}
+
+function syncGroceryFromPlan() {
+  // Build ingredient quantities from this week's mealPlans × servings
+  // Week = today through today+6
+  const td = today();
+  const weekEnd = new Date(td+'T00:00:00'); weekEnd.setDate(weekEnd.getDate()+6);
+  const weekEndStr = dateStr(weekEnd);
+  const weekPlans = mealPlans.filter(p => p.date >= td && p.date <= weekEndStr);
+  if (!weekPlans.length) { showToast('No meal plans found for this week'); return; }
+
+  // Aggregate: recipe name → total servings
+  const servingTotals = {};
+  weekPlans.forEach(p => {
+    const key = p.name.toLowerCase();
+    servingTotals[key] = (servingTotals[key] || 0) + (p.servings || 1);
+  });
+
+  // For each planned recipe, find in library and scale ingredients
+  let added = 0;
+  Object.entries(servingTotals).forEach(([nameLower, totalServings]) => {
+    const rcp = recipes.find(r => r.name.toLowerCase() === nameLower);
+    if (!rcp || !rcp.ingredients) return;
+    const lines = rcp.ingredients.split('\n').map(l => l.trim()).filter(Boolean);
+    lines.forEach(line => {
+      // Scale quantity in the line if it starts with a number
+      const scaled = scaleIngredientLine(line, totalServings);
+      // Check if already on list (same name + same recipe source)
+      const existing = grocItems.find(g => g.name === scaled && g.note === rcp.name);
+      if (!existing) {
+        grocItems.push({ id: newGrocId(), name: scaled, qty: '', got: false, aisle: '', note: rcp.name + ' ×'+totalServings });
+        added++;
+      }
+    });
+  });
+
+  scheduleSave();
+  renderGrocList();
+  showToast(added > 0 ? added + ' items added from plan' : 'All plan items already on list');
+}
+
+function scaleIngredientLine(line, servings) {
+  if (servings === 1) return line;
+  // Match leading number (int or decimal or fraction like ½)
+  const fracMap = {'½':0.5,'¼':0.25,'¾':0.75,'⅓':0.333,'⅔':0.667,'⅛':0.125,'⅜':0.375,'⅝':0.625,'⅞':0.875};
+  let match = line.match(/^(\d+\.?\d*|[½¼¾⅓⅔⅛⅜⅝⅞])\s*/);
+  if (!match) return line; // no leading number — return as-is
+  const raw = match[1];
+  const num = fracMap[raw] !== undefined ? fracMap[raw] : parseFloat(raw);
+  const scaled = num * servings;
+  const scaledStr = Number.isInteger(scaled) ? String(scaled) : scaled.toFixed(1).replace(/\.0$/, '');
+  return scaledStr + line.slice(match[0].length);
 }
 
 function addRecipeToGrocery(recipeId) {
