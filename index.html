@@ -50,7 +50,7 @@
 --nutri-fibre:var(--accent);
 --nutri-k:var(--accent);
 --nutri-mg:var(--accent);
---nutri-na:var(--accent);}
+--nutri-na:var(--accent);--nutri-sugar:var(--accent);--nutri-ca:var(--accent);--nutri-fe:var(--accent);--nutri-zn:var(--accent);}
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:'Noto Serif Display',Georgia,serif;font-weight:400;font-stretch:normal;font-size:14px;background:var(--bg);color:var(--text);min-height:100vh;padding:0 20px 60px;transition:background .3s,color .3s;}
 h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.modal-save,.apply-btn,.settings-section-title,.week-label,.day-name{font-family:'Noto Serif Display',Georgia,serif;font-weight:400;font-style:normal;font-stretch:extra-condensed;text-transform:uppercase;}
@@ -310,6 +310,7 @@ h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.
 .plan-week-day:hover{background:var(--bg);}
 .plan-week-day.active{border-color:var(--accent);background:var(--bg);}
 .plan-week-day.is-today .plan-day-num{color:var(--accent);}
+.is-today .day-items{border-top-color:var(--accent);}
 .plan-day-name{font-family:'Noto Serif Display',Georgia,serif;font-stretch:extra-condensed;text-transform:uppercase;letter-spacing:.06em;font-size:.6rem;color:var(--muted);}
 .plan-day-num{font-family:'Noto Serif Display',Georgia,serif;font-stretch:extra-condensed;font-size:1rem;color:var(--text);line-height:1;}
 .plan-day-dots{display:flex;gap:2px;margin-top:2px;}
@@ -348,12 +349,12 @@ h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.
 .week-arrow:hover{border-color:var(--accent);color:var(--accent);}
 .week-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;}
 .day-col{display:flex;flex-direction:column;gap:5px;}
-.day-header{text-align:center;padding-bottom:6px;border-bottom:1.5px solid var(--border);}
+.day-header{text-align:center;padding-bottom:6px;}
 .day-name{font-size:.68rem;letter-spacing:.08em;}
 .day-num{font-family:'Noto Serif Display',Georgia,serif;font-weight:400;font-stretch:extra-condensed;font-size:1.1rem;color:var(--text);}
 .day-col.is-today .day-num{color:var(--accent);}
 .day-col.is-today .day-header{border-color:var(--accent);}
-.day-items{display:flex;flex-direction:column;gap:3px;min-height:40px;}
+.day-items{display:flex;flex-direction:column;gap:3px;min-height:80px;border-top:1.5px solid var(--border);padding-top:5px;margin-top:2px;}
 .day-task,.day-event{font-size:.7rem;padding:3px 5px;border-radius:5px;line-height:1.3;font-family:'Noto Serif Display',Georgia,serif;}
 .day-add-btn{font-family:'Noto Serif Display',Georgia,serif;font-size:.68rem;background:none;border:1px dashed var(--border);border-radius:6px;padding:3px;color:var(--muted);cursor:pointer;transition:all .2s;text-align:center;margin-top:2px;}
 .day-add-btn:hover{border-color:var(--accent);color:var(--accent);}
@@ -918,7 +919,7 @@ h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.
         <div class="form-group"><label class="form-label">Category</label><select class="form-select" id="psEvCat"><option value="">— none —</option></select></div>
         <div class="form-group"><label class="form-label">Type</label>
           <select class="form-select" id="psEvType" onchange="handlePsEvType()">
-            <option value="event">Event</option><option value="birthday">Birthday</option>
+            <option value="event">Event</option><option value="birthday">Birthday</option><option value="social">Social</option><option value="appointment">Appointment</option><option value="health">Health Appointment</option>
           </select>
         </div>
         <div class="form-group"><label class="form-label">Date</label><input class="form-input" type="date" id="psEvDate"/></div>
@@ -1268,20 +1269,20 @@ h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.
         <button class="add-btn" onclick="openMultiAdd('tasks')" style="background:none;border:1.5px solid var(--accent);color:var(--accent);margin-top:6px;">+ Additions</button>
       </div>
       <div id="tab-cats" style="display:none">
-        <div class="cat-form" style="flex-direction:column;gap:10px;">
-          <div class="form-group"><label class="form-label">Name</label><input class="form-input" id="catName" placeholder="e.g. Wellness"/></div>
-          <div class="form-group">
+        <div class="form-grid" style="margin-bottom:18px;">
+          <div class="form-group full"><label class="form-label">Name</label><input class="form-input" id="catName" placeholder="e.g. Wellness, Fitness, Work…"/></div>
+          <div class="form-group full">
             <label class="form-label">Icon</label>
-                        <input type="hidden" id="catIconVal" value="★"/>
-            <div style="display:flex;align-items:center;gap:10px;margin-top:4px;">
-              <span id="catIconPreviewNew" style="display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border:1.5px solid var(--border);border-radius:10px;background:var(--bg);flex-shrink:0;"></span>
+            <input type="hidden" id="catIconVal" value="star"/>
+            <div style="display:flex;align-items:center;gap:10px;margin-top:6px;">
+              <span id="catIconPreviewNew" style="display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;border:1.5px solid var(--border);border-radius:10px;background:var(--bg);flex-shrink:0;"></span>
               <button type="button" class="icon-choose-btn" onclick="openIconPicker('add',null)">Choose icon</button>
             </div>
           </div>
-          <button class="cat-add-btn" onclick="addCategory()">Add category</button>
+          <button class="add-btn" onclick="addCategory()">+ Add Category</button>
         </div>
-        <div class="cat-list" id="catList" style="margin-top:16px;"></div>
-        <p style="font-size:.78rem;color:var(--muted);font-family:'Noto Serif Display',Georgia,serif;margin-top:10px;">Categories are shared between tasks and events.</p>
+        <div class="cat-list" id="catList"></div>
+        <p style="font-size:.78rem;color:var(--muted);font-family:'Noto Serif Display',Georgia,serif;margin-top:12px;">Categories are shared between tasks and events.</p>
       </div>
       <!-- TEMPLATES TAB -->
       <div id="tab-ttpl" style="display:none">
@@ -1300,7 +1301,7 @@ h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.
         <div id="templateList"></div>
       </div>
     </div>
-    <div class="card">
+    <div class="card" id="yourTasksCard">
       <div class="card-header" style="margin-bottom:12px;">
         <span class="card-title" style="margin-bottom:0;">Your Tasks</span>
         <div style="display:flex;align-items:center;gap:8px;">
@@ -1330,7 +1331,7 @@ h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.
         <div class="form-group"><label class="form-label">Category</label><select class="form-select" id="evCat"><option value="">— none —</option></select></div>
         <div class="form-group"><label class="form-label">Type</label>
           <select class="form-select" id="evType" onchange="handleEvType()">
-            <option value="event">Event</option><option value="birthday">Birthday</option>
+            <option value="event">Event</option><option value="birthday">Birthday</option><option value="social">Social</option><option value="appointment">Appointment</option><option value="health">Health Appointment</option><option value="health">Health Appointment</option>
           </select>
         </div>
         <div class="form-group"><label class="form-label">Status</label>
@@ -1392,17 +1393,7 @@ h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.
       <!-- LOG TAB -->
       <div id="tab-mlog">
         <div class="form-grid">
-          <div class="form-group"><label class="form-label">Meal type</label>
-            <select class="form-select" id="mealType">
-              <option value="breakfast">Breakfast</option>
-              <option value="lunch">Lunch</option>
-              <option value="dinner">Dinner</option>
-              <option value="snack">Snack</option>
-              <option value="ingredient">Ingredient</option>
-              <option value="supplement">Supplement</option>
-              <option value="drink">Drink</option>
-            </select>
-          </div>
+          <div class="form-group"><label class="form-label">Time (optional)</label><input class="form-input" type="time" id="mealTime" /></div>
           <div class="form-group"><label class="form-label">Date</label><input class="form-input" type="date" id="mealDate"/></div>
           <div class="form-group full"><label class="form-label">What did you have?</label>
             <input class="form-input" id="mealName" list="logRcpList" placeholder="Search saved recipes or type freely…" oninput="autoFillLogFromRecipe()" autocomplete="off"/>
@@ -1417,13 +1408,18 @@ h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.
             </div>
           </div>
           <div class="form-group full"><label class="form-label">Notes</label><textarea class="form-input" id="mealRecipe" rows="2" placeholder="Any notes…" style="resize:vertical;line-height:1.5;"></textarea></div>
-          <div class="form-group"><label class="form-label">Calories (kcal)</label><input class="form-input" type="number" id="mealCal" min="0" placeholder="e.g. 450" /></div>
-          <div class="form-group"><label class="form-label">Protein (g)</label><input class="form-input" type="number" id="mealProtein" min="0" placeholder="e.g. 20" /></div>
-          <div class="form-group"><label class="form-label">Carbs (g)</label><input class="form-input" type="number" id="mealCarbs" min="0" placeholder="e.g. 60" /></div>
-          <div class="form-group"><label class="form-label">Fat (g)</label><input class="form-input" type="number" id="mealFat" min="0" placeholder="e.g. 12" /></div>
-          <div class="form-group"><label class="form-label">Potassium (mg)</label><input class="form-input" type="number" id="mealPotassium" min="0" placeholder="e.g. 400" /></div>
-          <div class="form-group"><label class="form-label">Magnesium (mg)</label><input class="form-input" type="number" id="mealMagnesium" min="0" placeholder="e.g. 50" /></div>
-          <div class="form-group"><label class="form-label">Sodium (mg)</label><input class="form-input" type="number" id="mealSodium" min="0" placeholder="e.g. 300" /></div>
+          <div class="form-group"><label class="form-label">Calories (kcal)</label><input class="form-input" type="number" id="mealCal" min="0" placeholder="0"/></div>
+          <div class="form-group"><label class="form-label">Protein (g)</label><input class="form-input" type="number" id="mealProtein" min="0" placeholder="0"/></div>
+          <div class="form-group"><label class="form-label">Carbs (g)</label><input class="form-input" type="number" id="mealCarbs" min="0" placeholder="0"/></div>
+          <div class="form-group"><label class="form-label">Fat (g)</label><input class="form-input" type="number" id="mealFat" min="0" placeholder="0"/></div>
+          <div class="form-group"><label class="form-label">Fibre (g)</label><input class="form-input" type="number" id="mealFibre" min="0" placeholder="0"/></div>
+          <div class="form-group"><label class="form-label">Sugar (g)</label><input class="form-input" type="number" id="mealSugar" min="0" placeholder="0"/></div>
+          <div class="form-group"><label class="form-label">Sodium (mg)</label><input class="form-input" type="number" id="mealSodium" min="0" placeholder="0"/></div>
+          <div class="form-group"><label class="form-label">Potassium (mg)</label><input class="form-input" type="number" id="mealPotassium" min="0" placeholder="0"/></div>
+          <div class="form-group"><label class="form-label">Magnesium (mg)</label><input class="form-input" type="number" id="mealMagnesium" min="0" placeholder="0"/></div>
+          <div class="form-group"><label class="form-label">Calcium (mg)</label><input class="form-input" type="number" id="mealCalcium" min="0" placeholder="0"/></div>
+          <div class="form-group"><label class="form-label">Iron (mg)</label><input class="form-input" type="number" id="mealIron" min="0" placeholder="0" step="0.1"/></div>
+          <div class="form-group"><label class="form-label">Zinc (mg)</label><input class="form-input" type="number" id="mealZinc" min="0" placeholder="0" step="0.1"/></div>
           <button class="add-btn" onclick="addMeal()">+ Log Food</button>
         </div>
         <!-- Supplement Quick-Log -->
@@ -1502,42 +1498,58 @@ h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.
       </div>
       <!-- RECIPES TAB -->
       <div id="tab-mrcp" style="display:none">
-        <div class="form-grid" style="margin-bottom:18px;">
-          <div class="form-group full"><label class="form-label">Recipe name</label><input class="form-input" id="rcpName" placeholder="e.g. Salmon Bowl"/></div>
-          <div class="form-group"><label class="form-label">Category</label>
-            <select class="form-select" id="rcpCategory" onchange="var s=this.value==='supplement';['rcpSuppFields','rcpSuppUnit'].forEach(id=>{var el=document.getElementById(id);if(el)el.style.display=s?'block':'none';});">
-              <option value="">— uncategorised —</option>
-              <option value="breakfast">Breakfast</option>
-              <option value="lunch">Lunch</option>
-              <option value="dinner">Dinner</option>
-              <option value="snack">Snack</option>
-              <option value="supplement">Supplement</option>
-              <option value="drink">Drink</option>
-              <option value="dessert">Dessert</option>
-              <option value="batch">Batch Cook</option>
-            </select>
+        <!-- ADD RECIPE FORM -->
+        <div id="rcpAddForm" style="margin-bottom:18px;">
+          <div class="form-grid">
+            <div class="form-group full"><label class="form-label">Recipe name</label><input class="form-input" id="rcpName" placeholder="e.g. Salmon Bowl"/></div>
+            <div class="form-group"><label class="form-label">Category</label>
+              <select class="form-select" id="rcpCategory" onchange="var s=this.value==='supplement';['rcpSuppFields','rcpSuppUnit'].forEach(id=>{var el=document.getElementById(id);if(el)el.style.display=s?'block':'none';});">
+                <option value="">— uncategorised —</option>
+                <option value="breakfast">Breakfast</option>
+                <option value="lunch">Lunch</option>
+                <option value="dinner">Dinner</option>
+                <option value="snack">Snack</option>
+                <option value="supplement">Supplement</option>
+                <option value="drink">Drink</option>
+                <option value="dessert">Dessert</option>
+                <option value="batch">Batch Cook</option>
+              </select>
+            </div>
+            <div class="form-group" id="rcpSuppFields" style="display:none">
+              <label class="form-label">Doses per day</label>
+              <input class="form-input" type="number" id="rcpMaxDoses" min="1" max="12" value="3" placeholder="e.g. 3"/>
+            </div>
+            <div class="form-group" id="rcpSuppUnit" style="display:none">
+              <label class="form-label">Unit label</label>
+              <input class="form-input" id="rcpServingUnit" placeholder="e.g. capsule, tablet, ml"/>
+            </div>
+            <div class="form-group"><label class="form-label">Servings this makes</label><input class="form-input" type="number" id="rcpServings" min="0.5" step="0.5" value="1" placeholder="1"/></div>
+            <div class="form-group"><label class="form-label">Tags (comma separated)</label><input class="form-input" id="rcpTags" placeholder="e.g. high protein, quick"/></div>
+            <div class="form-group full"><label class="form-label">Method (optional)</label><textarea class="form-input" id="rcpMethod" rows="2" placeholder="1. Cook rice…&#10;2. Pan fry salmon…" style="resize:vertical;line-height:1.6;"></textarea></div>
           </div>
-          <div class="form-group" id="rcpSuppFields" style="display:none">
-            <label class="form-label">Doses per day</label>
-            <input class="form-input" type="number" id="rcpMaxDoses" min="1" max="12" value="3" placeholder="e.g. 3"/>
+          <!-- INGREDIENT BUILDER -->
+          <div style="margin-top:14px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+              <label class="form-label" style="margin-bottom:0;">Ingredients</label>
+              <button onclick="openIngredientPasteModal()" style="font-family:'Noto Serif Display',Georgia,serif;font-size:.72rem;background:none;border:1.5px dashed var(--border);border-radius:8px;padding:4px 10px;cursor:pointer;color:var(--muted);">✦ Paste & parse</button>
+            </div>
+            <!-- Ingredient search row -->
+            <div style="display:flex;gap:8px;margin-bottom:8px;position:relative;">
+              <div style="flex:1;position:relative;">
+                <input class="form-input" id="ingSearch" placeholder="Search foods… (USDA + your custom foods)" oninput="debounceIngSearch()" autocomplete="off" style="width:100%;"/>
+                <div id="ingSearchDrop" style="display:none;position:absolute;top:100%;left:0;right:0;background:var(--card);border:1.5px solid var(--border);border-radius:10px;box-shadow:0 4px 20px rgba(0,0,0,.1);z-index:50;max-height:220px;overflow-y:auto;margin-top:2px;"></div>
+              </div>
+              <input class="form-input" type="number" id="ingGrams" placeholder="g" min="1" step="1" style="width:72px;" onkeydown="if(event.key==='Enter')addIngredientToForm()"/>
+              <button onclick="addIngredientToForm()" style="font-family:'Noto Serif Display',Georgia,serif;font-stretch:extra-condensed;text-transform:uppercase;letter-spacing:.06em;font-size:.75rem;background:var(--accent);color:white;border:none;border-radius:9px;padding:8px 14px;cursor:pointer;white-space:nowrap;">Add</button>
+            </div>
+            <!-- Ingredient list -->
+            <div id="rcpIngList" style="display:flex;flex-direction:column;gap:5px;min-height:32px;"></div>
+            <!-- Running macro total -->
+            <div id="rcpMacroPreview" style="margin-top:10px;padding:10px 12px;background:var(--bg);border-radius:10px;display:none;"></div>
           </div>
-          <div class="form-group" id="rcpSuppUnit" style="display:none">
-            <label class="form-label">Unit label</label>
-            <input class="form-input" id="rcpServingUnit" placeholder="e.g. capsule, tablet, ml"/>
-          </div>
-          <div class="form-group"><label class="form-label">Tags (comma separated)</label><input class="form-input" id="rcpTags" placeholder="e.g. high protein, quick"/></div>
-          <div class="form-group full"><label class="form-label">Ingredients</label><textarea class="form-input" id="rcpIngredients" rows="3" placeholder="150g salmon&#10;½ cup rice&#10;Cucumber, avocado…" style="resize:vertical;line-height:1.6;"></textarea></div>
-          <div class="form-group full"><label class="form-label">Method</label><textarea class="form-input" id="rcpMethod" rows="3" placeholder="1. Cook rice…&#10;2. Pan fry salmon…" style="resize:vertical;line-height:1.6;"></textarea></div>
-          <div class="form-group"><label class="form-label">Calories (kcal)</label><input class="form-input" type="number" id="rcpCal" min="0" placeholder="e.g. 520"/></div>
-          <div class="form-group"><label class="form-label">Protein (g)</label><input class="form-input" type="number" id="rcpProtein" min="0"/></div>
-          <div class="form-group"><label class="form-label">Carbs (g)</label><input class="form-input" type="number" id="rcpCarbs" min="0"/></div>
-          <div class="form-group"><label class="form-label">Fat (g)</label><input class="form-input" type="number" id="rcpFat" min="0"/></div>
-          <div class="form-group"><label class="form-label">Potassium (mg)</label><input class="form-input" type="number" id="rcpPotassium" min="0" placeholder="e.g. 400"/></div>
-          <div class="form-group"><label class="form-label">Magnesium (mg)</label><input class="form-input" type="number" id="rcpMagnesium" min="0" placeholder="e.g. 50"/></div>
-          <div class="form-group"><label class="form-label">Sodium (mg)</label><input class="form-input" type="number" id="rcpSodium" min="0" placeholder="e.g. 300"/></div>
-          <button class="add-btn" onclick="addRecipe()">+ Save Recipe</button>
+          <button class="add-btn" onclick="addRecipe()" style="margin-top:12px;">+ Save Recipe</button>
         </div>
-        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:10px;">
+                <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:10px;">
           <div class="form-label" style="margin-bottom:0;">Recipe Library</div>
           <div style="display:flex;gap:5px;flex-wrap:wrap;" id="rcpCatFilter">
             <button class="filter-btn active" onclick="setRcpFilter('',this)">All</button>
@@ -1676,7 +1688,7 @@ h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.
     <div class="card" id="cyclePhaseCard"></div>
 
     <!-- DAY STRIP CARD -->
-    <div class="card" style="padding:18px 22px 14px;" id="cycleDayStripCard"></div>
+
 
     <!-- NEXT PERIOD PREDICTION CARD -->
     <div class="card" id="cycleNextPeriodCard"></div>
@@ -1758,18 +1770,7 @@ h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.
               <button class="apply-btn" onclick="saveGoogleApiKey()" style="padding:7px 14px;font-size:.8rem;">Save</button>
               <span id="apiKeyStatus" style="font-size:.75rem;color:var(--accent);"></span>
             </div>
-            <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-              <label style="font-size:.75rem;color:var(--muted);width:100px;flex-shrink:0;">Gemini AI</label>
-              <input class="form-input" id="geminiApiKeyInput" type="password" placeholder="AIzaSy… (Gemini API)" style="flex:1;min-width:160px;"/>
-              <button class="apply-btn" onclick="saveGeminiApiKey()" style="padding:7px 14px;font-size:.8rem;">Save</button>
-              <span id="geminiKeyStatus" style="font-size:.75rem;color:var(--accent);"></span>
-              <label style="font-size:.75rem;color:var(--muted);width:100px;flex-shrink:0;">Model</label>
-              <select class="form-select" id="geminiModelSelect" onchange="saveGeminiModel()" style="flex:1;min-width:160px;">
-                <option value="gemini-2.0-flash">gemini-2.0-flash (latest · paid tier)</option>
-                <option value="gemini-1.5-flash">gemini-1.5-flash (free · 1500/day)</option>
-              </select>
-              <span style="font-size:.7rem;color:var(--muted);width:100%;padding-left:108px;">Use 1.5-flash if you hit quota limits on the free tier.</span>
-            </div>
+
           </div>
         </div>
 
@@ -1851,24 +1852,6 @@ h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.
         </div>
       </div>
 
-
-      <!-- Streak Milestones & Rewards -->
-      <div class="settings-section">
-        <div class="settings-section-title">Streak Milestones &amp; Rewards</div>
-        <p style="font-size:.82rem;color:var(--muted);font-family:'Noto Serif Display',Georgia,serif;margin-bottom:12px;">Add milestone days and an optional reward — when you hit one, the habit card pulses and shows your reward.</p>
-        <div id="milestoneRewardList" style="display:flex;flex-direction:column;gap:6px;margin-bottom:12px;"></div>
-        <div style="display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap;">
-          <div class="form-group" style="flex:1;min-width:100px;max-width:120px;">
-            <label class="form-label">Days</label>
-            <input class="form-input" type="number" id="milestoneInput" min="1" max="3650" placeholder="e.g. 21" onkeydown="if(event.key==='Enter')addMilestone()"/>
-          </div>
-          <div class="form-group" style="flex:2;min-width:160px;">
-            <label class="form-label">Reward (optional)</label>
-            <input class="form-input" id="milestoneRewardInput" placeholder="e.g. 🍕 Takeaway night" onkeydown="if(event.key==='Enter')addMilestone()"/>
-          </div>
-          <button class="apply-btn" onclick="addMilestone()" style="padding:9px 18px;margin-bottom:0;">Add</button>
-        </div>
-      </div>
 
       <div class="settings-accordion">
         <div class="settings-accordion-header" onclick="toggleAccordion('colourAccordion')">
@@ -2098,8 +2081,133 @@ h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.
   <div class="ctx-menu-sep"></div>
   <button class="ctx-menu-item danger" onclick="ctxDelete()">Delete</button>
 </div>
+<!-- PLAN ITEM EDIT MODAL -->
+<div id="planEditModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.25);z-index:300;align-items:center;justify-content:center;padding:20px;">
+  <div style="background:var(--card);border-radius:18px;padding:24px;width:100%;max-width:360px;box-shadow:0 8px 40px rgba(0,0,0,.12);">
+    <div style="font-family:'Noto Serif Display',Georgia,serif;font-weight:400;font-stretch:extra-condensed;text-transform:uppercase;letter-spacing:.12em;font-size:1.1rem;margin-bottom:16px;">Edit Plan Item</div>
+    <input type="hidden" id="planEditId"/>
+    <div class="form-group" style="margin-bottom:12px;">
+      <label class="form-label">Name</label>
+      <input class="form-input" id="planEditName" list="planRcpList2" placeholder="Recipe or item name" oninput="previewPlanEditServings()"/>
+      <datalist id="planRcpList2"></datalist>
+    </div>
+    <div class="form-group" style="margin-bottom:16px;">
+      <label class="form-label">Servings</label>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span style="font-size:.8rem;color:var(--muted);">×</span>
+        <input class="form-input" type="number" id="planEditServings" min="0.25" step="0.25" value="1" style="max-width:80px;" oninput="previewPlanEditServings()"/>
+        <span id="planEditPreview" style="font-size:.72rem;color:var(--muted);"></span>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;">
+      <button onclick="closePlanEditModal()" style="font-family:'Handwriting',Georgia,serif;font-size:.9rem;background:none;border:1.5px solid var(--border);border-radius:10px;padding:9px 16px;cursor:pointer;color:var(--muted);">Cancel</button>
+      <button onclick="savePlanItemEdit()" style="font-family:'Noto Serif Display',Georgia,serif;font-weight:400;font-stretch:extra-condensed;text-transform:uppercase;letter-spacing:.08em;font-size:.9rem;flex:1;background:var(--accent);color:white;border:none;border-radius:10px;padding:10px;cursor:pointer;">Save</button>
+    </div>
+  </div>
+</div>
+
 <div class="save-indicator" id="saveIndicator">Saved</div>
 
+
+
+
+<!-- MULTI-ADD AI PANEL -->
+<div class="multiadd-overlay" id="multiAddOverlay">
+  <div class="multiadd-panel">
+    <div class="multiadd-title" id="multiAddTitle">Add Multiple</div>
+    <p style="font-size:.8rem;color:var(--muted);font-family:'Noto Serif Display',Georgia,serif;margin-top:-6px;">Type or speak a list of items — AI will parse and add them all at once.</p>
+    <div class="mic-row-inline">
+      <textarea class="multiadd-textarea" id="multiAddText" placeholder="e.g. 3 apples, almond milk, sourdough bread, cheddar cheese…&#10;or for tasks: call dentist, pick up dry cleaning, book Airbnb for July…"></textarea>
+      <button type="button" class="mic-btn" id="micbtn-multiAddText" onclick="startVoice('multiAddText','multiAddVoiceStatus')" title="Speak your list"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="11" rx="3"/><path d="M5 10a7 7 0 0 0 14 0"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="8" y1="22" x2="16" y2="22"/></svg></button>
+    </div>
+    <div class="voice-status" id="multiAddVoiceStatus"></div>
+    <div class="multiadd-actions">
+      <button class="multiadd-cancel-btn" onclick="closeMultiAdd()">Cancel</button>
+      <button class="multiadd-go-btn" id="multiAddGoBtn" onclick="runMultiAdd()">Parse with AI →</button>
+    </div>
+    <div id="multiAddStatus" class="multiadd-status" style="display:none;"></div>
+    <div id="multiAddResult" style="display:none;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+        <span style="font-family:'Noto Serif Display',Georgia,serif;font-size:.8rem;color:var(--muted);" id="multiAddResultLabel">Uncheck any you don't want to add:</span>
+        <button style="font-family:'Noto Serif Display',Georgia,serif;font-size:.75rem;background:none;border:none;color:var(--accent);cursor:pointer;" onclick="runMultiAdd()">Re-parse</button>
+      </div>
+      <div class="multiadd-result" id="multiAddItems"></div>
+      <button class="multiadd-confirm-btn" id="multiAddConfirmBtn" onclick="confirmMultiAdd()">Add All to List</button>
+    </div>
+  </div>
+</div>
+
+<!-- ICON PICKER MODAL -->
+<div id="iconPickerModal">
+  <div class="icon-modal-sheet">
+    <div class="icon-modal-header">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+        <span id="iconModalTitle" style="font-family:'Noto Serif Display',Georgia,serif;font-stretch:extra-condensed;text-transform:uppercase;letter-spacing:.1em;font-size:.9rem;color:var(--text);">Choose Icon</span>
+        <button id="iconModalResetBtn" onclick="resetTaskIcon()" style="display:none;font-family:inherit;font-size:.72rem;background:none;border:1px solid var(--border);border-radius:8px;padding:3px 10px;cursor:pointer;color:var(--muted);">Reset to category</button>
+      </div>
+      <input class="icon-modal-search" id="iconSearch" placeholder="Search icons…" oninput="filterIconModal()" autocomplete="off"/>
+    </div>
+    <div class="icon-modal-body" id="iconModalBody"></div>
+  </div>
+</div>
+
+<!-- OCCURRENCE MODAL -->
+<div class="modal-overlay" id="occurrenceModalOverlay" onclick="if(event.target===this)closeOccurrenceModal()">
+  <div class="modal" style="max-width:420px;">
+    <div class="modal-title" id="occModalTitle">Edit Occurrence</div>
+    <div id="occModalContent" style="display:flex;flex-direction:column;gap:11px;">
+      <!-- injected by openOccurrenceModal -->
+    </div>
+    <div class="modal-actions" style="margin-top:16px;" id="occModalActions">
+      <button class="modal-cancel" onclick="closeOccurrenceModal()">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- INGREDIENT PASTE MODAL -->
+<div class="modal-overlay" id="ingPasteOverlay">
+  <div class="modal" style="max-width:520px;">
+    <div class="modal-title">Paste & Parse Ingredients</div>
+    <p style="font-size:.82rem;color:var(--muted);margin-bottom:14px;line-height:1.5;">Paste a recipe ingredient list — Claude will extract each item with weight. One ingredient per line works best.</p>
+    <div class="modal-form">
+      <div class="form-group">
+        <label class="form-label">Ingredient text</label>
+        <textarea class="form-input" id="ingPasteText" rows="7" placeholder="150g salmon fillet&#10;1 cup (180g) cooked rice&#10;2 tbsp soy sauce&#10;1 avocado, sliced&#10;Handful of spinach" style="resize:vertical;line-height:1.6;"></textarea>
+      </div>
+      <div id="ingPasteStatus" style="font-size:.8rem;color:var(--accent);min-height:18px;"></div>
+      <div id="ingParsedList" style="display:flex;flex-direction:column;gap:5px;"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="modal-cancel" onclick="closeIngPasteModal()">Cancel</button>
+      <button class="modal-save" id="ingPasteBtn" onclick="parseIngredientText()">Parse with Claude →</button>
+    </div>
+  </div>
+</div>
+
+<!-- FOOD DETAIL MODAL (shows when selecting from search) -->
+<div class="modal-overlay" id="foodDetailOverlay">
+  <div class="modal" style="max-width:400px;">
+    <div class="modal-title" id="foodDetailName">Add Food</div>
+    <div id="foodDetailMacros" style="margin-bottom:14px;"></div>
+    <div class="modal-form">
+      <div class="form-group">
+        <label class="form-label">Amount</label>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <input class="form-input" type="number" id="foodDetailGrams" min="1" step="1" value="100" oninput="updateFoodDetailPreview()" style="width:90px;"/>
+          <span style="font-size:.85rem;color:var(--muted);">g</span>
+          <select class="form-select" id="foodDetailPreset" onchange="applyFoodPreset()" style="flex:1;">
+            <option value="">— or pick a serving —</option>
+          </select>
+        </div>
+      </div>
+      <div id="foodDetailPreview" style="font-size:.78rem;color:var(--muted);padding:8px 10px;background:var(--bg);border-radius:8px;margin-top:4px;min-height:32px;"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="modal-cancel" onclick="closeFoodDetailModal()">Cancel</button>
+      <button class="modal-save" onclick="confirmFoodDetailAdd()">Add to Recipe</button>
+    </div>
+  </div>
+</div>
 
 <script>
 // ---- ID GENERATION ----
@@ -2112,7 +2220,7 @@ function newCatId(){return 'CAT-'+String(++catSeq).padStart(4,'0');}
 let _suppressOverviewRender=false;
 let tasks=[],events=[],waterFilled=0,waterGoal=8,waterWeekOffset=0,meals=[],mealSeq=0,templates=[],templateSeq=0,recipes=[],recipeSeq=0,activeFilter='all',weekOffset=0,modalDate=null,eventsViewDate=null,scheduleViewDate=null;
 let eventOverrides={};  // { 'evtId_YYYY-MM-DD': {cancelled,name,date,time,notes,catId} }
-let nutriGoals={cal:2000,protein:150,carbs:200,fat:65,fibre:30,potassium:3500,magnesium:400,sodium:2300};
+let nutriGoals={cal:2000,protein:150,carbs:200,fat:65,fibre:30,sugar:50,sodium:2300,potassium:3500,magnesium:400,calcium:1000,iron:18,zinc:8};
 let _calSectionOpen=false,_nutriAccordionOpen=false,nutriWeekOffset=0,_nutriTab="today";
 let mealPlans=[],mealPlanSeq=0,planWeekOffset=0,_planSelectedDate=null;
 let _planAddContext=null; // {slot, ds} for plan add bar
@@ -2122,27 +2230,35 @@ const SLOT_ICONS={breakfast:'☀',lunch:'☁',dinner:'☽',snack:'◇'};
 const SLOT_COLORS={breakfast:'rgba(147,170,205,.10)',lunch:'rgba(147,170,205,.07)',dinner:'rgba(147,170,205,.14)',snack:'rgba(147,170,205,.05)'};
 const SLOT_TEXT={breakfast:'var(--accent)',lunch:'var(--accent)',dinner:'var(--accent)',snack:'var(--accent)'};
 const NUTRI_FIELDS=[
-  {key:'cal',   label:'Calories',  unit:'kcal', cssVar:'--nutri-cal'},
-  {key:'protein',label:'Protein',  unit:'g',    cssVar:'--nutri-protein'},
-  {key:'carbs', label:'Carbs',     unit:'g',    cssVar:'--nutri-carbs'},
-  {key:'fat',   label:'Fat',       unit:'g',    cssVar:'--nutri-fat'},
-  {key:'fibre', label:'Fibre',     unit:'g',    cssVar:'--nutri-fibre'},
-  {key:'potassium',label:'Potassium',unit:'mg', cssVar:'--nutri-k'},
-  {key:'magnesium',label:'Magnesium',unit:'mg', cssVar:'--nutri-mg'},
-  {key:'sodium',label:'Sodium',    unit:'mg',   cssVar:'--nutri-na'},
+  {key:'cal',      label:'Calories',   unit:'kcal', cssVar:'--nutri-cal'},
+  {key:'protein',  label:'Protein',    unit:'g',    cssVar:'--nutri-protein'},
+  {key:'carbs',    label:'Carbs',      unit:'g',    cssVar:'--nutri-carbs'},
+  {key:'fat',      label:'Fat',        unit:'g',    cssVar:'--nutri-fat'},
+  {key:'fibre',    label:'Fibre',      unit:'g',    cssVar:'--nutri-fibre'},
+  {key:'sugar',    label:'Sugar',      unit:'g',    cssVar:'--nutri-sugar'},
+  {key:'sodium',   label:'Sodium',     unit:'mg',   cssVar:'--nutri-na'},
+  {key:'potassium',label:'Potassium',  unit:'mg',   cssVar:'--nutri-k'},
+  {key:'magnesium',label:'Magnesium',  unit:'mg',   cssVar:'--nutri-mg'},
+  {key:'calcium',  label:'Calcium',    unit:'mg',   cssVar:'--nutri-ca'},
+  {key:'iron',     label:'Iron',       unit:'mg',   cssVar:'--nutri-fe'},
+  {key:'zinc',     label:'Zinc',       unit:'mg',   cssVar:'--nutri-zn'},
 ];
 // Helper: get computed colour for a NUTRI_FIELD
 function nutriColor(field){return getComputedStyle(document.documentElement).getPropertyValue(field.cssVar).trim()||'var(--accent)';}
 // Default nutri colours stored separately from theme (so settings can persist them)
 const NUTRI_COLOR_DEFAULTS={
-  '--nutri-cal':'',    // empty = inherit accent
+  '--nutri-cal':'',
   '--nutri-protein':'',
   '--nutri-carbs':'',
   '--nutri-fat':'',
   '--nutri-fibre':'',
+  '--nutri-sugar':'',
+  '--nutri-na':'',
   '--nutri-k':'',
   '--nutri-mg':'',
-  '--nutri-na':''
+  '--nutri-ca':'',
+  '--nutri-fe':'',
+  '--nutri-zn':'',
 };
 const NUTRI_DEFAULTS={cal:2000,protein:150,carbs:200,fat:65,fibre:30,potassium:3500,magnesium:400,sodium:2300};
 let negativeHabits=[],negHabitSeq=0;
@@ -2186,7 +2302,7 @@ const THEME_DEFAULTS={'--bg':'#f9f8f6','--card':'#ffffff','--text':'#2c2c2c','--
 const THEME_LABELS={'--bg':'Background','--card':'Card','--text':'Text','--accent':'Accent','--accent-work':'Work Mode Accent','--muted':'Muted text','--border':'Borders'};
 const EDITABLE=['--bg','--card','--text','--accent','--accent-work','--muted','--border'];
 const DOW_LABELS=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
-const EV_PROMPTS={birthday:"Whose birthday?",event:"What's happening?"};
+const EV_PROMPTS={birthday:"Whose birthday?",social:"Where are you going?",appointment:"What's the appointment?",health:"What's the appointment?",event:"What's happening?"};
 let MILESTONES=[{days:7,reward:''},{days:30,reward:''},{days:100,reward:''},{days:365,reward:''}]; // user-editable
 
 // ---- LOCALSTORAGE ----
@@ -2228,8 +2344,16 @@ function scheduleSave(){
       localStorage.setItem('centre_taskSeq',taskSeq);
       localStorage.setItem('centre_eventSeq',eventSeq);
       localStorage.setItem('centre_catSeq',catSeq);
-      // save theme
-      const theme={};EDITABLE.forEach(v=>theme[v]=getComputedStyle(document.documentElement).getPropertyValue(v).trim());['--icon-stroke','--icon-color','--icon-color-work'].forEach(v=>theme[v]=getComputedStyle(document.documentElement).getPropertyValue(v).trim());PHASE_VARS.forEach(v=>theme[v]=getComputedStyle(document.documentElement).getPropertyValue(v).trim());
+      // save theme — always save normal accent for --accent so work mode doesn't corrupt it
+      const theme={};EDITABLE.forEach(v=>{
+        if(v==='--accent'){
+          // Always persist the normal accent, not the potentially work-swapped one
+          const na=getComputedStyle(document.documentElement).getPropertyValue('--accent-normal').trim();
+          theme[v]=na||getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+        } else {
+          theme[v]=getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+        }
+      });['--icon-stroke','--icon-color','--icon-color-work'].forEach(v=>theme[v]=getComputedStyle(document.documentElement).getPropertyValue(v).trim());PHASE_VARS.forEach(v=>theme[v]=getComputedStyle(document.documentElement).getPropertyValue(v).trim());
       localStorage.setItem('centre_theme',JSON.stringify(theme));
       localStorage.setItem('centre_grocItems',JSON.stringify(grocItems));
       localStorage.setItem('centre_grocSeq',grocSeq);
@@ -2298,7 +2422,7 @@ function loadFromStorage(){
       // Inline darken (darken() not yet defined at load time)
       try{const _r=Math.max(0,parseInt(_aw.slice(1,3),16)-15),_g=Math.max(0,parseInt(_aw.slice(3,5),16)-15),_b=Math.max(0,parseInt(_aw.slice(5,7),16)-15);document.documentElement.style.setProperty('--accent-work-dark','#'+[_r,_g,_b].map(x=>x.toString(16).padStart(2,'0')).join(''));}catch(e){}
     }
-    if(th){const theme=JSON.parse(th);Object.entries(theme).forEach(([k,v])=>document.documentElement.style.setProperty(k,v));if(theme['--icon-stroke'])document.documentElement.style.setProperty('--icon-stroke',theme['--icon-stroke']);if(theme['--icon-color'])document.documentElement.style.setProperty('--icon-color',theme['--icon-color']);if(theme['--icon-color-work'])document.documentElement.style.setProperty('--icon-color-work',theme['--icon-color-work']);}
+    if(th){const theme=JSON.parse(th);Object.entries(theme).forEach(([k,v])=>document.documentElement.style.setProperty(k,v));if(theme['--accent'])document.documentElement.style.setProperty('--accent-normal',theme['--accent']);if(theme['--icon-stroke'])document.documentElement.style.setProperty('--icon-stroke',theme['--icon-stroke']);if(theme['--icon-color'])document.documentElement.style.setProperty('--icon-color',theme['--icon-color']);if(theme['--icon-color-work'])document.documentElement.style.setProperty('--icon-color-work',theme['--icon-color-work']);}
   }catch(e){console.warn('Load failed',e);}
 }
 
@@ -2443,7 +2567,7 @@ function showPage(p,btn){
   if(p==='cycle')renderCyclePage();
   if(p==='health')renderMeds();
   if(p==='meals'){document.getElementById('mealFilterDate').value=today();document.getElementById('mealDate').value=today();const mte=document.getElementById('mealType');if(mte)mte.value=smartMealType();renderCatSelects();renderMealLog();renderSuppGrid();populateLogRcpList();if(document.getElementById('nutriHabitCard'))renderNutriHabitCard();}
-  if(p==='settings'){buildSettings();buildNutriColourGrid();loadGoogleApiKey();loadGeminiApiKey();renderWater();renderMilestoneChips();applyWorkMode();
+  if(p==='settings'){buildSettings();buildNutriColourGrid();loadGoogleApiKey();loadGeminiApiKey();loadUsdaApiKey();renderWater();renderMilestoneChips();applyWorkMode();
     // Restore nutrition accordion state
     setTimeout(()=>{
       const body=document.getElementById('nutriAccordionBody');
@@ -2456,11 +2580,13 @@ function showPage(p,btn){
 }
 
 function showTab(id,btn){
-  ['tab-tadd','tab-ttpl','tab-cats'].forEach(t=>document.getElementById(t).style.display='none');
-  document.getElementById('tab-'+id).style.display='block';
-  document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
+  ['tab-tadd','tab-ttpl','tab-cats'].forEach(t=>{const el=document.getElementById(t);if(el)el.style.display='none';});
+  const tabEl=document.getElementById('tab-'+id);if(tabEl)tabEl.style.display='block';
+  document.querySelectorAll('#page-tasks .tab').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
   if(id==='ttpl')renderTemplateList();
+  const tc=document.getElementById('yourTasksCard');
+  if(tc)tc.style.display=(id==='tadd')?'block':'none';
 }
 
 // ---- DATES ----
@@ -3925,7 +4051,26 @@ function renderPlannerEventList() {
     list.innerHTML = `<div class="empty-msg">No ${plannerEvTab} events.</div>`;
     return;
   }
-  list.innerHTML = filtered.map(ev => {
+  // Group by month
+  const monthGroups = {};
+  filtered.forEach(ev => {
+    const d = ev.recur ? nextOccurrence(ev, t) : ev.date;
+    const mk = d ? d.slice(0,7) : '0000-00';
+    if (!monthGroups[mk]) monthGroups[mk] = [];
+    monthGroups[mk].push(ev);
+  });
+
+  const currentMonth = t.slice(0,7);
+  list.innerHTML = Object.entries(monthGroups).map(([mk, evs]) => {
+    const isCurrentMonth = mk === currentMonth;
+    const mLabel = mk === '0000-00' ? 'No date' : new Date(mk+'-01T00:00:00').toLocaleDateString('en-AU',{month:'long',year:'numeric'});
+    const sectionId = 'evmonth-'+mk.replace('-','-');
+    return `<div class="task-section ${isCurrentMonth?'':' ts-collapsed'}" id="${sectionId}">
+      <div class="task-section-hd" onclick="this.closest('.task-section').classList.toggle('ts-collapsed')">
+        <span class="task-section-label">${mLabel}</span>
+        <span class="task-section-badge">${evs.length}</span>
+      </div>
+      <div class="task-section-body">${evs.map(ev => {
     const cat = categories.find(c => c.id === ev.catId);
     const bg = cat ? hexToRgba(cat.color, .10) : 'var(--bg)';
     const nextDate = ev.recur ? nextOccurrence(ev, t) : ev.date;
@@ -3995,6 +4140,7 @@ function renderPlannerEventList() {
         </div>
       </div>
     </div>`;
+  }).join('')}</div></div>`;
   }).join('');
 }
 
@@ -4036,7 +4182,7 @@ function savePlannerEvEdit(id) {
 }
 
 // ---- WEEKLY ----
-function getWeekDates(offset){const now=new Date(),day=now.getDay(),mon=new Date(now);mon.setDate(now.getDate()-(day===0?6:day-1)+offset*7);return Array.from({length:7},(_,i)=>{const d=new Date(mon);d.setDate(mon.getDate()+i);return d;});}
+function getWeekDates(offset){const now=new Date();const start=new Date(now);start.setDate(now.getDate()-3+offset*7);return Array.from({length:7},(_,i)=>{const d=new Date(start);d.setDate(start.getDate()+i);return d;});}
 function shiftWeek(dir){weekOffset+=dir;renderWeek();}
 // ---- PLANNER ----
 let plannerMonthOffset = 0;
@@ -4186,9 +4332,9 @@ function renderPlannerMonthDots() {
     // Use rgba for circle so opacity doesn't cascade to the number
     const circleRgba = 'rgba('+ar+','+ag+','+ab+','+circleOpacity+')';
     const spanOpacity = (isPast && !isToday) ? 'opacity:.7;' : '';
-    return `<div style="position:relative;display:flex;align-items:center;justify-content:center;padding:3px 0;">` +
-      `<div style="width:28px;height:28px;border-radius:50%;background:${circleRgba};flex-shrink:0;"></div>` +
-      `<span style="position:absolute;font-family:'Noto Serif Display',Georgia,serif;font-stretch:extra-condensed;font-size:.72rem;color:${numColor};text-align:center;line-height:1;user-select:none;${spanOpacity}">${d}</span>` +
+    return `<div style="position:relative;display:flex;align-items:center;justify-content:center;padding:3px 0;cursor:pointer;" onclick="navigateToCentreDate('${ds}')" title="View ${ds} in Centre">` +
+      `<div style="width:28px;height:28px;border-radius:50%;background:${circleRgba};flex-shrink:0;transition:transform .15s;" onmouseover="this.style.transform='scale(1.15)'" onmouseout="this.style.transform=''"></div>` +
+      `<span style="position:absolute;font-family:'Noto Serif Display',Georgia,serif;font-stretch:extra-condensed;font-size:.72rem;color:${numColor};text-align:center;line-height:1;user-select:none;pointer-events:none;${spanOpacity}">${d}</span>` +
       `</div>`;
   }).join('');
 
@@ -4204,6 +4350,19 @@ function renderPlannerMonthDots() {
 function shiftPlannerMonth(dir) {
   plannerMonthOffset += dir;
   renderPlannerMonthDots();
+}
+
+function navigateToCentreDate(ds) {
+  // Set the correct date state variable
+  centreDate = ds === today() ? null : ds;
+  // Navigate to overview without resetting centreDate
+  document.querySelectorAll('.page').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.drawer-item').forEach(el => el.classList.remove('active'));
+  document.getElementById('page-overview').classList.add('active');
+  const di = document.getElementById('di-overview');
+  if (di) di.classList.add('active');
+  renderAllOverviewForDate();
+  setTimeout(applyWeatherToSchedule, 200);
 }
 
 
@@ -4226,9 +4385,13 @@ function renderWeek(){
     const _wcDay=getCycleDay(ds);const _wcPhase=getPhase(_wcDay);const _wcCfg=_wcPhase?getPhaseConfig()[_wcPhase]:null;
     const _wcDot=_wcCfg?`<span class="week-cycle-dot" style="background:${_wcCfg.color};opacity:.8;" title="${_wcCfg.name} · Day ${_wcDay}"></span>`:'';
     const _dayMeals=meals.filter(m=>m.date===ds);
-    const _isEmpty=!dayEvents.length&&!dayTasks.length&&!_dayMeals.length;
+    const _isEmpty=!dayEvents.length&&!dayTasks.length;
     return `<div class="day-col ${isToday?'is-today':''}${_isEmpty?' mobile-empty':''}">
-      <div class="day-header"><div class="day-name">${DN[i]}</div><div class="day-num">${d.getDate()}</div><div style="display:flex;align-items:center;justify-content:center;gap:2px;height:10px;">${_wcDot}<div class="day-weather" data-weather-day="${ds}"></div></div></div>
+      <div class="day-header">
+        <div class="day-name" style="${isToday?'color:var(--accent);':''}">${DN[i]}</div>
+        <div class="day-num" style="${isToday?'color:var(--accent);font-size:1.15rem;':''}">${d.getDate()}</div>
+        <div style="display:flex;align-items:center;justify-content:center;gap:2px;height:10px;">${_wcDot}<div class="day-weather" data-weather-day="${ds}"></div></div>
+      </div>
       <div class="day-items">
         ${dayEvents.map(ev=>{
   const cat=categories.find(c=>c.id===ev.catId);
@@ -4241,7 +4404,7 @@ function renderWeek(){
   return `<div class="day-event" style="background:${bg};cursor:pointer;" ${clickable} title="Tap to edit">${evEmoji(ev,'var(--accent)')}${escHtml(displayName)}</div>`;
 }).join('')}
         ${dayTasks.map(tk=>{const cat=categories.find(c=>c.id===tk.catId);const bg='';return `<div class="day-task" style="${bg?'background:'+bg:''}" title="${escHtml(tk.name)}">${escHtml(tk.name)}</div>`;}).join('')}
-        ${_dayMeals.map(m=>`<div class="day-meal" title="${escHtml(m.name)}">${m.type[0].toUpperCase()}: ${escHtml(m.name)}</div>`).join('')}
+        <!-- meals log hidden from weekly calendar -->
       </div>
       <button class="day-add-btn" onclick="openModal('${ds}')">+</button>
     </div>`;
@@ -4312,6 +4475,7 @@ function evEmoji(ev,color){
       <path d="M7 4 C8 2.5 10 2 9.5 3.5 C9 5 7 4 7 4Z" fill="${c}" fill-opacity=".6"/>
     </svg>`;
   }
+  if(ev.type==='health'){const s=`display:inline-block;width:${sz}px;height:${sz}px;margin-right:3px;vertical-align:middle;flex-shrink:0;`;return `<svg width="${sz}" height="${sz}" viewBox="0 0 24 24" fill="none" stroke="${col}" stroke-width="2" style="${s}"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>`;}
   if(ev.type==='appointment'){
     // Clock face
     return `<svg width="13" height="13" viewBox="0 0 13 13" fill="none" style="${s}" aria-label="appointment">
@@ -4976,17 +5140,10 @@ function autoFillLogFromRecipe() {
   if (rcp) {
     if (wrap) wrap.style.display = 'block';
     const s = Math.max(0.25, servings);
-    const set = (id, val) => { const el = document.getElementById(id); if (el) el.value = val ? Math.round(val * s) : ''; };
-    set('mealCal', rcp.cal); set('mealProtein', rcp.protein); set('mealCarbs', rcp.carbs);
-    set('mealFat', rcp.fat); set('mealPotassium', rcp.potassium);
-    set('mealMagnesium', rcp.magnesium); set('mealSodium', rcp.sodium);
+    const set = (id, val) => { const el = document.getElementById(id); if (el) el.value = val !== undefined && val !== null ? Math.round(val * s * 10) / 10 : ''; };
+    NUTRI_FIELDS.forEach(f => set('meal' + f.key.charAt(0).toUpperCase() + f.key.slice(1), rcp[f.key]||0));
     const prev = document.getElementById('logServingsPreview');
-    if (prev && rcp.cal) prev.textContent = `= ${Math.round(rcp.cal * s)} kcal`;
-    // Set meal type from recipe category if it maps to a slot
-    const slotMap = {breakfast:'breakfast',lunch:'lunch',dinner:'dinner',snack:'snack'};
-    if (rcp.category && slotMap[rcp.category]) {
-      const el = document.getElementById('mealType'); if (el) el.value = slotMap[rcp.category];
-    }
+    if (prev && rcp.cal) prev.textContent = '= ' + Math.round(rcp.cal * s) + ' kcal';
   } else {
     if (wrap) wrap.style.display = 'none';
     const prev = document.getElementById('logServingsPreview');
@@ -4996,19 +5153,19 @@ function autoFillLogFromRecipe() {
 
 
 function addMeal(){
-  const name=document.getElementById('mealName').value.trim();
-  const date=document.getElementById('mealDate').value||today();
-  if(!name)return;
-  meals.push({id:newMealId(),_created:Date.now(),type:document.getElementById('mealType').value,name,date,
-    recipe:document.getElementById('mealRecipe').value.trim(),
-    cal:parseInt(document.getElementById('mealCal').value)||0,
-    protein:parseInt(document.getElementById('mealProtein').value)||0,
-    carbs:parseInt(document.getElementById('mealCarbs').value)||0,
-    fat:parseInt(document.getElementById('mealFat').value)||0,
-    potassium:parseInt(document.getElementById('mealPotassium').value)||0,
-    magnesium:parseInt(document.getElementById('mealMagnesium').value)||0,
-    sodium:parseInt(document.getElementById('mealSodium').value)||0});
-  ['mealName','mealRecipe','mealCal','mealProtein','mealCarbs','mealFat','mealPotassium','mealMagnesium','mealSodium'].forEach(id=>document.getElementById(id).value='');
+  const name=document.getElementById('mealName').value.trim();if(!name)return;
+  const time=document.getElementById('mealTime')?.value||'';
+  const dateVal=document.getElementById('mealDate')?.value||today();
+  const macros={};
+  NUTRI_FIELDS.forEach(f=>{const el=document.getElementById('meal'+f.key.charAt(0).toUpperCase()+f.key.slice(1));macros[f.key]=parseFloat(el?.value)||0;});
+  meals.push({id:newMealId(),_created:Date.now(),name,date:dateVal,time,
+    cal:macros.cal,protein:macros.protein,carbs:macros.carbs,fat:macros.fat,
+    fibre:macros.fibre,sugar:macros.sugar,sodium:macros.sodium,potassium:macros.potassium,
+    magnesium:macros.magnesium,calcium:macros.calcium,iron:macros.iron,zinc:macros.zinc});
+  // Clear fields
+  ['mealName','mealCal','mealProtein','mealCarbs','mealFat','mealFibre','mealSugar',
+   'mealSodium','mealPotassium','mealMagnesium','mealCalcium','mealIron','mealZinc','mealTime'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  if(document.getElementById('mealDate'))document.getElementById('mealDate').value=today();
   scheduleSave();renderMealLog();renderOverviewMeals();
   if(document.getElementById('nutriHabitCard'))renderNutriHabitCard();
 }
@@ -5066,71 +5223,498 @@ function logSuppDose(rcpId, name, isFilled, dotIndex) {
 }
 
 function renderMealLog(){
-  const filterDate=document.getElementById('mealFilterDate')?.value||today();
-  const dayMeals=meals.filter(m=>m.date===filterDate);
-  const list=document.getElementById('mealLogList');if(!list)return;
-  const MEAL_ORDER=['breakfast','lunch','dinner','snack'];
-  if(!dayMeals.length){list.innerHTML=`<div class="empty-msg">No meals logged for this day.</div>`;
-    const tot=document.getElementById('mealNutritionTotal');if(tot)tot.innerHTML='';return;}
-  const sorted=[...dayMeals].sort((a,b)=>MEAL_ORDER.indexOf(a.type)-MEAL_ORDER.indexOf(b.type));
-  list.innerHTML=`<div class="meal-section">${sorted.map(m=>`
-    <div class="meal-row">
-      <div class="meal-row-header">
-        <span class="meal-label">${m.type}</span>
-        <span class="meal-name">${escHtml(m.name)}</span>
-        <button class="delete-btn" onclick="deleteMeal('${m.id}')">×</button>
-      </div>
-      <div class="meal-macro-strip">
-        ${m.cal?`<span class="macro-pill cal">${m.cal} kcal</span>`:''}
-        ${m.protein?`<span class="macro-pill protein">${m.protein}g protein</span>`:''}
-        ${m.carbs?`<span class="macro-pill carbs">${m.carbs}g carbs</span>`:''}
-        ${m.fat?`<span class="macro-pill fat">${m.fat}g fat</span>`:''}
-        ${m.potassium?`<span class="macro-pill" style="background:#f0f4e8;color:#5a7a30;">${m.potassium}mg K</span>`:''}
-        ${m.magnesium?`<span class="macro-pill" style="background:#f0e8f4;color:#7a3a9a;">${m.magnesium}mg Mg</span>`:''}
-        ${m.sodium?`<span class="macro-pill" style="background:#fef4e4;color:#a06020;">${m.sodium}mg Na</span>`:''}
-      </div>
-      ${m.recipe?`<div style="font-size:.78rem;color:var(--muted);margin-top:6px;line-height:1.5;font-family:var(--font-display,Georgia,serif);">${escHtml(m.recipe)}</div>`:''}
-    </div>`).join('')}
-  </div>`;
-  const tot=dayMeals.reduce((a,m)=>({cal:a.cal+(m.cal||0),protein:a.protein+(m.protein||0),carbs:a.carbs+(m.carbs||0),fat:a.fat+(m.fat||0),fibre:a.fibre+(m.fibre||0),potassium:a.potassium+(m.potassium||0),magnesium:a.magnesium+(m.magnesium||0),sodium:a.sodium+(m.sodium||0)}),{cal:0,protein:0,carbs:0,fat:0,fibre:0,potassium:0,magnesium:0,sodium:0});
-  const totEl=document.getElementById('mealNutritionTotal');
-  if(totEl)totEl.innerHTML=`
-    <div class="nutrition-total" style="margin-bottom:10px;">
-      <div class="nut-item"><div class="nut-val">${tot.cal}</div><div class="nut-lbl">kcal</div></div>
-      <div class="nut-item"><div class="nut-val">${tot.protein}g</div><div class="nut-lbl">protein</div></div>
-      <div class="nut-item"><div class="nut-val">${tot.carbs}g</div><div class="nut-lbl">carbs</div></div>
-      <div class="nut-item"><div class="nut-val">${tot.fat}g</div><div class="nut-lbl">fat</div></div>
-      ${tot.potassium?`<div class="nut-item"><div class="nut-val" style="color:#5a7a30">${tot.potassium}mg</div><div class="nut-lbl">potassium</div></div>`:''}
-      ${tot.magnesium?`<div class="nut-item"><div class="nut-val" style="color:#7a3a9a">${tot.magnesium}mg</div><div class="nut-lbl">magnesium</div></div>`:''}
-      ${tot.sodium?`<div class="nut-item"><div class="nut-val" style="color:#a06020">${tot.sodium}mg</div><div class="nut-lbl">sodium</div></div>`:''}
-    </div>
-    <div id="mealNutriProgress">${typeof nutriProgressBarsHtml==='function'?nutriProgressBarsHtml(tot):''}</div>`;
+  const dateFilter=document.getElementById('mealFilterDate')?.value||today();
+  const dayMeals=meals.filter(m=>m.date===dateFilter).sort((a,b)=>(a.time||'').localeCompare(b.time||'')||(a._created||0)-(b._created||0));
+  const tot={};NUTRI_FIELDS.forEach(f=>tot[f.key]=0);
+  dayMeals.forEach(m=>NUTRI_FIELDS.forEach(f=>tot[f.key]+=(m[f.key]||0)));
+  
+  const logDiv=document.getElementById('mealLogList');
+  if(!logDiv)return;
+  
+  if(!dayMeals.length){
+    logDiv.innerHTML='<div class="empty-msg" style="padding:20px 0;">Nothing logged yet — add a meal above.</div>';
+  } else {
+    logDiv.innerHTML=dayMeals.map(m=>{
+      const timeStr=m.time?fmtTimeStr(m.time):'';
+      const macroLine=NUTRI_FIELDS.filter(f=>['cal','protein','carbs','fat'].includes(f.key)).map(f=>`<span style="color:${nutriColor(f)};font-size:.7rem;">${m[f.key]||0}${f.unit==='kcal'?'kcal':f.unit}</span>`).join('<span style="color:var(--border);margin:0 3px;">·</span>');
+      return `<div class="task-item" style="background:var(--bg);padding:10px 12px;">
+        <div class="item-info">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span style="flex:1;font-size:.9rem;">${escHtml(m.name)}</span>
+            ${timeStr?`<span style="font-size:.7rem;color:var(--muted);">${timeStr}</span>`:''}
+            <button class="delete-btn" onclick="deleteMeal('${m.id}')">×</button>
+          </div>
+          <div style="margin-top:3px;display:flex;flex-wrap:wrap;gap:4px;">${macroLine}</div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+  
+  // Nutrition totals + progress bars
+  const totalDiv=document.getElementById('mealNutritionTotal');
+  if(totalDiv){
+    const calGoal=nutriGoals.cal||2000;
+    const rem=calGoal-(tot.cal||0);
+    const calLine=`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--border);"><span style="font-size:.85rem;">${tot.cal||0} kcal</span><span style="font-size:.75rem;color:var(--muted);">${rem>=0?rem+' remaining':Math.abs(rem)+' over'}</span></div>`;
+    totalDiv.innerHTML=calLine+nutriProgressBarsHtml(tot);
+  }
 }
 function renderOverviewMeals(){
   renderOverviewMealsWithGoals();
 }
 
 // ---- RECIPES ----
+
+// ════════════════════════════════════════════════════
+// FOOD DATABASE — Custom foods + USDA API
+// ════════════════════════════════════════════════════
+
+let customFoods = [];    // [{id,name,per100g:{cal,protein,carbs,fat,fibre,sugar,sodium,potassium,magnesium,calcium,iron,zinc},servingPresets:[{label,grams}]}]
+let customFoodSeq = 0;
+function newFoodId(){return 'FOOD-'+String(++customFoodSeq).padStart(4,'0');}
+
+// Current recipe being built — ingredient list
+let _rcpIngredients = []; // [{tempId, foodId, name, grams, per100g:{...}}]
+let _rcpIngTempSeq = 0;
+let _ingSearchTimer = null;
+let _ingSearchSelected = null; // {name, per100g, servingPresets} — currently highlighted food
+
+// ── Macro calculation helpers ────────────────────────
+function calcNutriFromPer100g(per100g, grams) {
+  const scale = grams / 100;
+  const result = {};
+  NUTRI_FIELDS.forEach(f => {
+    result[f.key] = Math.round((per100g[f.key] || 0) * scale * 10) / 10;
+  });
+  return result;
+}
+
+function sumIngredientMacros(ingredients) {
+  const tot = {};
+  NUTRI_FIELDS.forEach(f => tot[f.key] = 0);
+  ingredients.forEach(ing => {
+    const macros = calcNutriFromPer100g(ing.per100g || {}, ing.grams || 0);
+    NUTRI_FIELDS.forEach(f => tot[f.key] = Math.round((tot[f.key] + (macros[f.key] || 0)) * 10) / 10);
+  });
+  return tot;
+}
+
+// ── USDA API search ──────────────────────────────────
+const USDA_API_KEY = 'DEMO_KEY'; // free tier: 30 req/hour — user can override in settings
+
+async function searchUSDA(query) {
+  const key = localStorage.getItem('centre_usdaKey') || USDA_API_KEY;
+  const url = `https://api.nal.usda.gov/fdc/v1/foods/search?query=${encodeURIComponent(query)}&pageSize=8&dataType=Foundation,SR%20Legacy,Survey%20(FNDDS)&api_key=${key}`;
+  const resp = await fetch(url);
+  if (!resp.ok) throw new Error('USDA search failed');
+  const data = await resp.json();
+  return (data.foods || []).map(f => parseUSDAFood(f));
+}
+
+function parseUSDAFood(f) {
+  const get = (nutId) => {
+    const n = (f.foodNutrients || []).find(n => n.nutrientId === nutId || n.nutrientNumber === String(nutId));
+    return n ? (n.value || n.amount || 0) : 0;
+  };
+  return {
+    fdcId: f.fdcId,
+    name: f.description,
+    brand: f.brandOwner || f.brandName || '',
+    per100g: {
+      cal:        Math.round(get(1008) || get('208')),
+      protein:    Math.round(get(1003) * 10) / 10,
+      carbs:      Math.round(get(1005) * 10) / 10,
+      fat:        Math.round(get(1004) * 10) / 10,
+      fibre:      Math.round(get(1079) * 10) / 10,
+      sugar:      Math.round(get(2000) * 10) / 10,
+      sodium:     Math.round(get(1093)),
+      potassium:  Math.round(get(1092)),
+      magnesium:  Math.round(get(1090)),
+      calcium:    Math.round(get(1087)),
+      iron:       Math.round(get(1089) * 10) / 10,
+      zinc:       Math.round(get(1095) * 10) / 10,
+    },
+    servingPresets: (f.foodPortions || []).slice(0,4).map(p => ({
+      label: p.portionDescription || p.modifier || '1 serving',
+      grams: Math.round(p.gramWeight || 100)
+    }))
+  };
+}
+
+// ── Search debounce ──────────────────────────────────
+function debounceIngSearch() {
+  clearTimeout(_ingSearchTimer);
+  const q = document.getElementById('ingSearch')?.value.trim();
+  if (!q || q.length < 2) { closeIngDrop(); return; }
+  _ingSearchTimer = setTimeout(() => runIngSearch(q), 380);
+}
+
+async function runIngSearch(q) {
+  const drop = document.getElementById('ingSearchDrop');
+  if (!drop) return;
+  drop.style.display = 'block';
+  drop.innerHTML = '<div style="padding:10px 12px;font-size:.8rem;color:var(--muted);">Searching…</div>';
+
+  try {
+    // 1. Search custom foods first
+    const custom = customFoods.filter(f => f.name.toLowerCase().includes(q.toLowerCase())).slice(0,3);
+    // 2. USDA
+    const usda = await searchUSDA(q);
+    const results = [
+      ...custom.map(f => ({...f, _source:'custom'})),
+      ...usda.map(f => ({...f, _source:'usda'}))
+    ].slice(0,10);
+
+    if (!results.length) {
+      drop.innerHTML = '<div style="padding:10px 12px;font-size:.8rem;color:var(--muted);">No results — try a different name</div>';
+      return;
+    }
+
+    drop.innerHTML = results.map((f,i) => {
+      const p = f.per100g;
+      const badge = f._source==='custom'
+        ? '<span style="font-size:.6rem;background:var(--accent);color:white;padding:1px 5px;border-radius:4px;margin-left:4px;">Mine</span>'
+        : '';
+      return `<div onclick="selectIngFood(${i})" data-idx="${i}" style="padding:9px 12px;cursor:pointer;border-bottom:1px solid var(--border);transition:background .15s;" 
+        onmouseenter="this.style.background='var(--bg)'" onmouseleave="this.style.background=''"
+        data-food='${JSON.stringify(f).replace(/'/g,"&#39;")}'>
+        <div style="font-size:.85rem;font-weight:normal;">${escHtml(f.name)}${badge}</div>
+        ${f.brand?`<div style="font-size:.7rem;color:var(--muted);">${escHtml(f.brand)}</div>`:''}
+        <div style="font-size:.68rem;color:var(--muted);margin-top:2px;">${p.cal||0}kcal · ${p.protein||0}g protein · ${p.carbs||0}g carbs · ${p.fat||0}g fat <span style="opacity:.6;">(per 100g)</span></div>
+      </div>`;
+    }).join('');
+
+    // Store results for selection
+    drop._results = results;
+  } catch(err) {
+    drop.innerHTML = '<div style="padding:10px 12px;font-size:.8rem;color:var(--muted);">Search unavailable — enter values manually or check your internet connection</div>';
+  }
+}
+
+function selectIngFood(idx) {
+  const drop = document.getElementById('ingSearchDrop');
+  if (!drop || !drop._results) return;
+  const food = drop._results[idx];
+  _ingSearchSelected = food;
+  document.getElementById('ingSearch').value = food.name;
+  closeIngDrop();
+  // Open food detail modal for gram selection
+  openFoodDetailModal(food);
+}
+
+function closeIngDrop() {
+  const drop = document.getElementById('ingSearchDrop');
+  if (drop) drop.style.display = 'none';
+}
+
+// Close dropdown on outside click
+document.addEventListener('click', function(e) {
+  if (!e.target.closest('#ingSearch') && !e.target.closest('#ingSearchDrop')) closeIngDrop();
+});
+
+// ── Food Detail Modal ────────────────────────────────
+let _foodDetailSelected = null;
+
+function openFoodDetailModal(food) {
+  _foodDetailSelected = food;
+  document.getElementById('foodDetailName').textContent = food.name;
+  document.getElementById('foodDetailGrams').value = 100;
+  
+  // Presets
+  const presetSel = document.getElementById('foodDetailPreset');
+  presetSel.innerHTML = '<option value="">— or pick a serving —</option>' +
+    (food.servingPresets||[]).map(p=>`<option value="${p.grams}">${escHtml(p.label)} (${p.grams}g)</option>`).join('');
+  
+  // Per-100g macro summary
+  const p = food.per100g || {};
+  document.getElementById('foodDetailMacros').innerHTML = `
+    <div style="display:flex;flex-wrap:wrap;gap:6px;font-size:.72rem;">
+      ${NUTRI_FIELDS.filter(f=>['cal','protein','carbs','fat'].includes(f.key)).map(f=>
+        `<span style="padding:3px 8px;background:var(--bg);border-radius:6px;color:${nutriColor(f)};">${f.label}: ${p[f.key]||0}${f.unit==='kcal'?'kcal':f.unit}</span>`
+      ).join('')}
+      <span style="padding:3px 8px;background:var(--bg);border-radius:6px;color:var(--muted);">per 100g</span>
+    </div>`;
+  
+  updateFoodDetailPreview();
+  document.getElementById('foodDetailOverlay').classList.add('open');
+}
+
+function closeFoodDetailModal() {
+  document.getElementById('foodDetailOverlay').classList.remove('open');
+  _foodDetailSelected = null;
+}
+
+function applyFoodPreset() {
+  const sel = document.getElementById('foodDetailPreset');
+  if (sel.value) document.getElementById('foodDetailGrams').value = sel.value;
+  updateFoodDetailPreview();
+}
+
+function updateFoodDetailPreview() {
+  const grams = parseFloat(document.getElementById('foodDetailGrams').value) || 0;
+  if (!_foodDetailSelected || !grams) { document.getElementById('foodDetailPreview').innerHTML=''; return; }
+  const macros = calcNutriFromPer100g(_foodDetailSelected.per100g||{}, grams);
+  const preview = document.getElementById('foodDetailPreview');
+  preview.innerHTML = NUTRI_FIELDS.filter(f=>['cal','protein','carbs','fat','fibre','sodium'].includes(f.key)).map(f=>
+    `<span style="margin-right:10px;color:${nutriColor(f)};">${f.label}: <strong>${macros[f.key]||0}</strong>${f.unit==='kcal'?'kcal':f.unit}</span>`
+  ).join('');
+}
+
+function confirmFoodDetailAdd() {
+  if (!_foodDetailSelected) return;
+  const grams = parseFloat(document.getElementById('foodDetailGrams').value) || 0;
+  if (!grams) { showToast('Enter a weight first'); return; }
+  
+  // Save as custom food if from USDA (accumulate invisibly)
+  if (_foodDetailSelected._source === 'usda') {
+    const exists = customFoods.some(f => f.fdcId === _foodDetailSelected.fdcId);
+    if (!exists) {
+      customFoods.push({..._foodDetailSelected, id: newFoodId()});
+      try { localStorage.setItem('centre_customFoods', JSON.stringify(customFoods)); } catch(e){}
+      try { localStorage.setItem('centre_customFoodSeq', customFoodSeq); } catch(e){}
+    }
+  }
+  
+  _rcpIngredients.push({
+    tempId: ++_rcpIngTempSeq,
+    name: _foodDetailSelected.name,
+    fdcId: _foodDetailSelected.fdcId,
+    grams,
+    per100g: _foodDetailSelected.per100g || {}
+  });
+  
+  closeFoodDetailModal();
+  document.getElementById('ingSearch').value = '';
+  _ingSearchSelected = null;
+  renderRcpIngList();
+}
+
+function addIngredientToForm() {
+  // Direct add without food detail modal (if no food selected from dropdown)
+  const search = document.getElementById('ingSearch');
+  const grams = parseFloat(document.getElementById('ingGrams')?.value) || 0;
+  const name = search?.value.trim();
+  
+  if (_ingSearchSelected && grams) {
+    // Has a selected food with per100g data
+    _rcpIngredients.push({
+      tempId: ++_rcpIngTempSeq,
+      name: _ingSearchSelected.name,
+      fdcId: _ingSearchSelected.fdcId,
+      grams,
+      per100g: _ingSearchSelected.per100g || {}
+    });
+    search.value = '';
+    document.getElementById('ingGrams').value = '';
+    _ingSearchSelected = null;
+    renderRcpIngList();
+  } else if (name && grams) {
+    // No food data — add with empty per100g (user can note ingredient without macros)
+    _rcpIngredients.push({ tempId: ++_rcpIngTempSeq, name, grams, per100g: {} });
+    search.value = '';
+    document.getElementById('ingGrams').value = '';
+    _ingSearchSelected = null;
+    renderRcpIngList();
+  } else if (name && !grams) {
+    // Open food detail modal if we have a selected food
+    if (_ingSearchSelected) openFoodDetailModal(_ingSearchSelected);
+    else document.getElementById('ingGrams').focus();
+  }
+}
+
+function removeRcpIngredient(tempId) {
+  _rcpIngredients = _rcpIngredients.filter(i => i.tempId !== tempId);
+  renderRcpIngList();
+}
+
+function renderRcpIngList() {
+  const list = document.getElementById('rcpIngList');
+  const preview = document.getElementById('rcpMacroPreview');
+  if (!list) return;
+  
+  if (!_rcpIngredients.length) {
+    list.innerHTML = '<div style="font-size:.78rem;color:var(--muted);padding:6px 0;">No ingredients yet — search and add above.</div>';
+    if (preview) preview.style.display = 'none';
+    return;
+  }
+  
+  list.innerHTML = _rcpIngredients.map(ing => {
+    const macros = calcNutriFromPer100g(ing.per100g, ing.grams);
+    const hasMacros = Object.values(ing.per100g||{}).some(v=>v>0);
+    return `<div style="display:flex;align-items:center;gap:8px;padding:7px 10px;background:var(--bg);border-radius:9px;">
+      <span style="flex:1;font-size:.88rem;">${escHtml(ing.name)}</span>
+      <span style="font-size:.78rem;color:var(--muted);">${ing.grams}g</span>
+      ${hasMacros?`<span style="font-size:.7rem;color:var(--muted);opacity:.8;">${macros.cal}kcal</span>`:''}
+      <button onclick="removeRcpIngredient(${ing.tempId})" style="background:none;border:none;color:#ccc;cursor:pointer;font-size:.9rem;padding:0 2px;" title="Remove">×</button>
+    </div>`;
+  }).join('');
+  
+  // Macro preview
+  if (preview && _rcpIngredients.some(i=>Object.values(i.per100g||{}).some(v=>v>0))) {
+    const tot = sumIngredientMacros(_rcpIngredients);
+    const servings = parseFloat(document.getElementById('rcpServings')?.value) || 1;
+    preview.style.display = 'block';
+    preview.innerHTML = `<div style="font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:6px;">Total · ${_rcpIngredients.length} ingredients</div>` +
+      `<div style="display:flex;flex-wrap:wrap;gap:6px;">` +
+      NUTRI_FIELDS.filter(f=>['cal','protein','carbs','fat','fibre'].includes(f.key)).map(f=>
+        `<span style="font-size:.78rem;padding:3px 8px;background:var(--card);border-radius:6px;color:${nutriColor(f)};">${tot[f.key]||0}${f.unit==='kcal'?'kcal':f.unit}</span>`
+      ).join('') +
+      `</div>` +
+      (servings>1?`<div style="font-size:.7rem;color:var(--muted);margin-top:5px;">Per serving (÷${servings}): ${Math.round((tot.cal||0)/servings)}kcal · ${Math.round((tot.protein||0)/servings*10)/10}g protein</div>`:``);
+  }
+}
+
+// ── Claude-powered ingredient paste parsing ──────────
+function openIngredientPasteModal() {
+  document.getElementById('ingPasteText').value = '';
+  document.getElementById('ingPasteStatus').textContent = '';
+  document.getElementById('ingParsedList').innerHTML = '';
+  document.getElementById('ingPasteBtn').textContent = 'Parse with Claude →';
+  document.getElementById('ingPasteBtn').disabled = false;
+  document.getElementById('ingPasteOverlay').classList.add('open');
+}
+
+function closeIngPasteModal() {
+  document.getElementById('ingPasteOverlay').classList.remove('open');
+}
+
+async function parseIngredientText() {
+  const text = document.getElementById('ingPasteText').value.trim();
+  if (!text) return;
+  const btn = document.getElementById('ingPasteBtn');
+  const status = document.getElementById('ingPasteStatus');
+  btn.disabled = true;
+  btn.textContent = 'Parsing…';
+  status.textContent = '';
+
+  try {
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        system: `You are an ingredient parser. Extract each ingredient from the text and return ONLY a JSON array with no markdown or explanation.
+Each item: {"name": "ingredient name", "grams": number_or_null, "original": "original text line"}
+Rules:
+- Convert all quantities to grams where possible (1 cup flour ≈ 120g, 1 tbsp ≈ 15g, 1 tsp ≈ 5g, 1 egg ≈ 50g)
+- If grams cannot be determined, set grams to null
+- Keep name clean and searchable (e.g. "rolled oats" not "1/2 cup rolled oats")
+- Return ONLY the JSON array`,
+        messages: [{ role: 'user', content: text }]
+      })
+    });
+
+    const data = await resp.json();
+    if (data.error) throw new Error(data.error.message);
+    let raw = (data.content?.[0]?.text || '').replace(/```json\s*/gi,'').replace(/```/g,'').trim();
+    const s = raw.indexOf('['), e = raw.lastIndexOf(']');
+    if (s === -1) throw new Error('Could not parse response');
+    const parsed = JSON.parse(raw.slice(s, e+1));
+    
+    renderParsedIngredients(parsed);
+    status.textContent = parsed.length + " ingredients found — uncheck any you don't want, then confirm.";
+    btn.textContent = 'Re-parse';
+    btn.disabled = false;
+  } catch(err) {
+    status.textContent = 'Error: ' + (err.message || 'Parse failed') + '. Check your internet connection.';
+    btn.disabled = false;
+    btn.textContent = 'Parse with Claude →';
+  }
+}
+
+let _parsedIngredients = [];
+function renderParsedIngredients(items) {
+  _parsedIngredients = items;
+  const list = document.getElementById('ingParsedList');
+  list.innerHTML = items.map((item, i) => `
+    <div style="display:flex;align-items:center;gap:8px;padding:7px 10px;background:var(--bg);border-radius:9px;margin-top:4px;">
+      <input type="checkbox" id="pi-${i}" checked style="accent-color:var(--accent);flex-shrink:0;">
+      <span style="flex:1;font-size:.85rem;">${escHtml(item.name)}</span>
+      <input type="number" id="pig-${i}" value="${item.grams||''}" placeholder="g" min="1" step="1"
+        style="width:64px;font-family:'Noto Serif Display',Georgia,serif;font-size:.8rem;border:1.5px solid var(--border);border-radius:7px;padding:4px 7px;background:var(--card);color:var(--text);outline:none;text-align:center;">
+    </div>`).join('');
+  
+  // Add confirm button if not present
+  if (items.length && !document.getElementById('ingPasteConfirmBtn')) {
+    const btn = document.createElement('button');
+    btn.id = 'ingPasteConfirmBtn';
+    btn.className = 'add-btn';
+    btn.style.marginTop = '10px';
+    btn.textContent = '✓ Add checked ingredients to recipe';
+    btn.onclick = confirmParsedIngredients;
+    list.after(btn);
+  }
+}
+
+function confirmParsedIngredients() {
+  _parsedIngredients.forEach((item, i) => {
+    const checked = document.getElementById('pi-'+i)?.checked;
+    const grams = parseFloat(document.getElementById('pig-'+i)?.value) || null;
+    if (!checked) return;
+    _rcpIngredients.push({
+      tempId: ++_rcpIngTempSeq,
+      name: item.name,
+      grams: grams || 100,
+      per100g: {} // will be filled when user selects from food DB — or left empty
+    });
+  });
+  closeIngPasteModal();
+  renderRcpIngList();
+  // Remove confirm button for next use
+  const cb = document.getElementById('ingPasteConfirmBtn');
+  if (cb) cb.remove();
+  // Prompt user to search each ingredient for nutrient data
+  if (_rcpIngredients.some(i=>!Object.values(i.per100g||{}).some(v=>v>0))) {
+    showToast('Ingredients added — search each one above to add nutrient data');
+  }
+}
+
+// ── Load custom foods from storage ──────────────────
+function loadCustomFoods() {
+  try {
+    const cf = localStorage.getItem('centre_customFoods');
+    if (cf) customFoods = JSON.parse(cf);
+    const cs = localStorage.getItem('centre_customFoodSeq');
+    if (cs) customFoodSeq = parseInt(cs);
+  } catch(e) {}
+}
+
 function addRecipe(){
   const name=document.getElementById('rcpName').value.trim();if(!name){document.getElementById('rcpName').focus();return;}
   const _now=Date.now();
+  const servings=parseFloat(document.getElementById('rcpServings')?.value)||1;
+  // Calculate macros from ingredient list
+  const totalMacros=sumIngredientMacros(_rcpIngredients);
+  const perServingMacros={};
+  NUTRI_FIELDS.forEach(f=>perServingMacros[f.key]=Math.round((totalMacros[f.key]||0)/servings*10)/10);
   recipes.push({
-    id:newRecipeId(),_created:Date.now(),name,
+    id:newRecipeId(),_created:_now,name,
     category:document.getElementById('rcpCategory').value,
     maxDoses:parseInt(document.getElementById('rcpMaxDoses')?.value)||3,
     servingUnit:document.getElementById('rcpServingUnit')?.value.trim()||'dose',
+    servings,
     tags:document.getElementById('rcpTags').value.split(',').map(s=>s.trim()).filter(Boolean),
-    ingredients:document.getElementById('rcpIngredients').value.trim(),
+    ingredientList:[..._rcpIngredients],  // store ingredient list
+    ingredients:_rcpIngredients.map(i=>i.grams+'g '+i.name).join('\n'), // text fallback
     method:document.getElementById('rcpMethod').value.trim(),
-    cal:parseInt(document.getElementById('rcpCal').value)||0,
-    protein:parseInt(document.getElementById('rcpProtein').value)||0,
-    carbs:parseInt(document.getElementById('rcpCarbs').value)||0,
-    fat:parseInt(document.getElementById('rcpFat').value)||0,
-    potassium:parseInt(document.getElementById('rcpPotassium').value)||0,
-    magnesium:parseInt(document.getElementById('rcpMagnesium').value)||0,
-    sodium:parseInt(document.getElementById('rcpSodium').value)||0,
+    // Per-serving macros (what gets logged when you log 1 serving)
+    cal:perServingMacros.cal||0,
+    protein:perServingMacros.protein||0,
+    carbs:perServingMacros.carbs||0,
+    fat:perServingMacros.fat||0,
+    fibre:perServingMacros.fibre||0,
+    sugar:perServingMacros.sugar||0,
+    sodium:perServingMacros.sodium||0,
+    potassium:perServingMacros.potassium||0,
+    magnesium:perServingMacros.magnesium||0,
+    calcium:perServingMacros.calcium||0,
+    iron:perServingMacros.iron||0,
+    zinc:perServingMacros.zinc||0,
     createdAt:_now,updatedAt:_now
   });
+  // Reset ingredient builder
+  _rcpIngredients=[];renderRcpIngList();
   ['rcpName','rcpTags','rcpIngredients','rcpMethod','rcpCal','rcpProtein','rcpCarbs','rcpFat','rcpPotassium','rcpMagnesium','rcpSodium'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('rcpCategory').value='';
   // Synchronous save — no debounce so Chrome never loses the entry
@@ -5163,9 +5747,19 @@ function addRecipe(){
   },120);
 }
 function deleteRecipe(id){recipes=recipes.filter(r=>r.id!==id);scheduleSave();renderRecipeList();populateLogRcpList();}
-function logFromRecipe(id){
+function logFromRecipe(id, servings){
   const r=recipes.find(r=>r.id===id);if(!r)return;
-  meals.push({id:newMealId(),_created:Date.now(),type:'dinner',name:r.name,date:today(),recipe:r.ingredients,cal:r.cal||0,protein:r.protein||0,carbs:r.carbs||0,fat:r.fat||0,potassium:r.potassium||0,magnesium:r.magnesium||0,sodium:r.sodium||0});
+  const sv=parseFloat(servings)||1;
+  const scale=sv; // r already stores per-serving values
+  meals.push({id:newMealId(),_created:Date.now(),name:r.name+(sv!==1?' (×'+sv+')':''),date:today(),
+    time:new Date().toTimeString().slice(0,5),
+    cal:Math.round((r.cal||0)*scale),protein:Math.round((r.protein||0)*scale*10)/10,
+    carbs:Math.round((r.carbs||0)*scale*10)/10,fat:Math.round((r.fat||0)*scale*10)/10,
+    fibre:Math.round((r.fibre||0)*scale*10)/10,sugar:Math.round((r.sugar||0)*scale*10)/10,
+    sodium:Math.round((r.sodium||0)*scale),potassium:Math.round((r.potassium||0)*scale),
+    magnesium:Math.round((r.magnesium||0)*scale*10)/10,calcium:Math.round((r.calcium||0)*scale),
+    iron:Math.round((r.iron||0)*scale*10)/10,zinc:Math.round((r.zinc||0)*scale*10)/10
+  });
   scheduleSave();renderMealLog();renderOverviewMeals();
   // Brief flash confirmation
   const btn=document.getElementById('logBtn-'+id);
@@ -5179,12 +5773,13 @@ function toggleRecipeDetail(id){
 function normaliseRecipes(){
   recipes.forEach(r=>{
     if(!Array.isArray(r.tags))r.tags=r.tags?String(r.tags).split(',').map(s=>s.trim()).filter(Boolean):[];
-    if(r.cal===undefined||r.cal===null)r.cal=0;
-    if(r.protein===undefined||r.protein===null)r.protein=0;
-    if(r.carbs===undefined||r.carbs===null)r.carbs=0;
-    if(r.fat===undefined||r.fat===null)r.fat=0;
+    ['cal','protein','carbs','fat','fibre','sugar','sodium','potassium','magnesium','calcium','iron','zinc'].forEach(k=>{
+      if(r[k]===undefined||r[k]===null)r[k]=0;
+    });
     if(!r.ingredients)r.ingredients='';
     if(!r.method)r.method='';
+    if(!r.ingredientList)r.ingredientList=[];
+    if(!r.servings)r.servings=1;
   });
 }
 
@@ -5212,8 +5807,11 @@ function renderRecipeList(){
             ${r.protein?`<span class="macro-pill protein">${r.protein}g P</span>`:''}
           </div>
         </div>
-        <div style="display:flex;gap:5px;flex-shrink:0;align-items:center;">
-          <button id="logBtn-${r.id}" style="font-size:.72rem;padding:4px 10px;border:1.5px solid var(--accent);border-radius:8px;background:none;color:var(--accent);cursor:pointer;white-space:nowrap;" onclick="logFromRecipe('${r.id}')">Log today</button>
+        <div style="display:flex;gap:5px;flex-shrink:0;align-items:center;flex-wrap:wrap;justify-content:flex-end;">
+          <input type="number" id="lsrv-${r.id}" value="1" min="0.5" step="0.5" title="Servings"
+            style="width:44px;font-family:var(--font-body);font-size:.78rem;border:1.5px solid var(--border);border-radius:7px;padding:4px 5px;background:var(--card);color:var(--text);text-align:center;outline:none;">
+          <button id="logBtn-${r.id}" style="font-size:.72rem;padding:4px 10px;border:1.5px solid var(--accent);border-radius:8px;background:none;color:var(--accent);cursor:pointer;white-space:nowrap;" onclick="(function(){const sv=parseFloat(document.getElementById('lsrv-'+r.id)?.value)||1;logFromRecipe(r.id,sv);})()">Log</button>
+          ${r.ingredients?`<button style="font-size:.72rem;padding:4px 10px;border:1.5px solid var(--border);border-radius:8px;background:none;color:var(--muted);cursor:pointer;white-space:nowrap;" onclick="addRecipeToGrocery('${r.id}')">+ Grocery</button>`:''}
           <button style="font-size:.72rem;padding:4px 8px;border:1.5px solid var(--border);border-radius:8px;background:none;color:var(--muted);cursor:pointer;" onclick="toggleRecipeDetail('${r.id}')">↓</button>
           <button class="delete-btn" onclick="deleteRecipe('${r.id}')">×</button>
         </div>
@@ -5226,9 +5824,7 @@ function renderRecipeList(){
           ${r.protein?`<div class="nut-item"><div class="nut-val">${r.protein}g</div><div class="nut-lbl">protein</div></div>`:''}
           ${r.carbs?`<div class="nut-item"><div class="nut-val">${r.carbs}g</div><div class="nut-lbl">carbs</div></div>`:''}
           ${r.fat?`<div class="nut-item"><div class="nut-val">${r.fat}g</div><div class="nut-lbl">fat</div></div>`:''}
-          ${r.potassium?`<div class="nut-item"><div class="nut-val" style="color:#5a7a30">${r.potassium}mg</div><div class="nut-lbl">potassium</div></div>`:''}
-          ${r.magnesium?`<div class="nut-item"><div class="nut-val" style="color:#7a3a9a">${r.magnesium}mg</div><div class="nut-lbl">magnesium</div></div>`:''}
-          ${r.sodium?`<div class="nut-item"><div class="nut-val" style="color:#a06020">${r.sodium}mg</div><div class="nut-lbl">sodium</div></div>`:''}
+          ${['potassium','magnesium','sodium','calcium','iron','zinc'].filter(k=>r[k]).map(k=>{const f=NUTRI_FIELDS.find(x=>x.key===k);return f?`<div class="nut-item"><div class="nut-val" style="color:${nutriColor(f)}">${r[k]}${f.unit}</div><div class="nut-lbl">${f.label}</div></div>`:''}).join('')}
         </div>
       </div>
     </div>`;
@@ -5718,7 +6314,7 @@ function uploadCatSvg(input, catId) {
     if (!cat) return;
     let svgText = e.target.result.trim();
     // Basic safety: strip script tags
-    svgText = svgText.replace(/<script[\s\S]*?<\/script>/gi, '');
+    svgText = svgText.replace(/\x3cscript[\s\S]*?<\/script>/gi, '');
     cat.customSvg = svgText;
     scheduleSave();
     renderCategories();
@@ -5742,26 +6338,28 @@ function removeCatSvg(catId) {
 function renderCategories(){
   const sorted=[...categories].sort((a,b)=>a.name.localeCompare(b.name));
   const el=document.getElementById('catList');if(!el)return;
-  if(!sorted.length){el.innerHTML='<p style="font-size:.82rem;color:var(--muted);">No categories yet.</p>';return;}
-  el.innerHTML=sorted.map(c=>{
-    const iconSvg=catSvg(c,20);
-    const cid=escHtml(c.id);
-    return [
-      '<div class="cat-list-row" style="flex-direction:column;align-items:stretch;gap:6px;padding:10px;background:var(--bg);border-radius:10px;margin-bottom:6px;">',
-        '<div style="display:flex;align-items:center;gap:8px;">',
-          '<span style="width:24px;text-align:center;flex-shrink:0;">'+iconSvg+'</span>',
-          '<input class="form-input cat-name-input" value="'+escHtml(c.name)+'" style="flex:1;" data-cat="'+cid+'" onchange="updateCatName(this.dataset.cat,this.value)" onblur="updateCatName(this.dataset.cat,this.value)">',
-          '<button class="delete-btn" data-cat="'+cid+'" onclick="deleteCategory(this.dataset.cat)" title="Delete">×</button>',
-        '</div>',
-        '<div style="margin-top:2px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">',
-          '<button type="button" class="icon-choose-btn" onclick="openIconPicker(&quot;edit&quot;,&quot;'+cid+'&quot;)">'+svgIcon('palette','var(--accent)',12)+' Choose icon</button>',
-          '<label class="icon-choose-btn" style="cursor:pointer;margin:0;" title="Upload custom SVG">'+svgIcon('upload','var(--accent)',12)+' Upload SVG<input type="file" accept=".svg" style="display:none;" onchange="uploadCatSvg(this,&quot;'+cid+'&quot;)"/></label>',
-          (c.customSvg ? '<button type="button" onclick="removeCatSvg(&quot;'+cid+'&quot;)" style="font-family:var(--font-body);font-size:.7rem;background:none;border:1px solid #e8c0c0;border-radius:7px;padding:3px 7px;cursor:pointer;color:#c0554a;">✕ Remove custom</button>' : ''),
-        '</div>',
-      '</div>'
-    ].join('');
-  }).join('');
+  if(!sorted.length){el.innerHTML='<div class="empty-msg">No categories yet. Add one above.</div>';return;}
+  el.innerHTML='<div style="display:flex;flex-direction:column;gap:8px;">'+sorted.map(c=>{
+    const iconSvg=catSvg(c,18);
+    const cid=c.id;
+    const cidE=escHtml(cid);
+    const iconBtn='<button type="button" class="icon-choose-btn" onclick="openIconPicker(&quot;edit&quot;,&quot;'+cidE+'&quot;)">'+svgIcon('palette','var(--accent)',11)+' Icon</button>';
+    const uploadBtn='<label class="icon-choose-btn" style="cursor:pointer;margin:0;">'+svgIcon('upload','var(--accent)',11)+' Custom SVG<input type="file" accept=".svg" style="display:none;" onchange="uploadCatSvg(this,&quot;'+cidE+'&quot;)"/></label>';
+    const removeBtn=c.customSvg?'<button type="button" onclick="removeCatSvg(&quot;'+cidE+'&quot;)" style="font-family:var(--font-body);font-size:.7rem;background:none;border:1px solid #e8c0c0;border-radius:7px;padding:2px 7px;cursor:pointer;color:#c0554a;">✕ Remove</button>':'';
+    const delBtn='<button class="delete-btn" data-cat="'+cidE+'" onclick="deleteCategory(this.dataset.cat)" title="Delete">×</button>';
+    const nameInput='<input class="form-input" value="'+escHtml(c.name)+'" style="flex:1;font-size:.92rem;" data-cat="'+cidE+'" onchange="updateCatName(this.dataset.cat,this.value)" onblur="updateCatName(this.dataset.cat,this.value)">';
+    return '<div class="task-item" style="background:var(--bg);flex-direction:column;align-items:stretch;gap:8px;">'+
+      '<div style="display:flex;align-items:center;gap:10px;">'+
+        '<span style="width:22px;text-align:center;flex-shrink:0;display:flex;align-items:center;justify-content:center;">'+iconSvg+'</span>'+
+        nameInput+delBtn+
+      '</div>'+
+      '<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding-left:32px;">'+
+        iconBtn+uploadBtn+removeBtn+
+      '</div>'+
+    '</div>';
+  }).join('')+'</div>';
 }
+
 // ── ICON PICKER ─────────────────────────────────────────────────────────
 let _ipContext = null; // {mode:'add'|'edit', catId:string|null}
 let _ipQuery = '';
@@ -6031,20 +6629,10 @@ function resetIconStyle() {
 }
 
 function buildNutriColourGrid(){
-  const grid = document.getElementById('nutriColourGrid'); if(!grid) return;
-  grid.innerHTML = NUTRI_FIELDS.map(f=>{
-    const cur = getComputedStyle(document.documentElement).getPropertyValue(f.cssVar).trim();
-    const accentVal = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim();
-    const isCustom = cur && cur !== accentVal && cur !== 'var(--accent)';
-    return `<div style="display:flex;flex-direction:column;gap:4px;">
-      <label style="font-size:.68rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-family:'Noto Serif Display',Georgia,serif;">${f.label}</label>
-      <div style="display:flex;gap:6px;align-items:center;">
-        <input class="hex-input" id="nc-${f.cssVar.slice(2)}" value="${isCustom?cur:''}" placeholder="accent" style="flex:1;font-size:.82rem;" oninput="syncNutriSwatch('${f.cssVar}')"/>
-        <div style="width:30px;height:30px;border-radius:7px;border:1.5px solid var(--border);overflow:hidden;flex-shrink:0;">
-          <input type="color" id="ncs-${f.cssVar.slice(2)}" value="${isCustom?cur:accentVal}" style="width:200%;height:200%;border:none;cursor:pointer;transform:translate(-25%,-25%);" oninput="syncNutriHex('${f.cssVar}')"/>
-        </div>
-      </div>
-    </div>`;
+  const grid=document.getElementById('nutriColourGrid');if(!grid)return;
+  grid.innerHTML=NUTRI_FIELDS.map(f=>{
+    const cur=getComputedStyle(document.documentElement).getPropertyValue(f.cssVar).trim()||getComputedStyle(document.documentElement).getPropertyValue('--accent').trim();
+    return `<div class="setting-item"><label class="setting-label">${f.label}</label><div class="setting-row"><input class="hex-input" id="nhex${f.cssVar}" value="${cur}" placeholder="#93aacd" oninput="syncNutriSwatch('${f.cssVar}')"><div class="setting-swatch"><input type="color" id="nswatch${f.cssVar}" value="${cur}" oninput="syncNutriHex('${f.cssVar}')"></div></div></div>`;
   }).join('');
 }
 function syncNutriSwatch(cssVar){
@@ -6112,6 +6700,7 @@ function updateOnAccent() {
 function applyTheme(){
   EDITABLE.forEach(v=>{const hex=document.getElementById('hex'+v)?.value.trim();if(hex&&/^#[0-9a-fA-F]{3,6}$/.test(hex)){document.documentElement.style.setProperty(v,hex);if(v==='--accent'){
       document.documentElement.style.setProperty('--accent-dark',darken(hex,15));
+      document.documentElement.style.setProperty('--accent-normal',hex); // keep normal accent in sync
       document.documentElement.style.setProperty('--accent-normal',hex);
       // Update water colours to match new accent
       const r=parseInt(hex.slice(1,3),16),g2=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);
@@ -6875,6 +7464,19 @@ function saveGeminiModel(){
   _geminiModel=sel.value;
   localStorage.setItem('centre_geminiModel',_geminiModel);
 }
+
+function saveUsdaApiKey(){
+  const val=document.getElementById('usdaApiKeyInput')?.value.trim();
+  if(!val)return;
+  localStorage.setItem('centre_usdaKey',val);
+  const st=document.getElementById('usdaKeyStatus');
+  if(st){st.textContent='Saved ✓';setTimeout(()=>st.textContent='',2000);}
+}
+function loadUsdaApiKey(){
+  const saved=localStorage.getItem('centre_usdaKey');
+  if(saved){const inp=document.getElementById('usdaApiKeyInput');if(inp)inp.value=saved;}
+}
+
 function saveGeminiApiKey(){
   const val=document.getElementById('geminiApiKeyInput').value.trim();
   _geminiApiKey=val;
@@ -10141,7 +10743,7 @@ function saveNutriGoals() {
   scheduleSave();
   showToast('Nutrition goals saved ✓');
   // Re-render meals page if open
-  renderMealsNutritionTotal();
+  if(document.getElementById('page-meals')?.classList.contains('active'))renderMealLog();
 }
 
 // ── Nutrition progress bars (shared util) ──
@@ -10168,31 +10770,8 @@ function nutriProgressBarsHtml(totals) {
 
 // ── Patch renderMealsNutritionTotal to include progress bars ──
 function renderMealsNutritionTotalWithGoals() {
-  const filterDate = document.getElementById('mealFilterDate')?.value || today();
-  const todayMs = meals.filter(m => m.date === filterDate);
-  const tot = todayMs.reduce((a, m) => ({
-    cal: a.cal + (m.cal||0), protein: a.protein + (m.protein||0),
-    carbs: a.carbs + (m.carbs||0), fat: a.fat + (m.fat||0),
-    fibre: a.fibre + (m.fibre||0), potassium: a.potassium + (m.potassium||0),
-    magnesium: a.magnesium + (m.magnesium||0), sodium: a.sodium + (m.sodium||0)
-  }), { cal:0,protein:0,carbs:0,fat:0,fibre:0,potassium:0,magnesium:0,sodium:0 });
-
-  const totEl = document.getElementById('mealNutritionTotal');
-  if (!totEl) return;
-  if (!todayMs.length) { totEl.innerHTML = ''; return; }
-  totEl.innerHTML = `
-    <div style="margin-bottom:14px;">
-      <div class="nutrition-total" style="margin-bottom:12px;">
-        <div class="nut-item"><div class="nut-val">${tot.cal}</div><div class="nut-lbl">kcal</div></div>
-        <div class="nut-item"><div class="nut-val">${tot.protein}g</div><div class="nut-lbl">protein</div></div>
-        <div class="nut-item"><div class="nut-val">${tot.carbs}g</div><div class="nut-lbl">carbs</div></div>
-        <div class="nut-item"><div class="nut-val">${tot.fat}g</div><div class="nut-lbl">fat</div></div>
-        ${tot.potassium?`<div class="nut-item"><div class="nut-val" style="color:#5a7a30">${tot.potassium}mg</div><div class="nut-lbl">potassium</div></div>`:''}
-        ${tot.magnesium?`<div class="nut-item"><div class="nut-val" style="color:#7a3a9a">${tot.magnesium}mg</div><div class="nut-lbl">magnesium</div></div>`:''}
-        ${tot.sodium?`<div class="nut-item"><div class="nut-val" style="color:#a06020">${tot.sodium}mg</div><div class="nut-lbl">sodium</div></div>`:''}
-      </div>
-      ${nutriProgressBarsHtml(tot)}
-    </div>`;
+  // Deprecated — renderMealLog now handles the nutrition total directly
+  // This is kept as a no-op to avoid breaking any calls
 }
 
 // ── Patch Centre overview meals to show nutrition progress ──
@@ -10244,22 +10823,22 @@ function renderPlanTab() {
   const SLOT_EMOJI = {breakfast:'☀',lunch:'☁',dinner:'☽',snack:'◇'};
   const SLOT_SHORT = {breakfast:'Bfast',lunch:'Lunch',dinner:'Dinner',snack:'Snack'};
 
-  let html = `<table style="width:100%;border-collapse:fixed;border-spacing:3px;min-width:380px;table-layout:fixed;">
+  let html = `<table style="width:100%;border-collapse:separate;border-spacing:3px 4px;min-width:380px;table-layout:fixed;">
     <colgroup><col style="width:44px">${days.map(()=>'<col>').join('')}</colgroup>
     <thead><tr>
-      <td style="width:44px;padding:3px 2px;"></td>
+      <td style="width:44px;padding:3px 2px;border-bottom:1.5px solid var(--border);"></td>
       ${days.map((d,i) => {
         const ds = dateStr(d), isToday = ds === t;
-        return `<td style="text-align:center;padding:3px 2px;">
+        return `<td style="text-align:center;padding:4px 2px 6px;border-bottom:1.5px solid ${isToday?'var(--accent)':'var(--border)'};">
           <div style="font-family:'Noto Serif Display',Georgia,serif;font-stretch:extra-condensed;text-transform:uppercase;font-size:.56rem;letter-spacing:.05em;color:${isToday?'var(--accent)':'var(--muted)'};">${DN[i]}</div>
-          <div style="font-family:'Noto Serif Display',Georgia,serif;font-stretch:extra-condensed;font-size:.88rem;color:${isToday?'var(--accent)':'var(--text)'};">${d.getDate()}</div>
+          <div style="font-family:'Noto Serif Display',Georgia,serif;font-stretch:extra-condensed;font-size:.95rem;font-weight:${isToday?'bold':'normal'};color:${isToday?'var(--accent)':'var(--text)'};">${d.getDate()}</div>
         </td>`;
       }).join('')}
     </tr></thead>
     <tbody>`;
 
   PLAN_SLOTS.forEach(slot => {
-    html += `<tr>
+    html += `<tr style="height:52px;">
       <td style="padding:2px 3px 2px 0;vertical-align:middle;">
         <div style="font-family:'Noto Serif Display',Georgia,serif;font-stretch:extra-condensed;text-transform:uppercase;font-size:.54rem;letter-spacing:.04em;color:var(--muted);white-space:nowrap;line-height:1.3;">${SLOT_EMOJI[slot]}<br>${SLOT_SHORT[slot]}</div>
       </td>`;
@@ -10272,11 +10851,12 @@ function renderPlanTab() {
       const cellBorder = isActive ? '1.5px solid var(--accent)' : isToday ? '1px solid rgba(147,170,205,.4)' : '1px solid var(--border)';
       html += `<td style="vertical-align:top;padding:0;">
         <div onclick="openPlanAddBar('${slot}','${ds}')"
-          style="min-height:32px;border-radius:7px;background:${cellBg};border:${cellBorder};cursor:pointer;padding:3px 4px;transition:all .12s;"
+          style="min-height:42px;height:100%;border-radius:7px;background:${cellBg};border:${cellBorder};cursor:pointer;padding:3px 4px;transition:all .12s;box-sizing:border-box;"
           onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='${isActive?'var(--accent)':isToday?'rgba(147,170,205,.4)':'var(--border)'}'">
           ${items.map(p => `<div style="font-size:.58rem;line-height:1.3;color:var(--text);margin-bottom:1px;display:flex;align-items:flex-start;gap:1px;">
               <span style="flex:1;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;">${escHtml(p.name)}${p.servings&&p.servings!==1?`<span style="opacity:.4;"> ×${p.servings}</span>`:''}</span>
-              <button onclick="event.stopPropagation();deletePlanItem('${p.id}')" style="background:none;border:none;color:var(--border);cursor:pointer;font-size:.7rem;padding:0;line-height:1;flex-shrink:0;" onmouseover="this.style.color='#e88'" onmouseout="this.style.color='var(--border)'">×</button>
+              <button onclick="event.stopPropagation();openPlanItemEdit('${p.id}')" style="background:none;border:none;color:var(--border);cursor:pointer;font-size:.62rem;padding:0 1px;line-height:1;flex-shrink:0;" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='var(--border)'" title="Edit">✎</button>
+              <button onclick="event.stopPropagation();deletePlanItem('${p.id}')" style="background:none;border:none;color:var(--border);cursor:pointer;font-size:.7rem;padding:0;line-height:1;flex-shrink:0;" onmouseover="this.style.color='#e88'" onmouseout="this.style.color='var(--border)'" title="Remove">×</button>
             </div>`).join('')}
           ${!items.length ? `<div style="font-size:.55rem;color:var(--border);text-align:center;line-height:32px;">+</div>` : ''}
         </div>
@@ -10381,6 +10961,56 @@ function confirmPlanAdd() {
   renderPlanTab();
 }
 
+function openPlanItemEdit(id) {
+  const p = mealPlans.find(x => x.id === id);
+  if (!p) return;
+  document.getElementById('planEditId').value = id;
+  document.getElementById('planEditName').value = p.name;
+  document.getElementById('planEditServings').value = p.servings || 1;
+  // Populate datalist
+  const dl = document.getElementById('planRcpList2');
+  if (dl) dl.innerHTML = recipes.map(r => `<option value="${escHtml(r.name)}">`).join('');
+  previewPlanEditServings();
+  document.getElementById('planEditModal').style.display = 'flex';
+}
+
+function savePlanItemEdit() {
+  const id = document.getElementById('planEditId').value;
+  const p = mealPlans.find(x => x.id === id);
+  if (!p) return;
+  const name = document.getElementById('planEditName').value.trim();
+  const servings = parseFloat(document.getElementById('planEditServings').value) || 1;
+  if (!name) return;
+  // Recalculate macros from recipe if name changed
+  const rcp = recipes.find(r => r.name.toLowerCase() === name.toLowerCase());
+  const scale = s => s ? Math.round(s * servings) : 0;
+  p.name = name;
+  p.servings = servings;
+  if (rcp) {
+    p.cal = scale(rcp.cal); p.protein = scale(rcp.protein);
+    p.carbs = scale(rcp.carbs); p.fat = scale(rcp.fat); p.fibre = scale(rcp.fibre);
+    p.potassium = scale(rcp.potassium); p.magnesium = scale(rcp.magnesium); p.sodium = scale(rcp.sodium);
+  }
+  document.getElementById('planEditModal').style.display = 'none';
+  scheduleSave();
+  renderPlanTab();
+}
+
+function previewPlanEditServings() {
+  const name = document.getElementById('planEditName')?.value || '';
+  const servings = parseFloat(document.getElementById('planEditServings')?.value) || 1;
+  const prev = document.getElementById('planEditPreview');
+  const dl = document.getElementById('planRcpList2');
+  if (dl) dl.innerHTML = recipes.map(r => `<option value="${escHtml(r.name)}">`).join('');
+  if (!prev) return;
+  const rcp = recipes.find(r => r.name.toLowerCase() === name.toLowerCase());
+  prev.textContent = rcp?.cal ? `${Math.round(rcp.cal * servings)} kcal` : '';
+}
+
+function closePlanEditModal() {
+  document.getElementById('planEditModal').style.display = 'none';
+}
+
 function deletePlanItem(id) {
   mealPlans = mealPlans.filter(p => p.id !== id);
   scheduleSave();
@@ -10456,58 +11086,5 @@ function renderOverviewMealsWithGoals() {
 }
 
 </script>
-
-<!-- MULTI-ADD AI PANEL -->
-<div class="multiadd-overlay" id="multiAddOverlay">
-  <div class="multiadd-panel">
-    <div class="multiadd-title" id="multiAddTitle">Add Multiple</div>
-    <p style="font-size:.8rem;color:var(--muted);font-family:'Noto Serif Display',Georgia,serif;margin-top:-6px;">Type or speak a list of items — AI will parse and add them all at once.</p>
-    <div class="mic-row-inline">
-      <textarea class="multiadd-textarea" id="multiAddText" placeholder="e.g. 3 apples, almond milk, sourdough bread, cheddar cheese…&#10;or for tasks: call dentist, pick up dry cleaning, book Airbnb for July…"></textarea>
-      <button type="button" class="mic-btn" id="micbtn-multiAddText" onclick="startVoice('multiAddText','multiAddVoiceStatus')" title="Speak your list"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="11" rx="3"/><path d="M5 10a7 7 0 0 0 14 0"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="8" y1="22" x2="16" y2="22"/></svg></button>
-    </div>
-    <div class="voice-status" id="multiAddVoiceStatus"></div>
-    <div class="multiadd-actions">
-      <button class="multiadd-cancel-btn" onclick="closeMultiAdd()">Cancel</button>
-      <button class="multiadd-go-btn" id="multiAddGoBtn" onclick="runMultiAdd()">Parse with AI →</button>
-    </div>
-    <div id="multiAddStatus" class="multiadd-status" style="display:none;"></div>
-    <div id="multiAddResult" style="display:none;">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-        <span style="font-family:'Noto Serif Display',Georgia,serif;font-size:.8rem;color:var(--muted);" id="multiAddResultLabel">Uncheck any you don't want to add:</span>
-        <button style="font-family:'Noto Serif Display',Georgia,serif;font-size:.75rem;background:none;border:none;color:var(--accent);cursor:pointer;" onclick="runMultiAdd()">Re-parse</button>
-      </div>
-      <div class="multiadd-result" id="multiAddItems"></div>
-      <button class="multiadd-confirm-btn" id="multiAddConfirmBtn" onclick="confirmMultiAdd()">Add All to List</button>
-    </div>
-  </div>
-</div>
-
-<!-- ICON PICKER MODAL -->
-<div id="iconPickerModal">
-  <div class="icon-modal-sheet">
-    <div class="icon-modal-header">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
-        <span id="iconModalTitle" style="font-family:'Noto Serif Display',Georgia,serif;font-stretch:extra-condensed;text-transform:uppercase;letter-spacing:.1em;font-size:.9rem;color:var(--text);">Choose Icon</span>
-        <button id="iconModalResetBtn" onclick="resetTaskIcon()" style="display:none;font-family:inherit;font-size:.72rem;background:none;border:1px solid var(--border);border-radius:8px;padding:3px 10px;cursor:pointer;color:var(--muted);">Reset to category</button>
-      </div>
-      <input class="icon-modal-search" id="iconSearch" placeholder="Search icons…" oninput="filterIconModal()" autocomplete="off"/>
-    </div>
-    <div class="icon-modal-body" id="iconModalBody"></div>
-  </div>
-</div>
-
-<!-- OCCURRENCE MODAL -->
-<div class="modal-overlay" id="occurrenceModalOverlay" onclick="if(event.target===this)closeOccurrenceModal()">
-  <div class="modal" style="max-width:420px;">
-    <div class="modal-title" id="occModalTitle">Edit Occurrence</div>
-    <div id="occModalContent" style="display:flex;flex-direction:column;gap:11px;">
-      <!-- injected by openOccurrenceModal -->
-    </div>
-    <div class="modal-actions" style="margin-top:16px;" id="occModalActions">
-      <button class="modal-cancel" onclick="closeOccurrenceModal()">Close</button>
-    </div>
-  </div>
-</div>
 </body>
 </html>
