@@ -356,8 +356,7 @@ h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.
 .day-col.is-today .day-header{border-color:var(--accent);}
 .day-items{display:flex;flex-direction:column;gap:3px;min-height:80px;border-top:1.5px solid var(--border);padding-top:5px;margin-top:2px;}
 .day-task,.day-event{font-size:.7rem;padding:3px 5px;border-radius:5px;line-height:1.3;font-family:'Noto Serif Display',Georgia,serif;}
-.day-add-btn{font-family:'Noto Serif Display',Georgia,serif;font-size:.68rem;background:none;border:1px dashed var(--border);border-radius:6px;padding:3px;color:var(--muted);cursor:pointer;transition:all .2s;text-align:center;margin-top:2px;}
-.day-add-btn:hover{border-color:var(--accent);color:var(--accent);}
+/* day-add-btn removed */
 
 /* ---- MOBILE WEEKLY: Stacked Days ---- */
 @media(max-width:640px){
@@ -405,16 +404,7 @@ h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.
     min-height:0;
   }
   /* "+ add" button full width on mobile */
-  .day-add-btn{
-    font-size:.75rem;
-    padding:5px;
-    width:100%;
-  }
-  /* Empty day: hide to reduce scroll clutter — show only if items exist */
-  .day-col.mobile-empty .day-items,
-  .day-col.mobile-empty .day-add-btn{
-    display:none;
-  }
+  /* day-add-btn removed */
   .day-col.mobile-empty .day-header{
     opacity:.45;
   }
@@ -1772,6 +1762,16 @@ h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.
             </div>
 
           </div>
+        <!-- USDA Food Database key row -->
+        <div style="padding:10px 0;border-top:1px solid var(--border);">
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:6px;">
+            <label style="font-family:'Noto Serif Display',Georgia,serif;font-stretch:extra-condensed;text-transform:uppercase;letter-spacing:.06em;font-size:.72rem;color:var(--muted);width:100px;flex-shrink:0;">USDA Food</label>
+            <input class="form-input" id="usdaApiKeyInput" type="password" placeholder="Paste your USDA API key…" style="flex:1;min-width:160px;font-family:monospace;font-size:.8rem;"/>
+            <button class="apply-btn" onclick="saveUsdaApiKey()" style="padding:7px 14px;font-size:.8rem;">Save</button>
+            <span id="usdaKeyStatus" style="font-size:.75rem;color:var(--accent);font-family:'Handwriting',Georgia,serif;"></span>
+          </div>
+          <p style="font-size:.75rem;color:var(--muted);font-family:'Handwriting',Georgia,serif;padding-left:110px;">Free key at <a href="https://fdc.nal.usda.gov/api-guide" target="_blank" style="color:var(--accent);">fdc.nal.usda.gov/api-guide</a> — raises limit from 3/min to 1,000/hour for ingredient search.</p>
+        </div>
         </div>
 
                 <!-- AI parsing uses Gemini key (above) -->
@@ -3606,7 +3606,7 @@ function renderTasks(){
         ${stBar}${waitTag}${habitTag}${recurTag}
         ${dateLabel?`<span class="ctask-row-date ${dateCls}">${dateLabel}</span>`:''}
         <button class="ctask-row-edit" onclick="toggleEditForm('${t.id}')">edit</button>
-        <button class="ctask-row-del" onclick="deleteTask('${t.id}')">×</button>
+        <button class="ctask-row-del" onclick="tasks.find(x=>x.id==='${t.id}')?.recur?promptRecurScope('${t.id}','${td}','delete'):deleteTask('${t.id}')">×</button>
       </div>
     </div>
     <div class="subtask-panel" id="stp-${t.id}"><div id="stplist-${t.id}"></div></div>
@@ -4411,7 +4411,7 @@ function renderWeek(){
         ${dayTasks.map(tk=>{const cat=categories.find(c=>c.id===tk.catId);const bg='';return `<div class="day-task" style="${bg?'background:'+bg:''}" title="${escHtml(tk.name)}">${escHtml(tk.name)}</div>`;}).join('')}
         <!-- meals log hidden from weekly calendar -->
       </div>
-      <button class="day-add-btn" onclick="openModal('${ds}')">+</button>
+      <div class="day-add-zone" onclick="openModal('${ds}')" style="min-height:16px;cursor:pointer;border-radius:5px;" onmouseover="this.style.background='rgba(147,170,205,.1)'" onmouseout="this.style.background=''"></div>
     </div>`;
   }).join('');
 }
@@ -4771,6 +4771,45 @@ function reconfigureSchedule() {
     btn.style.transition = 'transform 0.5s ease';
     setTimeout(() => { btn.style.transform = ''; btn.style.transition = ''; }, 520);
   }
+}
+
+// ── Recurring task scope prompt ────────────────
+function promptRecurScope(taskId, date, scope) {
+  closeRecurPrompt();
+  const bar = document.createElement('div');
+  bar.id = 'recurPromptBar';
+  bar.style.cssText = 'position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--card);border:1.5px solid var(--accent);border-radius:14px;padding:12px 18px;box-shadow:0 4px 24px rgba(0,0,0,.13);z-index:300;display:flex;align-items:center;gap:10px;font-family:\'Handwriting\',Georgia,serif;font-size:.88rem;max-width:90vw;';
+  const label = scope === 'delete' ? 'Remove:' : 'Edit:';
+  bar.innerHTML = `<span style="color:var(--muted);font-size:.8rem;white-space:nowrap;">${label}</span>` +
+    `<button onclick="applyRecurScope('today','${taskId}','${date}','${scope}')" style="background:var(--bg);border:1.5px solid var(--border);border-radius:9px;padding:6px 14px;cursor:pointer;font-family:inherit;font-size:.82rem;">Just today</button>` +
+    `<button onclick="applyRecurScope('future','${taskId}','${date}','${scope}')" style="background:var(--bg);border:1.5px solid var(--border);border-radius:9px;padding:6px 14px;cursor:pointer;font-family:inherit;font-size:.82rem;">This &amp; future</button>` +
+    `<button onclick="applyRecurScope('all','${taskId}','${date}','${scope}')" style="background:var(--bg);border:1.5px solid var(--border);border-radius:9px;padding:6px 14px;cursor:pointer;font-family:inherit;font-size:.82rem;">Entire series</button>` +
+    `<button onclick="closeRecurPrompt()" style="background:none;border:none;color:var(--muted);font-size:1.1rem;cursor:pointer;padding:0 4px;line-height:1;">&#215;</button>`;
+  document.body.appendChild(bar);
+  bar._timer = setTimeout(closeRecurPrompt, 8000);
+}
+function closeRecurPrompt() {
+  const bar = document.getElementById('recurPromptBar');
+  if (bar) { clearTimeout(bar._timer); bar.remove(); }
+}
+function applyRecurScope(scope, taskId, date, action) {
+  closeRecurPrompt();
+  const task = tasks.find(t => t.id === taskId);
+  if (!task) return;
+  if (action === 'delete') {
+    if (scope === 'today') {
+      recurDoneLog.push({ taskId, date, skipped: true, ts: Date.now() });
+    } else if (scope === 'future') {
+      if (task.recur) { task.recur.endType = 'on-date'; task.recur.endDate = date; }
+    } else {
+      deleteTask(taskId); return;
+    }
+  } else if (action === 'edit') {
+    const ef = document.getElementById('edit-' + taskId);
+    if (ef) { ef.classList.add('open'); ef.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }
+    return;
+  }
+  scheduleSave(); renderTasks(); renderOverview();
 }
 
 function renderOverview(){
@@ -5345,13 +5384,24 @@ function sumIngredientMacros(ingredients) {
 // ── USDA API search ──────────────────────────────────
 const USDA_API_KEY = 'DEMO_KEY'; // free tier: 30 req/hour — user can override in settings
 
+const _usdaCache = {};
 async function searchUSDA(query) {
   const key = localStorage.getItem('centre_usdaKey') || USDA_API_KEY;
-  const url = `https://api.nal.usda.gov/fdc/v1/foods/search?query=${encodeURIComponent(query)}&pageSize=8&dataType=Foundation,SR%20Legacy,Survey%20(FNDDS)&api_key=${key}`;
-  const resp = await fetch(url);
-  if (!resp.ok) throw new Error('USDA search failed');
-  const data = await resp.json();
-  return (data.foods || []).map(f => parseUSDAFood(f));
+  const ck = query.toLowerCase().trim();
+  const hit = _usdaCache[ck];
+  if (hit && Date.now() - hit.ts < 300000) return hit.r;
+  try {
+    const url = `https://api.nal.usda.gov/fdc/v1/foods/search?query=${encodeURIComponent(query)}&pageSize=8&dataType=Foundation,SR%20Legacy,Survey%20(FNDDS)&api_key=${key}`;
+    const resp = await fetch(url);
+    if (!resp.ok) throw new Error('USDA ' + resp.status);
+    const data = await resp.json();
+    const r = (data.foods || []).map(f => parseUSDAFood(f));
+    _usdaCache[ck] = { r, ts: Date.now() };
+    return r;
+  } catch(e) {
+    console.warn('USDA search error:', e.message);
+    return [];
+  }
 }
 
 function parseUSDAFood(f) {
@@ -5430,7 +5480,13 @@ async function runIngSearch(q) {
     // Store results for selection
     drop._results = results;
   } catch(err) {
-    drop.innerHTML = '<div style="padding:10px 12px;font-size:.8rem;color:var(--muted);">Search unavailable — enter values manually or check your internet connection</div>';
+    const _fb = customFoods.filter(f=>f.name.toLowerCase().includes(q.toLowerCase())).slice(0,5);
+    if (_fb.length) {
+      drop._results = _fb.map(f=>({...f,_source:'custom'}));
+      drop.innerHTML = _fb.map((f,i)=>'<div onclick="selectIngFood('+i+')" style="padding:9px 12px;cursor:pointer;border-bottom:1px solid var(--border);font-size:.84rem;">'+escHtml(f.name)+' <span style="font-size:.6rem;background:var(--accent);color:white;padding:1px 5px;border-radius:4px;">Mine</span></div>').join('') + '<div style="padding:6px 12px;font-size:.72rem;color:var(--muted);">USDA temporarily unavailable</div>';
+    } else {
+      drop.innerHTML = '<div style="padding:10px 12px;font-size:.8rem;color:var(--muted);">Search temporarily unavailable — type name and add without macros</div>';
+    }
   }
 }
 
@@ -5635,7 +5691,7 @@ async function parseIngredientText() {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'anthropic-dangerous-direct-browser-calls': 'true' },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
+        model: 'claude-sonnet-4-6',
         max_tokens: 1000,
         system: `You are an ingredient parser. Extract each ingredient from the text and return ONLY a JSON array with no markdown or explanation.
 Each item: {"name": "ingredient name", "grams": number_or_null, "original": "original text line"}
@@ -7902,7 +7958,7 @@ Keep task names concise and action-oriented.`;
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'anthropic-dangerous-direct-browser-calls': 'true' },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
+        model: 'claude-sonnet-4-6',
         max_tokens: 1000,
         system: systemPrompt,
         messages: [{ role: 'user', content: userPrompt }]
@@ -10922,7 +10978,7 @@ function renderPlanTab() {
               <button onclick="event.stopPropagation();openPlanItemEdit('${p.id}')" style="background:none;border:none;color:var(--border);cursor:pointer;font-size:.62rem;padding:0 1px;line-height:1;flex-shrink:0;" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='var(--border)'" title="Edit">✎</button>
               <button onclick="event.stopPropagation();deletePlanItem('${p.id}')" style="background:none;border:none;color:var(--border);cursor:pointer;font-size:.7rem;padding:0;line-height:1;flex-shrink:0;" onmouseover="this.style.color='#e88'" onmouseout="this.style.color='var(--border)'" title="Remove">×</button>
             </div>`).join('')}
-          ${!items.length ? `<div style="font-size:.55rem;color:var(--border);text-align:center;line-height:32px;">+</div>` : ''}
+          
         </div>
       </td>`;
     });
