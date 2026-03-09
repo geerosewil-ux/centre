@@ -726,6 +726,96 @@ h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.
 .tacc-st-main{display:flex;align-items:center;gap:8px;padding:8px 10px;}
 .tacc-st-detail{display:none;padding:8px 10px 10px;border-top:1px solid var(--border);flex-direction:column;gap:8px;}
 .tacc-st-detail.open{display:flex;}
+
+.scope-pill-btn{font-family:'Handwriting',Georgia,serif;font-size:.82rem;padding:5px 12px;border:1.5px solid var(--border);border-radius:20px;background:var(--bg);color:var(--text);cursor:pointer;transition:border-color .15s,background .15s;}
+.scope-pill-btn:hover{border-color:var(--accent);background:var(--card);}
+.scope-pill-danger{border-color:#f0c0c0!important;color:#c0554a!important;}
+.scope-pill-danger:hover{border-color:#c0554a!important;background:#fde8e8!important;}
+
+.rcp-drop{position:absolute;top:100%;left:0;right:0;background:var(--card);border:1.5px solid var(--border);border-radius:10px;box-shadow:0 4px 20px rgba(0,0,0,.09);z-index:60;max-height:200px;overflow-y:auto;margin-top:2px;display:none;}
+.rcp-drop.open{display:block;}
+.rcp-drop-item{padding:8px 12px;cursor:pointer;font-family:'Handwriting',Georgia,serif;font-size:.88rem;border-bottom:1px solid var(--border);transition:background .12s;}
+.rcp-drop-item:last-child{border-bottom:none;}
+.rcp-drop-item:hover,.rcp-drop-item.highlighted{background:var(--bg);}
+
+/* ══════════ STYLED PAGE ══════════════════════════════════════════ */
+.styled-tabs{display:flex;gap:5px;background:var(--bg);border-radius:14px;padding:4px;margin-bottom:16px;}
+.styled-tab{flex:1;font-family:'Noto Serif Display',Georgia,serif;font-weight:400;font-stretch:extra-condensed;text-transform:uppercase;letter-spacing:.08em;font-size:.8rem;padding:7px 10px;border:none;border-radius:10px;background:none;color:var(--muted);cursor:pointer;transition:all .18s;}
+.styled-tab.active{background:var(--card);color:var(--text);box-shadow:0 1px 6px rgba(0,0,0,.07);}
+
+.st-filter-bar{display:flex;gap:6px;overflow-x:auto;padding-bottom:6px;margin-bottom:14px;}
+.st-filter{flex-shrink:0;font-family:'Noto Serif Display',Georgia,serif;font-stretch:extra-condensed;text-transform:uppercase;letter-spacing:.07em;font-size:.72rem;padding:4px 12px;border-radius:20px;border:1.5px solid var(--border);background:none;color:var(--muted);cursor:pointer;transition:all .15s;}
+.st-filter.active{background:var(--accent);border-color:var(--accent);color:white;}
+
+/* closet grid */
+.st-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:6px;}
+.st-item{aspect-ratio:.7;border-radius:14px;border:1.5px solid var(--border);background:var(--card);display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding:8px 7px 9px;cursor:pointer;position:relative;overflow:hidden;transition:border-color .2s,transform .15s;-webkit-tap-highlight-color:transparent;}
+.st-item:active{transform:scale(.97);}
+.st-item:hover{border-color:var(--accent);}
+.st-item-swatch{position:absolute;inset:0;border-radius:12px;}
+.st-item-label{font-family:'Handwriting',Georgia,serif;font-size:.65rem;text-align:center;line-height:1.35;position:relative;z-index:1;background:rgba(255,255,255,.88);padding:3px 5px;border-radius:5px;width:100%;}
+.st-item-cat{font-family:'Noto Serif Display',Georgia,serif;font-stretch:extra-condensed;text-transform:uppercase;letter-spacing:.06em;font-size:.52rem;color:var(--muted);}
+.st-item-add{aspect-ratio:.7;border-radius:14px;border:1.5px dashed var(--border);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;cursor:pointer;color:var(--muted);font-size:1.5rem;transition:border-color .2s,color .2s;}
+.st-item-add:hover{border-color:var(--accent);color:var(--accent);}
+.st-item-del{position:absolute;top:5px;right:5px;z-index:2;background:rgba(255,255,255,.85);border:none;border-radius:50%;width:20px;height:20px;font-size:.75rem;cursor:pointer;display:none;align-items:center;justify-content:center;color:#c0554a;}
+.st-item:hover .st-item-del{display:flex;}
+
+/* add toggle */
+.st-add-toggle{font-family:'Noto Serif Display',Georgia,serif;font-weight:400;font-stretch:extra-condensed;text-transform:uppercase;letter-spacing:.1em;font-size:.88rem;color:var(--accent);cursor:pointer;user-select:none;}
+
+/* outfit cards */
+.st-outfit-list{display:flex;flex-direction:column;gap:10px;margin-bottom:4px;}
+.st-outfit-card{background:var(--card);border-radius:16px;padding:16px 18px;box-shadow:0 2px 10px rgba(0,0,0,.05);border:1.5px solid var(--border);display:flex;align-items:center;gap:14px;cursor:pointer;transition:border-color .2s;}
+.st-outfit-card:hover{border-color:var(--accent);}
+.st-outfit-swatches{display:flex;gap:5px;flex-shrink:0;}
+.st-outfit-swatch{border-radius:7px;flex-shrink:0;}
+.st-outfit-info{flex:1;}
+.st-outfit-name{font-size:.96rem;margin-bottom:2px;}
+.st-outfit-occ{font-size:.72rem;color:var(--muted);}
+.st-outfit-del{background:none;border:none;color:var(--border);font-size:1.1rem;cursor:pointer;padding:2px 4px;transition:color .15s;}
+.st-outfit-del:hover{color:#c0554a;}
+
+/* item picker in build-outfit */
+.st-picker-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;}
+.st-picker-item{aspect-ratio:.7;border-radius:10px;border:2px solid var(--border);overflow:hidden;position:relative;cursor:pointer;transition:border-color .15s;}
+.st-picker-item.selected{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent);}
+.st-picker-swatch{position:absolute;inset:0;}
+.st-picker-label{position:absolute;bottom:0;left:0;right:0;background:rgba(255,255,255,.88);font-family:'Handwriting',Georgia,serif;font-size:.58rem;text-align:center;padding:2px 3px;line-height:1.3;}
+
+/* weekly plan */
+.st-week-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:8px;}
+.st-day{display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;}
+.st-day-name{font-family:'Noto Serif Display',Georgia,serif;font-stretch:extra-condensed;text-transform:uppercase;letter-spacing:.06em;font-size:.6rem;color:var(--muted);}
+.st-day-num{font-size:.88rem;color:var(--text);}
+.st-day-dot{width:32px;height:40px;border-radius:8px;border:1.5px dashed var(--border);transition:border-color .15s;cursor:pointer;}
+.st-day-dot:hover{border-color:var(--accent);}
+.st-day-dot.has-look{border-style:solid;border-color:var(--border);}
+.st-day.is-today .st-day-num{color:var(--accent);}
+.st-day.is-today .st-day-dot{border-color:var(--accent);}
+
+/* plan list rows */
+.st-plan-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);}
+.st-plan-row:last-child{border-bottom:none;}
+.st-plan-swatches{display:flex;gap:3px;}
+.st-plan-swatch{width:18px;height:24px;border-radius:4px;}
+.st-plan-info{flex:1;}
+.st-plan-date{font-size:.85rem;}
+.st-plan-look{font-size:.72rem;color:var(--muted);}
+.st-plan-del{background:none;border:none;color:var(--border);font-size:1rem;cursor:pointer;transition:color .15s;}
+.st-plan-del:hover{color:#c0554a;}
+
+/* assign outfit sheet (mobile-friendly) */
+.st-assign-overlay{display:none;position:fixed;inset:0;z-index:350;flex-direction:column;justify-content:flex-end;}
+.st-assign-overlay.open{display:flex;}
+.st-assign-backdrop{flex:1;background:rgba(0,0,0,.3);}
+.st-assign-sheet{background:var(--card);border-radius:20px 20px 0 0;padding:0 0 env(safe-area-inset-bottom,16px);box-shadow:0 -4px 32px rgba(0,0,0,.12);max-height:70vh;overflow-y:auto;}
+.st-assign-handle{width:36px;height:4px;background:var(--border);border-radius:4px;margin:10px auto 0;}
+.st-assign-title{font-family:'Noto Serif Display',Georgia,serif;font-weight:400;font-stretch:extra-condensed;text-transform:uppercase;letter-spacing:.1em;font-size:.95rem;color:var(--muted);padding:12px 20px 6px;}
+.st-assign-list{display:flex;flex-direction:column;padding:4px 12px 8px;gap:5px;}
+.st-assign-opt{display:flex;align-items:center;gap:10px;padding:12px 10px;border-radius:12px;border:none;background:var(--bg);width:100%;cursor:pointer;text-align:left;font-family:'Handwriting',Georgia,serif;font-size:.92rem;transition:background .12s;}
+.st-assign-opt:hover,.st-assign-opt:active{background:var(--border);}
+.st-assign-cancel{margin:0 12px 8px;width:calc(100% - 24px);padding:13px;border-radius:12px;border:1.5px solid var(--border);background:var(--card);font-family:'Handwriting',Georgia,serif;font-size:.9rem;cursor:pointer;color:var(--muted);}
+/* ══════════ END STYLED CSS ═══════════════════════════════════════ */
 </style>
 </head>
 <body>
@@ -769,6 +859,10 @@ h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.
     <button class="drawer-item" id="di-health" onclick="showPage('health');closeDrawer()">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
       Health
+    </button>
+    <button class="drawer-item" id="di-styled" onclick="showPage('styled');closeDrawer()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.38 3.46L16 2a4 4 0 01-8 0L3.62 3.46a2 2 0 00-1.34 2.23l.58 3.57a1 1 0 00.99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 002-2V10h2.15a1 1 0 00.99-.84l.58-3.57a2 2 0 00-1.34-2.23z"/></svg>
+      Styled
     </button>
     <button class="drawer-item" id="di-cycle" onclick="showPage('cycle');closeDrawer()">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
@@ -1386,8 +1480,10 @@ h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.
           <div class="form-group"><label class="form-label">Time (optional)</label><input class="form-input" type="time" id="mealTime" /></div>
           <div class="form-group"><label class="form-label">Date</label><input class="form-input" type="date" id="mealDate"/></div>
           <div class="form-group full"><label class="form-label">What did you have?</label>
-            <input class="form-input" id="mealName" list="logRcpList" placeholder="Search saved recipes or type freely…" oninput="autoFillLogFromRecipe()" autocomplete="off"/>
-            <datalist id="logRcpList"></datalist>
+            <div style="position:relative;">
+              <input class="form-input" id="mealName" placeholder="Search saved recipes or type freely…" oninput="rcpDropSearch('mealName','rcpDrop-meal')" autocomplete="off" onblur="setTimeout(()=>rcpDropClose('rcpDrop-meal'),180)"/>
+              <div class="rcp-drop" id="rcpDrop-meal"></div>
+            </div>
           </div>
           <div class="form-group" id="logServingsWrap" style="display:none;">
             <label class="form-label">Servings</label>
@@ -1466,8 +1562,8 @@ h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.
             <button onclick="closePlanAddBar()" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:1rem;line-height:1;">×</button>
           </div>
           <div style="display:flex;gap:6px;align-items:stretch;">
-            <div style="flex:1;">
-              <input id="planAddInput" list="planRcpList" placeholder="Search recipes or type freely…"
+            <div style="flex:1;position:relative;">
+              <input id="planAddInput" placeholder="Search recipes or type freely…" oninput="rcpDropSearch('planAddInput','rcpDrop-plan')" autocomplete="off" onblur="setTimeout(()=>rcpDropClose('rcpDrop-plan'),180)"
                 style="width:100%;font-family:'Noto Serif Display',Georgia,serif;font-size:.85rem;border:1.5px solid var(--border);border-radius:9px;padding:8px 11px;background:var(--card);color:var(--text);outline:none;box-sizing:border-box;"
                 onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'"
                 onkeydown="if(event.key==='Enter'){confirmPlanAdd();event.preventDefault();}"
@@ -1484,7 +1580,7 @@ h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.
           </div>
           <div id="planAddPreview" style="font-size:.7rem;color:var(--muted);margin-top:5px;min-height:14px;"></div>
         </div>
-        <datalist id="planRcpList"></datalist>
+        <div class="rcp-drop" id="rcpDrop-plan"></div>
       </div>
       <!-- RECIPES TAB -->
       <div id="tab-mrcp" style="display:none">
@@ -1706,6 +1802,98 @@ h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.
       <div class="empty-msg" id="medEmpty">No medications added yet.</div>
     </div>
   </div>
+
+
+  <!-- ═══════════════════════════ STYLED PAGE ═══════════════════════════ -->
+  <div class="page" id="page-styled">
+
+    <!-- Sub-nav tabs -->
+    <div class="styled-tabs">
+      <button class="styled-tab active" id="stab-closet" onclick="stShowTab('closet',this)">Closet</button>
+      <button class="styled-tab" id="stab-outfits" onclick="stShowTab('outfits',this)">Outfits</button>
+      <button class="styled-tab" id="stab-plan" onclick="stShowTab('plan',this)">Plan</button>
+    </div>
+
+    <!-- ── CLOSET ──────────────────────────────────────────────── -->
+    <div id="stab-content-closet">
+      <!-- Filter pills -->
+      <div class="st-filter-bar" id="stCatFilter">
+        <button class="st-filter active" data-cat="" onclick="stFilterCat(this)">All</button>
+        <button class="st-filter" data-cat="Tops" onclick="stFilterCat(this)">Tops</button>
+        <button class="st-filter" data-cat="Bottoms" onclick="stFilterCat(this)">Bottoms</button>
+        <button class="st-filter" data-cat="Dresses" onclick="stFilterCat(this)">Dresses</button>
+        <button class="st-filter" data-cat="Outerwear" onclick="stFilterCat(this)">Outerwear</button>
+        <button class="st-filter" data-cat="Shoes" onclick="stFilterCat(this)">Shoes</button>
+        <button class="st-filter" data-cat="Accessories" onclick="stFilterCat(this)">Accessories</button>
+      </div>
+      <!-- Grid -->
+      <div class="st-grid" id="stClosetGrid"></div>
+      <!-- Add item form (collapsible) -->
+      <div class="card" id="stAddItemCard" style="margin-top:4px;">
+        <div class="st-add-toggle" onclick="stToggleAddItem()">
+          <span id="stAddToggleLabel">+ Add item</span>
+        </div>
+        <div id="stAddItemForm" style="display:none;margin-top:14px;">
+          <div class="form-grid">
+            <div class="form-group full"><label class="form-label">Name</label><input class="form-input" id="stItemName" placeholder="e.g. Linen blazer"/></div>
+            <div class="form-group"><label class="form-label">Category</label>
+              <select class="form-select" id="stItemCat">
+                <option value="Tops">Tops</option>
+                <option value="Bottoms">Bottoms</option>
+                <option value="Dresses">Dresses</option>
+                <option value="Outerwear">Outerwear</option>
+                <option value="Shoes">Shoes</option>
+                <option value="Accessories">Accessories</option>
+              </select>
+            </div>
+            <div class="form-group"><label class="form-label">Colour</label>
+              <div style="display:flex;gap:8px;align-items:center;">
+                <input class="form-input" id="stItemColor" type="color" value="#93aacd" style="width:44px;height:36px;padding:2px;cursor:pointer;border-radius:8px;border:1.5px solid var(--border);background:none;"/>
+                <input class="form-input" id="stItemColor2" type="color" value="#93aacd" style="width:44px;height:36px;padding:2px;cursor:pointer;border-radius:8px;border:1.5px solid var(--border);background:none;" title="Second colour (optional gradient)"/>
+                <span style="font-size:.7rem;color:var(--muted);">+ gradient</span>
+              </div>
+            </div>
+            <div class="form-group full"><label class="form-label">Occasion tags (comma separated)</label><input class="form-input" id="stItemTags" placeholder="Work, Casual, Evening…"/></div>
+            <button class="add-btn" onclick="stAddItem()">+ Add to closet</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── OUTFITS ─────────────────────────────────────────────── -->
+    <div id="stab-content-outfits" style="display:none;">
+      <div class="st-outfit-list" id="stOutfitList"></div>
+      <!-- Build outfit -->
+      <div class="card" id="stBuildCard" style="margin-top:4px;">
+        <div class="st-add-toggle" onclick="stToggleBuildOutfit()">
+          <span id="stBuildToggleLabel">+ Build outfit</span>
+        </div>
+        <div id="stBuildOutfitForm" style="display:none;margin-top:14px;">
+          <div class="form-group" style="margin-bottom:10px;"><label class="form-label">Outfit name</label><input class="form-input" id="stOutfitName" placeholder="e.g. Office chic"/></div>
+          <div class="form-group" style="margin-bottom:10px;"><label class="form-label">Occasion</label><input class="form-input" id="stOutfitOcc" placeholder="Work, Casual, Evening…"/></div>
+          <label class="form-label" style="margin-bottom:8px;display:block;">Pick items</label>
+          <div class="st-picker-grid" id="stItemPicker"></div>
+          <button class="add-btn" style="margin-top:12px;" onclick="stSaveOutfit()">+ Save outfit</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── PLAN ────────────────────────────────────────────────── -->
+    <div id="stab-content-plan" style="display:none;">
+      <div class="card">
+        <div class="card-title" style="margin-bottom:16px;">This week</div>
+        <div class="st-week-grid" id="stWeekGrid"></div>
+      </div>
+      <div class="card" style="margin-top:0;">
+        <div class="card-title" style="margin-bottom:12px;">Planned looks</div>
+        <div id="stPlanList"></div>
+        <div style="font-size:.8rem;color:var(--muted);margin-top:8px;">Tap a day above to assign an outfit.</div>
+      </div>
+    </div>
+
+  </div>
+  <!-- ═══════════════════════════ END STYLED PAGE ════════════════════════ -->
+
 
   <div class="page" id="page-settings">
     <div class="card">
@@ -2090,8 +2278,10 @@ h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.
     <input type="hidden" id="planEditId"/>
     <div class="form-group" style="margin-bottom:12px;">
       <label class="form-label">Name</label>
-      <input class="form-input" id="planEditName" list="planRcpList2" placeholder="Recipe or item name" oninput="previewPlanEditServings()"/>
-      <datalist id="planRcpList2"></datalist>
+      <div style="position:relative;">
+        <input class="form-input" id="planEditName" placeholder="Recipe or item name" oninput="previewPlanEditServings();rcpDropSearch('planEditName','rcpDrop-edit')" autocomplete="off" onblur="setTimeout(()=>rcpDropClose('rcpDrop-edit'),180)"/>
+        <div class="rcp-drop" id="rcpDrop-edit"></div>
+      </div>
     </div>
     <div class="form-group" style="margin-bottom:16px;">
       <label class="form-label">Servings</label>
@@ -2292,8 +2482,53 @@ let categories=[
 // Habit log: { taskId, date, value } — one entry per completion per day
 let habitLog=[];
 
+
+
+// ── callAI: Gemini (any browser) or Anthropic (claude.ai only) ──
+async function callAI(systemPrompt, userPrompt) {
+  if (_geminiApiKey) {
+    const _models = [_geminiModel || 'gemini-2.0-flash', 'gemini-2.0-flash-lite', 'gemini-1.5-flash'];
+    const _tried = new Set();
+    let _lastErr;
+    for (const model of _models) {
+      if (_tried.has(model)) continue;
+      _tried.add(model);
+      try {
+        const url = 'https://generativelanguage.googleapis.com/v1beta/models/' + model + ':generateContent?key=' + _geminiApiKey;
+        const resp = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{ role: 'user', parts: [{ text: systemPrompt + '\n\n' + userPrompt }] }],
+            generationConfig: { maxOutputTokens: 1000, temperature: 0.1 }
+          })
+        });
+        if (resp.status === 429) { _lastErr = new Error('Gemini 429'); continue; }
+        if (!resp.ok) { const e = await resp.json().catch(()=>({})); throw new Error('Gemini ' + resp.status + (e && e.error ? ': ' + e.error.message : '')); }
+        const data = await resp.json();
+        const text = data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts && data.candidates[0].content.parts[0] && data.candidates[0].content.parts[0].text;
+        if (!text) throw new Error('Empty Gemini response');
+        return text;
+      } catch(e) { if (e.message && e.message.includes('429')) { _lastErr = e; continue; } throw e; }
+    }
+    throw _lastErr || new Error('Gemini quota exceeded — try again shortly');
+  }
+  // Fallback: only works inside claude.ai
+  const resp = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'anthropic-dangerous-direct-browser-calls': 'true' },
+    body: JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 1000, system: systemPrompt, messages: [{ role: 'user', content: userPrompt }] })
+  });
+  if (!resp.ok) throw new Error('Anthropic ' + resp.status);
+  const data = await resp.json();
+  if (data.error) throw new Error(data.error.message || JSON.stringify(data.error));
+  const text = data.content && data.content[0] && data.content[0].text;
+  if (!text) throw new Error('Empty response');
+  return text;
+}
+
 const TIME_BLOCKS=[
-  {id:'sunrise',label:'Sunrise',start:7*60,end:9*60},
+{id:'sunrise',label:'Sunrise',start:7*60,end:9*60},
   {id:'morning',label:'Morning',start:9*60,end:12*60},
   {id:'service',label:'Service',start:12*60,end:16*60},
   {id:'closing',label:'Closing Shift',start:16*60,end:20*60},
@@ -2309,6 +2544,330 @@ let MILESTONES=[{days:7,reward:''},{days:30,reward:''},{days:100,reward:''},{day
 
 // ---- LOCALSTORAGE ----
 let saveTimer=null;
+
+// ── Custom recipe dropdown (replaces native <datalist>) ──────
+function rcpDropSearch(inputId, dropId) {
+  const input = document.getElementById(inputId);
+  const drop = document.getElementById(dropId);
+  if (!input || !drop) return;
+  const q = input.value.trim().toLowerCase();
+  const matches = q.length < 1
+    ? recipes.slice(0, 8)
+    : recipes.filter(r => r.name.toLowerCase().includes(q)).slice(0, 8);
+  if (!matches.length) { drop.classList.remove('open'); return; }
+  drop.innerHTML = matches.map(r =>
+    `<div class="rcp-drop-item" onmousedown="rcpDropSelect('${inputId}','${dropId}',${JSON.stringify(escHtml(r.name))})">${escHtml(r.name)}</div>`
+  ).join('');
+  drop.classList.add('open');
+}
+function rcpDropClose(dropId) {
+  const drop = document.getElementById(dropId);
+  if (drop) drop.classList.remove('open');
+}
+function rcpDropSelect(inputId, dropId, name) {
+  const input = document.getElementById(inputId);
+  if (input) { input.value = name; input.dispatchEvent(new Event('input', {bubbles:true})); }
+  rcpDropClose(dropId);
+}
+
+// ══════════════════════════════════════════════════════════
+// STYLED — State & Helpers
+// ══════════════════════════════════════════════════════════
+let closetItems = [];   // {id, name, cat, color, color2, tags:[]}
+let outfits = [];       // {id, name, occ, itemIds:[]}
+let outfitPlan = {};    // {dateStr: outfitId}
+let _stPickerSelected = new Set();
+let _stAssignDate = null;
+let _stActiveCatFilter = '';
+
+function stId() { return 'STI-' + Date.now() + '-' + Math.random().toString(36).slice(2,6); }
+function stOId() { return 'STO-' + Date.now() + '-' + Math.random().toString(36).slice(2,6); }
+
+function stSwatch(item, w, h, radius) {
+  const r = radius || '8px';
+  const s = (w||36)+'px';
+  const ht = (h||46)+'px';
+  const bg = item.color2 && item.color2 !== item.color
+    ? `linear-gradient(150deg,${item.color},${item.color2})`
+    : item.color;
+  return `<div style="width:${s};height:${ht};border-radius:${r};background:${bg};flex-shrink:0;"></div>`;
+}
+
+// ── Load / Save ──────────────────────────────────────────
+function stLoadStorage() {
+  try {
+    const ci = localStorage.getItem('centre_closetItems'); if(ci) closetItems = JSON.parse(ci);
+    const ot = localStorage.getItem('centre_outfits');     if(ot) outfits = JSON.parse(ot);
+    const op = localStorage.getItem('centre_outfitPlan');  if(op) outfitPlan = JSON.parse(op);
+  } catch(e) {}
+}
+function stScheduleSave() {
+  try {
+    localStorage.setItem('centre_closetItems', JSON.stringify(closetItems));
+    localStorage.setItem('centre_outfits',     JSON.stringify(outfits));
+    localStorage.setItem('centre_outfitPlan',  JSON.stringify(outfitPlan));
+  } catch(e) {}
+  scheduleSave();
+}
+
+// ── Tab switching ────────────────────────────────────────
+function stShowTab(id, btn) {
+  ['closet','outfits','plan'].forEach(t => {
+    document.getElementById('stab-content-' + t).style.display = t === id ? '' : 'none';
+  });
+  document.querySelectorAll('.styled-tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  if(id === 'closet')  stRenderCloset();
+  if(id === 'outfits') { stRenderOutfits(); stRenderItemPicker(); }
+  if(id === 'plan')    stRenderPlan();
+}
+
+// ── Category filter ──────────────────────────────────────
+function stFilterCat(btn) {
+  _stActiveCatFilter = btn.dataset.cat || '';
+  document.querySelectorAll('.st-filter').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  stRenderCloset();
+}
+
+// ── Add/delete item ──────────────────────────────────────
+function stToggleAddItem() {
+  const form = document.getElementById('stAddItemForm');
+  const open = form.style.display === 'none';
+  form.style.display = open ? '' : 'none';
+  document.getElementById('stAddToggleLabel').textContent = open ? '— collapse' : '+ Add item';
+  if(open) document.getElementById('stItemName').focus();
+}
+
+function stAddItem() {
+  const name = document.getElementById('stItemName').value.trim();
+  if(!name) { document.getElementById('stItemName').focus(); return; }
+  const color  = document.getElementById('stItemColor').value;
+  const color2 = document.getElementById('stItemColor2').value;
+  const cat    = document.getElementById('stItemCat').value;
+  const tags   = document.getElementById('stItemTags').value.split(',').map(t=>t.trim()).filter(Boolean);
+  closetItems.push({ id: stId(), name, cat, color, color2, tags });
+  document.getElementById('stItemName').value = '';
+  document.getElementById('stItemTags').value = '';
+  stScheduleSave();
+  stRenderCloset();
+}
+
+function stDeleteItem(id) {
+  closetItems = closetItems.filter(i => i.id !== id);
+  outfits.forEach(o => { o.itemIds = o.itemIds.filter(iid => iid !== id); });
+  stScheduleSave();
+  stRenderCloset();
+  stRenderOutfits();
+}
+
+// ── Render closet grid ───────────────────────────────────
+function stRenderCloset() {
+  const grid = document.getElementById('stClosetGrid');
+  if(!grid) return;
+  const items = _stActiveCatFilter
+    ? closetItems.filter(i => i.cat === _stActiveCatFilter)
+    : closetItems;
+  if(!items.length) {
+    grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;color:var(--muted);font-size:.85rem;padding:20px 0;font-family:'Handwriting',Georgia,serif;">Your closet is empty — add your first piece below.</div>`;
+    return;
+  }
+  grid.innerHTML = items.map(item => {
+    const bg = item.color2 && item.color2 !== item.color
+      ? `linear-gradient(150deg,${item.color},${item.color2})`
+      : item.color;
+    return `<div class="st-item" onclick="">
+      <div class="st-item-swatch" style="background:${bg};"></div>
+      <button class="st-item-del" onclick="event.stopPropagation();stDeleteItem('${item.id}')" title="Remove">×</button>
+      <div class="st-item-label">${escHtml(item.name)}<br><span class="st-item-cat">${item.cat}</span></div>
+    </div>`;
+  }).join('');
+}
+
+// ── Build / save outfit ──────────────────────────────────
+function stToggleBuildOutfit() {
+  const form = document.getElementById('stBuildOutfitForm');
+  const open = form.style.display === 'none';
+  form.style.display = open ? '' : 'none';
+  document.getElementById('stBuildToggleLabel').textContent = open ? '— collapse' : '+ Build outfit';
+  if(open) { _stPickerSelected = new Set(); stRenderItemPicker(); }
+}
+
+function stRenderItemPicker() {
+  const grid = document.getElementById('stItemPicker');
+  if(!grid) return;
+  if(!closetItems.length) {
+    grid.innerHTML = `<div style="grid-column:1/-1;font-size:.8rem;color:var(--muted);font-family:'Handwriting',Georgia,serif;">Add items to your closet first.</div>`;
+    return;
+  }
+  grid.innerHTML = closetItems.map(item => {
+    const bg = item.color2 && item.color2 !== item.color
+      ? `linear-gradient(150deg,${item.color},${item.color2})`
+      : item.color;
+    const sel = _stPickerSelected.has(item.id) ? 'selected' : '';
+    return `<div class="st-picker-item ${sel}" onclick="stTogglePick('${item.id}')">
+      <div class="st-picker-swatch" style="background:${bg};"></div>
+      <div class="st-picker-label">${escHtml(item.name)}</div>
+    </div>`;
+  }).join('');
+}
+
+function stTogglePick(id) {
+  if(_stPickerSelected.has(id)) _stPickerSelected.delete(id);
+  else _stPickerSelected.add(id);
+  stRenderItemPicker();
+}
+
+function stSaveOutfit() {
+  const name = document.getElementById('stOutfitName').value.trim();
+  if(!name) { document.getElementById('stOutfitName').focus(); return; }
+  const occ   = document.getElementById('stOutfitOcc').value.trim();
+  const itemIds = [..._stPickerSelected];
+  outfits.push({ id: stOId(), name, occ, itemIds });
+  document.getElementById('stOutfitName').value = '';
+  document.getElementById('stOutfitOcc').value = '';
+  _stPickerSelected = new Set();
+  stScheduleSave();
+  stRenderOutfits();
+  stRenderItemPicker();
+  // collapse form
+  document.getElementById('stBuildOutfitForm').style.display = 'none';
+  document.getElementById('stBuildToggleLabel').textContent = '+ Build outfit';
+}
+
+function stDeleteOutfit(id) {
+  outfits = outfits.filter(o => o.id !== id);
+  Object.keys(outfitPlan).forEach(d => { if(outfitPlan[d] === id) delete outfitPlan[d]; });
+  stScheduleSave();
+  stRenderOutfits();
+}
+
+function stRenderOutfits() {
+  const list = document.getElementById('stOutfitList');
+  if(!list) return;
+  if(!outfits.length) {
+    list.innerHTML = `<div style="text-align:center;color:var(--muted);font-size:.85rem;padding:20px 0;font-family:'Handwriting',Georgia,serif;">No outfits yet — build your first look below.</div>`;
+    return;
+  }
+  list.innerHTML = outfits.map(o => {
+    const items = o.itemIds.map(id => closetItems.find(i=>i.id===id)).filter(Boolean);
+    const swatches = items.slice(0,4).map(item => stSwatch(item,28,36,'6px')).join('');
+    return `<div class="st-outfit-card">
+      <div class="st-outfit-swatches">${swatches}</div>
+      <div class="st-outfit-info">
+        <div class="st-outfit-name">${escHtml(o.name)}</div>
+        ${o.occ ? `<div class="st-outfit-occ">${escHtml(o.occ)}</div>` : ''}
+      </div>
+      <button class="st-outfit-del" onclick="stDeleteOutfit('${o.id}')">×</button>
+    </div>`;
+  }).join('');
+}
+
+// ── Plan page ────────────────────────────────────────────
+function stRenderPlan() {
+  stRenderWeekGrid();
+  stRenderPlanList();
+}
+
+function stRenderWeekGrid() {
+  const grid = document.getElementById('stWeekGrid');
+  if(!grid) return;
+  const t = today();
+  const now = new Date();
+  const dow = (now.getDay() + 6) % 7;
+  const days = Array.from({length:7}, (_,i) => {
+    const d = new Date(now); d.setDate(now.getDate() - dow + i); return d;
+  });
+  const DN = ['M','T','W','T','F','S','S'];
+  grid.innerHTML = days.map((d,i) => {
+    const ds = dateStr(d);
+    const isToday = ds === t;
+    const outfitId = outfitPlan[ds];
+    const outfit = outfitId ? outfits.find(o=>o.id===outfitId) : null;
+    let dotStyle = '';
+    if(outfit) {
+      const items = outfit.itemIds.map(id=>closetItems.find(i=>i.id===id)).filter(Boolean);
+      const cs = items.slice(0,2).map(i=>i.color);
+      if(cs.length>=2) dotStyle = `background:linear-gradient(135deg,${cs[0]},${cs[1]});`;
+      else if(cs.length===1) dotStyle = `background:${cs[0]};`;
+    }
+    return `<div class="st-day ${isToday?'is-today':''}" onclick="stOpenAssign('${ds}')">
+      <div class="st-day-name">${DN[i]}</div>
+      <div class="st-day-num">${d.getDate()}</div>
+      <div class="st-day-dot ${outfit?'has-look':''}" style="${dotStyle}"></div>
+    </div>`;
+  }).join('');
+}
+
+function stRenderPlanList() {
+  const list = document.getElementById('stPlanList');
+  if(!list) return;
+  const entries = Object.entries(outfitPlan)
+    .sort(([a],[b])=>a.localeCompare(b))
+    .map(([ds,oid]) => ({ds, outfit: outfits.find(o=>o.id===oid)}))
+    .filter(e=>e.outfit);
+  if(!entries.length) {
+    list.innerHTML = `<div style="font-size:.85rem;color:var(--muted);padding:8px 0;font-family:'Handwriting',Georgia,serif;">No looks planned yet.</div>`;
+    return;
+  }
+  list.innerHTML = entries.map(({ds,outfit}) => {
+    const items = outfit.itemIds.map(id=>closetItems.find(i=>i.id===id)).filter(Boolean);
+    const swatches = items.slice(0,4).map(i=>`<div class="st-plan-swatch" style="background:${i.color};"></div>`).join('');
+    const label = new Date(ds+'T00:00:00').toLocaleDateString('en-AU',{weekday:'short',day:'numeric',month:'short'});
+    return `<div class="st-plan-row">
+      <div class="st-plan-swatches">${swatches}</div>
+      <div class="st-plan-info">
+        <div class="st-plan-date">${label}</div>
+        <div class="st-plan-look">${escHtml(outfit.name)}${outfit.occ?' · '+escHtml(outfit.occ):''}</div>
+      </div>
+      <button class="st-plan-del" onclick="stUnplan('${ds}')">×</button>
+    </div>`;
+  }).join('');
+}
+
+function stUnplan(ds) {
+  delete outfitPlan[ds];
+  stScheduleSave();
+  stRenderPlan();
+}
+
+// ── Assign outfit sheet ──────────────────────────────────
+function stOpenAssign(ds) {
+  if(!outfits.length) { alert('Build an outfit first in the Outfits tab.'); return; }
+  _stAssignDate = ds;
+  const d = new Date(ds+'T00:00:00');
+  const label = d.toLocaleDateString('en-AU',{weekday:'long',day:'numeric',month:'long'});
+  const overlay = document.getElementById('stAssignOverlay');
+  document.getElementById('stAssignTitle').textContent = label;
+  const list = document.getElementById('stAssignList');
+  list.innerHTML = outfits.map(o => {
+    const items = o.itemIds.map(id=>closetItems.find(i=>i.id===id)).filter(Boolean);
+    const swatches = items.slice(0,3).map(i=>stSwatch(i,22,28,'4px')).join('');
+    const cur = outfitPlan[ds] === o.id;
+    return `<button class="st-assign-opt" onclick="stAssignOutfit('${o.id}')" style="${cur?'background:var(--accent);color:white;':''}">
+      <div style="display:flex;gap:3px;">${swatches}</div>
+      <span>${escHtml(o.name)}${o.occ?' — '+escHtml(o.occ):''}</span>
+    </button>`;
+  }).join('');
+  if(outfitPlan[ds]) {
+    list.innerHTML += `<button class="st-assign-opt" onclick="stUnplan('${ds}');stCloseAssign()" style="color:var(--muted);">× Remove look for this day</button>`;
+  }
+  overlay.classList.add('open');
+}
+
+function stAssignOutfit(outfitId) {
+  if(!_stAssignDate) return;
+  outfitPlan[_stAssignDate] = outfitId;
+  stScheduleSave();
+  stCloseAssign();
+  stRenderPlan();
+}
+
+function stCloseAssign() {
+  document.getElementById('stAssignOverlay').classList.remove('open');
+  _stAssignDate = null;
+}
+// ═════════════════════════════════════════════════════════
 function scheduleSave(){
   clearTimeout(saveTimer);
   saveTimer=setTimeout(()=>{
@@ -2316,6 +2875,7 @@ function scheduleSave(){
       localStorage.setItem('centre_notes',JSON.stringify(notes));
       localStorage.setItem('centre_noteSeq',noteSeq);
       localStorage.setItem('centre_tasks',JSON.stringify(tasks));
+      localStorage.setItem('centre_taskOverrides',JSON.stringify(taskOverrides));
       localStorage.setItem('centre_subtasks',JSON.stringify(subtasks));
       localStorage.setItem('centre_meds',JSON.stringify(meds));
       localStorage.setItem('centre_medLog',JSON.stringify(medLog));
@@ -2565,6 +3125,7 @@ function showPage(p,btn){
   if(p==='habits'){renderHabitsDashboard();renderWaterHabitCard();renderNutriHabitCard();renderNegHabits();}
   if(p==='weekly'){renderPlannerPage();renderPlannerEventList();setTimeout(applyWeatherToWeekly,200);}
   if(p==='tasks'){renderCatSelects();renderTasks();}
+  if(p==='styled'){stRenderCloset();stRenderOutfits();stRenderPlan();}
   if(p==='events'){showPage('weekly',document.getElementById('di-weekly'));return;}  // merged into planner
   if(p==='events_list'){renderCatSelects();renderPlannerEventList();}
   if(p==='lists')renderGrocList();
@@ -3202,7 +3763,7 @@ function saveTask(id){
   const newHabit=getEditHabit(id);
   if(newHabit!==undefined) t.habit=newHabit;
   scheduleSave();renderTasks();renderOverview();renderOverviewWaiting();renderHabits();
-  if (t.recur) promptRecurScope(id, today(), 'edit');
+  if (hasRecur(t)) promptRecurScope(id, today(), 'edit');
 }
 function toggleEditHabit(id) {
   const sec = document.getElementById('eh'+id+'HabitSection');
@@ -3607,7 +4168,7 @@ function renderTasks(){
         ${stBar}${waitTag}${habitTag}${recurTag}
         ${dateLabel?`<span class="ctask-row-date ${dateCls}">${dateLabel}</span>`:''}
         <button class="ctask-row-edit" onclick="toggleEditForm('${t.id}')">edit</button>
-        <button class="ctask-row-del" onclick="tasks.find(x=>x.id==='${t.id}')?.recur?promptRecurScope('${t.id}','${td}','delete'):deleteTask('${t.id}')">×</button>
+        <button class="ctask-row-del" onclick="(function(){var _t=tasks.find(x=>x.id==='${t.id}');hasRecur(_t)?promptRecurScope('${t.id}','${td}','delete'):deleteTask('${t.id}')})()">×</button>
       </div>
     </div>
     <div class="subtask-panel" id="stp-${t.id}"><div id="stplist-${t.id}"></div></div>
@@ -3875,7 +4436,14 @@ function addEvent(){
   scheduleSave();renderEventList();renderOverviewEvents();renderOverviewUpcoming();
 }
 
-function deleteEvent(id){events=events.filter(e=>e.id!==id);scheduleSave();renderEventList();renderOverviewEvents();renderOverviewUpcoming();}
+function deleteEvent(id){
+  const _dev=events.find(e=>e.id===id);
+  if(_dev&&_dev.gcalId) gcalDeleteRemote(_dev.gcalId);
+  if(_dev&&!_dev.gcalId&&gcalIdMap[id]) gcalDeleteRemote(gcalIdMap[id]);
+  delete gcalIdMap[id];
+  events=events.filter(e=>e.id!==id);
+  scheduleSave();renderEventList();renderOverviewEvents();renderOverviewUpcoming();
+}
 function renderEventList(){
   const list=document.getElementById('eventListFull');if(!events.length){list.innerHTML=`<div class="empty-msg">No events yet.</div>`;return;}
   const t=today();
@@ -3890,7 +4458,7 @@ function renderEventList(){
         <div style="display:flex;align-items:center;gap:8px">
           <div class="item-name" style="flex:1;display:flex;align-items:center;gap:4px;">${evEmoji(ev,'var(--accent)')}${escHtml(ev.name)}</div>
           <button class="edit-btn" onclick="toggleEvEdit('${ev.id}');event.stopPropagation()">edit</button>
-          <button class="delete-btn" onclick="deleteEvent('${ev.id}');event.stopPropagation()">×</button>
+          <button class="delete-btn" onclick="(function(){var _ev=events.find(x=>x.id==='${ev.id}');hasRecur(_ev)?promptRecurScope('${ev.id}','${ev.date||today()}','delete'):deleteEvent('${ev.id}')})()">×</button>
         </div>
         <div class="item-meta" style="margin-top:5px;gap:5px;">
           ${nextDate?`<span class="meta-tag meta-due ${dueClass(nextDate)}">${formatDate(nextDate)}</span>`:''}
@@ -4086,7 +4654,7 @@ function renderPlannerEventList() {
         <div style="display:flex;align-items:center;gap:8px">
           <div class="item-name" style="flex:1;display:flex;align-items:center;gap:4px;">${evEmoji(ev,'var(--accent)')}${escHtml(ev.name)}${ev.private?'<span style="font-size:.65rem;color:var(--muted);padding:1px 5px;border-radius:8px;background:var(--bg);border:1px solid var(--border);">private</span>':''}</div>
           <button class="edit-btn" onclick="togglePEvEdit('${ev.id}');event.stopPropagation()">edit</button>
-          <button class="delete-btn" onclick="deletePlannerEvent('${ev.id}');event.stopPropagation()">×</button>
+          <button class="delete-btn" onclick="(function(){var _pe=events.find(x=>x.id==='${ev.id}');hasRecur(_pe)?promptRecurScope('${ev.id}','${ev.date||today()}','delete'):deletePlannerEvent('${ev.id}')})()">×</button>
         </div>
         <div class="item-meta" style="margin-top:5px;gap:5px;">
           ${nextDate?`<span class="meta-tag meta-due ${dueClass(nextDate)}">${formatDate(nextDate)}</span>`:''}
@@ -4159,6 +4727,10 @@ function togglePEvEdit(id) {
   if (f) f.classList.toggle('open');
 }
 function deletePlannerEvent(id) {
+  const _dpev = events.find(e => e.id === id);
+  if (_dpev && _dpev.gcalId) gcalDeleteRemote(_dpev.gcalId);
+  if (_dpev && !_dpev.gcalId && gcalIdMap[id]) gcalDeleteRemote(gcalIdMap[id]);
+  delete gcalIdMap[id];
   events = events.filter(e => e.id !== id);
   scheduleSave();
   renderPlannerEventList();
@@ -4777,36 +5349,107 @@ function reconfigureSchedule() {
 // ── Recurring task scope prompt ────────────────
 function promptRecurScope(taskId, date, scope) {
   closeRecurPrompt();
-  const bar = document.createElement('div');
-  bar.id = 'recurPromptBar';
-  bar.style.cssText = 'position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--card);border:1.5px solid var(--accent);border-radius:14px;padding:12px 18px;box-shadow:0 4px 24px rgba(0,0,0,.13);z-index:300;display:flex;align-items:center;gap:10px;font-family:\'Handwriting\',Georgia,serif;font-size:.88rem;max-width:90vw;';
-  const label = scope === 'delete' ? 'Delete recurring task:' : 'Edit saved — apply to:';
-  bar.innerHTML = `<span style="color:var(--muted);font-size:.8rem;white-space:nowrap;">${label}</span>` +
-    `<button onclick="applyRecurScope('today','${taskId}','${date}','${scope}')" style="background:var(--bg);border:1.5px solid var(--border);border-radius:9px;padding:6px 14px;cursor:pointer;font-family:inherit;font-size:.82rem;">Just today</button>` +
-    `<button onclick="applyRecurScope('future','${taskId}','${date}','${scope}')" style="background:var(--bg);border:1.5px solid var(--border);border-radius:9px;padding:6px 14px;cursor:pointer;font-family:inherit;font-size:.82rem;">This &amp; future</button>` +
-    `<button onclick="applyRecurScope('all','${taskId}','${date}','${scope}')" style="background:var(--bg);border:1.5px solid var(--border);border-radius:9px;padding:6px 14px;cursor:pointer;font-family:inherit;font-size:.82rem;">Entire series</button>` +
-    `<button onclick="closeRecurPrompt()" style="background:none;border:none;color:var(--muted);font-size:1.1rem;cursor:pointer;padding:0 4px;line-height:1;">&#215;</button>`;
-  document.body.appendChild(bar);
-  bar._timer = setTimeout(closeRecurPrompt, 8000);
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+  const label = scope === 'delete' ? 'Delete recurring task' : 'Edit saved — apply to';
+  const actionLabel = scope === 'delete' ? 'delete' : 'edit';
+  const danger = scope === 'delete';
+
+  if (isIOS) {
+    // ── iOS: slide-up bottom sheet ──────────────────────────
+    const overlay = document.createElement('div');
+    overlay.id = 'recurPromptBar';
+    overlay.style.cssText = 'position:fixed;inset:0;z-index:400;display:flex;flex-direction:column;justify-content:flex-end;';
+    overlay.innerHTML = `
+      <div onclick="closeRecurPrompt()" style="flex:1;background:rgba(0,0,0,.32);"></div>
+      <div style="background:var(--card);border-radius:20px 20px 0 0;padding:0 0 env(safe-area-inset-bottom,16px);box-shadow:0 -4px 32px rgba(0,0,0,.15);transform:translateY(100%);transition:transform .28s cubic-bezier(.4,0,.2,1);" id="recurSheetInner">
+        <div style="width:36px;height:4px;background:var(--border);border-radius:4px;margin:10px auto 0;"></div>
+        <div style="padding:16px 20px 4px;font-family:'Noto Serif Display',Georgia,serif;font-weight:400;font-stretch:extra-condensed;text-transform:uppercase;letter-spacing:.1em;font-size:1rem;color:var(--muted);">${label}</div>
+        <div style="display:flex;flex-direction:column;padding:4px 12px 8px;gap:6px;">
+          <button onclick="applyRecurScope('today','${taskId}','${date}','${scope}')" style="width:100%;padding:14px 16px;border-radius:12px;border:none;background:var(--bg);font-family:'Handwriting',Georgia,serif;font-size:.96rem;cursor:pointer;text-align:left;color:var(--text);">Just today</button>
+          <button onclick="applyRecurScope('future','${taskId}','${date}','${scope}')" style="width:100%;padding:14px 16px;border-radius:12px;border:none;background:var(--bg);font-family:'Handwriting',Georgia,serif;font-size:.96rem;cursor:pointer;text-align:left;color:var(--text);">This &amp; future</button>
+          <button onclick="applyRecurScope('all','${taskId}','${date}','${scope}')" style="width:100%;padding:14px 16px;border-radius:12px;border:none;background:${danger?'#fde8e8':'var(--bg)'};font-family:'Handwriting',Georgia,serif;font-size:.96rem;cursor:pointer;text-align:left;color:${danger?'#c0554a':'var(--text)'};">Entire series${danger?' — delete all':''}</button>
+        </div>
+        <div style="padding:0 12px 8px;">
+          <button onclick="closeRecurPrompt()" style="width:100%;padding:13px;border-radius:12px;border:1.5px solid var(--border);background:var(--card);font-family:'Handwriting',Georgia,serif;font-size:.9rem;cursor:pointer;color:var(--muted);">Cancel</button>
+        </div>
+      </div>`;
+    document.body.appendChild(overlay);
+    requestAnimationFrame(() => {
+      const inner = document.getElementById('recurSheetInner');
+      if (inner) inner.style.transform = 'translateY(0)';
+    });
+    overlay._timer = setTimeout(closeRecurPrompt, 12000);
+  } else {
+    // ── Web: floating pill bar ───────────────────────────────
+    const bar = document.createElement('div');
+    bar.id = 'recurPromptBar';
+    bar.style.cssText = 'position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(16px);opacity:0;background:var(--card);border:1.5px solid var(--border);border-radius:16px;padding:10px 14px 10px 18px;box-shadow:0 8px 32px rgba(0,0,0,.12);z-index:300;display:flex;align-items:center;gap:8px;font-family:\'Handwriting\',Georgia,serif;font-size:.85rem;transition:opacity .18s,transform .18s;white-space:nowrap;';
+    bar.innerHTML =
+      `<span style="color:var(--muted);font-size:.76rem;letter-spacing:.04em;font-family:'Noto Serif Display',Georgia,serif;font-stretch:extra-condensed;text-transform:uppercase;">${label}</span>` +
+      `<div style="width:1px;height:18px;background:var(--border);margin:0 2px;flex-shrink:0;"></div>` +
+      `<button onclick="applyRecurScope('today','${taskId}','${date}','${scope}')" class="scope-pill-btn">Today</button>` +
+      `<button onclick="applyRecurScope('future','${taskId}','${date}','${scope}')" class="scope-pill-btn">This &amp; future</button>` +
+      `<button onclick="applyRecurScope('all','${taskId}','${date}','${scope}')" class="scope-pill-btn${danger?' scope-pill-danger':''}">Entire series</button>` +
+      `<button onclick="closeRecurPrompt()" style="background:none;border:none;color:var(--muted);font-size:1rem;cursor:pointer;padding:2px 4px;line-height:1;margin-left:2px;opacity:.7;">&#215;</button>`;
+    document.body.appendChild(bar);
+    requestAnimationFrame(() => { bar.style.opacity='1'; bar.style.transform='translateX(-50%) translateY(0)'; });
+    bar._timer = setTimeout(closeRecurPrompt, 10000);
+  }
 }
 function closeRecurPrompt() {
   const bar = document.getElementById('recurPromptBar');
   if (bar) { clearTimeout(bar._timer); bar.remove(); }
 }
-function applyRecurScope(scope, taskId, date, action) {
+function applyRecurScope(scope, itemId, date, action) {
   closeRecurPrompt();
-  const task = tasks.find(t => t.id === taskId);
-  if (!task) return;
+  const task = tasks.find(t => t.id === itemId);
+  const ev = !task ? events.find(e => e.id === itemId) : null;
+  const item = task || ev;
+  if (!item) return;
+  // "Just today" edit — store a one-date override instead of mutating the series
+  if (action === 'edit' && scope === 'today') {
+    if (!taskOverrides[itemId]) taskOverrides[itemId] = {};
+    // Capture current field values from any open edit form for this task
+    var _ef = document.getElementById('edit-' + itemId);
+    if (_ef && _ef.classList.contains('open')) {
+      var _ov = {};
+      var _nm = document.getElementById('ename-' + itemId); if(_nm) _ov.name = _nm.value.trim()||item.name;
+      var _du = document.getElementById('edue-'  + itemId); if(_du) _ov.due  = _du.value||item.due;
+      var _dr = document.getElementById('edur-'  + itemId); if(_dr) _ov.dur  = parseInt(_dr.value)||item.dur;
+      var _ca = document.getElementById('ecat-'  + itemId); if(_ca) _ov.catId= _ca.value;
+      var _no = document.getElementById('enotes-'+ itemId); if(_no) _ov.notes= _no.value.trim();
+      taskOverrides[itemId][date] = _ov;
+    } else {
+      // No form open — just note the override is for today (noop but recorded)
+      taskOverrides[itemId][date] = {};
+    }
+    scheduleSave();if(task){renderTasks();renderOverview();}else{renderPlannerEventList();renderOverviewEvents();} return;
+  }
+  // "This & future" edit — fork the series
+  if (action === 'edit' && scope === 'future') {
+    var splitDate = new Date(date + 'T00:00:00'); splitDate.setDate(splitDate.getDate()-1);
+    var clone = JSON.parse(JSON.stringify(item));
+    clone.id = task ? newTaskId() : newEventId();
+    item.recur = Object.assign({}, item.recur, { endType: 'on-date', endDate: dateStr(splitDate) });
+    if(task) tasks.push(clone); else events.push(clone);
+    scheduleSave(); if(task){renderTasks();renderOverview();}else{renderPlannerEventList();renderOverviewEvents();}
+    return;
+  }
+  // "Entire series" edit — already saved by saveTask/saveEvent, just close
+  if (action === 'edit' && scope === 'all') {
+    scheduleSave(); if(task){renderTasks();renderOverview();}else{renderPlannerEventList();renderOverviewEvents();}
+    return;
+  }
   if (action === 'delete') {
     if (scope === 'today') {
-      recurDoneLog.push({ taskId, date, skipped: true, ts: Date.now() });
+      recurDoneLog.push({ itemId, date, skipped: true, ts: Date.now() });
     } else if (scope === 'future') {
-      if (task.recur) { task.recur.endType = 'on-date'; task.recur.endDate = date; }
+      if (item.recur) { item.recur.endType = 'on-date'; item.recur.endDate = date; }
     } else {
-      deleteTask(taskId); return;
+      task?deleteTask(itemId):deleteEvent(itemId); return;
     }
   } else if (action === 'edit') {
-    const ef = document.getElementById('edit-' + taskId);
+    const ef = document.getElementById('edit-' + itemId);
     if (ef) { ef.classList.add('open'); ef.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }
     return;
   }
@@ -5027,7 +5670,12 @@ document.getElementById('medModal')?.addEventListener('click', function(e){ if(e
 
 // ---- CONTEXT MENU ----
 let _ctxTaskId = null;
-let _ctxTaskDate = null;
+let _ctxTaskDate = null
+function hasRecur(item){return !!(item&&item.recur&&item.recur.type);}
+
+let taskOverrides={};
+function getTaskForDate(task,date){if(!taskOverrides[task.id]||!taskOverrides[task.id][date])return task;return Object.assign({},task,taskOverrides[task.id][date]);}
+;
 let _ctxLongTimer = null;
 let _ctxMoved = false;
 
@@ -5116,7 +5764,7 @@ function ctxDelete() {
   if (!_ctxTaskId) return;
   const _ct = tasks.find(t => t.id === _ctxTaskId);
   closeCtxMenu();
-  if (_ct && _ct.recur) {
+  if (hasRecur(_ct)) {
     promptRecurScope(_ctxTaskId, _ctxTaskDate || today(), 'delete');
   } else if (confirm('Delete this task?')) {
     deleteTask(_ctxTaskId);
@@ -5697,38 +6345,6 @@ async function parseIngredientText() {
   const status = document.getElementById('ingPasteStatus');
   btn.disabled = true;
 
-// ── callAI: Gemini (any browser) or Anthropic (claude.ai only) ──
-async function callAI(systemPrompt, userPrompt) {
-  if (_geminiApiKey) {
-    const model = _geminiModel || 'gemini-2.0-flash';
-    const url = 'https://generativelanguage.googleapis.com/v1beta/models/' + model + ':generateContent?key=' + _geminiApiKey;
-    const resp = await fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        contents: [{ role: 'user', parts: [{ text: systemPrompt + '\n\n' + userPrompt }] }],
-        generationConfig: { maxOutputTokens: 1000, temperature: 0.1 }
-      })
-    });
-    if (!resp.ok) { const e = await resp.json().catch(()=>({})); throw new Error('Gemini ' + resp.status + (e && e.error ? ': ' + e.error.message : '')); }
-    const data = await resp.json();
-    const text = data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts && data.candidates[0].content.parts[0] && data.candidates[0].content.parts[0].text;
-    if (!text) throw new Error('Empty Gemini response');
-    return text;
-  }
-  // Fallback: only works inside claude.ai
-  const resp = await fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'anthropic-dangerous-direct-browser-calls': 'true' },
-    body: JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 1000, system: systemPrompt, messages: [{ role: 'user', content: userPrompt }] })
-  });
-  if (!resp.ok) throw new Error('Anthropic ' + resp.status);
-  const data = await resp.json();
-  if (data.error) throw new Error(data.error.message || JSON.stringify(data.error));
-  const text = data.content && data.content[0] && data.content[0].text;
-  if (!text) throw new Error('Empty response');
-  return text;
-}
 
   btn.textContent = 'Parsing…';
   status.textContent = '';
@@ -8579,6 +9195,16 @@ async function gcalFullSync() {
   gcalSyncing = false;
 }
 
+
+// Fire-and-forget: delete a single event from Google Calendar by its GCal ID
+async function gcalDeleteRemote(gcalId) {
+  if (!gcalId || !gcalTokenValid()) return;
+  try {
+    await gcalFetch(`${GCAL_API_BASE}/calendars/primary/events/${gcalId}`, { method: 'DELETE' });
+  } catch(e) {
+    console.warn('Could not delete GCal event', gcalId, e.message);
+  }
+}
 async function gcalPushCentreEvents() {
   // Push Centre events that have a date and are not imported from GCal
   const toPush = events.filter(ev => ev.date && !ev.gcalImported);
@@ -8663,6 +9289,7 @@ async function gcalPullGcalEvents() {
   // Also skip any gcalId that already exists directly on an event
   events.forEach(ev => { if (ev.gcalId) pushedGcalIds.add(ev.gcalId); });
 
+  const _cancelledGcalIds = new Set(data.items.filter(g=>g.status==='cancelled').map(g=>g.id));
   data.items.forEach(gev => {
     if (gev.status === 'cancelled') return;
     if (pushedGcalIds.has(gev.id)) return;
@@ -8704,6 +9331,26 @@ async function gcalPullGcalEvents() {
       gcalIdMap[newId] = gev.id;
     }
   });
+
+  // ── Remove Centre events that were GCal-imported but no longer exist in GCal ──
+  // Build set of all gcalIds currently returned by GCal
+  const _gcalReturnedIds = new Set(data.items.map(g => g.id));
+  // Also include cancelled items (they've been deleted from GCal)
+  // data.items already filtered cancelled above, so collect separately
+  const _toRemove = events.filter(ev => {
+    if (!ev.gcalImported && !ev.gcalId) return false;   // not a GCal event
+    const gid = ev.gcalId || gcalIdMap[ev.id];
+    if (!gid) return false;
+    return !_gcalReturnedIds.has(gid) || _cancelledGcalIds.has(gid);
+  });
+  if (_toRemove.length) {
+    _toRemove.forEach(ev => {
+      delete gcalIdMap[ev.id];
+      events = events.filter(e => e.id !== ev.id);
+    });
+    console.log('Removed', _toRemove.length, 'event(s) deleted from GCal:', _toRemove.map(e=>e.name));
+  }
+
   localStorage.setItem('centre_gcalIdMap', JSON.stringify(gcalIdMap));
 }
 
@@ -10111,6 +10758,7 @@ function renderNextPeriodCard() {
 
 
 loadFromStorage();
+stLoadStorage();
 updateOnAccent(); // set --on-accent based on loaded accent colour
 applyWorkMode(); // restore work mode state on load
 // Always apply PHASE_DEFAULTS after load — ensures correct colours even if
@@ -11226,5 +11874,17 @@ function renderOverviewMealsWithGoals() {
 }
 
 </script>
+
+  <!-- STYLED assign outfit sheet -->
+  <div class="st-assign-overlay" id="stAssignOverlay">
+    <div class="st-assign-backdrop" onclick="stCloseAssign()"></div>
+    <div class="st-assign-sheet">
+      <div class="st-assign-handle"></div>
+      <div class="st-assign-title" id="stAssignTitle"></div>
+      <div class="st-assign-list" id="stAssignList"></div>
+      <button class="st-assign-cancel" onclick="stCloseAssign()">Cancel</button>
+    </div>
+  </div>
+
 </body>
 </html>
