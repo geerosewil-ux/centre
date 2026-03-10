@@ -647,6 +647,35 @@ h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.
 .block-weather{display:inline-flex;align-items:center;gap:5px;}
 .block-weather:empty{display:none;}
 .block-weather-icon{font-size:.82rem;line-height:1;}
+/* WATER BAR — full height left side of schedule card */
+.schedule-layout{display:grid;grid-template-columns:32px 1fr;gap:0 10px;align-items:stretch;}
+.water-bar-col{position:relative;}
+.wb-track{position:absolute;top:0;left:50%;transform:translateX(-50%);width:3px;height:100%;border-radius:3px;background:var(--water-border);overflow:visible;z-index:0;}
+.wb-filled{position:absolute;top:0;left:0;right:0;background:var(--accent);border-radius:3px 3px 0 0;transition:height .8s cubic-bezier(.4,0,.2,1);overflow:hidden;}
+.wb-filled::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(255,255,255,0) 0%,rgba(255,255,255,.2) 45%,rgba(255,255,255,0) 100%);animation:wbShimmer 3.5s ease-in-out infinite;}
+@keyframes wbShimmer{0%{transform:translateY(-100%);}65%{transform:translateY(200%);}100%{transform:translateY(200%);}}
+.wb-filled::before{content:'';position:absolute;inset:0;background:rgba(255,255,255,0);animation:wbBreathe 4s ease-in-out infinite;}
+@keyframes wbBreathe{0%,100%{background:rgba(255,255,255,0);}50%{background:rgba(255,255,255,.12);}}
+.wb-drip{position:absolute;left:50%;transform:translateX(-50%);width:7px;height:8px;border-radius:50% 50% 52% 52%;background:var(--accent);box-shadow:0 2px 7px rgba(147,170,205,.5);transition:top .8s cubic-bezier(.4,0,.2,1);z-index:3;animation:wbDrip 2.6s ease-in-out infinite;}
+@keyframes wbDrip{0%,100%{transform:translateX(-50%) scaleY(1) scaleX(1);box-shadow:0 2px 7px rgba(147,170,205,.5);}50%{transform:translateX(-50%) scaleY(1.18) scaleX(.92);box-shadow:0 4px 12px rgba(147,170,205,.65);}}
+.wb-tick{position:absolute;left:50%;transform:translateX(-50%);display:flex;align-items:center;z-index:4;}
+.wb-dot{width:4px;height:4px;border-radius:50%;border:1px solid var(--card);flex-shrink:0;}
+.wb-ml{font-family:'Handwriting',Georgia,serif;font-size:.4rem;letter-spacing:.01em;white-space:nowrap;position:absolute;right:10px;line-height:1;transition:color .4s,opacity .4s;}
+.wb-tick.past  .wb-dot{background:rgba(147,170,205,.7);}
+.wb-tick.past  .wb-ml{color:var(--accent);opacity:.52;}
+.wb-tick.current .wb-dot{background:var(--accent);width:5px;height:5px;}
+.wb-tick.current .wb-ml{color:var(--accent);opacity:.92;font-size:.42rem;}
+.wb-tick.future .wb-dot{background:var(--water-border);}
+.wb-tick.future .wb-ml{color:var(--muted);opacity:.35;}
+.wb-tick.sips  .wb-dot{background:var(--border);opacity:.3;}
+.wb-tick.sips  .wb-ml{color:var(--muted);opacity:.16;}
+@media(max-width:600px){
+  .schedule-layout{grid-template-columns:20px 1fr;gap:0 6px;}
+  .wb-ml{display:none;}
+  .wb-track{width:2px;}
+  .wb-dot{width:3px;height:3px;}
+  .wb-drip{width:5px;height:6px;}
+}
 .day-weather{font-size:.75rem;color:var(--muted);margin-top:2px;line-height:1;cursor:pointer;}
 .weather-pop{position:fixed;z-index:300;background:var(--card);border:1.5px solid var(--border);border-radius:16px;padding:16px 18px;box-shadow:0 8px 32px rgba(0,0,0,.14);min-width:210px;max-width:260px;pointer-events:auto;}
 .weather-pop-title{font-family:'Noto Serif Display',Georgia,serif;font-weight:400;font-stretch:extra-condensed;text-transform:uppercase;letter-spacing:.1em;font-size:.95rem;margin-bottom:12px;color:var(--text);}
@@ -2514,7 +2543,7 @@ let habitLog=[];
 
 
 
-// ── callAI: Gemini (any browser) or Anthropic (claude.ai only) ──
+// ── callAI: Gemini (any browser) → Anthropic fallback (claude.ai only) ──
 async function callAI(systemPrompt, userPrompt) {
   if (_geminiApiKey) {
     const _models = [_geminiModel || 'gemini-2.0-flash', 'gemini-2.0-flash-lite'];
@@ -2544,9 +2573,10 @@ async function callAI(systemPrompt, userPrompt) {
         return text;
       } catch(e) { if (e.message && e.message.includes('429')) { _lastErr = e; continue; } throw e; }
     }
-    throw _lastErr || new Error('Gemini quota exceeded — try again shortly');
+    // Gemini exhausted — fall through to Anthropic below
+    console.warn('Gemini quota exhausted, falling back to Anthropic');
   }
-  // Fallback: only works inside claude.ai
+  // Fallback: Anthropic (works inside claude.ai)
   const resp = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'anthropic-dangerous-direct-browser-calls': 'true' },
@@ -2567,6 +2597,61 @@ const TIME_BLOCKS=[
   {id:'closing',label:'Closing Shift',start:16*60,end:20*60},
   {id:'winddown',label:'Wind Down',start:20*60,end:22*60}
 ];
+
+// Water goal schedule — times in minutes from midnight
+const WATER_SCHEDULE=[
+  {mins:7*60,    ml:500, label:'Wake',        blockId:'sunrise'},
+  {mins:9*60,    ml:300, label:'Latte',        blockId:'sunrise'},
+  {mins:11*60+30,ml:250, label:'Pre-lunch',    blockId:'morning'},
+  {mins:14*60,   ml:300, label:'Afternoon',    blockId:'service'},
+  {mins:16*60,   ml:300, label:'Training',     blockId:'service'},
+  {mins:18*60+30,ml:250, label:'Pre-dinner',   blockId:'closing'},
+  {mins:20*60,   ml:300, label:'Last intake',  blockId:'closing'},
+  {mins:21*60,   ml:0,   label:'Sips only',    blockId:'winddown', sips:true}
+];
+
+// Renders a slim full-height water bar with fill level + tick marks.
+// The bar spans the full day window (7am–10pm = 900 mins).
+// Fill height = cumulative goal ml reached by current time as a % of total daily goal.
+function renderWaterTimeline(isToday, blocksHtml){
+  const DAY_START = 7*60;
+  const DAY_END   = 22*60;
+  const DAY_SPAN  = DAY_END - DAY_START;
+  const nowMins   = isToday ? (new Date().getHours()*60 + new Date().getMinutes()) : 0;
+
+  // How far through the day (top → bottom fill %)
+  const dayPct = Math.min(100, Math.max(0,
+    Math.round((Math.min(nowMins, DAY_END) - DAY_START) / DAY_SPAN * 100)
+  ));
+
+  // Build cumulative totals on WATER_SCHEDULE if not already set
+  let cum = 0;
+  WATER_SCHEDULE.forEach(w => {
+    if(!w.sips){ cum += w.ml; w.cum = cum; }
+    else { w.cum = cum; }
+  });
+
+  const futureNonSips = WATER_SCHEDULE.filter(w => !w.sips && w.mins > nowMins);
+
+  const ticks = WATER_SCHEDULE.map((w, i) => {
+    const clamp  = Math.max(DAY_START, Math.min(DAY_END, w.mins));
+    const topPct = Math.round((clamp - DAY_START) / DAY_SPAN * 100);
+    const isPast    = !w.sips && w.mins <= nowMins;
+    const isNext    = !w.sips && futureNonSips[0] === w;
+    const isSips    = !!w.sips;
+    const cls = 'wb-tick ' + (isSips ? 'sips' : isPast ? 'past' : isNext ? 'current' : 'future');
+    const label = isSips ? '~' : w.cum + 'ml';
+    return `<div class="${cls}" style="top:${topPct}%"><div class="wb-dot"></div><span class="wb-ml">${label}</span></div>`;
+  }).join('');
+
+  const barHtml = `<div class="water-bar-col">
+    <div class="wb-track"><div class="wb-filled" style="height:${dayPct}%"></div></div>
+    <div class="wb-drip" style="top:calc(${dayPct}% - 4px)"></div>
+    ${ticks}
+  </div>`;
+
+  return `<div class="schedule-layout">${barHtml}<div>${blocksHtml}</div></div>`;
+}
 
 const THEME_DEFAULTS={'--bg':'#f9f8f6','--card':'#ffffff','--text':'#2c2c2c','--accent':'#93aacd','--accent-work':'#7e9e8c','--muted':'#999999','--border':'#e8e8e8'};
 const THEME_LABELS={'--bg':'Background','--card':'Card','--text':'Text','--accent':'Accent','--accent-work':'Work Mode Accent','--muted':'Muted text','--border':'Borders'};
@@ -5082,7 +5167,7 @@ function savePlannerEvEdit(id) {
 
 // ---- WEEKLY ----
 function getWeekDates(offset){const now=new Date();const start=new Date(now);start.setDate(now.getDate()-3+offset*7);return Array.from({length:7},(_,i)=>{const d=new Date(start);d.setDate(start.getDate()+i);return d;});}
-function shiftWeek(dir){weekOffset+=dir;renderWeek();}
+function shiftWeek(dir){weekOffset+=dir;renderWeek();setTimeout(applyWeatherToWeekly,150);}
 // ---- PLANNER ----
 let plannerMonthOffset = 0;
 
@@ -5309,6 +5394,8 @@ function renderWeek(){
       <div class="day-add-zone" onclick="openModal('${ds}')" style="min-height:16px;cursor:pointer;border-radius:5px;" onmouseover="this.style.background='rgba(147,170,205,.1)'" onmouseout="this.style.background=''"></div>
     </div>`;
   }).join('');
+  // Reapply weather (deferred so DOM is painted)
+  setTimeout(applyWeatherToWeekly, 150);
 }
 
 // ---- MODAL ----
@@ -5795,7 +5882,7 @@ function renderOverview(){
   const timedEvs=events.filter(ev=>occursOn(ev,vd)&&ev.time).sort((a,b)=>a.time.localeCompare(b.time));
 
   const header=`<div style="display:flex;align-items:center;margin-bottom:18px"><span class="card-title" style="margin-bottom:0;flex:1">Schedule</span>${isToday?'<button id="reconfigureBtn" onclick="reconfigureSchedule()" title="Re-sort undone tasks into remaining blocks" style="background:none;border:none;cursor:pointer;color:var(--muted);font-size:1rem;padding:4px 6px;border-radius:8px;line-height:1;margin-right:4px;transition:color .2s;" onmouseenter="this.style.color=\'var(--accent)\'" onmouseleave="this.style.color=\'var(--muted)\'">↺</button>':''}<div class="quick-add-trigger" id="quickAddTrigger"><button onclick="toggleQuickAdd(event)" style="background:none;border:1.5px solid var(--border);border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:1.1rem;line-height:1;color:var(--muted);transition:all .2s;" title="Quick add">+</button><div class="quick-add-pop" id="quickAddPop"><button class="quick-add-pop-btn" onclick="closeQuickAdd();showPage('tasks');document.getElementById('tName')?.focus();">${svgIcon('check-square','var(--accent)',15)} Task</button><button class="quick-add-pop-btn" onclick="closeQuickAdd();openModal('${vd}')">${svgIcon('calendar','var(--accent)',15)} Event</button></div></div></div>`;
-  container.innerHTML=header+TIME_BLOCKS.map(b=>{
+  const blocksHtml=TIME_BLOCKS.map(b=>{
     const items=asgn[b.id]||[];
     const undone=items.filter(t=>!t.done);
 
@@ -5852,6 +5939,9 @@ function renderOverview(){
       </div>
     </div>`;
   }).join('');
+
+  const waterHtml=renderWaterTimeline(isToday, blocksHtml);
+  container.innerHTML=header+waterHtml;
 
   // Overdue strip — always render (empty = hidden)
   renderOverdueStrip(container);
