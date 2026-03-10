@@ -3187,7 +3187,8 @@ function icsParseFeed(text) {
       return { val: line.slice(colon+1).trim(), tzid: tzMatch?tzMatch[1]:'' };
     };
 
-    const summary = get('SUMMARY').replace(/\\,/g,',').replace(/\\n/g,' ').trim();
+    const rawSummary = get('SUMMARY').replace(/\\,/g,',').replace(/\\n/g,' ').trim();
+    const summary = rawSummary.replace(/\s+-\s+.*$/, '').trim();
     const dtstart = getWithParam('DTSTART');
     const parsed = icsParseDate(dtstart.val, dtstart.tzid);
     if (!parsed || !summary) continue;
@@ -5366,7 +5367,11 @@ function renderWeek(){
     const _dn=DN_SHORT[(d.getDay()+6)%7];
     const ds=dateStr(d),isToday=ds===t;
     const dayTasks=tasks.filter(tk=>occursOn(tk,ds)&&!tk.habit&&!(tk.dur>0&&tk.dur<30));
-    const dayEvents=events.filter(ev=>occursOn(ev,ds)&&!(workMode&&ev.private));
+    const dayEvents=[
+      ...events.filter(ev=>occursOn(ev,ds)&&!(workMode&&ev.private)),
+      ...getSecondaryEventsForDate(ds),
+      ...getIcsEventsForDate(ds)
+    ];
     const _wcDay=getCycleDay(ds);const _wcPhase=getPhase(_wcDay);const _wcCfg=_wcPhase?getPhaseConfig()[_wcPhase]:null;
     const _wcDot=_wcCfg?`<span class="week-cycle-dot" style="background:${_wcCfg.color};opacity:.8;" title="${_wcCfg.name} · Day ${_wcDay}"></span>`:'';
     const _dayMeals=meals.filter(m=>m.date===ds);
@@ -5485,7 +5490,7 @@ function renderOverviewEvents(){
     const cat=categories.find(c=>c.id===ev.catId);
     return `<div class="event-pill" style="background:var(--bg)">
       ${cat?(`<span class="cat-icon-badge">`+catSvg(cat,11)+` <span style="font-size:.65rem;">${escHtml(cat.name)}</span></span>`):''}
-      <span style="flex:1;display:flex;align-items:center;gap:2px;">${evEmoji(ev,'var(--accent)')}${escHtml(ev.name)}${ev.readonly?(' <span style="font-size:.6rem;opacity:.5;font-family:\'Noto Serif Display\',Georgia,serif;">'+(ev.msEvent||ev.icsEvent?'Outlook':'read-only')+'</span>'):''}</span>
+      <span style="flex:1;display:flex;align-items:center;gap:2px;">${evEmoji(ev,'var(--accent)')}${escHtml(ev.name)}</span>
       ${ev.time?`<span style="font-size:.72rem;color:var(--muted)">${fmtTimeStr(ev.time)}</span>`:''}
     </div>`;
   }
@@ -5878,8 +5883,13 @@ function renderOverview(){
 
   const asgn=assignBlocks(tasksForSchedule,vd);
   const now=new Date(),nowMins=isToday?(now.getHours()*60+now.getMinutes()):0;
-  // Timed events for this view date (shown inside block stripes only)
-  const timedEvs=events.filter(ev=>occursOn(ev,vd)&&ev.time).sort((a,b)=>a.time.localeCompare(b.time));
+  // Timed events for this view date — includes ICS/secondary calendar events
+  const _allDayEvs=[
+    ...events.filter(ev=>occursOn(ev,vd)),
+    ...getSecondaryEventsForDate(vd),
+    ...getIcsEventsForDate(vd)
+  ];
+  const timedEvs=_allDayEvs.filter(ev=>ev.time).sort((a,b)=>a.time.localeCompare(b.time));
 
   const header=`<div style="display:flex;align-items:center;margin-bottom:18px"><span class="card-title" style="margin-bottom:0;flex:1">Schedule</span>${isToday?'<button id="reconfigureBtn" onclick="reconfigureSchedule()" title="Re-sort undone tasks into remaining blocks" style="background:none;border:none;cursor:pointer;color:var(--muted);font-size:1rem;padding:4px 6px;border-radius:8px;line-height:1;margin-right:4px;transition:color .2s;" onmouseenter="this.style.color=\'var(--accent)\'" onmouseleave="this.style.color=\'var(--muted)\'">↺</button>':''}<div class="quick-add-trigger" id="quickAddTrigger"><button onclick="toggleQuickAdd(event)" style="background:none;border:1.5px solid var(--border);border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:1.1rem;line-height:1;color:var(--muted);transition:all .2s;" title="Quick add">+</button><div class="quick-add-pop" id="quickAddPop"><button class="quick-add-pop-btn" onclick="closeQuickAdd();showPage('tasks');document.getElementById('tName')?.focus();">${svgIcon('check-square','var(--accent)',15)} Task</button><button class="quick-add-pop-btn" onclick="closeQuickAdd();openModal('${vd}')">${svgIcon('calendar','var(--accent)',15)} Event</button></div></div></div>`;
   const blocksHtml=TIME_BLOCKS.map(b=>{
@@ -9037,8 +9047,10 @@ Keep task names concise and action-oriented.`;
     btn.disabled = false;
 
   } catch (err) {
-    if (!_geminiApiKey) {
-      status.innerHTML = 'No Gemini key — add one in <b>Settings</b> to enable AI parsing from GitHub.<br><span style="font-size:.75rem;opacity:.7;">Or use the manual add form below.</span>';
+    if (!_geminiApiKey && err.message && err.message.includes('fetch')) {
+      status.innerHTML = 'AI parsing requires a Gemini API key — add one in <b>Settings</b>.<br><span style="font-size:.75rem;opacity:.7;">Or use the manual add form below.</span>';
+    } else if (!_geminiApiKey) {
+      status.innerHTML = 'No Gemini key — add one in <b>Settings</b> to enable AI parsing.<br><span style="font-size:.75rem;opacity:.7;">Or use the manual add form below.</span>';
     } else {
       status.textContent = 'Could not parse — ' + (err.message || 'unknown error') + '. Try rephrasing your list.';
     }
