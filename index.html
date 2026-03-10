@@ -2004,31 +2004,26 @@ h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.
           </details>
         </div>
 
-        <!-- Outlook / Microsoft Calendar (read-only) -->
+        <!-- Outlook ICS feed (read-only) -->
         <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border);">
           <div style="font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px;">Outlook Calendar — Read Only</div>
-          <p style="font-size:.78rem;color:var(--muted);font-family:'Handwriting',Georgia,serif;margin-bottom:10px;">Connect your Microsoft Outlook calendar to pull events in as read-only. They appear in your schedule with an "Outlook" badge. Requires a free Azure App Registration — see note below.</p>
-          <div style="margin-bottom:10px;">
-            <label class="form-label">Azure App Client ID</label>
-            <div style="display:flex;gap:8px;flex-wrap:wrap;">
-              <input class="form-input" id="msClientIdInput" type="password" placeholder="Paste your Azure app client ID…" style="flex:1;min-width:180px;" oninput="localStorage.setItem('centre_msClientId',this.value)"/>
-            </div>
-          </div>
-          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;">
-            <button class="apply-btn" id="msConnectBtn" onclick="msSignIn()" style="margin-right:0;">Connect Outlook</button>
-            <button class="reset-theme-btn" id="msDisconnectBtn" onclick="msSignOut()" style="display:none;">Disconnect</button>
-          </div>
-          <div id="outlookFeedback" style="font-size:.76rem;color:var(--accent);margin-bottom:8px;min-height:16px;font-family:'Handwriting',Georgia,serif;"></div>
-          <details style="margin-top:4px;">
-            <summary style="font-size:.74rem;color:var(--muted);cursor:pointer;font-family:'Handwriting',Georgia,serif;">How to get an Azure Client ID (free, 5 min setup)</summary>
-            <div style="font-size:.74rem;color:var(--muted);font-family:'Handwriting',Georgia,serif;line-height:1.6;margin-top:8px;padding-left:8px;">
-              1. Go to <strong>portal.azure.com</strong> → App registrations → New registration<br>
-              2. Name it anything (e.g. "Centre"), set account type to "Personal Microsoft accounts only"<br>
-              3. Under Redirect URI: choose <strong>Single-page application (SPA)</strong> and paste your Centre URL<br>
-              4. After creating, copy the <strong>Application (client) ID</strong> and paste it above<br>
-              5. Under API permissions → Add → Microsoft Graph → Delegated → add <strong>Calendars.Read</strong> and <strong>User.Read</strong>
+          <p style="font-size:.78rem;color:var(--muted);font-family:'Handwriting',Georgia,serif;margin-bottom:10px;">Paste your Outlook ICS link below — events appear in your schedule with an "Outlook" badge. Works with personal and work accounts. Syncs every 30 minutes automatically.</p>
+          <details style="margin-bottom:12px;">
+            <summary style="font-size:.74rem;color:var(--muted);cursor:pointer;font-family:'Handwriting',Georgia,serif;">How to get your ICS link from Outlook</summary>
+            <div style="font-size:.74rem;color:var(--muted);font-family:'Handwriting',Georgia,serif;line-height:1.7;margin-top:8px;padding-left:8px;">
+              <strong>Outlook on the web (outlook.com or work/school):</strong><br>
+              1. Go to <strong>outlook.com</strong> → Settings (gear icon) → View all Outlook settings<br>
+              2. Calendar → Shared calendars<br>
+              3. Under "Publish a calendar" → select your calendar → set to <strong>"Can view all details"</strong><br>
+              4. Click Publish — copy the <strong>ICS link</strong> (not the HTML link)<br><br>
+              <strong>Note for work accounts:</strong> if you don't see "Publish a calendar", your IT admin may have disabled it. Try the Outlook desktop app instead: File → Account Settings → Account Settings → Internet Calendars tab → your calendar → copy the URL.
             </div>
           </details>
+          <div style="display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap;margin-bottom:8px;">
+            <input class="form-input" id="icsUrlInput" type="url" placeholder="https://outlook.live.com/owa/calendar/…/calendar.ics" style="flex:1;min-width:200px;"/>
+            <button class="apply-btn" onclick="icsSave()" style="padding:7px 14px;font-size:.8rem;margin-right:0;">Save &amp; Sync</button>
+          </div>
+          <div id="icsFeedback" style="font-size:.76rem;color:var(--accent);margin-top:2px;min-height:16px;font-family:'Handwriting',Georgia,serif;"></div>
         </div>
       </div>
 
@@ -3058,6 +3053,116 @@ async function msPullEvents() {
 }
 
 function getMsEventsForDate(ds) { return _msEvents.filter(e => e.date === ds); }
+
+
+// ══════════════════════════════════════════════════════════════
+// ICS CALENDAR FEED — Read-only (Outlook, Google, Apple, any)
+// ══════════════════════════════════════════════════════════════
+
+function icsParseDate(val, tzid) {
+  // Handles: 20240315T090000Z, 20240315T090000, 20240315
+  if (!val) return null;
+  val = val.trim();
+  if (val.length === 8) {
+    // All-day: YYYYMMDD
+    return { date: val.slice(0,4)+'-'+val.slice(4,6)+'-'+val.slice(6,8), time: '', allDay: true };
+  }
+  const y=val.slice(0,4), mo=val.slice(4,6), d=val.slice(6,8);
+  const h=val.slice(9,11), mi=val.slice(11,13);
+  const isUTC = val.endsWith('Z');
+  let dt = new Date(y+'-'+mo+'-'+d+'T'+h+':'+mi+':00' + (isUTC?'Z':''));
+  if (isNaN(dt)) return null;
+  return {
+    date: dt.toLocaleDateString('en-CA'), // YYYY-MM-DD in local time
+    time: dt.toTimeString().slice(0,5),
+    allDay: false
+  };
+}
+
+function icsParseFeed(text) {
+  const events = [];
+  // Split into VEVENT blocks
+  const blocks = text.split('BEGIN:VEVENT');
+  blocks.shift(); // remove header
+  for (const block of blocks) {
+    const lines = block.replace(/\r/g,'').replace(/\n /g,'').replace(/\n\t/g,'').split('\n');
+    const get = (key) => {
+      // Handle key;PARAM=value:value format
+      const line = lines.find(l => l.startsWith(key+':') || l.startsWith(key+';'));
+      if (!line) return '';
+      const colonIdx = line.indexOf(':');
+      return colonIdx >= 0 ? line.slice(colonIdx+1).trim() : '';
+    };
+    const getWithParam = (key) => {
+      const line = lines.find(l => l.startsWith(key+':') || l.startsWith(key+';'));
+      if (!line) return { val: '', tzid: '' };
+      const semi = line.indexOf(';');
+      const colon = line.indexOf(':');
+      const tzMatch = line.match(/TZID=([^:;]+)/);
+      return { val: line.slice(colon+1).trim(), tzid: tzMatch?tzMatch[1]:'' };
+    };
+
+    const summary = get('SUMMARY').replace(/\\,/g,',').replace(/\\n/g,' ').trim();
+    const dtstart = getWithParam('DTSTART');
+    const parsed = icsParseDate(dtstart.val, dtstart.tzid);
+    if (!parsed || !summary) continue;
+
+    const uid = get('UID') || (summary + parsed.date);
+    const notes = get('DESCRIPTION').replace(/\\n/g,' ').replace(/\\,/g,',').slice(0,200);
+    const location = get('LOCATION').replace(/\\,/g,',');
+
+    events.push({
+      id: 'ICS-' + uid.slice(0,24).replace(/[^a-zA-Z0-9]/g,''),
+      name: summary,
+      date: parsed.date,
+      time: parsed.allDay ? '' : parsed.time,
+      type: 'event',
+      readonly: true,
+      icsEvent: true,
+      catId: '',
+      notes: [notes, location].filter(Boolean).join(' · ').slice(0,200)
+    });
+  }
+  return events;
+}
+
+async function icsPull(showFeedback) {
+  if (!_icsUrl) return;
+  const fb = document.getElementById('icsFeedback');
+  if (fb && showFeedback) fb.textContent = 'Fetching calendar…';
+  try {
+    // Use allorigins.win proxy to bypass CORS
+    const proxyUrl = 'https://api.allorigins.win/get?url=' + encodeURIComponent(_icsUrl);
+    const resp = await fetch(proxyUrl);
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    const data = await resp.json();
+    const text = data.contents;
+    if (!text || !text.includes('BEGIN:VCALENDAR')) throw new Error('Not a valid ICS feed — check the URL');
+    _icsEvents = icsParseFeed(text);
+    if (fb) fb.textContent = 'Synced — ' + _icsEvents.length + ' event(s) loaded.';
+    localStorage.setItem('centre_icsUrl', _icsUrl);
+    renderOverviewEvents();
+    if (typeof renderPlannerPage === 'function') renderPlannerPage();
+    // Auto-refresh every 30 min
+    clearTimeout(_icsPullTimer);
+    _icsPullTimer = setTimeout(() => icsPull(false), 1800000);
+  } catch(e) {
+    _icsEvents = [];
+    if (fb) fb.textContent = 'Error: ' + e.message;
+  }
+}
+
+function icsSave() {
+  const input = document.getElementById('icsUrlInput');
+  if (!input) return;
+  const val = input.value.trim();
+  if (!val) { _icsUrl=''; _icsEvents=[]; localStorage.removeItem('centre_icsUrl'); document.getElementById('icsFeedback').textContent='Cleared.'; renderOverviewEvents(); return; }
+  if (!val.startsWith('http')) { document.getElementById('icsFeedback').textContent='Paste the full https:// ICS link'; return; }
+  _icsUrl = val;
+  icsPull(true);
+}
+
+function getIcsEventsForDate(ds) { return _icsEvents.filter(e => e.date === ds); }
 
 function scheduleSave(){
   clearTimeout(saveTimer);
@@ -5258,7 +5363,7 @@ function evEmoji(ev,color){
 function renderOverviewEvents(){
   const viewDate=getCentreDate();
   const isToday=viewDate===today();
-  const _secEvs=[...getSecondaryEventsForDate(viewDate),...getMsEventsForDate(viewDate)];const allEvs=[...events.filter(ev=>occursOn(ev,viewDate)&&!(workMode&&ev.private)),..._secEvs].sort((a,b)=>{if(a.time&&!b.time)return 1;if(!a.time&&b.time)return -1;return(a.time||'').localeCompare(b.time||'');});
+  const _secEvs=[...getSecondaryEventsForDate(viewDate),...getMsEventsForDate(viewDate),...getIcsEventsForDate(viewDate)];const allEvs=[...events.filter(ev=>occursOn(ev,viewDate)&&!(workMode&&ev.private)),..._secEvs].sort((a,b)=>{if(a.time&&!b.time)return 1;if(!a.time&&b.time)return -1;return(a.time||'').localeCompare(b.time||'');});
   const birthdays=allEvs.filter(ev=>ev.type==='birthday');
   const otherEvs=allEvs.filter(ev=>ev.type!=='birthday');
   const container=document.getElementById('overviewEvents');
@@ -5267,7 +5372,7 @@ function renderOverviewEvents(){
     const cat=categories.find(c=>c.id===ev.catId);
     return `<div class="event-pill" style="background:var(--bg)">
       ${cat?(`<span class="cat-icon-badge">`+catSvg(cat,11)+` <span style="font-size:.65rem;">${escHtml(cat.name)}</span></span>`):''}
-      <span style="flex:1;display:flex;align-items:center;gap:2px;">${evEmoji(ev,'var(--accent)')}${escHtml(ev.name)}${ev.readonly?(' <span style="font-size:.6rem;opacity:.5;font-family:\'Noto Serif Display\',Georgia,serif;">'+(ev.msEvent?'Outlook':'read-only')+'</span>'):''}</span>
+      <span style="flex:1;display:flex;align-items:center;gap:2px;">${evEmoji(ev,'var(--accent)')}${escHtml(ev.name)}${ev.readonly?(' <span style="font-size:.6rem;opacity:.5;font-family:\'Noto Serif Display\',Georgia,serif;">'+(ev.msEvent||ev.icsEvent?'Outlook':'read-only')+'</span>'):''}</span>
       ${ev.time?`<span style="font-size:.72rem;color:var(--muted)">${fmtTimeStr(ev.time)}</span>`:''}
     </div>`;
   }
@@ -7612,8 +7717,7 @@ function resetNutriColours(){
 
 function buildSettings(){
   const _sci=document.getElementById('secondaryCalInput');if(_sci&&_secondaryCalId)_sci.value=_secondaryCalId;
-  const _msci=document.getElementById('msClientIdInput');if(_msci){const _msClientId=localStorage.getItem('centre_msClientId')||'';if(_msClientId)_msci.value=_msClientId;}
-  if(localStorage.getItem('centre_msToken')){document.getElementById('msConnectBtn')?.setAttribute('style','display:none');document.getElementById('msDisconnectBtn')?.removeAttribute('style');}
+  const _icsInput=document.getElementById('icsUrlInput');if(_icsInput&&_icsUrl)_icsInput.value=_icsUrl;
 
   const sg = document.getElementById('settingsGrid');
   // Populate token field
@@ -9282,6 +9386,11 @@ let _msToken = null;
 let _msTokenExpiry = 0;
 let _msCalId = 'primary'; // 'primary' = default Outlook calendar
 let _msEvents = [];       // read-only Outlook events
+
+// ── ICS Calendar feed (Outlook / any calendar) ─────────────────
+let _icsUrl = localStorage.getItem('centre_icsUrl') || '';
+let _icsEvents = [];
+let _icsPullTimer = null;
 const GCAL_API_BASE = 'https://www.googleapis.com/calendar/v3';
 let gcalToken = null;
 let gcalTokenExpiry = 0;
@@ -10974,6 +11083,8 @@ loadFromStorage();
 stLoadStorage();
 // Outlook silent reconnect on load
 setTimeout(msSilentReconnect, 1500);
+// ICS feed auto-pull on load
+if (_icsUrl) setTimeout(() => icsPull(false), 2000);
 updateOnAccent(); // set --on-accent based on loaded accent colour
 applyWorkMode(); // restore work mode state on load
 // Always apply PHASE_DEFAULTS after load — ensures correct colours even if
