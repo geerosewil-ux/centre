@@ -602,11 +602,11 @@ h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.
 @media (min-width:700px){
   body{padding-left:0;padding-right:0;}
   .app-header,.dashboard{
-    max-width:900px;
+    max-width:min(1200px, 96vw);
     margin-left:auto;
     margin-right:auto;
-    padding-left:20px;
-    padding-right:20px;
+    padding-left:clamp(16px, 2.5vw, 40px);
+    padding-right:clamp(16px, 2.5vw, 40px);
     box-sizing:border-box;
     width:100%;
   }
@@ -648,7 +648,7 @@ h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.
 .block-weather:empty{display:none;}
 .block-weather-icon{font-size:.82rem;line-height:1;}
 /* WATER BAR — full height left side of schedule card */
-.schedule-layout{display:grid;grid-template-columns:32px 1fr;gap:0 10px;align-items:stretch;}
+.schedule-layout{display:grid;grid-template-columns:44px 1fr;gap:0 10px;align-items:stretch;}
 .water-bar-col{position:relative;}
 .wb-track{position:absolute;top:0;left:50%;transform:translateX(-50%);width:3px;height:100%;border-radius:3px;background:var(--water-border);overflow:visible;z-index:0;}
 .wb-filled{position:absolute;top:0;left:0;right:0;background:var(--accent);border-radius:3px 3px 0 0;transition:height .8s cubic-bezier(.4,0,.2,1);overflow:hidden;}
@@ -660,17 +660,17 @@ h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.
 @keyframes wbDrip{0%,100%{transform:translateX(-50%) scaleY(1) scaleX(1);box-shadow:0 2px 7px rgba(147,170,205,.5);}50%{transform:translateX(-50%) scaleY(1.18) scaleX(.92);box-shadow:0 4px 12px rgba(147,170,205,.65);}}
 .wb-tick{position:absolute;left:50%;transform:translateX(-50%);display:flex;align-items:center;z-index:4;}
 .wb-dot{width:4px;height:4px;border-radius:50%;border:1px solid var(--card);flex-shrink:0;}
-.wb-ml{font-family:'Handwriting',Georgia,serif;font-size:.4rem;letter-spacing:.01em;white-space:nowrap;position:absolute;right:10px;line-height:1;transition:color .4s,opacity .4s;}
+.wb-ml{font-family:'Handwriting',Georgia,serif;font-size:.56rem;letter-spacing:.01em;white-space:nowrap;position:absolute;right:calc(50% + 7px);line-height:1;transition:color .4s,opacity .4s;text-align:right;}
 .wb-tick.past  .wb-dot{background:rgba(147,170,205,.7);}
-.wb-tick.past  .wb-ml{color:var(--accent);opacity:.52;}
+.wb-tick.past  .wb-ml{color:var(--accent);opacity:.7;}
 .wb-tick.current .wb-dot{background:var(--accent);width:5px;height:5px;}
-.wb-tick.current .wb-ml{color:var(--accent);opacity:.92;font-size:.42rem;}
+.wb-tick.current .wb-ml{color:var(--accent);opacity:1;font-size:.62rem;font-weight:600;}
 .wb-tick.future .wb-dot{background:var(--water-border);}
-.wb-tick.future .wb-ml{color:var(--muted);opacity:.35;}
+.wb-tick.future .wb-ml{color:var(--muted);opacity:.5;}
 .wb-tick.sips  .wb-dot{background:var(--border);opacity:.3;}
-.wb-tick.sips  .wb-ml{color:var(--muted);opacity:.16;}
+.wb-tick.sips  .wb-ml{color:var(--muted);opacity:.25;}
 @media(max-width:600px){
-  .schedule-layout{grid-template-columns:20px 1fr;gap:0 6px;}
+  .schedule-layout{grid-template-columns:20px 1fr;gap:0 8px;}
   .wb-ml{display:none;}
   .wb-track{width:2px;}
   .wb-dot{width:3px;height:3px;}
@@ -3781,6 +3781,20 @@ function getMilestones(streak){return MILESTONES.map(m=>({val:m.days,achieved:st
 // ---- STREAK CELEBRATION ----
 // Track which rewards have been shown (persisted per session, cleared on page load)
 const _shownRewards = new Set();
+const _pendingRewards = new Map(); // taskId -> {days, reward}
+
+function _injectRewardBanner(taskId, days, reward) {
+  const card = document.querySelector(`.habit-card[data-task-id="${taskId}"]`);
+  if (!card) return;
+  card.classList.add('reward-flash');
+  if (!card.querySelector('.habit-reward-banner') && reward) {
+    const banner = document.createElement('div');
+    banner.className = 'habit-reward-banner';
+    banner.innerHTML = `<span class="habit-reward-banner-icon">🎊</span><span class="habit-reward-banner-text"><strong>${days}-day milestone!</strong> Your reward: ${escHtml(reward)}</span><button class="habit-reward-banner-dismiss" onclick="this.closest('.habit-reward-banner').remove();this.closest('.habit-card').classList.remove('reward-flash');_pendingRewards.delete('${taskId}');" title="Dismiss">✕</button>`;
+    card.appendChild(banner);
+  }
+  setTimeout(() => card.classList.remove('reward-flash'), 3000);
+}
 
 function celebrateStreak(milestoneObj, habitName, taskId) {
   // Confetti burst
@@ -3830,21 +3844,12 @@ function celebrateStreak(milestoneObj, habitName, taskId) {
   showToast(`🎉 ${days}-day streak — ${escHtml(habitName)}!`, 3500);
 
   // Pulse the habit card and show reward banner if reward text set
-  if (reward && taskId) {
+  if (taskId) {
+    // Store pending reward so it survives re-renders
+    if (reward) _pendingRewards.set(taskId, {days, reward});
     setTimeout(() => {
-      const card = document.querySelector(`.habit-card[data-task-id="${taskId}"]`);
-      if (card) {
-        card.classList.add('reward-flash');
-        // Inject reward banner if not already there
-        if (!card.querySelector('.habit-reward-banner')) {
-          const banner = document.createElement('div');
-          banner.className = 'habit-reward-banner';
-          banner.innerHTML = `<span class="habit-reward-banner-icon">🎊</span><span class="habit-reward-banner-text"><strong>${days}-day milestone!</strong> Your reward: ${escHtml(reward)}</span><button class="habit-reward-banner-dismiss" onclick="this.closest('.habit-reward-banner').remove();this.closest('.habit-card').classList.remove('reward-flash');" title="Dismiss">✕</button>`;
-          card.appendChild(banner);
-        }
-        setTimeout(() => card.classList.remove('reward-flash'), 3000);
-      }
-    }, 300);
+      _injectRewardBanner(taskId, days, reward);
+    }, 400);
   }
 }
 
@@ -5535,10 +5540,10 @@ const NOTE_HINTS={
   'lunch':'service','after lunch':'closing','midday':'service','afternoon':'closing','after work':'closing','closing':'closing',
   'dinner':'winddown','before sleep':'winddown','at night':'winddown'
 };
-function noteBlockHint(notes){
-  if(!notes)return null;
-  const n=notes.toLowerCase();
-  for(const[k,v]of Object.entries(NOTE_HINTS)){if(n.includes(k))return v;}
+function noteBlockHint(notes, name){
+  const combined = ((name||'') + ' ' + (notes||'')).toLowerCase();
+  if(!combined.trim())return null;
+  for(const[k,v]of Object.entries(NOTE_HINTS)){if(combined.includes(k))return v;}
   return null;
 }
 function assignBlocks(tl, viewDate){
@@ -5568,7 +5573,7 @@ function assignBlocks(tl, viewDate){
       asgn[pin].push(t);bl[pin]+=dur;return;
     }
     // 2. Keyword hint in task notes
-    const hint=noteBlockHint(t.notes);
+    const hint=noteBlockHint(t.notes, t.name);
     if(hint&&TIME_BLOCKS.find(b=>b.id===hint)){
       asgn[hint].push(t);bl[hint]+=dur;return;
     }
@@ -5927,10 +5932,10 @@ function renderOverview(){
     }).join('');
 
     return `<div class="block-section${isCurrent?' is-current':''}${isPast?' is-past':''}">
-      <div class="block-title">${currentDot}${b.label}<span class="block-time">${fmtTime(b.start)} – ${fmtTime(b.end)}${isToday?' · '+pct+'% filled':''}</span></div><div class="block-weather-row"><span class="block-weather" data-weather-block="${b.id}"></span></div>
+      <div class="block-title">${currentDot}${b.label}<span class="block-time">${fmtTime(b.start)} – ${fmtTime(b.end)}${pct>0?' · '+pct+'% filled':''}</span></div><div class="block-weather-row"><span class="block-weather" data-weather-block="${b.id}"></span></div>
       <div class="block-tasks-wrap" data-block-id="${b.id}" ondragover="dndOver(event)" ondrop="dndDrop(event,'${b.id}','${vd}')" ondragleave="dndLeave(event)">
         ${evRows}
-        <div class="block-tasks">${items.length?items.map(t=>{
+        <div class="block-tasks">${(items.length||blockEvs.length)?items.map(t=>{
           const isDone=isTaskDoneOn(t,vd);
           const cat=categories.find(c=>c.id===t.catId);
           const iconHtml=cat?catSvg(cat,14):'';
@@ -5945,7 +5950,7 @@ function renderOverview(){
             +'<span class="block-task-handle" title="Drag to move">\u2807</span>'
             +'</div>'
             +subPanel;
-        }).join(''):'<div class="block-empty">Nothing scheduled — enjoy the space.</div>'}</div>
+        }).join(''):(items.length===0&&blockEvs.length===0?'<div class="block-empty">Nothing scheduled — enjoy the space.</div>':'')}</div>
       </div>
     </div>`;
   }).join('');
@@ -5961,7 +5966,7 @@ function renderOverview(){
 function renderOverdueStrip(container) {
   const existing = document.getElementById('overdueStrip');
   if (existing) existing.remove();
-  const overdue = tasks.filter(t => !t.done && !t.habit && t.due && t.due < today() && (!t.recur || isInfrequentRecur(t)));
+  const overdue = tasks.filter(t => !t.done && t.due && t.due < today() && (!t.recur || isInfrequentRecur(t)));
   if (!overdue.length) return;
   const strip = document.createElement('div');
   strip.id = 'overdueStrip';
@@ -7294,6 +7299,8 @@ function renderHabitsDashboard(){
       return renderHabitRow(t,idx>0);
     }).join('')
     +'</div></div>';
+  // Re-inject any pending reward banners (survive re-render)
+  _pendingRewards.forEach(({days, reward}, taskId) => _injectRewardBanner(taskId, days, reward));
 }
 
 function shiftHabitPills(taskId, dir){
@@ -7390,7 +7397,7 @@ function renderHabitRow(t, addDivider){
   }
 
   return (addDivider?'<div style="height:1px;background:var(--border);margin:0 20px;"></div>':'')
-    +'<div style="padding:14px 20px;">'
+    +'<div class="habit-card" data-task-id="'+t.id+'" style="padding:14px 20px;border-radius:0;border:none;box-shadow:none;">'
     +'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;gap:10px;">'
     +'<div style="flex:1;min-width:0;">'
     +'<div style="font-size:.82rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+escHtml(t.name)+'</div>'
@@ -9047,12 +9054,17 @@ Keep task names concise and action-oriented.`;
     btn.disabled = false;
 
   } catch (err) {
-    if (!_geminiApiKey && err.message && err.message.includes('fetch')) {
-      status.innerHTML = 'AI parsing requires a Gemini API key — add one in <b>Settings</b>.<br><span style="font-size:.75rem;opacity:.7;">Or use the manual add form below.</span>';
-    } else if (!_geminiApiKey) {
+    const _em = (err.message || '').toLowerCase();
+    const _netFail = _em.includes('failed to fetch') || _em.includes('network') || _em.includes('cors');
+    const _quotaFail = _em.includes('quota') || _em.includes('429') || _em.includes('rate limit');
+    if (!_geminiApiKey) {
       status.innerHTML = 'No Gemini key — add one in <b>Settings</b> to enable AI parsing.<br><span style="font-size:.75rem;opacity:.7;">Or use the manual add form below.</span>';
+    } else if (_quotaFail) {
+      status.innerHTML = 'Gemini quota reached for today — <a href="https://aistudio.google.com" target="_blank" style="color:var(--accent)">check usage</a> or try again tomorrow.<br><span style="font-size:.75rem;opacity:.7;">Or use the manual add form below.</span>';
+    } else if (_netFail) {
+      status.innerHTML = 'Network error — check your Gemini API key is valid in <b>Settings</b>.<br><span style="font-size:.75rem;opacity:.7;">Or use the manual add form below.</span>';
     } else {
-      status.textContent = 'Could not parse — ' + (err.message || 'unknown error') + '. Try rephrasing your list.';
+      status.textContent = 'Could not parse — ' + (err.message || 'unknown error') + '. Try rephrasing.';
     }
     btn.disabled = false;
     btn.textContent = 'Parse list →';
