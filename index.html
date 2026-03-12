@@ -1352,7 +1352,7 @@ h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.
                     <div class="form-group"><label class="form-label">Freezes</label><input class="form-input" type="number" id="tHabitStreakFreezes" value="1" min="0"/></div>
                   </div>
                   <div style="border-top:1px solid var(--border);padding-top:10px;">
-                    <label class="form-label" style="display:block;margin-bottom:8px;">Milestone rewards <span style="font-weight:normal;text-transform:none;font-size:.7rem;color:var(--muted);">(optional — celebrate hitting streak lengths)</span></label>
+                    <label class="form-label" style="display:block;margin-bottom:8px;">Milestone Rewards <span style="font-weight:normal;text-transform:none;font-size:.7rem;color:var(--muted);">— celebrate hitting streak lengths with a treat 🎁</span></label>
                     <div id="tHabitMilestoneList" style="display:flex;flex-direction:column;gap:5px;margin-bottom:8px;"></div>
                     <div style="display:grid;grid-template-columns:80px 1fr auto;gap:6px;align-items:end;">
                       <div class="form-group" style="margin:0"><label class="form-label">Days</label><input class="form-input" type="number" id="tMilestoneDays" min="1" placeholder="30" style="padding:6px 8px;"/></div>
@@ -1559,6 +1559,31 @@ h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.
         <!-- Nutrition tracker - inside Log tab -->
         <div id="nutriHabitCardWrap" style="margin-top:20px;">
           <div class="card" id="nutriHabitCard" style="padding:0;border:none;box-shadow:none;background:transparent;"></div>
+        </div>
+        <!-- METRICS (body log) — collapsible -->
+        <div style="margin-top:20px;" id="metricsSection">
+          <button onclick="toggleMetrics()" style="display:flex;align-items:center;gap:8px;background:none;border:none;cursor:pointer;padding:4px 0;width:100%;" id="metricsToggleBtn">
+            <span style="font-family:'Noto Serif Display',Georgia,serif;font-weight:400;font-stretch:extra-condensed;text-transform:uppercase;letter-spacing:.1em;font-size:.82rem;color:var(--muted);">Metrics</span>
+            <span id="metricsChevron" style="font-size:.7rem;color:var(--muted);transition:transform .2s;">▾</span>
+          </button>
+          <div id="metricsPanel" style="display:none;margin-top:10px;">
+            <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end;margin-bottom:12px;">
+              <div class="form-group" style="flex:0 0 100px;">
+                <label class="form-label">kg</label>
+                <input class="form-input" type="number" id="metricKg" step="0.1" min="20" max="300" placeholder="e.g. 62.5" style="padding:6px 8px;"/>
+              </div>
+              <div class="form-group" style="flex:1;min-width:110px;">
+                <label class="form-label">Date</label>
+                <input class="form-input" type="date" id="metricDate" style="padding:6px 8px;"/>
+              </div>
+              <div class="form-group" style="flex:1;min-width:100px;">
+                <label class="form-label">Time (opt)</label>
+                <input class="form-input" type="time" id="metricTime" style="padding:6px 8px;"/>
+              </div>
+              <button onclick="logMetric()" style="font-family:'Noto Serif Display',Georgia,serif;font-stretch:extra-condensed;text-transform:uppercase;letter-spacing:.06em;font-size:.78rem;background:var(--accent);color:white;border:none;border-radius:10px;padding:8px 14px;cursor:pointer;white-space:nowrap;align-self:flex-end;">Log</button>
+            </div>
+            <div id="metricLogList" style="display:flex;flex-direction:column;gap:5px;"></div>
+          </div>
         </div>
       </div>
       <!-- PLAN TAB -->
@@ -2543,46 +2568,17 @@ let habitLog=[];
 
 
 
-// ── callAI: Gemini (any browser) → Anthropic fallback (claude.ai only) ──
+// ── callAI: Anthropic claude.ai direct browser call ──
 async function callAI(systemPrompt, userPrompt) {
-  if (_geminiApiKey) {
-    const _models = [_geminiModel || 'gemini-2.0-flash', 'gemini-2.0-flash-lite'];
-    const _tried = new Set();
-    let _lastErr;
-    for (const model of _models) {
-      if (_tried.has(model)) continue;
-      _tried.add(model);
-      try {
-        const url = 'https://generativelanguage.googleapis.com/v1beta/models/' + model + ':generateContent?key=' + _geminiApiKey;
-        const resp = await fetch(url, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            contents: [{ role: 'user', parts: [{ text: systemPrompt + '\n\n' + userPrompt }] }],
-            generationConfig: { maxOutputTokens: 1000, temperature: 0.1 }
-          })
-        });
-        if (!resp.ok) {
-          const errData = await resp.json().catch(()=>({}));
-          _lastErr = new Error(errData?.error?.message || ('HTTP ' + resp.status));
-          continue;
-        }
-        const data = await resp.json();
-        const text = data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts && data.candidates[0].content.parts[0] && data.candidates[0].content.parts[0].text;
-        if (!text) throw new Error('Empty Gemini response');
-        return text;
-      } catch(e) { if (e.message && e.message.includes('429')) { _lastErr = e; continue; } throw e; }
-    }
-    // Gemini exhausted — fall through to Anthropic below
-    console.warn('Gemini quota exhausted, falling back to Anthropic');
-  }
-  // Fallback: Anthropic (works inside claude.ai)
   const resp = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'anthropic-dangerous-direct-browser-calls': 'true' },
     body: JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 1000, system: systemPrompt, messages: [{ role: 'user', content: userPrompt }] })
   });
-  if (!resp.ok) throw new Error('Anthropic ' + resp.status);
+  if (!resp.ok) {
+    const errData = await resp.json().catch(()=>({}));
+    throw new Error(errData?.error?.message || ('HTTP ' + resp.status));
+  }
   const data = await resp.json();
   if (data.error) throw new Error(data.error.message || JSON.stringify(data.error));
   const text = data.content && data.content[0] && data.content[0].text;
@@ -3224,7 +3220,7 @@ async function icsPull(showFeedback) {
 
     // Attempt 1: direct (no proxy) — Microsoft 365 allows this
     try {
-      const r = await fetch(_icsUrl, {signal: AbortSignal.timeout(12000)});
+      const r = await fetch(_icsUrl, {signal: AbortSignal.timeout(7000)});
       if (r.ok) {
         const t = await r.text();
         if (t && t.includes('BEGIN:VCALENDAR')) text = t;
@@ -3234,7 +3230,7 @@ async function icsPull(showFeedback) {
     // Attempt 2: corsproxy.io (good for Google Calendar, Apple)
     if (!text) {
       try {
-        const r = await fetch('https://corsproxy.io/?' + encodeURIComponent(_icsUrl), {signal: AbortSignal.timeout(10000)});
+        const r = await fetch('https://corsproxy.io/?' + encodeURIComponent(_icsUrl), {signal: AbortSignal.timeout(8000)});
         if (r.ok) { const t = await r.text(); if (t && t.includes('BEGIN:VCALENDAR')) text = t; }
         else lastErr = 'HTTP ' + r.status;
       } catch(e) { lastErr = e.message; }
@@ -3243,13 +3239,13 @@ async function icsPull(showFeedback) {
     // Attempt 3: allorigins (last resort)
     if (!text) {
       try {
-        const r = await fetch('https://api.allorigins.win/get?url=' + encodeURIComponent(_icsUrl), {signal: AbortSignal.timeout(12000)});
+        const r = await fetch('https://api.allorigins.win/get?url=' + encodeURIComponent(_icsUrl), {signal: AbortSignal.timeout(8000)});
         if (r.ok) { const d = await r.json(); const t = d.contents || ''; if (t.includes('BEGIN:VCALENDAR')) text = t; }
         else lastErr = 'HTTP ' + r.status;
       } catch(e) { lastErr = e.message; }
     }
 
-    if (!text || !text.includes('BEGIN:VCALENDAR')) throw new Error('Could not load calendar. Make sure the ICS link is published/public in Outlook. (' + lastErr + ')');
+    if (!text || !text.includes('BEGIN:VCALENDAR')) throw new Error('Could not load — ' + (lastErr||'all proxies failed') + '. In Outlook: Settings → View all → Calendar → Shared calendars → Publish → ICS link. Work accounts may need IT to enable this.');
     _icsEvents = icsParseFeed(text);
     if (fb) fb.textContent = 'Synced — ' + _icsEvents.length + ' event(s) loaded.';
     localStorage.setItem('centre_icsUrl', _icsUrl);
@@ -3283,6 +3279,8 @@ function scheduleSave(){
       localStorage.setItem('centre_notes',JSON.stringify(notes));
       localStorage.setItem('centre_noteSeq',noteSeq);
       localStorage.setItem('centre_tasks',JSON.stringify(tasks));
+      localStorage.setItem('centre_metricLog',JSON.stringify(metricLog));
+      localStorage.setItem('centre_metricSeq',metricSeq);
       localStorage.setItem('centre_taskOverrides',JSON.stringify(taskOverrides));
       localStorage.setItem('centre_subtasks',JSON.stringify(subtasks));
       localStorage.setItem('centre_meds',JSON.stringify(meds));
@@ -3343,11 +3341,59 @@ function scheduleSave(){
   },600);
 }
 
+
+// ── METRICS (body log) ──────────────────────────────────
+let metricLog = []; // [{id, kg, date, time, ts}]
+let metricSeq = 0;
+function newMetricId(){return 'MTR-'+String(++metricSeq).padStart(4,'0');}
+
+function toggleMetrics(){
+  const panel = document.getElementById('metricsPanel');
+  const chev = document.getElementById('metricsChevron');
+  const open = panel.style.display === 'none';
+  panel.style.display = open ? 'block' : 'none';
+  if(chev) chev.style.transform = open ? 'rotate(180deg)' : '';
+  if(open) renderMetricLog();
+}
+
+function logMetric(){
+  const kg = parseFloat(document.getElementById('metricKg')?.value);
+  if(!kg || kg < 20 || kg > 300) { showToast('Enter a valid weight in kg'); return; }
+  const date = document.getElementById('metricDate')?.value || today();
+  const time = document.getElementById('metricTime')?.value || '';
+  metricLog.unshift({id: newMetricId(), kg, date, time, ts: Date.now()});
+  document.getElementById('metricKg').value = '';
+  document.getElementById('metricTime').value = '';
+  scheduleSave();
+  renderMetricLog();
+  showToast('Logged \u2713');
+}
+
+function deleteMetric(id){
+  metricLog = metricLog.filter(m => m.id !== id);
+  scheduleSave();
+  renderMetricLog();
+}
+
+function renderMetricLog(){
+  const el = document.getElementById('metricLogList');
+  if(!el) return;
+  if(!metricLog.length){ el.innerHTML = '<div style="font-size:.8rem;color:var(--muted);padding:10px 0;">No entries yet.</div>'; return; }
+  const sorted = [...metricLog].sort((a,b) => (b.date+b.time).localeCompare(a.date+a.time));
+  el.innerHTML = sorted.map(m => '<div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--border);">'
+    + '<span style="font-size:.92rem;color:var(--text);">'+m.kg+' kg</span>'
+    + '<span style="font-size:.75rem;color:var(--muted);flex:1;">'+formatDate(m.date)+(m.time?' \u00b7 '+fmtTimeStr(m.time):'')+'</span>'
+    + '<button onclick="deleteMetric(\''+m.id+'\')" style="background:none;border:none;color:var(--border);cursor:pointer;font-size:1rem;padding:0 3px;transition:color .15s;" onmouseover="this.style.color=\'#e88\'" onmouseout="this.style.color=\'var(--border)\'">\u00d7</button>'
+    + '</div>').join('');
+}
+
 function loadFromStorage(){
   try{
     const ns=localStorage.getItem('centre_notes');if(ns)notes=JSON.parse(ns);
     const nss=localStorage.getItem('centre_noteSeq');if(nss)noteSeq=parseInt(nss);
     const t=localStorage.getItem('centre_tasks');if(t)tasks=JSON.parse(t);
+    const _mlog=localStorage.getItem('centre_metricLog');if(_mlog)metricLog=JSON.parse(_mlog);
+    const _mseq=localStorage.getItem('centre_metricSeq');if(_mseq)metricSeq=parseInt(_mseq);
     const _st=localStorage.getItem('centre_subtasks');
     const _meds=localStorage.getItem('centre_meds');if(_meds)meds=JSON.parse(_meds);
     const _medLog=localStorage.getItem('centre_medLog');if(_medLog)medLog=JSON.parse(_medLog);
@@ -3539,7 +3585,8 @@ function showPage(p,btn){
   if(p==='lists')renderGrocList();
   if(p==='cycle')renderCyclePage();
   if(p==='health')renderMeds();
-  if(p==='meals'){document.getElementById('mealFilterDate').value=today();document.getElementById('mealDate').value=today();const mte=document.getElementById('mealType');if(mte)mte.value=smartMealType();renderCatSelects();renderMealLog();renderSuppGrid();populateLogRcpList();if(document.getElementById('nutriHabitCard'))renderNutriHabitCard();}
+  if(p==='meals'){document.getElementById('mealFilterDate').value=today();document.getElementById('mealDate').value=today();
+const _mdi=document.getElementById('metricDate');if(_mdi)_mdi.value=today();const _md=document.getElementById('metricDate');if(_md&&!_md.value)_md.value=today();const mte=document.getElementById('mealType');if(mte)mte.value=smartMealType();renderCatSelects();renderMealLog();renderSuppGrid();populateLogRcpList();if(document.getElementById('nutriHabitCard'))renderNutriHabitCard();}
   if(p==='settings'){buildSettings();buildNutriColourGrid();loadGoogleApiKey();loadGeminiApiKey();loadUsdaApiKey();loadAnthropicKey();renderWater();renderMilestoneChips();applyWorkMode();
     // Restore nutrition accordion state
     setTimeout(()=>{
@@ -5535,10 +5582,21 @@ function renderOverviewEvents(){
 }
 
 const NOTE_HINTS={
-  'before bed':'winddown','bedtime':'winddown','wind down':'winddown','evening':'winddown','night':'winddown','after dinner':'winddown',
-  'morning':'morning','after breakfast':'morning','wake up':'sunrise','early morning':'sunrise','sunrise':'sunrise',
-  'lunch':'service','after lunch':'closing','midday':'service','afternoon':'closing','after work':'closing','closing':'closing',
-  'dinner':'winddown','before sleep':'winddown','at night':'winddown'
+  // Sunrise 7–9am
+  'wake up':'sunrise','get up':'sunrise','early morning':'sunrise','sunrise':'sunrise','first thing':'sunrise',
+  'before breakfast':'sunrise','morning routine':'sunrise','gym':'sunrise','run':'sunrise','walk':'sunrise',
+  'exercise':'sunrise','workout':'sunrise','meditation':'sunrise','journal':'sunrise','stretch':'sunrise',
+  // Morning 9am–12pm
+  'morning':'morning','after breakfast':'morning','mid morning':'morning','mid-morning':'morning',
+  // Service 12–4pm
+  'lunch':'service','midday':'service','noon':'service','after lunch':'service','lunchtime':'service',
+  'afternoon':'service','mid afternoon':'service',
+  // Closing 4–8pm
+  'after work':'closing','after school':'closing','late afternoon':'closing','closing':'closing',
+  'commute':'closing','pick up':'closing','early evening':'closing','before dinner':'closing',
+  // Winddown 8–10pm
+  'dinner':'winddown','evening':'winddown','before bed':'winddown','bedtime':'winddown',
+  'wind down':'winddown','night':'winddown','after dinner':'winddown','before sleep':'winddown','at night':'winddown'
 };
 function noteBlockHint(notes, name){
   const combined = ((name||'') + ' ' + (notes||'')).toLowerCase();
@@ -5577,16 +5635,21 @@ function assignBlocks(tl, viewDate){
     if(hint&&TIME_BLOCKS.find(b=>b.id===hint)){
       asgn[hint].push(t);bl[hint]+=dur;return;
     }
-    // 3. Capacity-based: for today prefer future/current blocks, fallback to any.
-    //    Uses stable sort (no done-status), so bucket assignment doesn't change on tick.
+    // 3. Smart capacity-based: prefer blocks that aren't already overloaded,
+    //    and that match the time of day. Score = remaining_fraction, with a small
+    //    bonus for earlier blocks so sunrise/morning get filled too.
     let best=null,bc=-1;
-    TIME_BLOCKS.forEach(b=>{
-      const cap=(b.end-b.start)-bl[b.id];
+    TIME_BLOCKS.forEach((b,bi)=>{
+      const blockLen=b.end-b.start;
+      const cap=blockLen-bl[b.id];
       const active=!isToday||b.end>nowMins;
-      if(active&&cap>=dur&&cap>bc){best=b;bc=cap;}
+      if(!active||cap<dur)return;
+      // Score: remaining fraction + slight preference for earlier blocks
+      const score=(cap/blockLen)*100 + (TIME_BLOCKS.length-bi)*2;
+      if(score>bc){best=b;bc=score;}
     });
-    // Fallback: if no active block fits (e.g. late at night), use largest capacity block
-    if(!best)TIME_BLOCKS.forEach(b=>{const cap=(b.end-b.start)-bl[b.id];if(cap>bc){best=b;bc=cap;}});
+    // Fallback: if no active block fits (e.g. late at night), use block with most raw capacity
+    if(!best){let fc=-1;TIME_BLOCKS.forEach(b=>{const cap=(b.end-b.start)-bl[b.id];if(cap>fc){best=b;fc=cap;}});}
     if(!best)best=TIME_BLOCKS[TIME_BLOCKS.length-1];
     // Stamp a block pin so future renders (incl. after completion toggle) are stable
     if(!t.blockPins)t.blockPins={};
@@ -6791,8 +6854,9 @@ async function parseIngredientText() {
     btn.textContent = 'Re-parse';
     btn.disabled = false;
   } catch(err) {
-    status.innerHTML = !_geminiApiKey
-      ? 'No Gemini key — add one in <b>Settings</b> to enable AI parsing from any browser.'
+    const _iem = (err.message||'').toLowerCase();
+    status.innerHTML = (_iem.includes('fetch')||_iem.includes('network')||_iem.includes('cors'))
+      ? 'AI parsing works when Centre is open inside <b>claude.ai</b>. <a href="https://claude.ai" target="_blank" style="color:var(--accent)">Open →</a>'
       : 'Parse error: ' + (err.message||'unknown') + ' — try again or add ingredients manually.';
     btn.disabled = false;
     btn.textContent = 'Parse with AI →';
@@ -8633,8 +8697,8 @@ function saveGoogleApiKey(){
   scheduleSave();
 }
 
-let _geminiApiKey='';
-let _geminiModel=localStorage.getItem('centre_geminiModel')||'gemini-2.0-flash';
+// Gemini removed — using Anthropic direct browser calls via claude.ai
+const _geminiApiKey=''; // kept as stub for any legacy refs
 
 function loadGoogleApiKey(){
   const saved=localStorage.getItem('centre_googleApiKey');
@@ -9055,14 +9119,9 @@ Keep task names concise and action-oriented.`;
 
   } catch (err) {
     const _em = (err.message || '').toLowerCase();
-    const _netFail = _em.includes('failed to fetch') || _em.includes('network') || _em.includes('cors');
-    const _quotaFail = _em.includes('quota') || _em.includes('429') || _em.includes('rate limit');
-    if (!_geminiApiKey) {
-      status.innerHTML = 'No Gemini key — add one in <b>Settings</b> to enable AI parsing.<br><span style="font-size:.75rem;opacity:.7;">Or use the manual add form below.</span>';
-    } else if (_quotaFail) {
-      status.innerHTML = 'Gemini quota reached for today — <a href="https://aistudio.google.com" target="_blank" style="color:var(--accent)">check usage</a> or try again tomorrow.<br><span style="font-size:.75rem;opacity:.7;">Or use the manual add form below.</span>';
-    } else if (_netFail) {
-      status.innerHTML = 'Network error — check your Gemini API key is valid in <b>Settings</b>.<br><span style="font-size:.75rem;opacity:.7;">Or use the manual add form below.</span>';
+    const _notInClaude = _em.includes('failed to fetch') || _em.includes('network') || _em.includes('cors') || _em.includes('http 4');
+    if (_notInClaude) {
+      status.innerHTML = 'AI parsing works when Centre is open inside <b>claude.ai</b>. <a href="https://claude.ai" target="_blank" style="color:var(--accent)">Open claude.ai →</a><br><span style="font-size:.75rem;opacity:.7;">Or use the manual add form below.</span>';
     } else {
       status.textContent = 'Could not parse — ' + (err.message || 'unknown error') + '. Try rephrasing.';
     }
@@ -11750,6 +11809,10 @@ function tResetAccordionForm() {
   // Reset habit
   const hab = document.getElementById('tHabitOn');
   if (hab) { hab.checked = false; tToggleHabit(hab); }
+  // Reset remaining fields not handled above
+  const tCat = document.getElementById('tCat'); if (tCat) tCat.value = '';
+  const tNotes = document.getElementById('tNotes'); if (tNotes) tNotes.value = '';
+  const tDueQuick = document.getElementById('tDueQuick'); if (tDueQuick) tDueQuick.value = '';
   // Clear renders
   tRenderSts();
   tRenderDeps();
