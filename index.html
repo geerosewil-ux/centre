@@ -53,6 +53,8 @@
 --nutri-na:var(--accent);--nutri-sugar:var(--accent);--nutri-ca:var(--accent);--nutri-fe:var(--accent);--nutri-zn:var(--accent);}
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:'Noto Serif Display',Georgia,serif;font-weight:400;font-stretch:normal;font-size:14px;background:var(--bg);color:var(--text);min-height:100vh;padding:0 20px 60px;transition:background .3s,color .3s;}
+input[type="checkbox"]{transition:transform .12s;}
+input[type="checkbox"]:checked{transform:scale(1.15);}
 h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.modal-save,.apply-btn,.settings-section-title,.week-label,.day-name{font-family:'Noto Serif Display',Georgia,serif;font-weight:400;font-style:normal;font-stretch:extra-condensed;text-transform:uppercase;}
 .app-title{text-align:center;font-size:2.8rem;letter-spacing:.18em;color:var(--text);margin-bottom:4px;}
 .card-title{font-size:1.25rem;letter-spacing:.12em;color:var(--text);margin-bottom:18px;}
@@ -67,12 +69,16 @@ h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.
 
 /* NAV */
 .nav{display:flex;justify-content:center;gap:6px;margin-bottom:28px;flex-wrap:wrap;}
-.nav-btn{font-size:.85rem;letter-spacing:.1em;background:var(--card);border:1.5px solid var(--border);border-radius:20px;padding:7px 20px;cursor:pointer;color:var(--muted);transition:all .2s;}
+.nav-btn{font-size:.85rem;letter-spacing:.1em;background:var(--card);border:1.5px solid var(--border);border-radius:20px;padding:7px 20px;cursor:pointer;color:var(--muted);transition:background .18s,border-color .18s,color .18s,transform .15s,box-shadow .18s;}
+.nav-btn:hover:not(.active){background:var(--bg);border-color:var(--accent);color:var(--accent);transform:translateY(-1px);}
+.nav-btn:active{transform:translateY(0);}
 .nav-btn.active{background:var(--accent);border-color:var(--accent);color:var(--on-accent);}
-.page{display:none;}.page.active{display:flex;flex-direction:column;gap:20px;}
+.page{display:none;}.page.active{display:flex;flex-direction:column;gap:20px;animation:pageFadeIn .22s ease;}
+@keyframes pageFadeIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
 
 /* CARD */
-.card{background:var(--card);border-radius:20px;padding:26px 28px;box-shadow:0 2px 16px rgba(0,0,0,.05);transition:background .3s;width:100%;}
+.card{background:var(--card);border-radius:20px;padding:26px 28px;box-shadow:0 2px 8px rgba(0,0,0,.04),0 6px 24px rgba(0,0,0,.05);transition:background .3s,box-shadow .25s,transform .2s;width:100%;}
+.card:hover{box-shadow:0 4px 16px rgba(0,0,0,.07),0 12px 36px rgba(0,0,0,.07);transform:translateY(-1px);}
 .card-header{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:18px;}
 
 /* FORM */
@@ -82,8 +88,9 @@ h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.
 .form-input:focus,.form-select:focus{border-color:var(--accent);}
 .form-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;}
 .form-grid .full{grid-column:1/-1;}
-.add-btn{grid-column:1/-1;font-size:.95rem;letter-spacing:.08em;background:var(--accent);color:var(--on-accent);border:none;border-radius:10px;padding:10px;cursor:pointer;transition:background .2s;margin-top:4px;}
-.add-btn:hover{background:var(--accent-dark);}
+.add-btn{grid-column:1/-1;font-size:.95rem;letter-spacing:.08em;background:var(--accent);color:var(--on-accent);border:none;border-radius:10px;padding:10px;cursor:pointer;transition:background .18s,transform .15s,box-shadow .18s;margin-top:4px;box-shadow:0 2px 8px rgba(147,170,205,.25);}
+.add-btn:hover{background:var(--accent-dark);transform:translateY(-1px);box-shadow:0 4px 14px rgba(147,170,205,.35);}
+.add-btn:active{transform:translateY(0);box-shadow:0 1px 4px rgba(147,170,205,.2);}
 
 /* TABS */
 .tabs{display:flex;gap:6px;background:var(--bg);border-radius:12px;padding:4px;margin-bottom:20px;}
@@ -140,7 +147,8 @@ h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.
 .ctask-row-edit:hover{color:var(--accent);}
 .ctask-row-del{background:none;border:none;color:var(--border);font-size:.95rem;cursor:pointer;padding:1px 3px;border-radius:5px;transition:color .15s;}
 .ctask-row-del:hover{color:#e88;}
-.task-item,.event-item{display:flex;align-items:flex-start;gap:12px;padding:12px 14px;border-radius:12px;background:var(--bg);transition:background .2s;cursor:pointer;}.event-item-detail{display:none;margin-top:8px;padding-top:8px;border-top:1px solid var(--border);}.event-item-detail.open{display:block;}.event-detail-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:4px;align-items:center;}.event-detail-label{font-size:.62rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;min-width:52px;flex-shrink:0;}.event-detail-val{font-size:.78rem;color:var(--text);}
+.task-item,.event-item{display:flex;align-items:flex-start;gap:12px;padding:12px 14px;border-radius:12px;background:var(--bg);transition:background .2s,box-shadow .2s,transform .15s;cursor:pointer;}
+.task-item:hover{box-shadow:0 2px 10px rgba(0,0,0,.06);transform:translateX(2px);}.event-item-detail{display:none;margin-top:8px;padding-top:8px;border-top:1px solid var(--border);}.event-item-detail.open{display:block;}.event-detail-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:4px;align-items:center;}.event-detail-label{font-size:.62rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;min-width:52px;flex-shrink:0;}.event-detail-val{font-size:.78rem;color:var(--text);}
 .task-item.done{opacity:.45;}
 .task-item input[type="checkbox"]{width:16px;height:16px;accent-color:var(--accent);cursor:pointer;flex-shrink:0;margin-top:3px;}
 .item-info{flex:1;min-width:0;}
@@ -1114,6 +1122,10 @@ h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.
             <input class="form-input" type="number" id="tDur" min="1" placeholder="e.g. 30" oninput="tUpdSummaries()"/>
           </div>
         </div>
+        <div class="form-group" id="tStartDateGroup" style="display:none;margin-bottom:10px;">
+          <label class="form-label">Start date <span style="font-size:.68rem;color:var(--muted);text-transform:none;letter-spacing:0;">(project — visible from this date onward)</span></label>
+          <input class="form-input" type="date" id="tStartDate"/>
+        </div>
 
         <!-- ══ ACCORDION ══ -->
 
@@ -1193,6 +1205,7 @@ h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.
             <div style="display:flex;gap:7px;align-items:flex-end;">
               <div class="form-group" style="flex:2"><label class="form-label">Subtask name</label><input class="form-input" id="tStNameInp" placeholder="e.g. Wash sheets"/></div>
               <div class="form-group" style="flex:1"><label class="form-label">Due (optional)</label><input class="form-input" type="date" id="tStDueInp"/></div>
+              <div class="form-group" style="flex:0 0 72px"><label class="form-label">Mins</label><input class="form-input" type="number" id="tStDurInp" min="1" placeholder="30" style="padding:8px 6px;"/></div>
               <button type="button" onclick="tAddSt()" style="flex-shrink:0;font-family:'Noto Serif Display',Georgia,serif;font-stretch:extra-condensed;text-transform:uppercase;letter-spacing:.07em;font-size:.63rem;background:none;border:1.5px solid var(--accent);color:var(--accent);border-radius:8px;padding:8px 11px;cursor:pointer;white-space:nowrap;margin-bottom:1px;">+ Add</button>
             </div>
             <div style="font-size:.68rem;color:var(--muted);margin-top:4px;">Tap ↓ on a subtask to set its dependency on another subtask within this task.</div>
@@ -2078,6 +2091,13 @@ h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.
             <button class="apply-btn" onclick="icsSave()" style="padding:7px 14px;font-size:.8rem;margin-right:0;">Save &amp; Sync</button>
           </div>
           <div id="icsFeedback" style="font-size:.76rem;color:var(--accent);margin-top:2px;min-height:16px;font-family:'Handwriting',Georgia,serif;"></div>
+        <!-- AI Function URL row -->
+        <div style="display:flex;align-items:center;gap:8px;margin-top:10px;padding-top:10px;border-top:1px solid var(--border);flex-wrap:wrap;">
+          <label style="font-family:'Noto Serif Display',Georgia,serif;font-stretch:extra-condensed;text-transform:uppercase;letter-spacing:.06em;font-size:.72rem;color:var(--muted);width:100px;flex-shrink:0;">AI Function</label>
+          <input class="form-input" id="aiUrlInput" type="url" placeholder="https://us-central1-YOUR-PROJECT.cloudfunctions.net/centreAI" style="flex:1;min-width:200px;" value=""/>
+          <button class="apply-btn" onclick="saveAiUrl()" style="padding:7px 14px;font-size:.8rem;">Save</button>
+        </div>
+        <p style="font-size:.72rem;color:var(--muted);font-family:'Handwriting',Georgia,serif;margin-top:4px;padding-left:108px;">Firebase Function URL — enables AI scheduling from any device, and fixes M365 ICS sync (403 errors).</p>
         </div>
       </div>
 
@@ -2570,6 +2590,24 @@ let habitLog=[];
 
 // ── callAI: Anthropic claude.ai direct browser call ──
 async function callAI(systemPrompt, userPrompt) {
+  // Use Firebase Function proxy when configured (works on iOS, any browser, any device)
+  const fnBase = _centreAiUrl || localStorage.getItem('centre_aiUrl') || '';
+  if (fnBase) {
+    try {
+      const fnUrl = fnBase.replace(/\/+$/, '') + '/ai';
+      const fnResp = await fetch(fnUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ system: systemPrompt, user: userPrompt }),
+        signal: AbortSignal.timeout(30000)
+      });
+      if (!fnResp.ok) throw new Error('Function HTTP ' + fnResp.status);
+      const fnData = await fnResp.json();
+      return fnData.text || (fnData.content && fnData.content[0]?.text) || '';
+    } catch(e) {
+      console.warn('AI Function failed, falling back to direct call:', e.message);
+    }
+  }
   const resp = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'anthropic-dangerous-direct-browser-calls': 'true' },
@@ -3218,8 +3256,18 @@ async function icsPull(showFeedback) {
     let text = '';
     let lastErr = '';
 
+    // Attempt 0: Firebase Function proxy (server-side, bypasses CORS/403 for work M365)
+    if (_centreAiUrl) {
+      try {
+        const fnUrl = _centreAiUrl.replace(/\/ai$/, '') + '/ics';
+        const r = await fetch(fnUrl + '?url=' + encodeURIComponent(_icsUrl), {signal: AbortSignal.timeout(10000)});
+        if (r.ok) { const t = await r.text(); if (t && t.includes('BEGIN:VCALENDAR')) text = t; }
+        else lastErr = 'Function HTTP ' + r.status;
+      } catch(e) { lastErr = e.message; }
+    }
+
     // Attempt 1: direct (no proxy) — Microsoft 365 allows this
-    try {
+    if (!text) try {
       const r = await fetch(_icsUrl, {signal: AbortSignal.timeout(7000)});
       if (r.ok) {
         const t = await r.text();
@@ -3260,6 +3308,17 @@ async function icsPull(showFeedback) {
   }
 }
 
+function saveAiUrl() {
+  const val = document.getElementById('aiUrlInput')?.value.trim() || '';
+  _centreAiUrl = val;
+  localStorage.setItem('centre_aiUrl', val);
+  if (val) showToast('AI Function URL saved ✓');
+  else showToast('AI Function URL cleared');
+}
+function loadAiUrl() {
+  const saved = localStorage.getItem('centre_aiUrl');
+  if (saved) { _centreAiUrl = saved; const el = document.getElementById('aiUrlInput'); if (el) el.value = saved; }
+}
 function icsSave() {
   const input = document.getElementById('icsUrlInput');
   if (!input) return;
@@ -3587,7 +3646,7 @@ function showPage(p,btn){
   if(p==='health')renderMeds();
   if(p==='meals'){document.getElementById('mealFilterDate').value=today();document.getElementById('mealDate').value=today();
 const _mdi=document.getElementById('metricDate');if(_mdi)_mdi.value=today();const _md=document.getElementById('metricDate');if(_md&&!_md.value)_md.value=today();const mte=document.getElementById('mealType');if(mte)mte.value=smartMealType();renderCatSelects();renderMealLog();renderSuppGrid();populateLogRcpList();if(document.getElementById('nutriHabitCard'))renderNutriHabitCard();}
-  if(p==='settings'){buildSettings();buildNutriColourGrid();loadGoogleApiKey();loadGeminiApiKey();loadUsdaApiKey();loadAnthropicKey();renderWater();renderMilestoneChips();applyWorkMode();
+  if(p==='settings'){buildSettings();buildNutriColourGrid();loadGoogleApiKey();loadUsdaApiKey();loadAnthropicKey();loadAiUrl();renderWater();renderMilestoneChips();applyWorkMode();
     // Restore nutrition accordion state
     setTimeout(()=>{
       const body=document.getElementById('nutriAccordionBody');
@@ -4050,8 +4109,11 @@ function addTask(){
   const dur=parseInt(document.getElementById('tDur')?.value)||0;
   const catId=document.getElementById('tCat')?.value||'';
 
+  const startDate = document.getElementById('tStartDate')?.value || '';
   tasks.push({
-    id:newId,_created:Date.now(),name,notes,catId,dur,due,done:false,
+    id:newId,_created:Date.now(),name,notes,catId,dur,due,
+    startDate: startDate || null,
+    done:false,
     recur,habit,schedule,
     dependencies:tFormNewDeps.map(d=>({...d}))
   });
@@ -4061,6 +4123,7 @@ function addTask(){
     subtasks.push({
       id:newStId(),taskId:newId,name:s.name,done:false,order:i,
       dueDate:s.due||'',
+      dur:s.dur||0,
       stDep:s.dep||null,stDepType:s.depType||'FS'
     });
   });
@@ -4502,12 +4565,29 @@ function _stBadgeLabel(taskId) {
 function _renderCentreSubPanel(taskId, vd) {
   const subs = getSubtasks(taskId);
   if (!subs.length) return '';
-  const rows = subs.map(s =>
-    `<div class="centre-subtask-row">
+  const td = vd || today();
+  const sorted = [...subs].sort((a, b) => {
+    const ao = !a.done && a.dueDate && a.dueDate < td;
+    const bo = !b.done && b.dueDate && b.dueDate < td;
+    const at = !a.done && a.dueDate === td;
+    const bt = !b.done && b.dueDate === td;
+    if (ao && !bo) return -1; if (bo && !ao) return 1;
+    if (at && !bt) return -1; if (bt && !at) return 1;
+    if (a.done && !b.done) return 1; if (b.done && !a.done) return -1;
+    return (a.order||0) - (b.order||0);
+  });
+  const autoOpen = subs.some(s => !s.done && s.dueDate && s.dueDate <= td);
+  const rows = sorted.map(s => {
+    const isOverdue = !s.done && s.dueDate && s.dueDate < td;
+    const isDueToday = !s.done && s.dueDate === td;
+    return `<div class="centre-subtask-row" style="${isOverdue?'background:rgba(192,85,74,.07);border-radius:6px;padding:2px 4px;':''}">
       <input type="checkbox" ${s.done?'checked':''} onchange="toggleSt('${s.id}')">
-      <span class="centre-subtask-name ${s.done?'done':''}">${escHtml(s.name)}</span>
-    </div>`).join('');
-  return `<div id="csp-${taskId}" style="display:none;">${rows}</div>`;
+      <span class="centre-subtask-name ${s.done?'done':''}" style="${isOverdue?'color:#c0554a;':isDueToday?'color:var(--accent);':''}">${isOverdue?'⚠ ':''}${escHtml(s.name)}</span>
+      ${s.dueDate&&!s.done?`<span style="font-size:.62rem;${isOverdue?'color:#c0554a;':'color:var(--muted);'}margin-left:auto;white-space:nowrap;">${formatDate(s.dueDate)}</span>`:''}
+      ${s.dur&&!s.done?`<span style="font-size:.62rem;color:var(--muted);white-space:nowrap;">${s.dur}m</span>`:''}
+    </div>`;
+  }).join('');
+  return `<div id="csp-${taskId}" style="display:${autoOpen?'block':'none'};">${rows}</div>`;
 }
 
 
@@ -4804,6 +4884,7 @@ function renderTasks(){
   const overdue = sortByDue(base.filter(t => taskIsOverdue(t)));
   const todayTasks = sortByDue(base.filter(t => {
     if (taskIsOverdue(t)) return false;
+    if (t.startDate && td < t.startDate) return false; // project not yet active
     if (t.recur) return occursOn(t, td) && !isTaskDoneOn(t, td); // pending only
     if (t.habit) return !isTaskDoneOn(t, td); // pending habits only
     return t.due === td && !t.done;
@@ -5611,10 +5692,11 @@ function assignBlocks(tl, viewDate){
   // Only show tasks that actually occur on vd — exact date match, recurring logic included
   // For recurring tasks: exclude if already ticked on vd (they stay greyed in task list, not in schedule)
   const td=tl.filter(t=>{
-    if(t.date!==undefined)return false; // events handled separately
+    if(t.date!==undefined)return false;
     if(!t.name)return false;
     if(!occursOn(t, vd))return false;
-    // done recurring tasks remain in block (rendered greyed out)
+    // Project tasks with a startDate: hide before that date
+    if(t.startDate && vd < t.startDate) return false;
     return true;
   }).sort((a,b)=>{
     // Sort ONLY by due date and duration for bucketing — never by done-status,
@@ -6029,7 +6111,13 @@ function renderOverview(){
 function renderOverdueStrip(container) {
   const existing = document.getElementById('overdueStrip');
   if (existing) existing.remove();
-  const overdue = tasks.filter(t => !t.done && t.due && t.due < today() && (!t.recur || isInfrequentRecur(t)));
+  // Overdue follows same category/work mode rules as pending tasks
+  let overdueBase = tasks.filter(t => !t.done && t.due && t.due < today() && (!t.recur || isInfrequentRecur(t)));
+  if (workMode) {
+    const wc = categories.find(cat => cat.name.toLowerCase() === 'work');
+    overdueBase = overdueBase.filter(t => wc && t.catId === wc.id);
+  }
+  const overdue = overdueBase;
   if (!overdue.length) return;
   const strip = document.createElement('div');
   strip.id = 'overdueStrip';
@@ -9360,8 +9448,12 @@ function getLocalDataBundle() {
     subtasks, subtaskSeq,
     meds, medLog, medSeq,
     gcalIdMap,
+    metricLog, metricSeq,
+    _icsUrl: _icsUrl||'',
+    _nutriColors: (()=>{try{const nc={};['--nutr-cal','--nutr-protein','--nutr-carbs','--nutr-fat','--nutr-fibre'].forEach(k=>{const v=getComputedStyle(document.documentElement).getPropertyValue(k).trim();if(v)nc[k]=v;});return nc;}catch(e){return {};}})(),
     _theme,
-    _apiKeys: { google: _googleApiKey||'', gemini: _geminiApiKey||'' },
+    _centreAiUrl: _centreAiUrl||'',
+    _apiKeys: { google: _googleApiKey||'' },
     _ts: Date.now()
   };
 }
@@ -9437,6 +9529,11 @@ function applyRemoteData(remote) {
   if (remote.meds) meds = remote.meds;
   if (remote.medLog) medLog = remote.medLog;
   if (remote.medSeq) medSeq = remote.medSeq;
+  if (remote.metricLog) { metricLog = remote.metricLog; }
+  if (remote.metricSeq) metricSeq = remote.metricSeq;
+  if (remote._icsUrl) { _icsUrl = remote._icsUrl; localStorage.setItem('centre_icsUrl', _icsUrl); const ii=document.getElementById('icsUrlInput'); if(ii) ii.value=_icsUrl; }
+  if (remote._centreAiUrl) { _centreAiUrl = remote._centreAiUrl; localStorage.setItem('centre_aiUrl', _centreAiUrl); const ai=document.getElementById('aiUrlInput'); if(ai) ai.value=_centreAiUrl; }
+  if (remote._nutriColors) { try { Object.entries(remote._nutriColors).forEach(([k,v])=>document.documentElement.style.setProperty(k,v)); } catch(e){} }
   if (remote.gcalIdMap) {
     // Merge remote gcalIdMap with local — remote takes precedence but keep any local-only entries
     gcalIdMap = Object.assign({}, gcalIdMap, remote.gcalIdMap);
@@ -9470,12 +9567,7 @@ function applyRemoteData(remote) {
       const gi = document.getElementById('googleApiKeyInput');
       if (gi) gi.value = _googleApiKey;
     }
-    if (remote._apiKeys.gemini) {
-      _geminiApiKey = remote._apiKeys.gemini;
-      localStorage.setItem('centre_geminiApiKey', _geminiApiKey);
-      const gmi = document.getElementById('geminiApiKeyInput');
-      if (gmi) gmi.value = _geminiApiKey;
-    }
+    // gemini removed
   }
   // Reconcile waterFilled from habitLog (in case Firebase had stale waterFilled)
   reconcileWaterFilled();
@@ -9588,6 +9680,7 @@ let _msEvents = [];       // read-only Outlook events
 
 // ── ICS Calendar feed (Outlook / any calendar) ─────────────────
 let _icsUrl = localStorage.getItem('centre_icsUrl') || '';
+let _centreAiUrl = localStorage.getItem('centre_aiUrl') || ''; // Firebase Function URL
 let _icsEvents = [];
 let _icsPullTimer = null;
 const GCAL_API_BASE = 'https://www.googleapis.com/calendar/v3';
@@ -11461,9 +11554,12 @@ function tAddSt() {
   const dueEl = document.getElementById('tStDueInp');
   const name = nameEl.value.trim();
   if (!name) { nameEl.focus(); return; }
-  tFormNewSts.push({ id: 'nst' + Date.now(), name, due: dueEl.value, dep: null, depType: 'FS' });
+  const durInp = document.getElementById('tStDurInp');
+  const dur = parseInt(durInp?.value) || 0;
+  tFormNewSts.push({ id: 'nst' + Date.now(), name, due: dueEl.value, dur, dep: null, depType: 'FS' });
   nameEl.value = '';
   dueEl.value = '';
+  if (durInp) durInp.value = '';
   tRenderSts();
   tUpdSummaries();
 }
@@ -11494,6 +11590,9 @@ function tSetStDue(id, d) {
 function tRenderSts() {
   const el = document.getElementById('tStList');
   if (!el) return;
+  // Show start date field only when there are subtasks
+  const sdg = document.getElementById('tStartDateGroup');
+  if (sdg) sdg.style.display = tFormNewSts.length > 0 ? 'block' : 'none';
   if (!tFormNewSts.length) { el.innerHTML = ''; return; }
   const DEP_TYPES = { FS:'Finish → Start', SS:'Start → Start', SF:'Start → Finish' };
   el.innerHTML = tFormNewSts.map(s => {
@@ -11504,6 +11603,7 @@ function tRenderSts() {
         <div style="width:13px;height:13px;border-radius:3px;border:1.5px solid var(--border);flex-shrink:0;"></div>
         <span style="flex:1;font-size:.83rem;">${escHtml(s.name)}</span>
         ${s.due ? `<span style="font-size:.68rem;color:var(--muted);white-space:nowrap;">${formatDate(s.due)}</span>` : ''}
+        ${s.dur ? `<span style="font-size:.68rem;color:var(--muted);white-space:nowrap;">${s.dur}m</span>` : ''}
         ${depTask ? `<span style="font-size:.63rem;padding:2px 7px;border-radius:20px;background:rgba(147,170,205,.15);color:var(--accent);white-space:nowrap;">${escHtml(depTask.name.slice(0,12))} → ${s.depType}</span>` : ''}
         <button type="button" onclick="tTogStDetail('${s.id}')" style="background:none;border:none;font-size:.58rem;color:var(--muted);cursor:pointer;padding:0 2px;" title="Set dependency">↓</button>
         <button type="button" onclick="tDelSt('${s.id}')" style="background:none;border:none;font-size:.85rem;color:var(--muted);cursor:pointer;padding:0 2px;">×</button>
@@ -11813,6 +11913,8 @@ function tResetAccordionForm() {
   const tCat = document.getElementById('tCat'); if (tCat) tCat.value = '';
   const tNotes = document.getElementById('tNotes'); if (tNotes) tNotes.value = '';
   const tDueQuick = document.getElementById('tDueQuick'); if (tDueQuick) tDueQuick.value = '';
+  const tStartDate = document.getElementById('tStartDate'); if (tStartDate) tStartDate.value = '';
+  const tStartDateGroup = document.getElementById('tStartDateGroup'); if (tStartDateGroup) tStartDateGroup.style.display = 'none';
   // Clear renders
   tRenderSts();
   tRenderDeps();
