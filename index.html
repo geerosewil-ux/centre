@@ -58,7 +58,7 @@ input[type="checkbox"]{transition:opacity .2s ease;accent-color:var(--accent);}
 input[type="checkbox"]:checked{opacity:.7;}
 /* scrollbar: browser default */
 h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.modal-save,.apply-btn,.settings-section-title,.week-label,.day-name{font-family:'Noto Serif Display',Georgia,serif;font-weight:400;font-style:normal;font-stretch:extra-condensed;text-transform:uppercase;}
-.app-title{text-align:center;font-size:2.4rem;letter-spacing:.38em;color:var(--text);margin-bottom:4px;font-weight:200;font-stretch:extra-condensed;text-indent:.38em;}
+.app-title{text-align:center;font-size:2.4rem;letter-spacing:.38em;color:var(--text);margin-bottom:4px;font-weight:400;font-stretch:extra-condensed;text-indent:.38em;text-transform:none;}
 .card-title{font-size:.88rem;letter-spacing:.22em;text-transform:uppercase;color:var(--text);margin-bottom:20px;padding-bottom:14px;border-bottom:1px solid rgba(0,0,0,.1);font-stretch:extra-condensed;font-weight:200;}
 .block-title{font-size:.95rem;letter-spacing:.06em;color:var(--text);margin-bottom:10px;display:flex;align-items:center;gap:8px;}
 .block-section{margin-bottom:26px;}
@@ -933,15 +933,15 @@ body::after{content:'';position:fixed;left:0;right:0;bottom:0;height:60px;pointe
 </nav>
 
 <!-- TOP BAR -->
-<div class="top-bar" style="position:sticky;top:0;z-index:200;background:var(--bg);padding:14px 20px 10px;display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+<div class="top-bar" style="position:sticky;top:0;z-index:1;background:transparent;padding:14px 24px 10px;display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
   <button onclick="openDrawer()" style="background:none;border:none;cursor:pointer;color:var(--text);padding:4px;display:flex;flex-direction:column;gap:5px;opacity:.7;transition:opacity .2s;" aria-label="Menu">
     <span style="display:block;width:22px;height:1.5px;background:currentColor;border-radius:2px;"></span>
     <span style="display:block;width:22px;height:1.5px;background:currentColor;border-radius:2px;"></span>
     <span style="display:block;width:16px;height:1.5px;background:currentColor;border-radius:2px;"></span>
   </button>
   <div style="text-align:center;">
-    <h1 class="app-title" style="font-size:2.8rem;letter-spacing:.18em;margin-bottom:0;text-transform:none;">centre</h1>
-    <p class="app-date" id="appDate" style="margin-bottom:0;"></p>
+    <h1 class="app-title">centre</h1>
+    <p class="app-date" id="appDate"></p>
   </div>
   <button id="gcalHeaderBtn" onclick="showPage('settings',document.querySelector('.nav-btn:last-child'));setTimeout(()=>document.getElementById('gcalStatusDot')?.scrollIntoView({behavior:'smooth',block:'center'}),200)" title="Google Calendar status" style="background:none;border:none;cursor:pointer;padding:4px;display:flex;align-items:center;gap:4px;opacity:.7;transition:opacity .2s;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='.7'">
     <div id="gcalHeaderDot" style="width:7px;height:7px;border-radius:50%;background:var(--border);flex-shrink:0;transition:background .4s;"></div>
@@ -8092,6 +8092,11 @@ function applyTheme(){
   if(pw)pw.style.background=getComputedStyle(document.documentElement).getPropertyValue('--accent-work').trim()||'var(--accent-work)';
   if(document.getElementById('page-cycle')?.classList.contains('active')) renderCyclePage();
   updateOnAccent();
+  // Push theme to Firebase immediately
+  if (window._fbReady && typeof fbSyncEnabled !== 'undefined' && fbSyncEnabled) {
+    clearTimeout(window._fbSaveTimer);
+    setTimeout(pushToFirebase, 400);
+  }
 }
 function resetTheme(){
   Object.entries(THEME_DEFAULTS).forEach(([k,v])=>document.documentElement.style.setProperty(k,v));
@@ -12539,6 +12544,13 @@ function renderOverviewMealsWithGoals() {
     </div>`;
 }
 
+
+// Reconnect Firebase when tab regains focus (fixes timeout after device sleep/lock)
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible' && fbSyncEnabled && !fbConnected) {
+    setTimeout(() => initFirebase(false), 800);
+  }
+});
 
 // Time-of-day ambient tinting
 (function applyTimeOfDay(){
