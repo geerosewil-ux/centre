@@ -41,7 +41,7 @@
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <style>
 @font-face{font-family:'Noto Serif Display';src:url('Handwriting.ttf') format('truetype');}
-:root{--font-body:'Noto Serif Display',Georgia,serif;--font-display:'Noto Serif Display',Georgia,serif;--bg:#f0ede8;--card:rgba(255,253,248,.88);--text:#2c2c2c;--accent:#93aacd;--accent-dark:#7a91b4;--accent-normal:#93aacd;--accent-work:#7e9e8c;--accent-work-dark:#6a8a78;--muted:#999;--border:#e8e8e8;--icon-stroke:1.8;--icon-color:#93aacd;--icon-color-work:#7e9e8c;
+:root{--font-body:'Noto Serif Display',Georgia,serif;--font-display:'Noto Serif Display',Georgia,serif;--bg:#f9f8f6;--card:rgba(255,254,250,.96);--text:#2c2c2c;--accent:#93aacd;--accent-dark:#7a91b4;--accent-normal:#93aacd;--accent-work:#7e9e8c;--accent-work-dark:#6a8a78;--muted:#999;--border:#e8e8e8;--icon-stroke:1.8;--icon-color:#93aacd;--icon-color-work:#7e9e8c;
 --phase-menstrual:#dd2c60;--phase-follicular:#d78881;--phase-ovulation:#ac487c;--phase-luteal:#861a3a;--water-fill:var(--accent);--water-light:rgba(147,170,205,.13);--water-border:rgba(147,170,205,.25);--on-accent:#ffffff;--font-mono:'SF Mono','Monaco','Inconsolata','Fira Mono',monospace;
 --nutri-cal:var(--accent);
 --nutri-protein:var(--accent);
@@ -59,7 +59,7 @@ input[type="checkbox"]:checked{opacity:.7;}
 /* scrollbar: browser default */
 h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.modal-save,.apply-btn,.settings-section-title,.week-label,.day-name{font-family:'Noto Serif Display',Georgia,serif;font-weight:400;font-style:normal;font-stretch:extra-condensed;text-transform:uppercase;}
 .app-title{text-align:center;font-size:2.4rem;letter-spacing:.38em;color:var(--text);margin-bottom:4px;font-weight:400;font-stretch:extra-condensed;text-indent:.38em;/* text-indent compensates for tracking so it appears visually centred */}
-.card-title{font-size:1rem;letter-spacing:.16em;text-transform:uppercase;color:var(--text);margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid var(--border);font-stretch:extra-condensed;}
+.card-title{font-size:1rem;letter-spacing:.16em;text-transform:uppercase;color:var(--text);margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid rgba(0,0,0,.14);font-stretch:extra-condensed;}
 .block-title{font-size:.95rem;letter-spacing:.06em;color:var(--text);margin-bottom:10px;display:flex;align-items:center;gap:8px;}
 .block-section{margin-bottom:26px;}
 .block-section.is-past{opacity:.55;}
@@ -82,7 +82,7 @@ body::after{content:'';position:fixed;left:0;right:0;bottom:0;height:60px;pointe
 /* strike: handled via CSS text-decoration */
 
 /* CARD */
-.card{background:var(--card);border-radius:20px;padding:26px 28px;box-shadow:none;border:1px solid rgba(0,0,0,.06);transition:background .3s,transform .2s;width:100%;}
+.card{background:var(--card);border-radius:20px;padding:26px 28px;box-shadow:none;border:none;transition:background .3s,transform .2s;width:100%;}
 .card:hover{transform:translateY(-1px);}
 /* card::before removed — clean surface */
 .card-header{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:18px;}
@@ -972,7 +972,7 @@ body::after{content:'';position:fixed;left:0;right:0;bottom:0;height:60px;pointe
     <div id="centreDebug" style="display:none;background:#fde8e8;color:#c0554a;padding:8px 12px;border-radius:8px;font-size:.78rem;font-family:monospace;margin-bottom:12px;word-break:break-all;"></div>
     <div id="centreSwipeWrap" style="position:relative;overflow:hidden;touch-action:pan-y;min-height:300px;">
       <div id="centreCardStack" style="display:flex;flex-direction:column;gap:20px;transition:opacity .22s,transform .22s;will-change:transform,opacity;">
-        <div class="card" id="overviewEvents"><p class="no-events" style="margin:8px 0">Loading…</p></div>
+        <div class="card" id="overviewEvents"><p class="empty-msg" style="margin:8px 0">Loading…</p></div>
         <div id="waterCardWrap" class="card" style="padding:18px 22px;">
           <div class="card-header" style="margin-bottom:10px">
             <span class="card-title" style="margin-bottom:0">Water</span>
@@ -5648,7 +5648,7 @@ function renderOverviewEvents(){
     <span class="card-title" style="margin-bottom:0">Events</span>
   </div>`;
 
-  if(!hasEvents){container.innerHTML=header+`<p class="no-events">No events${isToday?' today':' this day'}.</p>`;return;}
+  if(!hasEvents){container.innerHTML=header+`<p class="empty-msg">No events${isToday?' today':' this day'}.</p>`;return;}
 
   // Birthdays on top, horizontal divider, other events below
   let inner='';
@@ -6132,7 +6132,12 @@ function renderOverdueStrip(container) {
   const existing = document.getElementById('overdueStrip');
   if (existing) existing.remove();
   // Overdue follows same category/work mode rules as pending tasks
-  let overdueBase = tasks.filter(t => !t.done && t.due && t.due < today() && (!t.recur || isInfrequentRecur(t)));
+  const _td = today();
+  let overdueBase = tasks.filter(t => {
+    if (t.done) return false;
+    if (t.recur) return isInfrequentRecur(t) && recurHasMissedOccurrence(t);
+    return t.due && t.due < _td;
+  });
   if (workMode) {
     const wc = categories.find(cat => cat.name.toLowerCase() === 'work');
     overdueBase = overdueBase.filter(t => wc && t.catId === wc.id);
@@ -7443,7 +7448,7 @@ function renderHabitsDashboard(){
   if(!summaryCard||!cardsContainer)return;
 
   if(!hts.length){
-    summaryCard.innerHTML='<div class="card-title" style="margin-bottom:6px">Habits</div><p class="no-events">No habits yet. Mark a task as a habit in the Tasks tab.</p>';
+    summaryCard.innerHTML='<div class="card-title" style="margin-bottom:6px">Habits</div><p class="empty-msg">No habits yet. Mark a task as a habit in the Tasks tab.</p>';
     cardsContainer.innerHTML='';
     return;
   }
@@ -11469,7 +11474,7 @@ function tickLive(){
   tickClockOnly();
   // Update date label (text only, no reflow)
   const dateEl=document.getElementById('appDate');
-  if(dateEl){const s=now.toLocaleDateString('en-AU',{weekday:'long',day:'numeric',month:'long',year:'numeric'});if(dateEl.textContent!==s)dateEl.textContent=s;}
+  if(dateEl){const s=now.toLocaleDateString('en-AU',{weekday:'long'}).split(',')[0]+' · '+now.getDate()+' '+now.toLocaleDateString('en-AU',{month:'long'});if(dateEl.textContent!==s)dateEl.textContent=s;}
   // Midnight water reset (check once per minute)
   if(now.getSeconds()===0){
     const storedDate=localStorage.getItem('centre_waterDate');
