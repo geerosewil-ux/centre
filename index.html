@@ -58,8 +58,8 @@ input[type="checkbox"]{transition:opacity .2s ease;accent-color:var(--accent);}
 input[type="checkbox"]:checked{opacity:.7;}
 /* scrollbar: browser default */
 h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.modal-save,.apply-btn,.settings-section-title,.week-label,.day-name{font-family:'Noto Serif Display',Georgia,serif;font-weight:400;font-style:normal;font-stretch:extra-condensed;text-transform:uppercase;}
-.app-title{text-align:center;font-size:2.4rem;letter-spacing:.38em;color:var(--text);margin-bottom:4px;font-weight:400;font-stretch:extra-condensed;text-indent:.38em;/* text-indent compensates for tracking so it appears visually centred */}
-.card-title{font-size:1rem;letter-spacing:.16em;text-transform:uppercase;color:var(--text);margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid rgba(0,0,0,.14);font-stretch:extra-condensed;}
+.app-title{text-align:center;font-size:2.4rem;letter-spacing:.38em;color:var(--text);margin-bottom:4px;font-weight:200;font-stretch:extra-condensed;text-indent:.38em;}
+.card-title{font-size:.88rem;letter-spacing:.22em;text-transform:uppercase;color:var(--text);margin-bottom:20px;padding-bottom:14px;border-bottom:1px solid rgba(0,0,0,.1);font-stretch:extra-condensed;font-weight:200;}
 .block-title{font-size:.95rem;letter-spacing:.06em;color:var(--text);margin-bottom:10px;display:flex;align-items:center;gap:8px;}
 .block-section{margin-bottom:26px;}
 .block-section.is-past{opacity:.55;}
@@ -82,7 +82,7 @@ body::after{content:'';position:fixed;left:0;right:0;bottom:0;height:60px;pointe
 /* strike: handled via CSS text-decoration */
 
 /* CARD */
-.card{background:var(--card);border-radius:20px;padding:26px 28px;box-shadow:none;border:none;transition:background .3s,transform .2s;width:100%;}
+.card{background:var(--card);border-radius:20px;padding:34px 38px;box-shadow:none;border:none;transition:background .3s,transform .2s;width:100%;}
 .card:hover{transform:translateY(-1px);}
 /* card::before removed — clean surface */
 .card-header{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:18px;}
@@ -128,12 +128,12 @@ body::after{content:'';position:fixed;left:0;right:0;bottom:0;height:60px;pointe
 /* Task grouped sections */
 .task-section{margin-bottom:16px;}
 .task-section:last-child{margin-bottom:0;}
-.task-section-hd{display:flex;align-items:center;gap:8px;padding:10px 0 6px;cursor:pointer;user-select:none;font-stretch:extra-condensed;text-transform:uppercase;letter-spacing:.14em;border-top:1px solid var(--border);margin-top:2px;}
+.task-section-hd{display:flex;align-items:center;gap:8px;padding:14px 0 6px;cursor:pointer;user-select:none;font-stretch:extra-condensed;text-transform:uppercase;letter-spacing:.2em;border-top:1px solid var(--border);margin-top:4px;font-size:.72rem;font-weight:200;}
 .task-section-hd::before{content:'';display:block;height:1px;width:14px;background:var(--border);flex-shrink:0;}
 .task-section-hd::after{content:'';flex:1;height:1px;background:var(--border);}
 .task-section.ts-overdue .task-section-hd::before,.task-section.ts-overdue .task-section-hd::after{background:rgba(192,85,74,.3);}
 .task-section.ts-today .task-section-hd::before,.task-section.ts-today .task-section-hd::after{background:rgba(147,170,205,.35);}
-.task-section-label{font-family:'Noto Serif Display',Georgia,serif;font-stretch:extra-condensed;text-transform:uppercase;letter-spacing:.16em;font-size:.6rem;color:var(--muted);white-space:nowrap;opacity:.7;}
+.task-section-label{font-family:'Noto Serif Display',Georgia,serif;font-stretch:extra-condensed;text-transform:uppercase;letter-spacing:.22em;font-size:.56rem;color:var(--muted);white-space:nowrap;opacity:.5;font-weight:200;}
 .task-section.ts-overdue .task-section-label{color:#c0554a;}
 .task-section.ts-today .task-section-label{color:var(--accent);}
 .task-section-badge{font-family:'Noto Serif Display',Georgia,serif;font-size:.65rem;padding:1px 7px;border-radius:20px;background:var(--bg);border:1px solid var(--border);color:var(--muted);}
@@ -142,7 +142,7 @@ body::after{content:'';position:fixed;left:0;right:0;bottom:0;height:60px;pointe
 .task-section-body{display:flex;flex-direction:column;gap:5px;}
 .task-section.ts-collapsed .task-section-body{display:none;}
 /* Compact task row for grouped view */
-.ctask-row{display:flex;align-items:center;gap:9px;padding:8px 11px;border-radius:10px;background:var(--bg);transition:background .15s,opacity .3s;}
+.ctask-row{display:flex;align-items:center;gap:9px;padding:11px 11px;border-radius:10px;background:var(--bg);transition:background .15s,opacity .3s;}
 .ctask-row:hover{background:#f0eeec;}
 .ctask-row.ctask-done{opacity:.22;}
 .ctask-row.ctask-done .ctask-row-name{text-decoration:line-through;}
@@ -166,7 +166,7 @@ body::after{content:'';position:fixed;left:0;right:0;bottom:0;height:60px;pointe
 .task-item .item-name{position:relative;}
 .task-item input[type="checkbox"]{width:16px;height:16px;accent-color:var(--accent);cursor:pointer;flex-shrink:0;margin-top:3px;}
 .item-info{flex:1;min-width:0;}
-.item-name{font-size:.88rem;margin-bottom:4px;line-height:1.45;letter-spacing:.01em;}
+.item-name{font-size:.9rem;margin-bottom:4px;line-height:1.55;letter-spacing:.01em;}
 .task-item.done .item-name{text-decoration:line-through;text-decoration-color:rgba(0,0,0,.25);text-underline-offset:3px;}
 .task-item.done input[type="checkbox"]{opacity:0;pointer-events:none;}
 .item-meta{display:flex;flex-wrap:wrap;gap:5px;align-items:center;}
@@ -274,7 +274,7 @@ body::after{content:'';position:fixed;left:0;right:0;bottom:0;height:60px;pointe
 .event-pill{display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:10px;background:var(--bg);font-size:.80rem;font-family:'Noto Serif Display',Georgia,serif;}
 .no-events{font-size:.85rem;color:var(--muted);font-family:'Noto Serif Display',Georgia,serif;}
 .block-tasks{display:flex;flex-direction:column;gap:7px;}
-.block-task-item{display:flex;align-items:center;gap:0;padding:9px 12px;border-radius:11px;background:transparent;}.block-task-icon-col{width:22px;flex-shrink:0;display:flex;align-items:center;justify-content:center;margin-right:4px;}.block-task-cb-col{width:16px;flex-shrink:0;margin-right:10px;}.block-task-name-col{flex:1;font-size:.85rem;}.block-task-handle{color:var(--border);font-size:.75rem;cursor:grab;flex-shrink:0;padding:0 2px;user-select:none;line-height:1;margin-left:8px;}.block-task-handle:hover{color:var(--muted);}
+.block-task-item{display:flex;align-items:center;gap:0;padding:12px 14px;border-radius:11px;background:transparent;}.block-task-icon-col{width:22px;flex-shrink:0;display:flex;align-items:center;justify-content:center;margin-right:4px;}.block-task-cb-col{width:16px;flex-shrink:0;margin-right:10px;}.block-task-name-col{flex:1;font-size:.85rem;}.block-task-handle{color:var(--border);font-size:.75rem;cursor:grab;flex-shrink:0;padding:0 2px;user-select:none;line-height:1;margin-left:8px;}.block-task-handle:hover{color:var(--muted);}
 .block-task-item input[type="checkbox"]{accent-color:var(--accent);width:16px;height:16px;flex-shrink:0;cursor:pointer;}
 .block-task-name{flex:1;font-size:.82rem;}
 .block-task-item.done{opacity:.52;}
@@ -4193,7 +4193,15 @@ function overdueTaskTick(cb, id) {
     // Animate the row out, then save + re-render strip
     if (row) { row.style.transition='opacity .35s'; row.style.opacity='0'; }
     setTimeout(() => {
-      tasks.find(t=>t.id===id) && (tasks.find(t=>t.id===id).done = true);
+      // For recurring tasks use recurDoneLog; for non-recurring set t.done
+      const _ot = tasks.find(t=>t.id===id);
+      if (_ot && _ot.recur) {
+        if (!recurDoneLog.some(e => e.taskId === id && e.date === today())) {
+          recurDoneLog.push({taskId: id, date: today(), ts: Date.now()});
+        }
+      } else if (_ot) {
+        _ot.done = true;
+      }
       scheduleSave();
       renderOverdueStrip(document.getElementById('overviewBlocks'));
     }, 380);
@@ -6134,8 +6142,10 @@ function renderOverdueStrip(container) {
   // Overdue follows same category/work mode rules as pending tasks
   const _td = today();
   let overdueBase = tasks.filter(t => {
-    if (t.done) return false;
+    // Recurring tasks: never block on t.done — use recurHasMissedOccurrence only
     if (t.recur) return isInfrequentRecur(t) && recurHasMissedOccurrence(t);
+    // Non-recurring: skip if done
+    if (t.done) return false;
     return t.due && t.due < _td;
   });
   if (workMode) {
