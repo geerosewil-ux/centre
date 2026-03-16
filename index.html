@@ -4646,7 +4646,7 @@ function recurHasMissedOccurrence(task) {
   if (!task.recur || !isInfrequentRecur(task)) return false;
   const td = today();
 
-  // If today is a scheduled day AND it's already ticked, not overdue
+  // If today is a scheduled day AND it's already ticked today, not overdue
   if (occursOn(task, td)) {
     const tickedToday = recurDoneLog.some(e => e.taskId === task.id && e.date === td);
     if (tickedToday) return false;
@@ -4660,9 +4660,11 @@ function recurHasMissedOccurrence(task) {
   while (d >= limit) {
     const ds = dateStr(d);
     if (occursOn(task, ds)) {
-      // Most recent past occurrence — is it ticked?
-      const ticked = recurDoneLog.some(e => e.taskId === task.id && e.date === ds);
-      return !ticked; // missed = overdue; ticked = not overdue
+      // Check if ticked on that day OR ticked today as a catch-up
+      const tickedOnDay = recurDoneLog.some(e => e.taskId === task.id && e.date === ds);
+      const tickedTodayAsCatchup = recurDoneLog.some(e => e.taskId === task.id && e.date === td);
+      if (tickedOnDay || tickedTodayAsCatchup) return false;
+      return true; // missed and not caught up
     }
     d.setDate(d.getDate() - 1);
   }
@@ -5131,7 +5133,23 @@ function toggleEvDetail(id,event){
   const d=document.getElementById('evdetail-'+id);
   if(d)d.classList.toggle('open');
 }
-function toggleEvEdit(id){const f=document.getElementById('evedit-'+id);if(f)f.classList.toggle('open');}
+function toggleEvEdit(id){
+  const f=document.getElementById('evedit-'+id);
+  if(!f)return;
+  f.classList.toggle('open');
+  if(f.classList.contains('open')){
+    // Ensure date/time inputs are set correctly via JS (HTML attribute alone unreliable)
+    const ev=events.find(e=>e.id===id);
+    if(ev){
+      const di=document.getElementById('evedate-'+id);
+      const ti=document.getElementById('evetime-'+id);
+      const te=document.getElementById('evevtimeend-'+id);
+      if(di&&ev.date)di.value=ev.date;
+      if(ti)ti.value=ev.time||'';
+      if(te)te.value=ev.timeEnd||'';
+    }
+  }
+}
 function saveEvent(id){
   const ev=events.find(e=>e.id===id);if(!ev)return;
   ev.name=document.getElementById('evename-'+id).value.trim()||ev.name;
@@ -11429,15 +11447,7 @@ applyWorkMode(); // restore work mode state on load
   });
   // Also scrub stale phase colours out of the saved theme so they won't
   // come back on next load
-  try {
-    const raw = localStorage.getItem('centre_theme');
-    if (raw) {
-      const t = JSON.parse(raw);
-      let changed = false;
-      Object.keys(PHASE_DEFAULTS).forEach(k => { if (t[k] !== PHASE_DEFAULTS[k]) { t[k] = PHASE_DEFAULTS[k]; changed = true; } });
-      if (changed) localStorage.setItem('centre_theme', JSON.stringify(t));
-    }
-  } catch(e) {}
+  // Phase defaults migration removed — was incorrectly overwriting user theme customisations
 })();
 document.getElementById('modalOverlay').addEventListener('click',function(e){if(e.target===this)closeModal();});
 document.getElementById('iconPickerModal').addEventListener('click',function(e){if(e.target===this)closeIconPicker();});
