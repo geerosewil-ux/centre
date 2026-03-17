@@ -41,7 +41,7 @@
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <style>
 @font-face{font-family:'Noto Serif Display';src:url('Handwriting.ttf') format('truetype');}
-:root{--font-body:'Noto Serif Display',Georgia,serif;--font-display:'Noto Serif Display',Georgia,serif;--bg:#f9f8f6;--card:rgba(255,254,250,.96);--text:#2c2c2c;--accent:#93aacd;--accent-dark:#7a91b4;--accent-normal:#93aacd;--accent-work:#7e9e8c;--accent-work-dark:#6a8a78;--muted:#999;--border:#e8e8e8;--icon-stroke:1.8;--icon-color:#93aacd;--icon-color-work:#7e9e8c;
+:root{--font-body:'Noto Serif Display',Georgia,serif;--font-display:'Noto Serif Display',Georgia,serif;--bg:#f9f8f6;--card:rgba(255,254,250,.96);--text:#2c2c2c;--accent:#ebf3ff;--accent-dark:#c8daf0;--accent-normal:#ebf3ff;--accent-work:#7e9e8c;--accent-work-dark:#6a8a78;--muted:#999;--border:#e8e8e8;--icon-stroke:1.8;--icon-color:#93aacd;--icon-color-work:#7e9e8c;
 --phase-menstrual:#dd2c60;--phase-follicular:#d78881;--phase-ovulation:#ac487c;--phase-luteal:#861a3a;--water-fill:var(--accent);--water-light:rgba(147,170,205,.13);--water-border:rgba(147,170,205,.25);--on-accent:#ffffff;--font-mono:'SF Mono','Monaco','Inconsolata','Fira Mono',monospace;
 --nutri-cal:var(--accent);
 --nutri-protein:var(--accent);
@@ -59,7 +59,7 @@ input[type="checkbox"]:checked{opacity:.7;}
 /* scrollbar: browser default */
 h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.modal-save,.apply-btn,.settings-section-title,.week-label,.day-name{font-family:'Noto Serif Display',Georgia,serif;font-weight:400;font-style:normal;font-stretch:extra-condensed;text-transform:uppercase;}
 .app-title{text-align:center;font-size:2.4rem;letter-spacing:.38em;color:var(--text);margin-bottom:4px;font-weight:400;font-stretch:extra-condensed;text-indent:.38em;text-transform:none;}
-.card-title{font-size:.88rem;letter-spacing:.22em;text-transform:uppercase;color:var(--text);margin-bottom:20px;padding-bottom:14px;border-bottom:1px solid rgba(0,0,0,.1);font-stretch:extra-condensed;font-weight:200;}
+.card-title{font-size:.88rem;letter-spacing:.22em;text-transform:uppercase;color:var(--text);margin-bottom:20px;padding-bottom:14px;border-bottom:1px solid rgba(180,160,120,.18);font-stretch:extra-condensed;font-weight:200;}
 .block-title{font-size:.95rem;letter-spacing:.06em;color:var(--text);margin-bottom:10px;display:flex;align-items:center;gap:8px;}
 .block-section{margin-bottom:26px;}
 .block-section.is-past{opacity:.55;}
@@ -2649,14 +2649,14 @@ const TIME_BLOCKS=[
 
 // Water goal schedule — times in minutes from midnight
 const WATER_SCHEDULE=[
-  {mins:7*60,    ml:500, label:'Wake',        blockId:'sunrise'},
-  {mins:9*60,    ml:300, label:'Latte',        blockId:'sunrise'},
-  {mins:11*60+30,ml:250, label:'Pre-lunch',    blockId:'morning'},
-  {mins:14*60,   ml:300, label:'Afternoon',    blockId:'service'},
-  {mins:16*60,   ml:300, label:'Training',     blockId:'service'},
-  {mins:18*60+30,ml:250, label:'Pre-dinner',   blockId:'closing'},
-  {mins:20*60,   ml:300, label:'Last intake',  blockId:'closing'},
-  {mins:21*60,   ml:0,   label:'Sips only',    blockId:'winddown', sips:true}
+  {mins:8*60,    ml:500, label:'Wake',        blockId:'sunrise'},
+  {mins:10*60,   ml:300, label:'Latte',        blockId:'morning'},
+  {mins:12*60+30,ml:250, label:'Pre-lunch',    blockId:'morning'},
+  {mins:15*60,   ml:300, label:'Afternoon',    blockId:'service'},
+  {mins:17*60,   ml:300, label:'Training',     blockId:'closing'},
+  {mins:19*60+30,ml:250, label:'Pre-dinner',   blockId:'closing'},
+  {mins:21*60,   ml:300, label:'Last intake',  blockId:'winddown'},
+  {mins:22*60,   ml:0,   label:'Sips only',    blockId:'winddown', sips:true}
 ];
 
 // Renders a slim full-height water bar with fill level + tick marks.
@@ -6434,10 +6434,9 @@ function renderWater(){
   const history=getWaterHistoryByDate();
   const displayMl=history[today()]||0;
   const displayFilled=Math.min(goal,Math.round(displayMl/250));
-  // Don't overwrite waterFilled from history — use the live variable
-  // Only sync if significantly different (handles page load/Firebase sync)
-  if(Math.abs(waterFilled - displayFilled) > 0) waterFilled = displayFilled;
-  const pct=goal>0?Math.round(waterFilled/goal*100):0;
+  // NEVER overwrite waterFilled here — renderWater is display-only
+  // waterFilled is only set by tap handlers and loadFromStorage
+  const pct=goal>0?Math.round(displayFilled/goal*100):0;
 
   // Only show water card when viewing today
   const wrap=document.getElementById('waterCardWrap');
@@ -9167,16 +9166,27 @@ function renderOverviewUpcoming(){
   const soon=withDays.filter(({days})=>days<=3);
   const later=withDays.filter(({days})=>days>3);
 
-  function renderRow({ev,days},highlight){
+  function renderRow({ev,next,days},highlight){
     const cat=categories.find(c=>c.id===ev.catId);
     const col='var(--accent)';
     const dayLabel=days===0?'Today':days===1?'Tomorrow':`${days} days`;
     const bg=highlight?`${hexToRgba(col,.08)}`:'var(--bg)';
     const labelCol=highlight?col:'var(--muted)';
+    // Cycle phase dot for the event date
+    const _evDate = next || ev.date;
+    let _phaseDot = '';
+    if (_evDate && typeof getCycleDay === 'function') {
+      const _cd = getCycleDay(_evDate);
+      const _ph = _cd ? getPhase(_cd) : null;
+      if (_ph) {
+        const _cfg = getPhaseConfig()[_ph];
+        if (_cfg) _phaseDot = `<span style="width:6px;height:6px;border-radius:50%;background:${_cfg.color};display:inline-block;flex-shrink:0;opacity:.75;" title="${_cfg.name}"></span>`;
+      }
+    }
     return `<div style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:11px;background:${bg};">
       <div style="width:3px;min-height:20px;align-self:stretch;border-radius:2px;background:${col};flex-shrink:0;"></div>
       <span style="flex:1;font-family:var(--font-body,Georgia,serif);font-size:.82rem;">${evEmoji(ev,'var(--accent)')}${escHtml(ev.name)}</span>
-      <span style="font-family:var(--font-body,Georgia,serif);font-size:.8rem;color:${labelCol};">${dayLabel}</span>
+      <span style="font-family:var(--font-body,Georgia,serif);font-size:.8rem;color:${labelCol};">${_phaseDot}${dayLabel}</span>
     </div>`;
   }
 
