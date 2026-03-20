@@ -53,6 +53,7 @@
 --nutri-na:var(--accent);--nutri-sugar:var(--accent);--nutri-ca:var(--accent);--nutri-fe:var(--accent);--nutri-zn:var(--accent);}
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:'Noto Serif Display',Georgia,serif;font-weight:400;font-stretch:normal;font-size:14px;background:var(--bg);color:var(--text);min-height:100vh;padding:0 0 60px;transition:background .3s,color .3s;position:relative;}
+@media(min-width:960px){.dashboard{padding:0 40px;}}
 body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.028;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");background-size:200px 200px;}
 input[type="checkbox"]{transition:opacity .2s ease;accent-color:var(--accent);}
 input[type="checkbox"]:checked{opacity:.7;}
@@ -66,8 +67,8 @@ h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.
 .block-tasks-wrap{border-left:2px solid var(--border);padding-left:10px;margin-top:8px;transition:border-color .2s;}
 .block-section.is-current .block-tasks-wrap{border-left-color:var(--accent);}
 .block-time{font-family:'Noto Serif Display',Georgia,serif;font-size:.68rem;color:var(--muted);letter-spacing:.02em;font-variant-numeric:lining-nums tabular-nums;}
-.app-date{text-align:center;font-size:.78rem;color:var(--muted);letter-spacing:.06em;margin-bottom:28px;font-family:'Noto Serif Display',Georgia,serif;}
-.dashboard{max-width:100%;margin:0 auto;padding:0 24px;}
+.app-date{text-align:center;font-size:.78rem;color:var(--muted);letter-spacing:.08em;margin-bottom:28px;font-family:'Noto Serif Display',Georgia,serif;font-style:italic;font-weight:200;}
+.dashboard{max-width:900px;margin:0 auto;padding:0 24px;}
 /* Scroll fade — content fades at viewport edges */
 body::after{content:'';position:fixed;left:0;right:0;bottom:0;height:60px;pointer-events:none;z-index:10;background:linear-gradient(transparent,var(--bg));transition:background .3s;}
 
@@ -2387,6 +2388,23 @@ body::after{content:'';position:fixed;left:0;right:0;bottom:0;height:60px;pointe
     <input class="form-input" type="date" id="ctxDatePicker" style="font-size:.85rem;"/>
     <button class="save-btn" style="font-size:.8rem;" onclick="ctxSaveReschedule()">Set date</button>
   </div>
+  <div class="ctx-menu-sep" id="ctxRecurSep" style="display:none"></div>
+  <button class="ctx-menu-item" id="ctxSkipBtn" onclick="ctxSkipOccurrence()" style="display:none">Skip this occurrence</button>
+  <button class="ctx-menu-item" id="ctxSnoozeBtn" onclick="ctxSnoozeOccurrence()" style="display:none">Snooze 1 day</button>
+  <div class="ctx-reschedule-row" id="ctxSnoozeRow" style="display:none;gap:6px;">
+    <select class="form-select" id="ctxSnoozeDays" style="font-size:.82rem;">
+      <option value="1">1 day</option>
+      <option value="2">2 days</option>
+      <option value="3">3 days</option>
+      <option value="7">1 week</option>
+    </select>
+    <button class="save-btn" style="font-size:.8rem;" onclick="ctxConfirmSnooze()">Snooze</button>
+  </div>
+  <button class="ctx-menu-item" id="ctxPauseBtn" onclick="ctxPauseRecurrence()" style="display:none">Pause recurrence…</button>
+  <div class="ctx-reschedule-row" id="ctxPauseRow" style="display:none;gap:6px;">
+    <input class="form-input" type="date" id="ctxPauseUntil" style="font-size:.85rem;"/>
+    <button class="save-btn" style="font-size:.8rem;" onclick="ctxConfirmPause()">Pause until</button>
+  </div>
   <div class="ctx-menu-sep"></div>
   <button class="ctx-menu-item danger" onclick="ctxDelete()">Delete</button>
 </div>
@@ -3747,6 +3765,10 @@ function getHabitGoal(){
 // ---- RECURRENCE LOGIC ----
 function occursOn(item,ds){
   const orig=item.date||item.due;
+  // Paused — skip occurrences before pausedUntil
+  if(item.pausedUntil && ds < item.pausedUntil) return false;
+  // Snoozed — skip this specific date if snoozed past it
+  if(item.snoozeUntil && item.snoozeUntil[ds] && item.snoozeUntil[ds] > ds) return false;
   // Check if this occurrence has been overridden (cancelled or rescheduled)
   if(item.id && eventOverrides) {
     const ovKey = item.id + '_' + ds;
@@ -4190,23 +4212,29 @@ function schedTaskTick(cb, id, vd) {
 function overdueTaskTick(cb, id) {
   const row = cb.closest('div[style]');
   if (cb.checked) {
-    // Animate the row out, then save + re-render strip
+    // Commit state IMMEDIATELY before animation — prevents Firebase sync race
+    const _ot = tasks.find(t=>t.id===id);
+    if (_ot && _ot.recur) {
+      if (!recurDoneLog.some(e => e.taskId === id && e.date === today())) {
+        recurDoneLog.push({taskId: id, date: today(), ts: Date.now()});
+      }
+    } else if (_ot) {
+      _ot.done = true;
+    }
+    scheduleSave();
+    // Animate out after state is committed
     if (row) { row.style.transition='opacity .35s'; row.style.opacity='0'; }
     setTimeout(() => {
-      // For recurring tasks use recurDoneLog; for non-recurring set t.done
-      const _ot = tasks.find(t=>t.id===id);
-      if (_ot && _ot.recur) {
-        if (!recurDoneLog.some(e => e.taskId === id && e.date === today())) {
-          recurDoneLog.push({taskId: id, date: today(), ts: Date.now()});
-        }
-      } else if (_ot) {
-        _ot.done = true;
-      }
-      scheduleSave();
       renderOverdueStrip(document.getElementById('overviewBlocks'));
     }, 380);
   } else {
-    tasks.find(t=>t.id===id) && (tasks.find(t=>t.id===id).done = false);
+    const _ot2 = tasks.find(t=>t.id===id);
+    if (_ot2 && _ot2.recur) {
+      // Remove today's catch-up entry
+      recurDoneLog = recurDoneLog.filter(e => !(e.taskId === id && e.date === today()));
+    } else if (_ot2) {
+      _ot2.done = false;
+    }
     scheduleSave();
     renderOverdueStrip(document.getElementById('overviewBlocks'));
   }
@@ -4345,6 +4373,11 @@ function getEditHabit(id) {
     base.freezes = parseInt(document.getElementById('eh'+id+'StreakFreezes')?.value)||1;
     base.freezesUsed = tasks.find(t=>t.id===id)?.habit?.freezesUsed||0;
     base.bestStreak = tasks.find(t=>t.id===id)?.habit?.bestStreak||0;
+    // Preserve existing milestones — editable via the milestone UI
+    const existingTask = tasks.find(t=>t.id===id);
+    base.milestones = window['_editMilestones_'+id] !== undefined
+      ? window['_editMilestones_'+id]
+      : (existingTask?.habit?.milestones || []);
   }
   if (type==='quantity') {
     base.target = parseInt(document.getElementById('eh'+id+'QtyTarget')?.value)||2500;
@@ -5949,16 +5982,18 @@ function reconfigureSchedule() {
     const pinnedBlockId = t.blockPins[vd];
     const pinnedBlock = pinnedBlockId ? TIME_BLOCKS.find(b => b.id === pinnedBlockId) : null;
     const isPastBlock = pinnedBlock && pinnedBlock.end <= nowMins;
+    const isManual = t.manualBlockPins && t.manualBlockPins[vd];
+    const hasNoteHint = !!(noteBlockHint && noteBlockHint(t.notes, t.name));
 
-    if (isPastBlock) {
-      // Move task out of the past block into the next available one
+    if (isPastBlock && !isManual) {
+      // Move out of past block — but only if not manually placed
       t.blockPins[vd] = nextAvailableBlock.id;
-    } else if (pinnedBlockId) {
-      // Task is in a current/future block — clear pin so assignBlocks re-evaluates freely
+    } else if (pinnedBlockId && !isManual && !hasNoteHint) {
+      // Auto-assigned future block — clear so assignBlocks re-evaluates
       delete t.blockPins[vd];
       if (Object.keys(t.blockPins).length === 0) delete t.blockPins;
     }
-    // Tasks with no pin: leave them, assignBlocks will place them correctly
+    // Manual pins and note-hinted tasks: leave exactly where they are
   });
 
   try { localStorage.setItem('centre_tasks', JSON.stringify(tasks)); } catch(e) {}
@@ -6340,6 +6375,13 @@ function openCtxMenu(e, taskId, forDate) {
   const y = e.clientY || (e.touches && e.touches[0].clientY) || 0;
   menu.style.left = Math.min(x, window.innerWidth - 190) + 'px';
   menu.style.top  = Math.min(y, window.innerHeight - 200) + 'px';
+  // Show/hide recurring task options
+  const t = tasks.find(x => x.id === taskId);
+  const isRecur = t && t.recur;
+  ['ctxRecurSep','ctxSkipBtn','ctxSnoozeBtn','ctxPauseBtn'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = isRecur ? '' : 'none';
+  });
   menu.classList.add('open');
 }
 
@@ -6383,6 +6425,54 @@ function ctxEdit() {
     if (el && !el.classList.contains('open')) el.classList.add('open');
     el?.scrollIntoView({behavior:'smooth', block:'center'});
   }, 150);
+}
+
+function ctxSkipOccurrence() {
+  const t = tasks.find(x => x.id === _ctxTaskId);
+  if (!t || !t.recur) return;
+  const ds = _ctxTaskDate || today();
+  // Log as done for this date so it doesn't show as overdue, but mark as skipped
+  if (!recurDoneLog.some(e => e.taskId === t.id && e.date === ds)) {
+    recurDoneLog.push({ taskId: t.id, date: ds, skipped: true, ts: Date.now() });
+  }
+  scheduleSave(); closeCtxMenu(); renderOverview(); renderTasks();
+}
+
+function ctxSnoozeOccurrence() {
+  const row = document.getElementById('ctxSnoozeRow');
+  if (row) row.style.display = row.style.display === 'none' ? 'flex' : 'none';
+}
+
+function ctxConfirmSnooze() {
+  const t = tasks.find(x => x.id === _ctxTaskId);
+  if (!t) return;
+  const days = parseInt(document.getElementById('ctxSnoozeDays').value) || 1;
+  // Store a snooze — push the due/next occurrence forward
+  if (!t.snoozeUntil) t.snoozeUntil = {};
+  const base = new Date(today() + 'T00:00:00');
+  base.setDate(base.getDate() + days);
+  t.snoozeUntil[today()] = dateStr(base);
+  scheduleSave(); closeCtxMenu(); renderOverview(); renderTasks();
+}
+
+function ctxPauseRecurrence() {
+  const row = document.getElementById('ctxPauseRow');
+  if (row) {
+    // Default pause until: 1 week from today
+    const def = new Date(); def.setDate(def.getDate() + 7);
+    const inp = document.getElementById('ctxPauseUntil');
+    if (inp) inp.value = dateStr(def);
+    row.style.display = row.style.display === 'none' ? 'flex' : 'none';
+  }
+}
+
+function ctxConfirmPause() {
+  const t = tasks.find(x => x.id === _ctxTaskId);
+  if (!t) return;
+  const until = document.getElementById('ctxPauseUntil').value;
+  if (!until) return;
+  t.pausedUntil = until;
+  scheduleSave(); closeCtxMenu(); renderOverview(); renderTasks();
 }
 
 function ctxReschedule() {
@@ -9136,6 +9226,9 @@ function dndDrop(e,toBlockId,vd){
   // We use a per-date pin: blockPins[taskId][date] = blockId
   if(!t.blockPins)t.blockPins={};
   t.blockPins[vd]=toBlockId;
+  // Mark as manually placed — reconfigure will not clear this
+  if(!t.manualBlockPins)t.manualBlockPins={};
+  t.manualBlockPins[vd]=true;
 
   dndTaskId=null;dndFromBlock=null;
   scheduleSave();renderOverview();
@@ -9533,7 +9626,7 @@ function getLocalDataBundle() {
   } catch(e) {}
   return {
     tasks, events, categories, habitLog,
-    waterFilled, waterGoal, meals, mealSeq,
+    /* waterFilled excluded */ waterGoal, meals, mealSeq,
     templates, templateSeq, recipes, recipeSeq,
     taskSeq, eventSeq, catSeq,
     grocItems, grocSeq,
@@ -9600,7 +9693,7 @@ function applyRemoteData(remote) {
   if (remote.events) events = remote.events;
   if (remote.categories) categories = remote.categories;
   if (remote.habitLog) habitLog = remote.habitLog;
-  if (remote.waterFilled !== undefined) waterFilled = remote.waterFilled;
+  // waterFilled derived from habitLog via reconcileWaterFilled — not set directly
   if (remote.waterGoal !== undefined) waterGoal = remote.waterGoal;
   if (remote.meals) meals = remote.meals;
   if (remote.mealSeq) mealSeq = remote.mealSeq;
@@ -10901,8 +10994,9 @@ function saveWaterDay(ds) {
 }
 
 function logWaterToHabit(mlAmount) {
-  // Each log entry records the ml added this session
-  habitLog.push({ taskId: WATER_HABIT_ID, date: today(), value: mlAmount, ts: Date.now() });
+  // Always replace today's entry — never accumulate multiple entries
+  habitLog = habitLog.filter(e => !(e.taskId === WATER_HABIT_ID && e.date === today()));
+  if (mlAmount > 0) habitLog.push({ taskId: WATER_HABIT_ID, date: today(), value: mlAmount, ts: Date.now() });
 }
 
 function reconcileWaterFilled() {
