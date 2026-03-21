@@ -4734,7 +4734,16 @@ function renderTasks(){
   const list=document.getElementById('taskList');
   const td=today();
   let base=tasks;
-  if(workMode){const workCat=categories.find(cat=>cat.name.toLowerCase()==='work');base=tasks.filter(t=>!t.catId||(workCat&&t.catId===workCat.id));}
+  if(workMode){
+    const _hiddenCats=['grooming','wellness','habits','cycle','health'];
+    base=tasks.filter(t=>{
+      if(!t.catId)return true; // no category — show in work mode
+      const cat=categories.find(c=>c.id===t.catId);
+      if(!cat)return true;
+      const cn=cat.name.toLowerCase();
+      return !_hiddenCats.some(h=>cn.includes(h));
+    });
+  }
 
   function taskIsOverdue(t){if(t.habit||t.done)return false;if(t.recur)return recurHasMissedOccurrence(t);return t.due&&t.due<td;}
   const overdueCount=base.filter(taskIsOverdue).length;
@@ -7221,8 +7230,10 @@ function addRecipe(){
   // Synchronous save — no debounce so Chrome never loses the entry
   try { localStorage.setItem('centre_recipes', JSON.stringify(recipes)); } catch(e) {}
   try { localStorage.setItem('centre_recipeSeq', recipeSeq); } catch(e) {}
-  // Stamp localTs so Firebase won't overwrite this just-saved data on next snapshot
-  localStorage.setItem('centre_lastSync', String(Date.now()));
+  // Stamp both lastSync AND lastPush so mergeById protects this new recipe
+  const _recipeNow = Date.now();
+  localStorage.setItem('centre_lastSync', String(_recipeNow));
+  localStorage.setItem('centre_lastPush', String(_recipeNow));
   scheduleSave();
   // Also push to Firebase quickly so cloud copy is current
   if(typeof fbSyncEnabled!=='undefined'&&fbSyncEnabled&&window._fbReady){
@@ -8238,6 +8249,11 @@ function applyTheme(){
       if(val) _t[v]=val;
     });
     localStorage.setItem('centre_theme', JSON.stringify(_t));
+    // Save accent-normal and accent-work immediately — not just in scheduleSave
+    const _an=getComputedStyle(document.documentElement).getPropertyValue('--accent-normal').trim();
+    const _aw=getComputedStyle(document.documentElement).getPropertyValue('--accent-work').trim();
+    if(_an) localStorage.setItem('centre_accentNormal', _an);
+    if(_aw) localStorage.setItem('centre_accentWork', _aw);
   } catch(e) {}
   // Push theme to Firebase immediately
   if (window._fbReady && typeof fbSyncEnabled !== 'undefined' && fbSyncEnabled) {
@@ -11588,14 +11604,17 @@ setTimeout(msSilentReconnect, 1500);
 if (_icsUrl) setTimeout(() => icsPull(false), 2000);
 updateOnAccent(); // set --on-accent based on loaded accent colour
 applyWorkMode(); // restore work mode state on load
-// Always apply PHASE_DEFAULTS after load — ensures correct colours even if
-// an older save had different phase colours stored in the theme blob.
+// Apply PHASE_DEFAULTS only if no custom phase colours have been saved by user
 (function(){
-  Object.entries(PHASE_DEFAULTS).forEach(([k,v]) => {
-    // Only override if the saved value doesn't look like one of our known defaults
-    // i.e. always set our new defaults, they can still be changed via Settings
-    document.documentElement.style.setProperty(k, v);
+  const savedTheme = localStorage.getItem('centre_theme');
+  const hasCustomPhase = savedTheme && Object.keys(PHASE_DEFAULTS).some(k => {
+    try { return JSON.parse(savedTheme)[k]; } catch(e) { return false; }
   });
+  if (!hasCustomPhase) {
+    Object.entries(PHASE_DEFAULTS).forEach(([k,v]) => {
+      document.documentElement.style.setProperty(k, v);
+    });
+  }
   // Also scrub stale phase colours out of the saved theme so they won't
   // come back on next load
   // Phase defaults migration removed — was incorrectly overwriting user theme customisations
