@@ -5076,7 +5076,7 @@ function renderEventList(){
     return `<div class="event-item" style="background:${bg}" id="evitem-${ev.id}" onclick="toggleEvDetail('${ev.id}',event)">
       <div class="item-info" style="width:100%">
         <div style="display:flex;align-items:center;gap:8px">
-          <div class="item-name" style="flex:1;display:flex;align-items:center;gap:4px;">${_phaseDot}${evEmoji(ev,'var(--accent)')}${escHtml(ev.name)}</div>
+          <div class="item-name" style="flex:1;display:flex;align-items:center;gap:4px;">${getPhaseDotHtml(ev.date||ev.next)}${evEmoji(ev,'var(--accent)')}${escHtml(ev.name)}</div>
           <button class="edit-btn" onclick="toggleEvEdit('${ev.id}');event.stopPropagation()">edit</button>
           <button class="delete-btn" onclick="(function(){var _ev=events.find(x=>x.id==='${ev.id}');hasRecur(_ev)?promptRecurScope('${ev.id}','${ev.date||today()}','delete'):deleteEvent('${ev.id}')})()">×</button>
         </div>
@@ -5288,7 +5288,7 @@ function renderPlannerEventList() {
     return `<div class="event-item" style="background:${bg}" id="pevitem-${ev.id}" onclick="toggleEvDetail2('${ev.id}',event)">
       <div class="item-info" style="width:100%">
         <div style="display:flex;align-items:center;gap:8px">
-          <div class="item-name" style="flex:1;display:flex;align-items:center;gap:4px;">${_phaseDot}${evEmoji(ev,'var(--accent)')}${escHtml(ev.name)}${ev.private?'<span style="font-size:.65rem;color:var(--muted);padding:1px 5px;border-radius:8px;background:var(--bg);border:1px solid var(--border);">private</span>':''}</div>
+          <div class="item-name" style="flex:1;display:flex;align-items:center;gap:4px;">${getPhaseDotHtml(ev.date||ev.next||'')}${evEmoji(ev,'var(--accent)')}${escHtml(ev.name)}${ev.private?'<span style="font-size:.65rem;color:var(--muted);padding:1px 5px;border-radius:8px;background:var(--bg);border:1px solid var(--border);">private</span>':''}</div>
           <button class="edit-btn" onclick="togglePEvEdit('${ev.id}');event.stopPropagation()">edit</button>
           <button class="delete-btn" onclick="(function(){var _pe=events.find(x=>x.id==='${ev.id}');hasRecur(_pe)?promptRecurScope('${ev.id}','${ev.date||today()}','delete'):deletePlannerEvent('${ev.id}')})()">×</button>
         </div>
@@ -5619,7 +5619,7 @@ function renderWeek(){
   if(ov&&ov.cancelled) return `<div class="day-event" style="background:var(--border);opacity:.45;text-decoration:line-through;cursor:pointer;" onclick="openOccurrenceModal('${ev.id}','${ds}')" title="Cancelled — tap to reinstate">${escHtml(ov.name||ev.name)}</div>`;
   const displayName=ov&&ov.name?ov.name:ev.name;
   const clickable=ev.recur?`onclick="openOccurrenceModal('${ev.id}','${ds}')"`:`onclick="openOccurrenceModal('${ev.id}','${ds}')"`;
-  return `<div class="day-event" style="background:${bg};cursor:pointer;" ${clickable} title="Tap to edit">${_phaseDot}${evEmoji(ev,'var(--accent)')}${escHtml(displayName)}</div>`;
+  return `<div class="day-event" style="background:${bg};cursor:pointer;" ${clickable} title="Tap to edit">${getPhaseDotHtml(ev.date||ev.next||'')}${evEmoji(ev,'var(--accent)')}${escHtml(displayName)}</div>`;
 }).join('')}
         ${dayTasks.map(tk=>{const cat=categories.find(c=>c.id===tk.catId);const bg='';return `<div class="day-task" style="${bg?'background:'+bg:''}" title="${escHtml(tk.name)}">${escHtml(tk.name)}</div>`;}).join('')}
         <!-- meals log hidden from weekly calendar -->
@@ -5718,7 +5718,7 @@ function renderOverviewEvents(){
     const cat=categories.find(c=>c.id===ev.catId);
     return `<div class="event-pill" style="background:var(--bg)">
       ${cat?(`<span class="cat-icon-badge">`+catSvg(cat,11)+` <span style="font-size:.65rem;">${escHtml(cat.name)}</span></span>`):''}
-      <span style="flex:1;display:flex;align-items:center;gap:2px;">${_phaseDot}${evEmoji(ev,'var(--accent)')}${escHtml(ev.name)}</span>
+      <span style="flex:1;display:flex;align-items:center;gap:2px;">${getPhaseDotHtml(ev.date||ev.next||'')}${evEmoji(ev,'var(--accent)')}${escHtml(ev.name)}</span>
       ${ev.time?`<span style="font-size:.72rem;color:var(--muted)">${fmtTimeStr(ev.time)}</span>`:''}
     </div>`;
   }
@@ -5987,17 +5987,21 @@ function reconfigureSchedule() {
     const pinnedBlock = pinnedBlockId ? TIME_BLOCKS.find(b => b.id === pinnedBlockId) : null;
     const isPastBlock = pinnedBlock && pinnedBlock.end <= nowMins;
     const isManual = t.manualBlockPins && t.manualBlockPins[vd];
-    const hasNoteHint = !!(noteBlockHint && noteBlockHint(t.notes, t.name));
+    const noteHint = noteBlockHint ? noteBlockHint(t.notes, t.name) : null;
+    const noteIsForPastBlock = noteHint && pinnedBlock && noteHint === pinnedBlock.id && isPastBlock;
 
-    if (isPastBlock && !isManual) {
-      // Move out of past block — but only if not manually placed
+    if (isPastBlock && !noteIsForPastBlock) {
+      // Always move undone tasks out of past blocks — even manual ones
+      // Exception: if note explicitly names this block, respect it
       t.blockPins[vd] = nextAvailableBlock.id;
-    } else if (pinnedBlockId && !isManual && !hasNoteHint) {
-      // Auto-assigned future block — clear so assignBlocks re-evaluates
+      // Clear manual flag since we're overriding it (time has passed)
+      if (t.manualBlockPins) delete t.manualBlockPins[vd];
+    } else if (pinnedBlockId && !isPastBlock && !isManual && !noteHint) {
+      // Auto-assigned future block with no note hint — clear for re-evaluation
       delete t.blockPins[vd];
       if (Object.keys(t.blockPins).length === 0) delete t.blockPins;
     }
-    // Manual pins and note-hinted tasks: leave exactly where they are
+    // Future manual pins and note-hinted tasks: leave exactly where they are
   });
 
   try { localStorage.setItem('centre_tasks', JSON.stringify(tasks)); } catch(e) {}
@@ -9269,20 +9273,10 @@ function renderOverviewUpcoming(){
     const dayLabel=days===0?'Today':days===1?'Tomorrow':`${days} days`;
     const bg=highlight?`${hexToRgba(col,.08)}`:'var(--bg)';
     const labelCol=highlight?col:'var(--muted)';
-    // Cycle phase dot for the event date
-    const _evDate = next || ev.date;
-    let _phaseDot = '';
-    if (_evDate && typeof getCycleDay === 'function') {
-      const _cd = getCycleDay(_evDate);
-      const _ph = _cd ? getPhase(_cd) : null;
-      if (_ph) {
-        const _cfg = getPhaseConfig()[_ph];
-        if (_cfg) _phaseDot = `<span style="width:6px;height:6px;border-radius:50%;background:${_cfg.color};display:inline-block;flex-shrink:0;opacity:.75;" title="${_cfg.name}"></span>`;
-      }
-    }
+    // Phase dot now handled by getPhaseDotHtml helper
     return `<div style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:11px;background:${bg};">
       <div style="width:3px;min-height:20px;align-self:stretch;border-radius:2px;background:${col};flex-shrink:0;"></div>
-      <span style="flex:1;font-family:var(--font-body,Georgia,serif);font-size:.82rem;">${_phaseDot}${evEmoji(ev,'var(--accent)')}${escHtml(ev.name)}</span>
+      <span style="flex:1;font-family:var(--font-body,Georgia,serif);font-size:.82rem;">${getPhaseDotHtml(ev.date||ev.next||'')}${evEmoji(ev,'var(--accent)')}${escHtml(ev.name)}</span>
       <span style="font-family:var(--font-body,Georgia,serif);font-size:.8rem;color:${labelCol};">${dayLabel}</span>
     </div>`;
   }
@@ -10249,6 +10243,17 @@ function waitForGIS(callback, attempts) {
 // ================================================================
 const CYCLE_LENGTH = 28;
 const PERIOD_LENGTH = 5;
+
+function getPhaseDotHtml(dateStr) {
+  if (!dateStr || typeof getCycleDay !== 'function') return '';
+  const cd = getCycleDay(dateStr);
+  if (!cd) return '';
+  const ph = getPhase(cd);
+  if (!ph) return '';
+  const cfg = getPhaseConfig()[ph];
+  if (!cfg) return '';
+  return `<span style="width:6px;height:6px;border-radius:50%;background:${cfg.color};display:inline-block;flex-shrink:0;opacity:.75;margin-right:5px;" title="${cfg.name}"></span>`;
+}
 
 function getPhaseConfig() {
   const s = getComputedStyle(document.documentElement);
@@ -12440,6 +12445,7 @@ function renderPlanTab() {
       <td style="width:44px;padding:3px 2px;border-bottom:1.5px solid var(--border);"></td>
       ${days.map((d,i) => {
         const ds = dateStr(d), isToday = ds === t;
+        const _dn = DN[i];
         return `<td style="text-align:center;padding:4px 2px 6px;border-bottom:1.5px solid ${isToday?'var(--accent)':'var(--border)'};">
           <div style="font-family:'Noto Serif Display',Georgia,serif;font-stretch:extra-condensed;text-transform:uppercase;font-size:.56rem;letter-spacing:.05em;color:${isToday?'var(--accent)':'var(--muted)'};">${_dn}</div>
           <div style="font-family:'Noto Serif Display',Georgia,serif;font-stretch:extra-condensed;font-size:.95rem;font-weight:${isToday?'bold':'normal'};color:${isToday?'var(--accent)':'var(--text)'};">${d.getDate()}</div>
