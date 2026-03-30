@@ -41,7 +41,7 @@
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <style>
 @font-face{font-family:'Noto Serif Display';src:url('Handwriting.ttf') format('truetype');}
-:root{--font-body:'Noto Serif Display',Georgia,serif;--font-display:'Noto Serif Display',Georgia,serif;--bg:#f9f8f6;--card:rgba(255,254,250,.96);--text:#2c2c2c;--accent:#ebf3ff;--accent-dark:#c8daf0;--accent-normal:#ebf3ff;--accent-work:#7e9e8c;--accent-work-dark:#6a8a78;--muted:#999;--border:#e8e8e8;--icon-stroke:1.8;--icon-color:#93aacd;--icon-color-work:#7e9e8c;
+:root{--font-body:'Noto Serif Display',Georgia,serif;--font-display:'Noto Serif Display',Georgia,serif;--bg:#f9f8f6;--card:rgba(255,254,250,.96);--text:#2c2c2c;--accent:#ebf3ff;--accent-dark:#c8daf0;--accent-normal:#ebf3ff;--accent-work:#7e9e8c;--accent-work-dark:#6a8a78;--accent-full:#b8a99a;--accent-full-dark:#9e8f80;--muted:#999;--border:#e8e8e8;--icon-stroke:1.8;--icon-color:#93aacd;--icon-color-work:#7e9e8c;
 --phase-menstrual:#dd2c60;--phase-follicular:#d78881;--phase-ovulation:#ac487c;--phase-luteal:#861a3a;--water-fill:var(--accent);--water-light:rgba(147,170,205,.13);--water-border:rgba(147,170,205,.25);--on-accent:#ffffff;--font-mono:'SF Mono','Monaco','Inconsolata','Fira Mono',monospace;
 --nutri-cal:var(--accent);
 --nutri-protein:var(--accent);
@@ -55,8 +55,8 @@
 body{font-family:'Noto Serif Display',Georgia,serif;font-weight:400;font-stretch:normal;font-size:14px;background:var(--bg);color:var(--text);min-height:100vh;padding:0 0 60px;transition:background .3s,color .3s;position:relative;}
 @media(min-width:960px){.dashboard{padding:0 40px;}}
 body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.028;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");background-size:200px 200px;}
-input[type="checkbox"]{transition:opacity .2s ease;accent-color:var(--accent);}
-input[type="checkbox"]:checked{opacity:.7;}
+/* checkbox base handled by task-item rules */
+/* checkbox:checked opacity removed — handled by task-item rules */
 /* scrollbar: browser default */
 h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.modal-save,.apply-btn,.settings-section-title,.week-label,.day-name{font-family:'Noto Serif Display',Georgia,serif;font-weight:400;font-style:normal;font-stretch:extra-condensed;text-transform:uppercase;}
 .app-title{text-align:center;font-size:2.4rem;letter-spacing:.38em;color:var(--text);margin-bottom:4px;font-weight:400;font-stretch:extra-condensed;text-indent:.38em;text-transform:none;}
@@ -952,10 +952,22 @@ body::after{content:'';position:fixed;left:0;right:0;bottom:0;height:60px;pointe
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
       Settings
     </button>
-    <button id="navModeBtn" onclick="cycleAccessMode();closeDrawer();" style="font-family:'Noto Serif Display',Georgia,serif;font-weight:400;font-stretch:extra-condensed;text-transform:uppercase;letter-spacing:.09em;font-size:.82rem;width:100%;border:1.5px solid var(--border);border-radius:10px;padding:8px 14px;cursor:pointer;color:var(--muted);background:none;transition:all .18s;text-align:left;display:flex;align-items:center;justify-content:space-between;">
-      <span id="navModeBtnLabel">Personal</span>
-      <span style="font-size:.6rem;opacity:.5;">tap to switch</span>
-    </button>
+    <!-- Profile switcher: three dots = three modes -->
+    <div style="display:flex;align-items:center;gap:6px;padding:8px 14px;">
+      <button id="navModeWork" onclick="setAccessMode(0);closeDrawer();" title="Work"
+        style="width:28px;height:28px;border-radius:50%;border:1.5px solid var(--border);background:none;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;">
+        <div style="width:8px;height:8px;border-radius:50%;background:var(--accent-work);opacity:.7;"></div>
+      </button>
+      <button id="navModePersonal" onclick="setAccessMode(1);closeDrawer();" title="Personal"
+        style="width:28px;height:28px;border-radius:50%;border:1.5px solid var(--border);background:none;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;">
+        <div style="width:8px;height:8px;border-radius:50%;background:var(--accent-normal);opacity:.7;"></div>
+      </button>
+      <button id="navModeFull" onclick="setAccessMode(2);closeDrawer();" title=""
+        style="width:28px;height:28px;border-radius:50%;border:1.5px solid var(--border);background:none;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;font-size:.75rem;color:var(--muted);">
+        <span style="opacity:.5;">&#128274;</span>
+      </button>
+      <span id="navModeBtnLabel" style="flex:1;font-family:'Noto Serif Display',Georgia,serif;font-stretch:extra-condensed;text-transform:uppercase;letter-spacing:.1em;font-size:.65rem;color:var(--muted);padding-left:4px;">Personal</span>
+    </div>
   </div>
 </nav>
 
@@ -2162,8 +2174,23 @@ body::after{content:'';position:fixed;left:0;right:0;bottom:0;height:60px;pointe
         <div class="settings-section-title">Full Access Passcode</div>
         <p style="font-size:.78rem;color:var(--muted);font-family:'Noto Serif Display',Georgia,serif;margin-bottom:12px;">5-character code to unlock Full Access mode. Shows all categories including locked ones. Not saved to cloud — local only.</p>
         <div style="display:flex;gap:8px;align-items:center;max-width:300px;">
-          <input class="form-input" type="password" id="fullAccessCodeInput" maxlength="5" placeholder="·····" style="letter-spacing:.3em;font-size:1.1rem;text-align:center;flex:1;" />
-          <button class="apply-btn" style="white-space:nowrap;" onclick="const v=document.getElementById('fullAccessCodeInput').value.trim();if(v.length===5){_fullAccessCode=v;localStorage.setItem('centre_fullAccessCode',v);showToast('Passcode saved ✓');}else{showToast('Must be exactly 5 characters');}">Save</button>
+          <div style="display:flex;flex-direction:column;gap:8px;width:100%;">
+            <input class="form-input" type="password" id="fullAccessCurrentCode" maxlength="5" placeholder="Current code (or blank if none)" style="letter-spacing:.3em;font-size:.95rem;text-align:center;" />
+            <div style="display:flex;gap:8px;">
+              <input class="form-input" type="password" id="fullAccessCodeInput" maxlength="5" placeholder="New 5-char code" style="letter-spacing:.3em;font-size:.95rem;text-align:center;flex:1;" />
+              <button class="apply-btn" style="white-space:nowrap;" onclick="
+                const cur=document.getElementById('fullAccessCurrentCode').value.trim();
+                const nw=document.getElementById('fullAccessCodeInput').value.trim();
+                if(nw.length!==5){showToast('Must be exactly 5 characters');return;}
+                if(_fullAccessCode && cur!==_fullAccessCode){showToast('Current code incorrect');return;}
+                _fullAccessCode=nw;
+                localStorage.setItem('centre_fullAccessCode',nw);
+                document.getElementById('fullAccessCurrentCode').value='';
+                document.getElementById('fullAccessCodeInput').value='';
+                showToast('Passcode updated ✓');
+              ">Save</button>
+            </div>
+          </div>
         </div>
       </div>
       <div class="settings-section">
@@ -2771,7 +2798,7 @@ function renderWaterTimeline(isToday, blocksHtml){
 
 const THEME_DEFAULTS={'--bg':'#f9f8f6','--card':'#ffffff','--text':'#2c2c2c','--accent':'#93aacd','--accent-work':'#7e9e8c','--muted':'#999999','--border':'#e8e8e8'};
 const THEME_LABELS={'--bg':'Background','--card':'Card','--text':'Text','--accent':'Accent','--accent-work':'Work Mode Accent','--muted':'Muted text','--border':'Borders'};
-const EDITABLE=['--bg','--card','--text','--accent','--accent-work','--muted','--border'];
+const EDITABLE=['--bg','--card','--text','--accent','--accent-work','--accent-full','--muted','--border'];
 const DOW_LABELS=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
 const EV_PROMPTS={birthday:"Whose birthday?",social:"Where are you going?",appointment:"What's the appointment?",health:"What's the appointment?",event:"What's happening?"};
 let MILESTONES=[{days:7,reward:''},{days:30,reward:''},{days:100,reward:''},{days:365,reward:''}]; // user-editable
@@ -3641,6 +3668,11 @@ function applyWorkMode() {
 
   // ── Full access mode — show absolutely everything ────────
   if (fullAccessMode) {
+    // Apply full-access accent colour
+    const fullAccent = getComputedStyle(document.documentElement).getPropertyValue('--accent-full').trim() || '#b8a99a';
+    const fullDark = getComputedStyle(document.documentElement).getPropertyValue('--accent-full-dark').trim() || '#9e8f80';
+    document.documentElement.style.setProperty('--accent', fullAccent);
+    document.documentElement.style.setProperty('--accent-dark', fullDark);
     // Show all nav items
     ['di-habits','di-cycle','di-health','di-styled','di-lists'].forEach(id => {
       const e = el(id); if (e) e.style.display = '';
@@ -3861,10 +3893,22 @@ function cycleAccessMode() {
 }
 
 function _updateNavModeBtn() {
-  const btn = document.getElementById('navModeBtnLabel');
-  if (!btn) return;
-  const labels = ['Work', 'Personal', 'Full Access'];
-  btn.textContent = labels[_currentMode] || 'Personal';
+  const lbl = document.getElementById('navModeBtnLabel');
+  const labels = ['Work', 'Personal', ''];
+  if (lbl) lbl.textContent = labels[_currentMode] !== undefined ? labels[_currentMode] : 'Personal';
+  // Highlight active dot
+  const ids = ['navModeWork','navModePersonal','navModeFull'];
+  ids.forEach((id, i) => {
+    const btn = document.getElementById(id);
+    if (!btn) return;
+    if (i === _currentMode) {
+      btn.style.borderColor = i===2 ? 'var(--accent-full)' : i===0 ? 'var(--accent-work)' : 'var(--accent-normal)';
+      btn.style.background = i===2 ? 'rgba(184,169,154,.15)' : i===0 ? 'rgba(126,158,140,.15)' : 'rgba(147,170,205,.15)';
+    } else {
+      btn.style.borderColor = 'var(--border)';
+      btn.style.background = 'none';
+    }
+  });
 }
 
 function toggleWorkMode() {
@@ -6468,7 +6512,11 @@ function renderOverdueStrip(container) {
   strip.id = 'overdueStrip';
   strip.style.cssText = 'margin-top:18px;padding:12px 14px;border-radius:14px;border:1px solid var(--border);background:var(--bg);opacity:.72;';
   strip.innerHTML = `<div style="font-family:var(--font-display,Georgia,serif);font-weight:400;font-stretch:extra-condensed;text-transform:uppercase;letter-spacing:.1em;font-size:.72rem;color:var(--muted);margin-bottom:8px;">${overdue.length} overdue</div>`
-    + overdue.sort((a,b)=>a.due.localeCompare(b.due)).map(t =>
+    + overdue.sort((a,b)=>{
+      const da = a.recur ? (nextOccurrence(a,today())||a.due||'9999') : (a.due||'9999');
+      const db = b.recur ? (nextOccurrence(b,today())||b.due||'9999') : (b.due||'9999');
+      return da.localeCompare(db);
+    }).map(t =>
         `<div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--border);">
           <input type="checkbox" onchange="overdueTaskTick(this,'${t.id}')" style="accent-color:var(--accent);width:14px;height:14px;flex-shrink:0;cursor:pointer;touch-action:manipulation;">
           <span style="flex:1;font-size:.85rem;color:var(--text);opacity:.75;cursor:pointer;" onclick="ctxDesktopClick(event,'${t.id}')">${escHtml(t.name)}</span>
@@ -9822,6 +9870,30 @@ function initFirebase(manual) {
             if (onlyLocalHL.length) { remote.habitLog = [...remote.habitLog, ...onlyLocalHL]; hadLocalOnly = true; }
           } else if (!remote.habitLog && habitLog.length) {
             remote.habitLog = habitLog; hadLocalOnly = true;
+          }
+
+          // recurDoneLog: composite key taskId|date — must be merged, not replaced
+          if (remote.recurDoneLog && recurDoneLog.length) {
+            const rdlKeys = new Set(remote.recurDoneLog.map(e => e.taskId+'|'+e.date));
+            const onlyLocalRDL = recurDoneLog.filter(e => !rdlKeys.has(e.taskId+'|'+e.date));
+            if (onlyLocalRDL.length) { remote.recurDoneLog = [...remote.recurDoneLog, ...onlyLocalRDL]; hadLocalOnly = true; }
+          } else if (!remote.recurDoneLog && recurDoneLog.length) {
+            remote.recurDoneLog = recurDoneLog; hadLocalOnly = true;
+          }
+
+          // Preserve t.done flags — if local task is done and remote isn't, keep done
+          if (remote.tasks && tasks.length) {
+            const localDoneIds = new Set(tasks.filter(t => t.done).map(t => t.id));
+            if (localDoneIds.size) {
+              remote.tasks = remote.tasks.map(rt => {
+                if (!rt.done && localDoneIds.has(rt.id)) {
+                  // Only preserve if this was done after last push
+                  const localT = tasks.find(t => t.id === rt.id);
+                  return localT ? {...rt, done: true} : rt;
+                }
+                return rt;
+              });
+            }
           }
 
           try { applyRemoteData(remote); } catch(e) { console.error('sync render error:', e); }
