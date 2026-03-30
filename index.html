@@ -60,7 +60,7 @@ input[type="checkbox"]:checked{opacity:.7;}
 /* scrollbar: browser default */
 h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.modal-save,.apply-btn,.settings-section-title,.week-label,.day-name{font-family:'Noto Serif Display',Georgia,serif;font-weight:400;font-style:normal;font-stretch:extra-condensed;text-transform:uppercase;}
 .app-title{text-align:center;font-size:2.4rem;letter-spacing:.38em;color:var(--text);margin-bottom:4px;font-weight:400;font-stretch:extra-condensed;text-indent:.38em;text-transform:none;}
-.card-title{font-size:.88rem;letter-spacing:.22em;text-transform:uppercase;color:var(--text);margin-bottom:20px;padding-bottom:14px;border-bottom:1px solid rgba(180,160,120,.18);font-stretch:extra-condensed;font-weight:200;display:block;width:100%;box-sizing:border-box;}
+.card-title{font-size:.88rem;letter-spacing:.22em;text-transform:uppercase;color:var(--text);margin-bottom:20px;padding-bottom:14px;border-bottom:1px solid rgba(180,160,120,.18);font-stretch:extra-condensed;font-weight:200;display:block;width:100%;box-sizing:border-box;line-height:.9;}
 .block-title{font-size:.95rem;letter-spacing:.06em;color:var(--text);margin-bottom:10px;display:flex;align-items:center;gap:8px;}
 .block-section{margin-bottom:26px;}
 .block-section.is-past{opacity:.55;}
@@ -160,12 +160,35 @@ body::after{content:'';position:fixed;left:0;right:0;bottom:0;height:60px;pointe
 .ctask-row-edit:hover{color:var(--accent);}
 .ctask-row-del{background:none;border:none;color:var(--border);font-size:.95rem;cursor:pointer;padding:1px 3px;border-radius:5px;transition:color .15s;}
 .ctask-row-del:hover{color:#e88;}
-.task-item,.event-item{display:flex;align-items:flex-start;gap:12px;padding:12px 14px;border-radius:12px;background:var(--bg);transition:background .2s,box-shadow .2s,transform .15s;cursor:pointer;}
+.task-item,.event-item{display:flex;align-items:flex-start;gap:10px;padding:12px 14px;border-radius:12px;background:var(--bg);transition:background .2s,box-shadow .2s,transform .15s;cursor:pointer;}
 .task-item:hover{box-shadow:0 2px 10px rgba(0,0,0,.06);transform:translateX(2px);}.event-item-detail{display:none;margin-top:8px;padding-top:8px;border-top:1px solid var(--border);}.event-item-detail.open{display:block;}.event-detail-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:4px;align-items:center;}.event-detail-label{font-size:.62rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;min-width:52px;flex-shrink:0;}.event-detail-val{font-size:.78rem;color:var(--text);}
-.task-item.done{opacity:.35;transition:opacity .35s ease;position:relative;}
-.task-item.done::before{content:'';position:absolute;left:-1px;top:6px;bottom:6px;width:2px;background:var(--accent);opacity:.5;border-radius:2px;}
-.task-item .item-name{position:relative;}
-.task-item input[type="checkbox"]{width:16px;height:16px;accent-color:var(--accent);cursor:pointer;flex-shrink:0;margin-top:3px;}
+.task-item.done{opacity:.32;transition:opacity .35s ease;position:relative;}
+.task-item.done .item-name{text-decoration:line-through;text-decoration-color:rgba(0,0,0,.2);text-underline-offset:3px;}
+.task-item .item-name{position:relative;line-height:1.7;}
+.task-item input[type="checkbox"]{
+  appearance:none;-webkit-appearance:none;
+  width:14px;height:14px;
+  border:1.5px solid rgba(0,0,0,.18);
+  border-radius:50%;
+  cursor:pointer;flex-shrink:0;
+  margin-top:4px;
+  background:transparent;
+  transition:all .18s;
+  position:relative;
+}
+.task-item input[type="checkbox"]:checked{
+  background:var(--accent);
+  border-color:var(--accent);
+}
+.task-item input[type="checkbox"]:checked::after{
+  content:'';
+  position:absolute;
+  left:3px;top:1px;
+  width:4px;height:7px;
+  border:1.5px solid white;
+  border-top:none;border-left:none;
+  transform:rotate(45deg);
+}
 .item-info{flex:1;min-width:0;}
 .item-name{font-size:.9rem;margin-bottom:4px;line-height:1.55;letter-spacing:.01em;}
 .task-item.done .item-name{text-decoration:line-through;text-decoration-color:rgba(0,0,0,.25);text-underline-offset:3px;}
@@ -277,7 +300,7 @@ body::after{content:'';position:fixed;left:0;right:0;bottom:0;height:60px;pointe
 .block-tasks{display:flex;flex-direction:column;gap:7px;}
 .block-task-item{display:flex;align-items:center;gap:0;padding:12px 14px;border-radius:11px;background:transparent;}.block-task-icon-col{width:22px;flex-shrink:0;display:flex;align-items:center;justify-content:center;margin-right:4px;}.block-task-cb-col{width:16px;flex-shrink:0;margin-right:10px;}.block-task-name-col{flex:1;font-size:.85rem;}.block-task-handle{color:var(--border);font-size:.75rem;cursor:grab;flex-shrink:0;padding:0 2px;user-select:none;line-height:1;margin-left:8px;}.block-task-handle:hover{color:var(--muted);}
 .block-task-item input[type="checkbox"]{accent-color:var(--accent);width:16px;height:16px;flex-shrink:0;cursor:pointer;}
-.block-task-name{flex:1;font-size:.82rem;}
+.block-task-name{flex:1;font-size:.82rem;line-height:1.7;}
 .block-task-item.done{opacity:.52;}
 .block-task-item.done .block-task-name-col>span{text-decoration:line-through;color:var(--muted);}
 .block-task-item.recur-done{opacity:.52;}
@@ -929,7 +952,10 @@ body::after{content:'';position:fixed;left:0;right:0;bottom:0;height:60px;pointe
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
       Settings
     </button>
-    <button id="navWorkModeBtn" onclick="toggleWorkMode();closeDrawer();" style="font-family:'Noto Serif Display',Georgia,serif;font-weight:400;font-stretch:extra-condensed;text-transform:uppercase;letter-spacing:.09em;font-size:.82rem;width:100%;border:1.5px solid var(--border);border-radius:10px;padding:8px 14px;cursor:pointer;color:var(--muted);background:none;transition:all .18s;text-align:left;">Work Mode: Off</button>
+    <button id="navModeBtn" onclick="cycleAccessMode();closeDrawer();" style="font-family:'Noto Serif Display',Georgia,serif;font-weight:400;font-stretch:extra-condensed;text-transform:uppercase;letter-spacing:.09em;font-size:.82rem;width:100%;border:1.5px solid var(--border);border-radius:10px;padding:8px 14px;cursor:pointer;color:var(--muted);background:none;transition:all .18s;text-align:left;display:flex;align-items:center;justify-content:space-between;">
+      <span id="navModeBtnLabel">Personal</span>
+      <span style="font-size:.6rem;opacity:.5;">tap to switch</span>
+    </button>
   </div>
 </nav>
 
@@ -1990,39 +2016,51 @@ body::after{content:'';position:fixed;left:0;right:0;bottom:0;height:60px;pointe
   <div class="page" id="page-settings">
     <div class="card">
 
-      <!-- WORK MODE -->
+      <!-- ACCESS MODE SLIDER -->
       <div class="settings-section" style="margin-bottom:24px;">
         <div class="settings-section-title" style="display:flex;align-items:center;justify-content:space-between;">
-          <span>Work Mode</span>
-          <span id="workModeBadge" style="display:none;background:var(--accent);color:var(--on-accent);font-size:.62rem;letter-spacing:.06em;padding:2px 8px;border-radius:20px;font-family:'Noto Serif Display',Georgia,serif;font-stretch:extra-condensed;text-transform:uppercase;">Active</span>
+          <span>Access Mode</span>
+          <span id="workModeBadge" style="display:none;background:var(--accent);color:var(--on-accent);font-size:.62rem;letter-spacing:.06em;padding:2px 8px;border-radius:20px;font-family:'Noto Serif Display',Georgia,serif;font-stretch:extra-condensed;text-transform:uppercase;">Work</span>
         </div>
-        <div style="background:var(--bg);border-radius:14px;padding:16px 18px;border:1.5px solid var(--border);">
-          <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;">
-            <div style="flex:1;">
-              <div style="font-size:.88rem;color:var(--text);margin-bottom:6px;">Enable Work Mode</div>
-              <div style="font-size:.76rem;color:var(--muted);line-height:1.5;margin-bottom:8px;">Hides habits, cycle tracking, and non-Work tasks. Only Work-category tasks appear in Centre and the task list.</div>
-              <div style="display:flex;align-items:center;gap:10px;">
-                <div style="display:flex;align-items:center;gap:5px;">
-                  <div id="previewNormalDot" style="width:11px;height:11px;border-radius:50%;background:var(--accent-normal);flex-shrink:0;transition:background .3s;"></div>
-                  <span style="font-size:.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;font-family:'Noto Serif Display',Georgia,serif;">Normal</span>
-                </div>
-                <span style="font-size:.65rem;color:var(--border);">→</span>
-                <div style="display:flex;align-items:center;gap:5px;">
-                  <div id="previewWorkDot" style="width:11px;height:11px;border-radius:50%;background:var(--accent-work);flex-shrink:0;transition:background .3s;"></div>
-                  <span style="font-size:.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;font-family:'Noto Serif Display',Georgia,serif;">Work</span>
-                </div>
+        <div style="background:var(--bg);border-radius:14px;padding:20px 18px;border:1.5px solid var(--border);">
+
+          <!-- Three-position slider -->
+          <div style="position:relative;margin-bottom:18px;">
+            <!-- Labels -->
+            <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
+              <span style="font-family:'Noto Serif Display',Georgia,serif;font-stretch:extra-condensed;text-transform:uppercase;letter-spacing:.1em;font-size:.62rem;color:var(--muted);">Work</span>
+              <span style="font-family:'Noto Serif Display',Georgia,serif;font-stretch:extra-condensed;text-transform:uppercase;letter-spacing:.1em;font-size:.62rem;color:var(--muted);">Personal</span>
+              <span style="font-family:'Noto Serif Display',Georgia,serif;font-stretch:extra-condensed;text-transform:uppercase;letter-spacing:.1em;font-size:.62rem;color:var(--muted);">Full Access</span>
+            </div>
+            <!-- Track -->
+            <div style="position:relative;height:36px;background:var(--bg);border-radius:18px;border:1.5px solid var(--border);cursor:pointer;" onclick="handleModeSliderClick(event)" id="modeSliderTrack">
+              <!-- Accent fill background -->
+              <div id="modeSliderFill" style="position:absolute;top:0;left:0;height:100%;background:var(--accent);border-radius:18px;opacity:.12;transition:width .25s ease;width:50%;pointer-events:none;"></div>
+              <!-- Thumb -->
+              <div id="modeSliderThumb" style="position:absolute;top:4px;width:26px;height:26px;background:var(--card);border-radius:50%;border:1.5px solid var(--accent);box-shadow:0 1px 6px rgba(0,0,0,.12);transition:left .25s cubic-bezier(.34,1.4,.64,1);left:calc(50% - 13px);display:flex;align-items:center;justify-content:center;pointer-events:none;">
+                <div id="modeSliderDot" style="width:8px;height:8px;border-radius:50%;background:var(--accent);opacity:.7;"></div>
               </div>
             </div>
-            <!-- Toggle switch -->
-            <label style="position:relative;display:inline-block;width:44px;height:24px;flex-shrink:0;cursor:pointer;">
-              <input type="checkbox" id="workModeToggle" onchange="toggleWorkMode()" style="opacity:0;width:0;height:0;position:absolute;">
-              <span style="position:absolute;inset:0;background:var(--border);border-radius:24px;transition:background .2s;" id="workModeTrack"></span>
-              <span style="position:absolute;left:3px;top:3px;width:18px;height:18px;background:white;border-radius:50%;transition:transform .2s;box-shadow:0 1px 4px rgba(0,0,0,.15);" id="workModeThumb"></span>
-            </label>
           </div>
-          <div id="workModeNote" style="display:none;margin-top:10px;padding-top:10px;border-top:1px solid var(--border);font-size:.74rem;color:var(--muted);line-height:1.5;">
-            Work Mode is active. Habits, cycle data, and personal tasks are hidden. Disable Work Mode to restore full view.
+
+          <!-- Mode description -->
+          <div id="modeSliderDesc" style="font-size:.75rem;color:var(--muted);line-height:1.6;font-family:'Noto Serif Display',Georgia,serif;">
+            Personal mode. All categories visible.
           </div>
+
+          <!-- Accent colour dots -->
+          <div style="display:flex;align-items:center;gap:10px;margin-top:14px;padding-top:12px;border-top:1px solid var(--border);">
+            <div style="display:flex;align-items:center;gap:5px;">
+              <div id="previewWorkDot" style="width:9px;height:9px;border-radius:50%;background:var(--accent-work);flex-shrink:0;"></div>
+              <span style="font-size:.6rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;font-family:'Noto Serif Display',Georgia,serif;">Work</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:5px;">
+              <div id="previewNormalDot" style="width:9px;height:9px;border-radius:50%;background:var(--accent-normal);flex-shrink:0;"></div>
+              <span style="font-size:.6rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;font-family:'Noto Serif Display',Georgia,serif;">Personal</span>
+            </div>
+          </div>
+
+          <div id="workModeNote" style="display:none;margin-top:10px;font-size:.74rem;color:var(--muted);line-height:1.5;"></div>
         </div>
       </div>
 
@@ -2120,6 +2158,14 @@ body::after{content:'';position:fixed;left:0;right:0;bottom:0;height:60px;pointe
 
       <!-- COLOURS ACCORDION (collapsed by default) -->
       <!-- Netlify Hosting Guide -->
+      <div class="settings-section">
+        <div class="settings-section-title">Full Access Passcode</div>
+        <p style="font-size:.78rem;color:var(--muted);font-family:'Noto Serif Display',Georgia,serif;margin-bottom:12px;">5-character code to unlock Full Access mode. Shows all categories including locked ones. Not saved to cloud — local only.</p>
+        <div style="display:flex;gap:8px;align-items:center;max-width:300px;">
+          <input class="form-input" type="password" id="fullAccessCodeInput" maxlength="5" placeholder="·····" style="letter-spacing:.3em;font-size:1.1rem;text-align:center;flex:1;" />
+          <button class="apply-btn" style="white-space:nowrap;" onclick="const v=document.getElementById('fullAccessCodeInput').value.trim();if(v.length===5){_fullAccessCode=v;localStorage.setItem('centre_fullAccessCode',v);showToast('Passcode saved ✓');}else{showToast('Must be exactly 5 characters');}">Save</button>
+        </div>
+      </div>
       <div class="settings-section">
         <div class="settings-section-title">Enable AI Features</div>
         <div style="background:var(--bg);border-radius:14px;padding:16px;border:1.5px solid var(--border);font-family:'Noto Serif Display',Georgia,serif;font-size:.84rem;line-height:1.7;color:var(--text);">
@@ -2608,6 +2654,8 @@ function newTemplateId(){return 'TPL-'+String(++templateSeq).padStart(4,'0');}
 function newRecipeId(){return 'RCP-'+String(++recipeSeq).padStart(4,'0');}
 
 let workMode = false; // privacy mode — hides habits, cycle, non-work tasks
+let fullAccessMode = false; // shows all categories including locked ones
+let _fullAccessCode = ''; // 5-char passcode set in settings
 
 let categories=[
   {id:'CAT-0001',name:'Personal',icon:'👤'},
@@ -3419,6 +3467,7 @@ function scheduleSave(){
       localStorage.setItem('centre_grocItems',JSON.stringify(grocItems));
       localStorage.setItem('centre_grocSeq',grocSeq);
       localStorage.setItem('centre_workMode',JSON.stringify(workMode));
+      if(_fullAccessCode) localStorage.setItem('centre_fullAccessCode',_fullAccessCode);
       // Persist both accent colours independently
       const _na=getComputedStyle(document.documentElement).getPropertyValue('--accent-normal').trim();
       const _wa=getComputedStyle(document.documentElement).getPropertyValue('--accent-work').trim();
@@ -3526,6 +3575,8 @@ function loadFromStorage(){
     const _ak=localStorage.getItem('centre_anthropicKey');if(_ak)_anthropicKey=_ak;
     const gmk=localStorage.getItem('centre_geminiApiKey');if(gmk)_geminiApiKey=gmk;
     const wm=localStorage.getItem('centre_workMode');if(wm)workMode=JSON.parse(wm);
+    const _fac=localStorage.getItem('centre_fullAccessCode');if(_fac)_fullAccessCode=_fac;
+    // Never auto-restore full access — must re-enter code each session
     const _an=localStorage.getItem('centre_accentNormal');if(_an){document.documentElement.style.setProperty('--accent-normal',_an);}
     const _aw=localStorage.getItem('centre_accentWork');if(_aw){
       document.documentElement.style.setProperty('--accent-work',_aw);
@@ -3588,6 +3639,27 @@ function closeDrawer(){
 function applyWorkMode() {
   const el = id => document.getElementById(id);
 
+  // ── Full access mode — show absolutely everything ────────
+  if (fullAccessMode) {
+    // Show all nav items
+    ['di-habits','di-cycle','di-health','di-styled','di-lists'].forEach(id => {
+      const e = el(id); if (e) e.style.display = '';
+    });
+    ['overviewHealth','overviewHabits'].forEach(id => {
+      const e = el(id); if (e) e.style.display = '';
+    });
+    document.body.classList.remove('work-mode');
+    document.body.classList.add('full-access-mode');
+    const badge = el('workModeBadge');
+    if (badge) { badge.style.display = 'inline-flex'; badge.textContent = 'Full Access'; badge.style.background = 'var(--accent)'; }
+    const navBtn = el('navWorkModeBtn');
+    if (navBtn) { navBtn.textContent = 'Full Access: On'; navBtn.style.background = 'var(--accent)'; navBtn.style.color = 'var(--on-accent)'; }
+    // Re-render with no category filtering
+    if (document.getElementById('page-tasks')?.classList.contains('active')) renderTasks();
+    if (document.getElementById('page-overview')?.classList.contains('active')) renderAllOverviewForDate();
+    return; // skip rest of applyWorkMode
+  }
+
   // ── Swap accent colour ───────────────────────────────────
   const normalAccent = getComputedStyle(document.documentElement).getPropertyValue('--accent-normal').trim() || '#93aacd';
   const workAccent   = getComputedStyle(document.documentElement).getPropertyValue('--accent-work').trim()   || '#7e9e8c';
@@ -3632,16 +3704,10 @@ function applyWorkMode() {
   if (document.getElementById('page-overview')?.classList.contains('active')) renderAllOverviewForDate();
 
   // Reflect mode in the settings toggle
-  const toggle = el('workModeToggle');
-  const badge  = el('workModeBadge');
-  const track  = el('workModeTrack');
-  const thumb  = el('workModeThumb');
-  const note   = el('workModeNote');
-  if (toggle) toggle.checked = workMode;
-  if (badge)  badge.style.display = workMode ? 'inline-flex' : 'none';
-  if (track)  track.style.background = workMode ? 'var(--accent)' : 'var(--border)';
-  if (thumb)  thumb.style.transform  = workMode ? 'translateX(20px)' : 'none';
-  if (note)   note.style.display     = workMode ? 'block' : 'none';
+  // Update slider UI
+  updateModeSliderUI(_currentMode);
+  const note = el('workModeNote');
+  if (note) note.style.display = workMode ? 'block' : 'none';
 
   // Body class for any CSS scoping
   document.body.classList.toggle('work-mode', workMode);
@@ -3657,6 +3723,148 @@ function applyWorkMode() {
     navWmBtn.style.color = workMode ? 'var(--on-accent)' : 'var(--muted)';
     navWmBtn.style.borderColor = workMode ? 'var(--accent)' : 'var(--border)';
   }
+  // Full Access nav button
+  const navFaBtn = el('navFullAccessBtn');
+  if (navFaBtn) {
+    navFaBtn.textContent = fullAccessMode ? 'Full Access: On' : 'Full Access';
+    navFaBtn.style.background = fullAccessMode ? 'var(--accent)' : 'none';
+    navFaBtn.style.color = fullAccessMode ? 'var(--on-accent)' : 'var(--muted)';
+    navFaBtn.style.borderColor = fullAccessMode ? 'var(--accent)' : 'var(--border)';
+  }
+}
+
+function promptFullAccess() {
+  // Show passcode entry modal
+  const existing = document.getElementById('fullAccessModal');
+  if (existing) existing.remove();
+  const modal = document.createElement('div');
+  modal.id = 'fullAccessModal';
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:500;display:flex;align-items:center;justify-content:center;padding:20px;';
+  modal.innerHTML = `
+    <div style="background:var(--card);border-radius:20px;padding:32px 28px;max-width:320px;width:100%;text-align:center;">
+      <div style="font-family:'Noto Serif Display',Georgia,serif;font-stretch:extra-condensed;text-transform:uppercase;letter-spacing:.16em;font-size:.9rem;color:var(--text);margin-bottom:6px;">Full Access</div>
+      <div style="font-size:.75rem;color:var(--muted);margin-bottom:20px;font-family:'Noto Serif Display',Georgia,serif;">Enter your 5-character passcode</div>
+      <input id="fullAccessInput" type="password" maxlength="5"
+        style="font-family:'Noto Serif Display',Georgia,serif;font-size:1.4rem;letter-spacing:.3em;text-align:center;border:1px solid var(--border);border-radius:10px;padding:12px;width:100%;background:var(--bg);color:var(--text);outline:none;margin-bottom:16px;"
+        placeholder="·····"
+        oninput="if(this.value.length===5)checkFullAccessCode(this.value)"
+        onkeydown="if(event.key==='Escape')closeFullAccessModal()"/>
+      <div id="fullAccessError" style="font-size:.72rem;color:#c0554a;min-height:16px;margin-bottom:12px;"></div>
+      <button onclick="closeFullAccessModal()" style="font-family:'Noto Serif Display',Georgia,serif;font-stretch:extra-condensed;text-transform:uppercase;letter-spacing:.1em;font-size:.8rem;background:none;border:1px solid var(--border);border-radius:10px;padding:8px 20px;cursor:pointer;color:var(--muted);">Cancel</button>
+    </div>`;
+  document.body.appendChild(modal);
+  setTimeout(() => document.getElementById('fullAccessInput')?.focus(), 100);
+}
+
+function checkFullAccessCode(entered) {
+  if (!_fullAccessCode) {
+    // No code set — prompt to set one in settings
+    closeFullAccessModal();
+    showToast('Set a Full Access passcode in Settings first');
+    return;
+  }
+  if (entered === _fullAccessCode) {
+    closeFullAccessModal();
+    fullAccessMode = true;
+    workMode = false;
+    applyWorkMode();
+    showToast('Full Access unlocked');
+  } else {
+    document.getElementById('fullAccessError').textContent = 'Incorrect passcode';
+    document.getElementById('fullAccessInput').value = '';
+  }
+}
+
+function closeFullAccessModal() {
+  const m = document.getElementById('fullAccessModal');
+  if (m) m.remove();
+}
+
+function exitFullAccess() {
+  fullAccessMode = false;
+  applyWorkMode();
+  showToast('Full Access closed');
+}
+
+// ── Access Mode Slider ─────────────────────────────────────
+let _currentMode = 1; // 0=work, 1=personal, 2=fullAccess
+let _pendingMode = -1;
+
+function handleModeSliderClick(e) {
+  const track = document.getElementById('modeSliderTrack');
+  if (!track) return;
+  const rect = track.getBoundingClientRect();
+  const x = (e.clientX || (e.touches && e.touches[0].clientX) || 0) - rect.left;
+  const pct = x / rect.width;
+  let newMode = pct < 0.33 ? 0 : pct < 0.66 ? 1 : 2;
+  setAccessMode(newMode);
+}
+
+function setAccessMode(mode) {
+  if (_currentMode === 2 && mode !== 2) fullAccessMode = false;
+  if (mode === 2 && !fullAccessMode) {
+    _pendingMode = 2;
+    promptFullAccess();
+    return;
+  }
+  _currentMode = mode;
+  workMode = (mode === 0);
+  fullAccessMode = (mode === 2);
+  updateModeSliderUI(mode);
+  applyWorkMode();
+  scheduleSave();
+}
+
+function updateModeSliderUI(mode) {
+  const thumb = document.getElementById('modeSliderThumb');
+  const fill  = document.getElementById('modeSliderFill');
+  const desc  = document.getElementById('modeSliderDesc');
+  const badge = document.getElementById('workModeBadge');
+  if (!thumb) return;
+  const pos   = ['4px', 'calc(50% - 13px)', 'calc(100% - 30px)'];
+  const fills = ['0%', '50%', '100%'];
+  const descs = [
+    'Work mode. Grooming, wellness, habits, cycle and health are hidden.',
+    'Personal mode. All your categories are visible.',
+    'Full Access. All categories including locked content.'
+  ];
+  thumb.style.left = pos[mode];
+  if (fill)  fill.style.width  = fills[mode];
+  if (desc)  desc.textContent  = descs[mode];
+  if (badge) { badge.style.display = (mode===0||mode===2)?'inline-flex':'none'; badge.textContent = mode===0?'Work':'Full Access'; }
+  _updateNavModeBtn();
+}
+
+function checkFullAccessCode(entered) {
+  if (!_fullAccessCode) { closeFullAccessModal(); showToast('Set a passcode in Settings first'); _pendingMode=-1; return; }
+  if (entered === _fullAccessCode) {
+    closeFullAccessModal();
+    fullAccessMode = true; _currentMode = 2; workMode = false;
+    updateModeSliderUI(2); applyWorkMode(); showToast('Full Access unlocked'); _pendingMode=-1;
+  } else {
+    document.getElementById('fullAccessError').textContent = 'Incorrect passcode';
+    document.getElementById('fullAccessInput').value = '';
+    _currentMode = 1; updateModeSliderUI(1); _pendingMode=-1;
+  }
+}
+
+function exitFullAccess() {
+  fullAccessMode = false; _currentMode = 1;
+  updateModeSliderUI(1); applyWorkMode(); showToast('Full Access closed');
+}
+
+function cycleAccessMode() {
+  // Work → Personal → (Full Access requires code)
+  if (_currentMode === 0) setAccessMode(1);
+  else if (_currentMode === 1) setAccessMode(0);
+  else exitFullAccess();
+}
+
+function _updateNavModeBtn() {
+  const btn = document.getElementById('navModeBtnLabel');
+  if (!btn) return;
+  const labels = ['Work', 'Personal', 'Full Access'];
+  btn.textContent = labels[_currentMode] || 'Personal';
 }
 
 function toggleWorkMode() {
@@ -4223,7 +4431,16 @@ function overdueTaskTick(cb, id) {
     } else if (_ot) {
       _ot.done = true;
     }
+    // Stamp lastPush so Firebase merge won't overwrite this immediately
+    const _odNow = Date.now();
+    localStorage.setItem('centre_lastSync', String(_odNow));
+    localStorage.setItem('centre_lastPush', String(_odNow));
     scheduleSave();
+    // Push immediately to Firebase — don't wait for debounce
+    if (window._fbReady && typeof fbSyncEnabled !== 'undefined' && fbSyncEnabled) {
+      clearTimeout(window._fbSaveTimer);
+      window._fbSaveTimer = setTimeout(pushToFirebase, 300);
+    }
     // Animate out after state is committed
     if (row) { row.style.transition='opacity .35s'; row.style.opacity='0'; }
     setTimeout(() => {
@@ -4734,10 +4951,12 @@ function renderTasks(){
   const list=document.getElementById('taskList');
   const td=today();
   let base=tasks;
-  if(workMode){
+  if(fullAccessMode){
+    // Full access — show everything, no filter
+  } else if(workMode){
     const _hiddenCats=['grooming','wellness','habits','cycle','health'];
     base=tasks.filter(t=>{
-      if(!t.catId)return true; // no category — show in work mode
+      if(!t.catId)return true;
       const cat=categories.find(c=>c.id===t.catId);
       if(!cat)return true;
       const cn=cat.name.toLowerCase();
@@ -9707,7 +9926,11 @@ function applyRemoteData(remote) {
   centreDate = null;
   scheduleViewDate = null;
   eventsViewDate = null;
-  if (remote.tasks) tasks = remote.tasks;
+  // Only overwrite tasks/recurDoneLog if remote is newer than local
+  const _applyTs = parseInt(localStorage.getItem('centre_lastPush') || '0');
+  const _remoteTs = remote._ts || 0;
+  const _remoteIsNewer = _remoteTs > _applyTs;
+  if (remote.tasks && (_remoteIsNewer || !tasks.length)) tasks = remote.tasks;
   if (remote.events) events = remote.events;
   if (remote.categories) categories = remote.categories;
   if (remote.habitLog) habitLog = remote.habitLog;
@@ -9730,7 +9953,7 @@ function applyRemoteData(remote) {
   if (remote.noteSeq) noteSeq = remote.noteSeq;
   if (remote.negativeHabits) negativeHabits = remote.negativeHabits;
   if (remote.negHabitSeq) negHabitSeq = remote.negHabitSeq;
-  if (remote.recurDoneLog) recurDoneLog = remote.recurDoneLog;
+  if (remote.recurDoneLog && (_remoteIsNewer || !recurDoneLog.length)) recurDoneLog = remote.recurDoneLog;
   if (remote.subtasks) subtasks = remote.subtasks;
   if (remote.subtaskSeq) subtaskSeq = remote.subtaskSeq;
   if (remote.meds) meds = remote.meds;
@@ -11603,6 +11826,9 @@ setTimeout(msSilentReconnect, 1500);
 // ICS feed auto-pull on load
 if (_icsUrl) setTimeout(() => icsPull(false), 2000);
 updateOnAccent(); // set --on-accent based on loaded accent colour
+// Set slider position from saved mode
+_currentMode = workMode ? 0 : fullAccessMode ? 2 : 1;
+updateModeSliderUI(_currentMode);
 applyWorkMode(); // restore work mode state on load
 // Apply PHASE_DEFAULTS only if no custom phase colours have been saved by user
 (function(){
