@@ -61,12 +61,13 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opa
 h1,h2,h3,.card-title,.block-title,.nav-btn,.tab,.filter-btn,.add-btn,.save-btn,.modal-save,.apply-btn,.settings-section-title,.week-label,.day-name{font-family:'Noto Serif Display',Georgia,serif;font-weight:400;font-style:normal;font-stretch:extra-condensed;text-transform:uppercase;}
 .app-title{text-align:center;font-size:2.4rem;letter-spacing:.38em;color:var(--text);margin-bottom:4px;font-weight:400;font-stretch:extra-condensed;text-indent:.38em;text-transform:none;}
 .card-title{font-size:.88rem;letter-spacing:.22em;text-transform:uppercase;color:var(--text);margin-bottom:20px;padding-bottom:14px;border-bottom:1px solid rgba(180,160,120,.18);font-stretch:extra-condensed;font-weight:200;display:block;width:100%;box-sizing:border-box;line-height:.9;}
-.block-title{font-size:.95rem;letter-spacing:.06em;color:var(--text);margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+.block-title{font-size:.7rem;letter-spacing:.14em;color:var(--muted);margin-bottom:10px;display:flex;align-items:center;gap:0;font-family:'Noto Serif Display',Georgia,serif;font-stretch:extra-condensed;text-transform:uppercase;font-weight:200;}
+.block-title::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,rgba(180,160,120,.2) 0%,transparent 100%);margin:0 10px;}
 .block-section{margin-bottom:26px;}
 .block-section.is-past{opacity:.55;}
 .block-tasks-wrap{border-left:2px solid var(--border);padding-left:10px;margin-top:8px;transition:border-color .2s;}
 .block-section.is-current .block-tasks-wrap{border-left-color:var(--accent);}
-.block-time{font-family:'Noto Serif Display',Georgia,serif;font-size:.68rem;color:var(--muted);letter-spacing:.02em;font-variant-numeric:lining-nums tabular-nums;}
+.block-time{font-family:'Noto Serif Display',Georgia,serif;font-size:.62rem;color:var(--muted);opacity:.6;letter-spacing:.02em;font-variant-numeric:lining-nums tabular-nums;white-space:nowrap;}
 .app-date{text-align:center;font-size:.78rem;color:var(--muted);letter-spacing:.08em;margin-bottom:28px;font-family:'Noto Serif Display',Georgia,serif;font-style:italic;font-weight:200;}
 .dashboard{max-width:900px;margin:0 auto;padding:0 24px;}
 /* Scroll fade — content fades at viewport edges */
@@ -165,22 +166,33 @@ body::after{content:'';position:fixed;left:0;right:0;bottom:0;height:60px;pointe
 .task-item.done{opacity:.32;transition:opacity .35s ease;position:relative;}
 .task-item.done .item-name{text-decoration:line-through;text-decoration-color:rgba(0,0,0,.2);text-underline-offset:3px;}
 .task-item .item-name{position:relative;line-height:1.7;}
-.task-item input[type="checkbox"]{
+/* ── Refined circle checkboxes — global ── */
+.task-item input[type="checkbox"],
+.block-task-item input[type="checkbox"],
+.centre-subtask-row input[type="checkbox"],
+#overdueStrip input[type="checkbox"]{
   appearance:none;-webkit-appearance:none;
-  width:14px;height:14px;
-  border:1.5px solid rgba(0,0,0,.18);
+  width:14px;height:14px;min-width:14px;
+  border:1.5px solid rgba(0,0,0,.16);
   border-radius:50%;
   cursor:pointer;flex-shrink:0;
-  margin-top:4px;
+  margin-top:3px;
   background:transparent;
-  transition:all .18s;
-  position:relative;
+  transition:background .15s,border-color .15s;
+  position:relative;display:inline-block;
+  vertical-align:middle;
 }
-.task-item input[type="checkbox"]:checked{
+.task-item input[type="checkbox"]:checked,
+.block-task-item input[type="checkbox"]:checked,
+.centre-subtask-row input[type="checkbox"]:checked,
+#overdueStrip input[type="checkbox"]:checked{
   background:var(--accent);
   border-color:var(--accent);
 }
-.task-item input[type="checkbox"]:checked::after{
+.task-item input[type="checkbox"]:checked::after,
+.block-task-item input[type="checkbox"]:checked::after,
+.centre-subtask-row input[type="checkbox"]:checked::after,
+#overdueStrip input[type="checkbox"]:checked::after{
   content:'';
   position:absolute;
   left:3px;top:1px;
@@ -299,7 +311,7 @@ body::after{content:'';position:fixed;left:0;right:0;bottom:0;height:60px;pointe
 .no-events{font-size:.85rem;color:var(--muted);font-family:'Noto Serif Display',Georgia,serif;}
 .block-tasks{display:flex;flex-direction:column;gap:7px;}
 .block-task-item{display:flex;align-items:center;gap:0;padding:12px 14px;border-radius:11px;background:transparent;}.block-task-icon-col{width:22px;flex-shrink:0;display:flex;align-items:center;justify-content:center;margin-right:4px;}.block-task-cb-col{width:16px;flex-shrink:0;margin-right:10px;}.block-task-name-col{flex:1;font-size:.85rem;}.block-task-handle{color:var(--border);font-size:.75rem;cursor:grab;flex-shrink:0;padding:0 2px;user-select:none;line-height:1;margin-left:8px;}.block-task-handle:hover{color:var(--muted);}
-.block-task-item input[type="checkbox"]{accent-color:var(--accent);width:16px;height:16px;flex-shrink:0;cursor:pointer;}
+/* block-task-item checkbox handled by global circle rule above */
 .block-task-name{flex:1;font-size:.82rem;line-height:1.7;}
 .block-task-item.done{opacity:.52;}
 .block-task-item.done .block-task-name-col>span{text-decoration:line-through;color:var(--muted);}
@@ -3607,6 +3619,9 @@ function loadFromStorage(){
     const _an=localStorage.getItem('centre_accentNormal');if(_an){document.documentElement.style.setProperty('--accent-normal',_an);}
     const _aw=localStorage.getItem('centre_accentWork');if(_aw){
       document.documentElement.style.setProperty('--accent-work',_aw);
+    }
+    const _af=localStorage.getItem('centre_accentFull');if(_af){
+      document.documentElement.style.setProperty('--accent-full',_af);
       // Inline darken (darken() not yet defined at load time)
       try{const _r=Math.max(0,parseInt(_aw.slice(1,3),16)-15),_g=Math.max(0,parseInt(_aw.slice(3,5),16)-15),_b=Math.max(0,parseInt(_aw.slice(5,7),16)-15);document.documentElement.style.setProperty('--accent-work-dark','#'+[_r,_g,_b].map(x=>x.toString(16).padStart(2,'0')).join(''));}catch(e){}
     }
@@ -4488,7 +4503,11 @@ function overdueTaskTick(cb, id) {
     // Animate out after state is committed
     if (row) { row.style.transition='opacity .35s'; row.style.opacity='0'; }
     setTimeout(() => {
-      renderOverdueStrip(document.getElementById('overviewBlocks'));
+      // Re-render the full overview so the strip rebuilds from fresh state
+      const _ob = document.getElementById('overviewBlocks');
+      if (_ob) renderOverdueStrip(_ob);
+      // Also re-render task list so done state reflects there too
+      if (document.getElementById('page-tasks')?.classList.contains('active')) renderTasks();
     }, 380);
   } else {
     const _ot2 = tasks.find(t=>t.id===id);
@@ -8516,11 +8535,13 @@ function applyTheme(){
       if(val) _t[v]=val;
     });
     localStorage.setItem('centre_theme', JSON.stringify(_t));
-    // Save accent-normal and accent-work immediately — not just in scheduleSave
+    // Save all accent variants immediately — not just in scheduleSave
     const _an=getComputedStyle(document.documentElement).getPropertyValue('--accent-normal').trim();
     const _aw=getComputedStyle(document.documentElement).getPropertyValue('--accent-work').trim();
+    const _af=getComputedStyle(document.documentElement).getPropertyValue('--accent-full').trim();
     if(_an) localStorage.setItem('centre_accentNormal', _an);
     if(_aw) localStorage.setItem('centre_accentWork', _aw);
+    if(_af) localStorage.setItem('centre_accentFull', _af);
   } catch(e) {}
   // Push theme to Firebase immediately
   if (window._fbReady && typeof fbSyncEnabled !== 'undefined' && fbSyncEnabled) {
@@ -9865,8 +9886,18 @@ function initFirebase(manual) {
 
           // habitLog: composite key (no id field)
           if (remote.habitLog && habitLog.length) {
-            const rKeys = new Set(remote.habitLog.map(e => e.taskId+'|'+e.date+'|'+(e.ts||0)+'|'+(e.frozen?'1':'0')));
-            const onlyLocalHL = habitLog.filter(e => !rKeys.has(e.taskId+'|'+e.date+'|'+(e.ts||0)+'|'+(e.frozen?'1':'0')));
+            // Water entries: use taskId|date only — prevent stacking same-day entries
+            // Other habit entries: use taskId|date|ts|frozen for full fidelity
+            const rWaterKeys = new Set(
+              remote.habitLog.filter(e=>e.taskId===WATER_HABIT_ID).map(e=>e.taskId+'|'+e.date)
+            );
+            const rOtherKeys = new Set(
+              remote.habitLog.filter(e=>e.taskId!==WATER_HABIT_ID).map(e=>e.taskId+'|'+e.date+'|'+(e.ts||0)+'|'+(e.frozen?'1':'0'))
+            );
+            const onlyLocalHL = habitLog.filter(e => {
+              if (e.taskId === WATER_HABIT_ID) return !rWaterKeys.has(e.taskId+'|'+e.date);
+              return !rOtherKeys.has(e.taskId+'|'+e.date+'|'+(e.ts||0)+'|'+(e.frozen?'1':'0'));
+            });
             if (onlyLocalHL.length) { remote.habitLog = [...remote.habitLog, ...onlyLocalHL]; hadLocalOnly = true; }
           } else if (!remote.habitLog && habitLog.length) {
             remote.habitLog = habitLog; hadLocalOnly = true;
@@ -9929,8 +9960,13 @@ function getLocalDataBundle() {
   const _theme = {};
   try {
     const cs = getComputedStyle(document.documentElement);
-    const EDITABLE_ALL = ['--bg','--card','--text','--accent','--accent-work','--muted','--border','--icon-color','--icon-color-work','--icon-stroke'];
-    EDITABLE_ALL.forEach(v => { const val = cs.getPropertyValue(v).trim(); if (val) _theme[v] = val; });
+    const EDITABLE_ALL = ['--bg','--card','--text','--accent','--accent-work','--accent-full','--muted','--border','--icon-color','--icon-color-work','--icon-stroke'];
+    EDITABLE_ALL.forEach(v => {
+      let val = cs.getPropertyValue(v).trim();
+      // Always save --accent-normal's value for --accent key, never the mode-swapped value
+      if (v === '--accent') val = cs.getPropertyValue('--accent-normal').trim() || val;
+      if (val) _theme[v] = val;
+    });
     if (typeof PHASE_VARS !== 'undefined') PHASE_VARS.forEach(v => { const val = cs.getPropertyValue(v).trim(); if (val) _theme[v] = val; });
   } catch(e) {}
   return {
@@ -10049,6 +10085,10 @@ function applyRemoteData(remote) {
         // Never set --accent directly — applyWorkMode handles it from --accent-normal
         if (k === '--accent' || k === '--accent-dark') return;
         document.documentElement.style.setProperty(k, v);
+        // Persist accent keys to localStorage when received from remote
+        if (k === '--accent-normal') localStorage.setItem('centre_accentNormal', v);
+        if (k === '--accent-work') localStorage.setItem('centre_accentWork', v);
+        if (k === '--accent-full') localStorage.setItem('centre_accentFull', v);
         if (k === '--accent-normal') {
           // When accent-normal changes, re-apply work mode to update --accent correctly
           setTimeout(() => applyWorkMode(), 0);
@@ -10079,6 +10119,8 @@ function applyRemoteData(remote) {
   }
   // Reconcile waterFilled from habitLog (in case Firebase had stale waterFilled)
   reconcileWaterFilled();
+  // Re-apply work mode to ensure --accent matches current mode after remote theme applied
+  setTimeout(() => applyWorkMode(), 0);
   // Re-render — guard every call so a missing element never aborts the whole sync
   function safeRender(fn) { try { fn(); } catch(e) { console.warn('render skip:', e.message); } }
 
