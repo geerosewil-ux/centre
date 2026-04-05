@@ -907,6 +907,62 @@ body::after{content:'';position:fixed;left:0;right:0;bottom:0;height:60px;pointe
 </style>
   <!-- Microsoft Authentication Library for Outlook calendar -->
   <script src="https://alcdn.msauth.net/browser/2.38.3/js/msal-browser.min.js"></script>
+  <!-- MyScript iink SDK for handwriting recognition -->
+  <script src="https://cdn.jsdelivr.net/npm/iink-ts@1.0.6/dist/iink.min.js"></script>
+  <style>
+    /* ── Ink overlay layer ────────────────────────────────── */
+    .ink-host-wrap { position:relative; display:block; }
+    .ink-editor-layer {
+      position:absolute;
+      inset:0;
+      z-index:10;
+      border-radius:inherit;
+      overflow:hidden;
+      pointer-events:none;
+      opacity:0;
+      transition:opacity .2s;
+    }
+    .ink-editor-layer.ink-active {
+      pointer-events:auto;
+      opacity:1;
+    }
+    /* iink canvas override — transparent bg, accent ink */
+    .ink-editor-layer canvas { background:transparent !important; }
+    /* Ink toggle button — subtle pen icon on field */
+    .ink-toggle-btn {
+      position:absolute;
+      right:6px;
+      top:50%;
+      transform:translateY(-50%);
+      width:26px;height:26px;
+      border:none;background:none;
+      cursor:pointer;
+      opacity:.35;
+      transition:opacity .15s;
+      z-index:11;
+      display:flex;align-items:center;justify-content:center;
+      color:var(--accent);
+      font-size:14px;
+    }
+    .ink-toggle-btn:hover { opacity:.7; }
+    .ink-toggle-btn.ink-on { opacity:1; color:var(--accent); }
+    /* Ink mode indicator — subtle dot on active field */
+    .ink-active-indicator {
+      position:absolute;
+      top:4px;right:4px;
+      width:5px;height:5px;
+      border-radius:50%;
+      background:var(--accent);
+      opacity:0;
+      transition:opacity .2s;
+      z-index:12;
+      pointer-events:none;
+    }
+    .ink-host-wrap.ink-on .ink-active-indicator { opacity:.7; }
+    /* textarea ink host */
+    .ink-host-wrap-ta { position:relative; }
+    .ink-host-wrap-ta .ink-editor-layer { border-radius:10px; }
+  </style>
 </head>
 <body>
 
@@ -2040,6 +2096,26 @@ body::after{content:'';position:fixed;left:0;right:0;bottom:0;height:60px;pointe
   <div class="page" id="page-settings">
     <div class="card">
 
+      <!-- HANDWRITING -->
+      <div class="settings-section" style="margin-bottom:24px;">
+        <div class="settings-section-title">Handwriting Input</div>
+        <p style="font-size:.78rem;color:var(--muted);font-family:'Noto Serif Display',Georgia,serif;margin-bottom:12px;line-height:1.6;">Write directly in any text field. Tap the <span style="font-size:.85rem;">✒</span> icon on a field to switch between typing and handwriting.</p>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+          <span style="font-family:'Noto Serif Display',Georgia,serif;font-stretch:extra-condensed;text-transform:uppercase;letter-spacing:.08em;font-size:.7rem;color:var(--muted);">Handwriting</span>
+          <div style="position:relative;display:inline-block;width:44px;height:24px;flex-shrink:0;cursor:pointer;" onclick="toggleInkMode()">
+            <span id="inkModeTrack" style="position:absolute;inset:0;background:var(--border);border-radius:24px;transition:background .2s;"></span>
+            <span id="inkModeThumb" style="position:absolute;left:3px;top:3px;width:18px;height:18px;background:white;border-radius:50%;transition:transform .2s;box-shadow:0 1px 4px rgba(0,0,0,.15);"></span>
+          </div>
+          <span id="inkModeLabel" style="font-size:.76rem;color:var(--muted);font-family:'Noto Serif Display',Georgia,serif;">Off</span>
+        </div>
+        <div id="inkSettingsDetail" style="display:none;flex-direction:column;gap:8px;padding:12px;background:var(--bg);border-radius:12px;border:1px solid var(--border);">
+          <input class="form-input" id="inkAppKey" type="password" placeholder="Application key" style="font-size:.82rem;" />
+          <input class="form-input" id="inkHmacKey" type="password" placeholder="HMAC key" style="font-size:.82rem;" />
+          <button class="apply-btn" onclick="saveInkKeys()" style="align-self:flex-start;padding:7px 16px;font-size:.8rem;">Save keys</button>
+          <p style="font-size:.7rem;color:var(--muted);font-family:'Noto Serif Display',Georgia,serif;margin:0;">Keys stored locally only.</p>
+        </div>
+      </div>
+
       <!-- ACCESS MODE SLIDER -->
       <div class="settings-section" style="margin-bottom:24px;">
         <div class="settings-section-title" style="display:flex;align-items:center;justify-content:space-between;">
@@ -2765,6 +2841,14 @@ const WATER_SCHEDULE=[
   {mins:22*60,   ml:0,   label:'Sips only',    blockId:'winddown', sips:true}
 ];
 
+// Milestone markers on the water bar — independent of tap-to-add schedule
+const WATER_MILESTONES = [
+  {mins:10*60, cumTarget:650,  label:'650ml'},
+  {mins:13*60, cumTarget:1300, label:'1300ml'},
+  {mins:16*60, cumTarget:1950, label:'1950ml'},
+  {mins:20*60, cumTarget:2500, label:'2500ml'},
+];
+
 // Renders a slim full-height water bar with fill level + tick marks.
 // The bar spans the full day window (7am–10pm = 900 mins).
 // Fill height = cumulative goal ml reached by current time as a % of total daily goal.
@@ -2780,23 +2864,24 @@ function renderWaterTimeline(isToday, blocksHtml){
   ));
 
   // Build cumulative totals on WATER_SCHEDULE if not already set
-  let cum = 0;
-  WATER_SCHEDULE.forEach(w => {
-    if(!w.sips){ cum += w.ml; w.cum = cum; }
-    else { w.cum = cum; }
-  });
+  // Use WATER_MILESTONES for bar markers if defined, else fall back to WATER_SCHEDULE
+  const _milestones = typeof WATER_MILESTONES !== 'undefined' ? WATER_MILESTONES : [];
 
-  const futureNonSips = WATER_SCHEDULE.filter(w => !w.sips && w.mins > nowMins);
+  const futureNonSips = _milestones.filter(m => m.mins > nowMins);
 
-  const ticks = WATER_SCHEDULE.map((w, i) => {
+  const ticks = _milestones.map((w, i) => {
     const clamp  = Math.max(DAY_START, Math.min(DAY_END, w.mins));
     const topPct = Math.round((clamp - DAY_START) / DAY_SPAN * 100);
     const isPast    = !w.sips && w.mins <= nowMins;
     const isNext    = !w.sips && futureNonSips[0] === w;
     const isSips    = !!w.sips;
     const cls = 'wb-tick ' + (isSips ? 'sips' : isPast ? 'past' : isNext ? 'current' : 'future');
-    const label = isSips ? '~' : w.cum + 'ml';
-    return `<div class="${cls}" style="top:${topPct}%"><div class="wb-dot"></div><span class="wb-ml">${label}</span></div>`;
+    const target = w.cumTarget !== undefined ? w.cumTarget : (w.cum || 0);
+    const totalMlNow = Math.round((typeof displayFilled !== 'undefined' ? displayFilled : waterFilled) * 250);
+    const met = totalMlNow >= target;
+    const label = w.label || (target + 'ml');
+    const dotStyle = met ? 'background:var(--accent);opacity:1;' : '';
+    return `<div class="${cls}" style="top:${topPct}%"><div class="wb-dot" style="${dotStyle}"></div><span class="wb-ml">${label}</span></div>`;
   }).join('');
 
   const barHtml = `<div class="water-bar-col">
@@ -5027,8 +5112,12 @@ function renderTasks(){
   let base=tasks;
   if(fullAccessMode){
     // Full access — show everything, no filter
-  } else if(workMode){
-    const _hiddenCats=['grooming','wellness','habits','cycle','health'];
+  } else {
+    // Personal and Work: hide grooming (full access only)
+    // Work: also hide wellness, habits, cycle, health
+    const _alwaysHidden=['grooming'];
+    const _workHidden=['grooming','wellness','habits','cycle','health'];
+    const _hiddenCats = workMode ? _workHidden : _alwaysHidden;
     base=tasks.filter(t=>{
       if(!t.catId)return true;
       const cat=categories.find(c=>c.id===t.catId);
@@ -6537,6 +6626,13 @@ function renderOverdueStrip(container) {
       const catName = cat ? cat.name.toLowerCase() : '';
       if (hiddenCatNames.some(n => catName.includes(n))) return false;
       return wc ? t.catId === wc.id : false;
+    });
+  } else if (!fullAccessMode) {
+    // Personal mode: still hide grooming
+    overdueBase = overdueBase.filter(t => {
+      const cat = categories.find(c => c.id === t.catId);
+      const catName = cat ? cat.name.toLowerCase() : '';
+      return !catName.includes('grooming');
     });
   }
   const overdue = overdueBase;
@@ -13109,6 +13205,272 @@ document.addEventListener('visibilitychange', () => {
   else if(h>=23||h<5)tint='rgba(160,180,220,.04)';
   if(tint){const el=document.createElement('div');el.id='timeOfDayTint';el.style.cssText='position:fixed;inset:0;pointer-events:none;z-index:0;background:'+tint+';';document.body.appendChild(el);}
 })();
+
+// ═══════════════════════════════════════════════════════════
+// CENTRE INK ENGINE — MyScript iink inline handwriting
+// ═══════════════════════════════════════════════════════════
+
+let _inkEnabled = false;
+let _inkAppKey  = localStorage.getItem('centre_inkAppKey')  || '';
+let _inkHmacKey = localStorage.getItem('centre_inkHmacKey') || '';
+
+// Active iink editors: Map<fieldId, {editor, wrap, field}>
+const _inkEditors = new Map();
+
+// IDs to attach ink to (inputs + textareas)
+const INK_FIELD_IDS = [
+  'tName','tNotes',
+  'evName','evNotes',
+  'psEvName','psEvNotes',
+  'mEvName','mEvNotes',
+  'mealName',
+  'rcpName','rcpTags','rcpMethod',
+  'grocItem',
+  'tMilestoneReward','negHabitName',
+  'tplName','tplNotes',
+];
+
+function saveInkKeys() {
+  _inkAppKey  = document.getElementById('inkAppKey')?.value.trim()  || _inkAppKey;
+  _inkHmacKey = document.getElementById('inkHmacKey')?.value.trim() || _inkHmacKey;
+  localStorage.setItem('centre_inkAppKey',  _inkAppKey);
+  localStorage.setItem('centre_inkHmacKey', _inkHmacKey);
+  showToast('Handwriting keys saved ✓');
+  if (_inkEnabled) { teardownInk(); setupInk(); }
+}
+
+function toggleInkMode() {
+  _inkEnabled = !_inkEnabled;
+  updateInkModeUI();
+  if (_inkEnabled) setupInk();
+  else teardownInk();
+  localStorage.setItem('centre_inkEnabled', _inkEnabled ? '1' : '0');
+}
+
+function updateInkModeUI() {
+  const track = document.getElementById('inkModeTrack');
+  const thumb = document.getElementById('inkModeThumb');
+  const label = document.getElementById('inkModeLabel');
+  const detail = document.getElementById('inkSettingsDetail');
+  if (track) track.style.background = _inkEnabled ? 'var(--accent)' : 'var(--border)';
+  if (thumb) thumb.style.transform  = _inkEnabled ? 'translateX(20px)' : 'none';
+  if (label) label.textContent       = _inkEnabled ? 'On' : 'Off';
+  if (detail) detail.style.display   = _inkEnabled ? 'flex' : 'none';
+  // Populate key fields if they exist
+  const akEl = document.getElementById('inkAppKey');
+  const hkEl = document.getElementById('inkHmacKey');
+  if (akEl && _inkAppKey) akEl.value = _inkAppKey;
+  if (hkEl && _inkHmacKey) hkEl.value = _inkHmacKey;
+}
+
+function _getInkConfig(isMultiline) {
+  return {
+    server: {
+      scheme: 'https',
+      host: 'cloud.myscript.com',
+      applicationKey: _inkAppKey,
+      hmacKey: _inkHmacKey,
+    },
+    recognition: {
+      type: 'TEXT',
+      text: {
+        guides: { enable: false },
+        smartGuide: false,
+        smartGuideFadeOut: { enable: false },
+        mimeTypes: ['text/plain'],
+        margin: { top: 8, left: 8, right: 8, bottom: 8 },
+      },
+    },
+    renderingParams: {
+      minHeight: isMultiline ? 80 : 38,
+      minWidth: 200,
+    },
+    triggers: {
+      exportContent: 'POINTER_UP',
+      addStrokes: 'POINTER_UP',
+    },
+  };
+}
+
+function setupInk() {
+  if (!_inkAppKey || !_inkHmacKey) {
+    showToast('Add MyScript keys in Settings → Handwriting');
+    _inkEnabled = false;
+    updateInkModeUI();
+    return;
+  }
+  if (typeof iink === 'undefined') {
+    showToast('MyScript SDK loading — try again in a moment');
+    return;
+  }
+  INK_FIELD_IDS.forEach(id => _attachInkToField(id));
+  // Also watch for dynamically added fields (notes, edit forms)
+  _inkObserver = new MutationObserver(_onDomChange);
+  _inkObserver.observe(document.body, { childList: true, subtree: true });
+}
+
+let _inkObserver = null;
+const _pendingInk = new Set();
+
+function _onDomChange() {
+  INK_FIELD_IDS.forEach(id => {
+    if (!_inkEditors.has(id) && document.getElementById(id)) {
+      if (!_pendingInk.has(id)) {
+        _pendingInk.add(id);
+        setTimeout(() => { _attachInkToField(id); _pendingInk.delete(id); }, 100);
+      }
+    }
+  });
+  // Also handle dynamic edit form textareas: enotes-${id}, note-body-${id}
+  document.querySelectorAll('textarea[id^="enotes-"], textarea[id^="note-body-"]').forEach(el => {
+    if (!_inkEditors.has(el.id)) _attachInkToField(el.id);
+  });
+}
+
+function _attachInkToField(fieldId) {
+  const field = document.getElementById(fieldId);
+  if (!field || _inkEditors.has(fieldId)) return;
+  if (field.closest('.ink-host-wrap')) return; // already wrapped
+
+  const isTextarea = field.tagName === 'TEXTAREA';
+  const isMultiline = isTextarea || field.offsetHeight > 50;
+
+  // Wrap field
+  const wrap = document.createElement('div');
+  wrap.className = isTextarea ? 'ink-host-wrap-ta ink-host-wrap' : 'ink-host-wrap';
+  wrap.style.cssText = 'position:relative;';
+  field.parentNode.insertBefore(wrap, field);
+  wrap.appendChild(field);
+
+  // Ink indicator dot
+  const dot = document.createElement('div');
+  dot.className = 'ink-active-indicator';
+  wrap.appendChild(dot);
+
+  // Pen toggle button
+  const btn = document.createElement('button');
+  btn.type = 'button';
+  btn.className = 'ink-toggle-btn';
+  btn.title = 'Switch to handwriting';
+  btn.innerHTML = '✒';
+  btn.style.top = isTextarea ? '8px' : '50%';
+  btn.style.transform = isTextarea ? 'none' : 'translateY(-50%)';
+  wrap.appendChild(btn);
+
+  // iink editor container
+  const editorDiv = document.createElement('div');
+  editorDiv.className = 'ink-editor-layer';
+  editorDiv.style.cssText = `
+    position:absolute;
+    top:0;left:0;right:0;
+    bottom:0;
+    min-height:${isMultiline ? '80px' : '38px'};
+    background:var(--card);
+    border-radius:10px;
+    border:1.5px solid var(--accent);
+    z-index:10;
+  `;
+  wrap.appendChild(editorDiv);
+
+  let editor = null;
+  let inkOn = false;
+  let _autoInsertTimer = null;
+
+  function activateInk() {
+    inkOn = true;
+    wrap.classList.add('ink-on');
+    editorDiv.classList.add('ink-active');
+    btn.classList.add('ink-on');
+    btn.title = 'Switch to typing';
+    btn.innerHTML = '⌨';
+    field.style.pointerEvents = 'none';
+    field.style.caretColor = 'transparent';
+
+    if (!editor) {
+      try {
+        editor = new iink.Editor(editorDiv, _getInkConfig(isMultiline));
+        // Listen for recognised text
+        editorDiv.addEventListener('exported', (e) => {
+          try {
+            const exports = e.detail?.exports;
+            const text = exports?.['text/plain'];
+            if (typeof text === 'string' && text.trim()) {
+              // Auto-insert after 800ms pause
+              clearTimeout(_autoInsertTimer);
+              _autoInsertTimer = setTimeout(() => {
+                const cur = field.value;
+                const appended = cur ? cur + ' ' + text.trim() : text.trim();
+                field.value = appended;
+                field.dispatchEvent(new Event('input', { bubbles: true }));
+                field.dispatchEvent(new Event('change', { bubbles: true }));
+                // Clear ink canvas
+                if (editor) editor.clear();
+              }, 800);
+            }
+          } catch(e2) {}
+        });
+      } catch(err) {
+        console.warn('[INK] editor init failed:', err);
+        deactivateInk();
+      }
+    }
+  }
+
+  function deactivateInk() {
+    inkOn = false;
+    wrap.classList.remove('ink-on');
+    editorDiv.classList.remove('ink-active');
+    btn.classList.remove('ink-on');
+    btn.title = 'Switch to handwriting';
+    btn.innerHTML = '✒';
+    field.style.pointerEvents = '';
+    field.style.caretColor = '';
+    clearTimeout(_autoInsertTimer);
+    if (editor) { try { editor.clear(); } catch(e) {} }
+  }
+
+  btn.addEventListener('click', (e) => {
+    e.preventDefault(); e.stopPropagation();
+    if (inkOn) deactivateInk();
+    else activateInk();
+  });
+
+  _inkEditors.set(fieldId, { editor, wrap, field, activateInk, deactivateInk });
+}
+
+function teardownInk() {
+  if (_inkObserver) { _inkObserver.disconnect(); _inkObserver = null; }
+  _inkEditors.forEach(({ wrap, field, deactivateInk }) => {
+    try {
+      deactivateInk();
+      // Unwrap field
+      if (wrap.parentNode) {
+        wrap.parentNode.insertBefore(field, wrap);
+        wrap.remove();
+      }
+    } catch(e) {}
+  });
+  _inkEditors.clear();
+}
+
+// Restore ink state on load
+(function() {
+  const saved = localStorage.getItem('centre_inkEnabled');
+  // Pre-populate keys if not yet set (from build-time values)
+  if (!localStorage.getItem('centre_inkAppKey') && !localStorage.getItem('centre_inkHmacKey')) {
+    localStorage.setItem('centre_inkAppKey',  '2b1b689d-f605-4f85-8441-42cbae4a9fc4');
+    localStorage.setItem('centre_inkHmacKey', '0acf2797-7d63-42c5-a577-dbb897d5eead');
+    _inkAppKey  = '2b1b689d-f605-4f85-8441-42cbae4a9fc4';
+    _inkHmacKey = '0acf2797-7d63-42c5-a577-dbb897d5eead';
+  }
+  if (saved === '1') {
+    _inkEnabled = true;
+    // Wait for DOM and SDK to load
+    setTimeout(() => { updateInkModeUI(); setupInk(); }, 500);
+  }
+  updateInkModeUI();
+})();
+
 </script>
 
   <!-- STYLED assign outfit sheet -->
