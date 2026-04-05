@@ -41,7 +41,7 @@
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <style>
 @font-face{font-family:'Noto Serif Display';src:url('Handwriting.ttf') format('truetype');}
-:root{--font-body:'Noto Serif Display',Georgia,serif;--font-display:'Noto Serif Display',Georgia,serif;--bg:#f9f8f6;--card:rgba(255,254,250,.96);--text:#2c2c2c;--accent:#ebf3ff;--accent-dark:#c8daf0;--accent-normal:#ebf3ff;--accent-work:#7e9e8c;--accent-work-dark:#6a8a78;--accent-full:#b8a99a;--accent-full-dark:#9e8f80;--muted:#999;--border:#e8e8e8;--icon-stroke:1.8;--icon-color:#93aacd;--icon-color-work:#7e9e8c;
+:root{--font-body:'Noto Serif Display',Georgia,serif;--font-display:'Noto Serif Display',Georgia,serif;--bg:#f9f8f6;--card:rgba(255,254,250,.96);--text:#2c2c2c;--accent:#ebf3ff;--accent-dark:#c8daf0;--accent-normal:#ebf3ff;--accent-work:#ebefb9;--accent-work-dark:#d4d8a0;--accent-full:#efdbff;--accent-full-dark:#d9b8f0;--muted:#999;--border:#e8e8e8;--icon-stroke:1.8;--icon-color:#93aacd;--icon-color-work:#7e9e8c;
 --phase-menstrual:#dd2c60;--phase-follicular:#d78881;--phase-ovulation:#ac487c;--phase-luteal:#861a3a;--water-fill:var(--accent);--water-light:rgba(147,170,205,.13);--water-border:rgba(147,170,205,.25);--on-accent:#ffffff;--font-mono:'SF Mono','Monaco','Inconsolata','Fira Mono',monospace;
 --nutri-cal:var(--accent);
 --nutri-protein:var(--accent);
@@ -2378,14 +2378,7 @@ body::after{content:'';position:fixed;left:0;right:0;bottom:0;height:60px;pointe
               <div class="settings-grid" id="phaseColourGrid"></div>
             </div>
             <div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--border);">
-              <div style="font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px;">Nutrition Tracking Colours</div>
-              <p style="font-size:.76rem;color:var(--muted);font-family:'Noto Serif Display',Georgia,serif;font-stretch:normal;margin-bottom:10px;">Default to accent. Override per-nutrient below.</p>
-              <div id="nutriColourGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:8px;margin-bottom:10px;"></div>
-              <div style="display:flex;gap:8px;flex-wrap:wrap;">
-                <button class="apply-btn" onclick="applyNutriColours()" style="padding:7px 14px;font-size:.78rem;">Apply Nutrition</button>
-                <button class="reset-theme-btn" onclick="resetNutriColours()" style="font-size:.78rem;padding:7px 12px;">Reset to accent</button>
-              </div>
-            </div>
+              <!-- Nutrition colours always match mode accent --></div>
             <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;">
               <button class="apply-btn" onclick="applyTheme()">Apply</button>
               <button class="reset-theme-btn" onclick="resetTheme()">Reset to defaults</button>
@@ -2932,7 +2925,7 @@ function renderWaterTimeline(isToday, blocksHtml){
   return `<div class="schedule-layout">${barHtml}<div>${blocksHtml}</div></div>`;
 }
 
-const THEME_DEFAULTS={'--bg':'#f9f8f6','--card':'#ffffff','--text':'#2c2c2c','--accent':'#93aacd','--accent-work':'#7e9e8c','--muted':'#999999','--border':'#e8e8e8'};
+const THEME_DEFAULTS={'--bg':'#f9f8f6','--card':'#ffffff','--text':'#2c2c2c','--accent':'#ebf3ff','--accent-work':'#ebefb9','--muted':'#999999','--border':'#e8e8e8'};
 const THEME_LABELS={'--bg':'Background','--card':'Card','--text':'Text','--accent':'Personal Accent','--accent-work':'Work Accent','--accent-full':'Full Access Accent','--muted':'Muted text','--border':'Borders'};
 const EDITABLE=['--bg','--card','--text','--accent','--accent-work','--accent-full','--muted','--border'];
 const DOW_LABELS=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
@@ -4645,12 +4638,12 @@ function overdueTaskTick(cb, id) {
     // Stamp lastPush so Firebase merge won't overwrite this immediately
     const _odNow = Date.now();
     localStorage.setItem('centre_lastSync', String(_odNow));
-    localStorage.setItem('centre_lastPush', String(_odNow));
+    localStorage.setItem('centre_lastPush', String(_odNow + 5000)); // 5s future buffer
     scheduleSave();
-    // Push immediately to Firebase — don't wait for debounce
+    // Push immediately to Firebase — synchronous, no debounce
     if (window._fbReady && typeof fbSyncEnabled !== 'undefined' && fbSyncEnabled) {
       clearTimeout(window._fbSaveTimer);
-      window._fbSaveTimer = setTimeout(pushToFirebase, 300);
+      pushToFirebase(); // immediate, not delayed
     }
     // Animate out after state is committed
     if (row) { row.style.transition='opacity .35s'; row.style.opacity='0'; }
@@ -10421,7 +10414,23 @@ function applyRemoteData(remote) {
   if (remote.noteSeq) noteSeq = remote.noteSeq;
   if (remote.negativeHabits) negativeHabits = remote.negativeHabits;
   if (remote.negHabitSeq) negHabitSeq = remote.negHabitSeq;
-  if (remote.recurDoneLog && (_remoteIsNewer || !recurDoneLog.length)) recurDoneLog = remote.recurDoneLog;
+  // For recurDoneLog: use remote if newer, BUT always merge to preserve local catch-up ticks
+  if (remote.recurDoneLog) {
+    if (_remoteIsNewer || !recurDoneLog.length) {
+      // Remote is newer — but still rescue any local entries not in remote
+      const remoteRDLKeys = new Set(remote.recurDoneLog.map(function(e){return e.taskId+'|'+e.date;}));
+      const localOnlyRDL = recurDoneLog.filter(function(e){return !remoteRDLKeys.has(e.taskId+'|'+e.date);});
+      recurDoneLog = localOnlyRDL.length ? remote.recurDoneLog.concat(localOnlyRDL) : remote.recurDoneLog;
+    }
+    // If local is newer: keep local but add any remote entries we don't have
+    else {
+      const localRDLKeys = new Set(recurDoneLog.map(function(e){return e.taskId+'|'+e.date;}));
+      const remoteOnlyRDL = remote.recurDoneLog.filter(function(e){return !localRDLKeys.has(e.taskId+'|'+e.date);});
+      if (remoteOnlyRDL.length) recurDoneLog = recurDoneLog.concat(remoteOnlyRDL);
+    }
+  } else if (!recurDoneLog.length && remote.recurDoneLog) {
+    recurDoneLog = remote.recurDoneLog;
+  }
   if (remote.subtasks) subtasks = remote.subtasks;
   if (remote.subtaskSeq) subtaskSeq = remote.subtaskSeq;
   if (remote.meds) meds = remote.meds;
