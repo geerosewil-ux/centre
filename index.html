@@ -165,16 +165,14 @@ body::after{content:'';position:fixed;left:0;right:0;bottom:0;height:60px;pointe
 .task-item:hover{box-shadow:0 2px 10px rgba(0,0,0,.06);transform:translateX(2px);}.event-item-detail{display:none;margin-top:8px;padding-top:8px;border-top:1px solid var(--border);}.event-item-detail.open{display:block;}.event-detail-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:4px;align-items:center;}.event-detail-label{font-size:.62rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;min-width:52px;flex-shrink:0;}.event-detail-val{font-size:.78rem;color:var(--text);}
 .task-item.done{opacity:.32;transition:opacity .35s ease;position:relative;}
 .task-item.waiting{opacity:.65;}
-/* ── Category visibility editor ── */
-.cat-vis-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border);}
+.cat-vis-row{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--border);}
 .cat-vis-row:last-child{border-bottom:none;}
-.cat-vis-swatch{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
-.cat-vis-name{flex:1;font-size:.85rem;color:var(--text);}
-.cat-vis-modes{display:flex;gap:6px;flex-shrink:0;}
+.cat-vis-swatch{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
+.cat-vis-name{flex:1;font-size:.84rem;color:var(--text);}
+.cat-vis-modes{display:flex;gap:5px;flex-shrink:0;}
 .cat-vis-btn{font-family:'Noto Serif Display',Georgia,serif;font-stretch:extra-condensed;text-transform:uppercase;letter-spacing:.07em;font-size:.58rem;padding:3px 8px;border-radius:20px;border:1.5px solid var(--border);background:none;color:var(--muted);cursor:pointer;transition:all .15s;white-space:nowrap;}
 .cat-vis-btn.on{border-color:var(--accent);color:var(--accent);background:rgba(147,170,205,.1);}
-.cat-vis-btn.locked{opacity:.4;cursor:default;}
-
+.cat-vis-btn.locked{opacity:.5;cursor:default;}
 .waiting-strip{margin-top:10px;border-radius:14px;border:1px solid var(--border);overflow:hidden;}
 .waiting-strip-header{display:flex;align-items:center;gap:8px;padding:9px 14px;cursor:pointer;user-select:none;background:var(--bg);}
 .waiting-strip-label{font-family:'Noto Serif Display',Georgia,serif;font-stretch:extra-condensed;text-transform:uppercase;letter-spacing:.1em;font-size:.68rem;color:var(--muted);flex:1;}
@@ -3758,9 +3756,9 @@ function loadFromStorage(){
       if(k==='--accent'||k==='--accent-dark')return;
       document.documentElement.style.setProperty(k,v);
       // Keep localStorage in sync with theme blob values
-      if(k==='--accent-normal') { localStorage.setItem('centre_accentNormal',v); console.log('[THEME LOAD] accent-normal from blob: '+v); }
-      if(k==='--accent-work') { localStorage.setItem('centre_accentWork',v); console.log('[THEME LOAD] accent-work from blob: '+v); }
-      if(k==='--accent-full') { localStorage.setItem('centre_accentFull',v); console.log('[THEME LOAD] accent-full from blob: '+v); }
+      if(k==='--accent-normal') { localStorage.setItem('centre_accentNormal',v); console.log('[THEME LOAD] --accent-normal from blob: '+v); }
+      if(k==='--accent-work') localStorage.setItem('centre_accentWork',v);
+      if(k==='--accent-full') localStorage.setItem('centre_accentFull',v);
     });// --accent-normal handled separately via centre_accentNormal key
 if(theme['--icon-stroke'])document.documentElement.style.setProperty('--icon-stroke',theme['--icon-stroke']);if(theme['--icon-color'])document.documentElement.style.setProperty('--icon-color',theme['--icon-color']);if(theme['--icon-color-work'])document.documentElement.style.setProperty('--icon-color-work',theme['--icon-color-work']);}
   }catch(e){console.warn('Load failed',e);}
@@ -5171,18 +5169,15 @@ function renderTasks(){
   const list=document.getElementById('taskList');
   const td=today();
   let base=tasks;
-    // Apply category visibility rules (respects per-category settings + hardcoded defaults)
-  base=base.filter(t=>{
+    base=base.filter(function(t) {
     if(!t.catId)return true;
-    const cat=categories.find(c=>c.id===t.catId);
+    const cat=categories.find(function(c){return c.id===t.catId;});
     if(!cat)return true;
-    // Check user-configured visibility first
     if(!catIsVisibleInMode(cat))return false;
-    // Hardcoded defaults: habits/cycle/health hidden unless full access
     if(!fullAccessMode){
       const cn=cat.name.toLowerCase();
-      const _systemHidden=workMode?['wellness','habits','cycle','health']:['habits','cycle','health'];
-      if(_systemHidden.some(h=>cn.includes(h)))return false;
+      const sysHide=workMode?['wellness','habits','cycle','health']:['habits','cycle','health'];
+      if(sysHide.some(function(h){return cn.includes(h);}))return false;
     }
     return true;
   });
@@ -6411,19 +6406,19 @@ function renderWaitingStrip(container) {
   const _td = today();
   let waitingTasks = tasks.filter(t => t.waiting && !t.done);
 
-  // Apply category visibility rules
-  waitingTasks = waitingTasks.filter(t => {
-    if (!t.catId) return true;
-    const cat = categories.find(c => c.id === t.catId);
-    if (!cat) return true;
-    if (!catIsVisibleInMode(cat)) return false;
-    if (!fullAccessMode) {
+  // Apply same category visibility rules as tasks
+  if (!fullAccessMode) {
+    const _hidden = workMode
+      ? ['grooming','wellness','habits','cycle','health']
+      : ['grooming'];
+    waitingTasks = waitingTasks.filter(t => {
+      if (!t.catId) return true;
+      const cat = categories.find(c => c.id === t.catId);
+      if (!cat) return true;
       const cn = cat.name.toLowerCase();
-      const _sysHidden = workMode ? ['wellness','habits','cycle','health'] : ['habits','cycle','health'];
-      if (_sysHidden.some(h => cn.includes(h))) return false;
-    }
-    return true;
-  });
+      return !_hidden.some(h => cn.includes(h));
+    });
+  }
 
   if (!waitingTasks.length) return;
 
@@ -6459,6 +6454,101 @@ function toggleWaitingStrip() {
   if (arrow) arrow.classList.toggle('open', open);
 }
 
+// ── Category Visibility ──────────────────────────────────────
+function getCatVis(cat) {
+  if (!cat) return { work: true, personal: true, full: true };
+  return cat.visibility || { work: true, personal: true, full: true };
+}
+
+function setCatVis(catId, mode, value) {
+  const cat = categories.find(function(c) { return c.id === catId; });
+  if (!cat) return;
+  if (!cat.visibility) cat.visibility = { work: true, personal: true, full: true };
+  if (mode === 'full' && !fullAccessMode) {
+    _pendingCatVis = { catId: catId, mode: mode, value: value };
+    promptFullAccess();
+    return;
+  }
+  cat.visibility[mode] = value;
+  scheduleSave();
+  buildCatVisGrid();
+  if (document.getElementById('page-tasks')?.classList.contains('active')) renderTasks();
+  if (document.getElementById('page-overview')?.classList.contains('active')) renderAllOverviewForDate();
+}
+
+let _pendingCatVis = null;
+
+function _applyPendingCatVis() {
+  if (!_pendingCatVis) return;
+  const p = _pendingCatVis;
+  _pendingCatVis = null;
+  setCatVis(p.catId, p.mode, p.value);
+}
+
+function buildCatVisGrid() {
+  const el = document.getElementById('catVisGrid');
+  if (!el) return;
+  if (!categories.length) {
+    el.innerHTML = '<p style="font-size:.78rem;color:var(--muted);">No categories yet.</p>';
+    return;
+  }
+  const fullLocked = !fullAccessMode;
+  const hdrStyle = 'width:58px;text-align:center;font-family:var(--font-display,Georgia,serif);font-stretch:extra-condensed;text-transform:uppercase;letter-spacing:.07em;font-size:.58rem;color:var(--muted);';
+  let html = '<div style="display:flex;justify-content:flex-end;gap:4px;margin-bottom:6px;padding-bottom:6px;border-bottom:1px solid var(--border);">'
+    + '<span style="' + hdrStyle + '">Work</span>'
+    + '<span style="' + hdrStyle + '">Personal</span>'
+    + '<span style="' + hdrStyle + '">Full</span>'
+    + '</div>';
+
+  categories.forEach(function(cat) {
+    const vis = getCatVis(cat);
+    function mkBtn(mode, isOn) {
+      const locked = (mode === 'full') && fullLocked;
+      const cls = 'cat-vis-btn' + (isOn ? ' on' : '') + (locked ? ' locked' : '');
+      return '<button class="' + cls + '"'
+        + ' data-catid="' + cat.id + '"'
+        + ' data-mode="' + mode + '"'
+        + ' data-newval="' + String(!isOn) + '"'
+        + (locked ? ' title="Requires Full Access"' : '')
+        + '>' + (isOn ? 'Visible' : 'Hidden') + (locked ? ' 🔒' : '') + '</button>';
+    }
+    html += '<div class="cat-vis-row">'
+      + '<span class="cat-vis-swatch" style="background:' + (cat.color || 'var(--border)') + '"></span>'
+      + '<span class="cat-vis-name">' + escHtml(cat.name) + '</span>'
+      + '<div class="cat-vis-modes">'
+      + mkBtn('work', vis.work !== false)
+      + mkBtn('personal', vis.personal !== false)
+      + mkBtn('full', vis.full !== false)
+      + '</div></div>';
+  });
+
+  el.innerHTML = html;
+  el.onclick = function(e) {
+    const btn = e.target.closest('[data-catid]');
+    if (!btn) return;
+    setCatVis(btn.dataset.catid, btn.dataset.mode, btn.dataset.newval === 'true');
+  };
+}
+
+
+function catIsVisibleInMode(cat) {
+  if (!cat) return true;
+  const vis = getCatVis(cat);
+  if (fullAccessMode) return vis.full !== false;
+  if (workMode)       return vis.work !== false;
+  return vis.personal !== false;
+}
+
+function toggleEditWaiting(cb, taskId) {
+  const tk = tasks.find(function(x) { return x.id === taskId; });
+  if (tk) { tk.waiting = cb.checked; scheduleSave(); renderOverview(); }
+  const wrap = cb.closest('div');
+  if (!wrap) return;
+  const spans = wrap.querySelectorAll('span');
+  if (spans[0]) spans[0].style.background = cb.checked ? 'var(--accent)' : 'var(--border)';
+  if (spans[1]) spans[1].style.transform = cb.checked ? 'translateX(14px)' : 'none';
+}
+
 function resolveWaiting(id) {
   const t = tasks.find(t => t.id === id);
   if (!t) return;
@@ -6474,78 +6564,6 @@ function removeWaiting(id) {
   t.waiting = false;
   scheduleSave();
   renderOverview();
-}
-
-// ── Category Visibility Editor ───────────────────────────
-// category.visibility = { work: bool, personal: bool, full: bool }
-// Default: all true. If not set, category is visible everywhere.
-
-function getCatVis(cat) {
-  return cat.visibility || { work: true, personal: true, full: true };
-}
-
-function setCatVis(catId, mode, value) {
-  const cat = categories.find(c => c.id === catId);
-  if (!cat) return;
-  if (!cat.visibility) cat.visibility = { work: true, personal: true, full: true };
-  if (mode === 'full' && !fullAccessMode) {
-    // Require passcode
-    _pendingCatVis = { catId, mode, value };
-    promptFullAccess();
-    return;
-  }
-  cat.visibility[mode] = value;
-  scheduleSave();
-  buildCatVisGrid();
-  // Re-render tasks/overview to reflect change
-  if (document.getElementById('page-tasks')?.classList.contains('active')) renderTasks();
-  if (document.getElementById('page-overview')?.classList.contains('active')) renderAllOverviewForDate();
-}
-
-let _pendingCatVis = null;
-
-// Called after Full Access unlocked — apply pending cat vis change
-function _applyPendingCatVis() {
-  if (!_pendingCatVis) return;
-  const { catId, mode, value } = _pendingCatVis;
-  _pendingCatVis = null;
-  setCatVis(catId, mode, value);
-}
-
-function buildCatVisGrid() {
-  const el = document.getElementById('catVisGrid');
-  if (!el) return;
-  if (!categories.length) { el.innerHTML = '<p style="font-size:.78rem;color:var(--muted);">No categories yet.</p>'; return; }
-  el.innerHTML = `
-    <div style="display:grid;grid-template-columns:1fr auto;gap:0;margin-bottom:8px;padding:0 0 6px;border-bottom:1px solid var(--border);">
-      <span></span>
-      <div style="display:flex;gap:6px;font-family:'Noto Serif Display',Georgia,serif;font-stretch:extra-condensed;text-transform:uppercase;letter-spacing:.07em;font-size:.58rem;color:var(--muted);">
-        <span style="width:52px;text-align:center;">Work</span>
-        <span style="width:52px;text-align:center;">Personal</span>
-        <span style="width:52px;text-align:center;">Full</span>
-      </div>
-    </div>
-    ${categories.map(cat => {
-      const vis = getCatVis(cat);
-      const fullLocked = !fullAccessMode;
-      return `<div class="cat-vis-row">
-        <span class="cat-vis-swatch" style="background:${cat.color||'var(--border)'}"></span>
-        <span class="cat-vis-name">${escHtml(cat.name)}</span>
-        <div class="cat-vis-modes">
-          <button class="cat-vis-btn ${vis.work?'on':''}" onclick="setCatVis('${cat.id}','work',${!vis.work})">${vis.work?'Visible':'Hidden'}</button>
-          <button class="cat-vis-btn ${vis.personal?'on':''}" onclick="setCatVis('${cat.id}','personal',${!vis.personal})">${vis.personal?'Visible':'Hidden'}</button>
-          <button class="cat-vis-btn ${vis.full?'on':''} ${fullLocked?'locked':''}" onclick="setCatVis('${cat.id}','full',${!vis.full})" ${fullLocked?'title="Requires Full Access"':''}>${vis.full?'Visible':'Hidden'}${fullLocked?' 🔒':''}</button>
-        </div>
-      </div>`;
-    }).join('')}`;
-}
-
-// Apply category visibility in renderTasks
-function catIsVisibleInMode(cat) {
-  if (!cat) return true;
-  if (fullAccessMode) return cat.visibility ? cat.visibility.full !== false : true;
-  if (workMode)      return cat.visibility ? cat.visibility.work !== false : true;
-  return cat.visibility ? cat.visibility.personal !== false : true;
 }
 
 function initCentreSwipe() {
@@ -6837,18 +6855,22 @@ function renderOverdueStrip(container) {
     if (t.done) return false;
     return t.due && t.due < _td;
   });
-  // Apply category visibility
-  overdueBase = overdueBase.filter(t => {
-    if (!t.catId) return true;
-    const cat = categories.find(c => c.id === t.catId);
-    if (!cat) return true;
-    if (!catIsVisibleInMode(cat)) return false;
-    if (!fullAccessMode) {
-      const cn = cat.name.toLowerCase();
-      const _sysHidden = workMode ? ['wellness','habits','cycle','health'] : ['habits','cycle','health'];
-      if (_sysHidden.some(h => cn.includes(h))) return false;
-    }
-    return true;
+  if (workMode) {
+    const wc = categories.find(cat => cat.name.toLowerCase() === 'work');
+    const hiddenCatNames = ['grooming','wellness','habits','cycle','health'];
+    overdueBase = overdueBase.filter(t => {
+      const cat = categories.find(c => c.id === t.catId);
+      const catName = cat ? cat.name.toLowerCase() : '';
+      if (hiddenCatNames.some(n => catName.includes(n))) return false;
+      return wc ? t.catId === wc.id : false;
+    });
+  } else if (!fullAccessMode) {
+    // Personal mode: still hide grooming
+    overdueBase = overdueBase.filter(t => {
+      const cat = categories.find(c => c.id === t.catId);
+      const catName = cat ? cat.name.toLowerCase() : '';
+      return !catName.includes('grooming');
+    });
   }
   const overdue = overdueBase;
   console.log('[OVERDUE STRIP] total tasks='+tasks.length+' overdue='+overdue.length+' doneIds='+tasks.filter(t=>t.done).map(t=>t.id).join(','));
@@ -8873,7 +8895,7 @@ function applyTheme(){
     if(_an) localStorage.setItem('centre_accentNormal', _an);
     if(_aw) localStorage.setItem('centre_accentWork', _aw);
     if(_af) localStorage.setItem('centre_accentFull', _af);
-    console.log('[THEME SAVE] normal='+_an+' work='+_aw+' full='+_af+' blob-accent='+(_t['--accent']||'?')+' blob-normal='+(_t['--accent-normal']||'?'));
+    console.log('[THEME SAVE] normal='+_an+' work='+_aw+' full='+_af);
   } catch(e) {}
   // Push theme to Firebase immediately
   if (window._fbReady && typeof fbSyncEnabled !== 'undefined' && fbSyncEnabled) {
@@ -12282,7 +12304,7 @@ updateOnAccent(); // set --on-accent based on loaded accent colour
 _currentMode = workMode ? 0 : fullAccessMode ? 2 : 1;
 updateModeSliderUI(_currentMode);
 applyWorkMode(); // restore work mode state on load
-console.log('[THEME LOAD] after applyWorkMode: --accent='+getComputedStyle(document.documentElement).getPropertyValue('--accent').trim()+' --accent-normal='+getComputedStyle(document.documentElement).getPropertyValue('--accent-normal').trim());
+console.log('[THEME LOAD] after init: --accent='+getComputedStyle(document.documentElement).getPropertyValue('--accent').trim()+' --accent-normal='+getComputedStyle(document.documentElement).getPropertyValue('--accent-normal').trim());
 // Apply PHASE_DEFAULTS only if no custom phase colours have been saved by user
 (function(){
   const savedTheme = localStorage.getItem('centre_theme');
