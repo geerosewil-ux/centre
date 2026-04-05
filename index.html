@@ -164,6 +164,20 @@ body::after{content:'';position:fixed;left:0;right:0;bottom:0;height:60px;pointe
 .task-item,.event-item{display:flex;align-items:flex-start;gap:10px;padding:12px 14px;border-radius:12px;background:var(--bg);transition:background .2s,box-shadow .2s,transform .15s;cursor:pointer;}
 .task-item:hover{box-shadow:0 2px 10px rgba(0,0,0,.06);transform:translateX(2px);}.event-item-detail{display:none;margin-top:8px;padding-top:8px;border-top:1px solid var(--border);}.event-item-detail.open{display:block;}.event-detail-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:4px;align-items:center;}.event-detail-label{font-size:.62rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;min-width:52px;flex-shrink:0;}.event-detail-val{font-size:.78rem;color:var(--text);}
 .task-item.done{opacity:.32;transition:opacity .35s ease;position:relative;}
+.task-item.waiting{opacity:.65;}
+.waiting-strip{margin-top:10px;border-radius:14px;border:1px solid var(--border);overflow:hidden;}
+.waiting-strip-header{display:flex;align-items:center;gap:8px;padding:9px 14px;cursor:pointer;user-select:none;background:var(--bg);}
+.waiting-strip-label{font-family:'Noto Serif Display',Georgia,serif;font-stretch:extra-condensed;text-transform:uppercase;letter-spacing:.1em;font-size:.68rem;color:var(--muted);flex:1;}
+.waiting-strip-arrow{font-size:.6rem;color:var(--muted);transition:transform .2s;}
+.waiting-strip-arrow.open{transform:rotate(180deg);}
+.waiting-strip-body{display:none;border-top:1px solid var(--border);}
+.waiting-strip-body.open{display:block;}
+.waiting-row{display:flex;align-items:center;gap:10px;padding:7px 14px;border-bottom:1px solid var(--border);font-size:.83rem;color:var(--text);opacity:.7;}
+.waiting-row:last-child{border-bottom:none;}
+.waiting-row-name{flex:1;}
+.waiting-row-due{font-size:.7rem;color:var(--muted);white-space:nowrap;}
+.waiting-done-btn{background:none;border:none;color:var(--muted);cursor:pointer;font-size:.75rem;padding:2px 6px;border-radius:6px;font-family:'Noto Serif Display',Georgia,serif;font-stretch:extra-condensed;text-transform:uppercase;letter-spacing:.06em;transition:color .15s;}
+.waiting-done-btn:hover{color:var(--accent);}
 .task-item.done .item-name{text-decoration:line-through;text-decoration-color:rgba(0,0,0,.2);text-underline-offset:3px;}
 .task-item .item-name{position:relative;line-height:1.7;}
 /* ── Refined circle checkboxes — global ── */
@@ -1516,6 +1530,17 @@ body::after{content:'';position:fixed;left:0;right:0;bottom:0;height:60px;pointe
           </div>
         </div>
 
+        <!-- WAITING TOGGLE -->
+        <div style="display:flex;align-items:center;gap:10px;padding:10px 0 4px;">
+          <label style="font-family:'Noto Serif Display',Georgia,serif;font-stretch:extra-condensed;text-transform:uppercase;letter-spacing:.09em;font-size:.7rem;color:var(--muted);cursor:pointer;display:flex;align-items:center;gap:8px;">
+            <div style="position:relative;display:inline-block;width:36px;height:20px;flex-shrink:0;" onclick="document.getElementById('tWaiting').click()">
+              <input type="checkbox" id="tWaiting" style="opacity:0;width:0;height:0;position:absolute;">
+              <span id="tWaitingTrack" style="position:absolute;inset:0;background:var(--border);border-radius:20px;transition:background .2s;pointer-events:none;"></span>
+              <span id="tWaitingThumb" style="position:absolute;left:2px;top:2px;width:16px;height:16px;background:white;border-radius:50%;transition:transform .2s;box-shadow:0 1px 3px rgba(0,0,0,.15);pointer-events:none;"></span>
+            </div>
+            Waiting on someone
+          </label>
+        </div>
         <button class="add-btn" onclick="addTask()" style="margin-top:18px;">+ Add Task</button>
         <button class="add-btn" onclick="openMultiAdd('tasks')" style="background:none;border:1.5px solid var(--accent);color:var(--accent);margin-top:6px;">+ Additions</button>
       </div>
@@ -4497,6 +4522,17 @@ function renderHabitMilestoneList(){
 }
 
 
+// Waiting toggle visual sync
+document.addEventListener('change', function(e) {
+  if (e.target.id === 'tWaiting') {
+    const on = e.target.checked;
+    const track = document.getElementById('tWaitingTrack');
+    const thumb = document.getElementById('tWaitingThumb');
+    if (track) track.style.background = on ? 'var(--accent)' : 'var(--border)';
+    if (thumb) thumb.style.transform  = on ? 'translateX(16px)' : 'none';
+  }
+});
+
 function addTask(){
   const name=document.getElementById('tName').value.trim();
   if(!name){document.getElementById('tName').focus();return;}
@@ -4510,13 +4546,18 @@ function addTask(){
   const catId=document.getElementById('tCat')?.value||'';
 
   const startDate = document.getElementById('tStartDate')?.value || '';
+  const _tWaiting = document.getElementById('tWaiting')?.checked || false;
   tasks.push({
     id:newId,_created:Date.now(),name,notes,catId,dur,due,
     startDate: startDate || null,
     done:false,
+    waiting: _tWaiting,
     recur,habit,schedule,
     dependencies:tFormNewDeps.map(d=>({...d}))
   });
+  // Reset waiting toggle
+  const _wtEl = document.getElementById('tWaiting');
+  if (_wtEl) { _wtEl.checked = false; _wtEl.dispatchEvent(new Event('change')); }
 
   // Save subtasks with their intra-task dependencies
   tFormNewSts.forEach((s,i)=>{
@@ -4703,6 +4744,9 @@ function getEditRecur(id){
 function saveTask(id){
   const t=tasks.find(t=>t.id===id);if(!t)return;
   t.name=document.getElementById('ename-'+id).value.trim()||t.name;
+  // Waiting status
+  const _ewait = document.getElementById('ewait-'+id);
+  if (_ewait) t.waiting = _ewait.checked;
   t.notes=document.getElementById('enotes-'+id).value.trim();
   t.due=document.getElementById('edue-'+id).value;
   t.dur=parseInt(document.getElementById('edur-'+id).value)||0;
@@ -5285,6 +5329,17 @@ function renderTasks(){
           </div>
           ${t.habit?'<button type="button" class="recur-toggle" style="border-color:#e88;color:#c0554a;margin-top:4px;" onclick="removeTaskHabit(\'${t.id}\')">✕ Remove habit</button>':''} 
         </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;padding:6px 0 2px;">
+        <label style="font-family:'Noto Serif Display',Georgia,serif;font-stretch:extra-condensed;text-transform:uppercase;letter-spacing:.09em;font-size:.68rem;color:var(--muted);cursor:pointer;display:flex;align-items:center;gap:8px;">
+          <div style="position:relative;width:32px;height:18px;flex-shrink:0;display:inline-block;">
+            <input type="checkbox" id="ewait-${t.id}" ${t.waiting?'checked':''} style="opacity:0;width:0;height:0;position:absolute;"
+              onchange="(function(cb){var tk=tasks.find(x=>x.id==='${t.id}');if(tk){tk.waiting=cb.checked;scheduleSave();renderOverview();}var tr=cb.closest('div').querySelector('span');var th=cb.closest('div').querySelectorAll('span')[1];if(tr)tr.style.background=cb.checked?'var(--accent)':'var(--border)';if(th)th.style.transform=cb.checked?'translateX(14px)':'none';})(this)">
+            <span style="position:absolute;inset:0;background:${t.waiting?'var(--accent)':'var(--border)'};border-radius:18px;transition:background .2s;pointer-events:none;"></span>
+            <span style="position:absolute;left:2px;top:2px;width:14px;height:14px;background:white;border-radius:50%;transition:transform .2s;box-shadow:0 1px 3px rgba(0,0,0,.15);pointer-events:none;transform:${t.waiting?'translateX(14px)':'none'};"></span>
+          </div>
+          Waiting on someone
+        </label>
       </div>
       <button class="save-btn" onclick="saveTask('${t.id}')">Save changes</button>
       <div class="subtask-edit-section">
@@ -6327,7 +6382,82 @@ function renderAllOverviewForDate() {
   }
   // Always re-render overdue strip after overview redraws
   const _obRef = document.getElementById('overviewBlocks');
-  if (_obRef) renderOverdueStrip(_obRef);
+  if (_obRef) {
+    renderOverdueStrip(_obRef);
+    renderWaitingStrip(_obRef);
+  }
+}
+
+function renderWaitingStrip(container) {
+  const existing = document.getElementById('waitingStrip');
+  if (existing) existing.remove();
+
+  const _td = today();
+  let waitingTasks = tasks.filter(t => t.waiting && !t.done);
+
+  // Apply same category visibility rules as tasks
+  if (!fullAccessMode) {
+    const _hidden = workMode
+      ? ['grooming','wellness','habits','cycle','health']
+      : ['grooming'];
+    waitingTasks = waitingTasks.filter(t => {
+      if (!t.catId) return true;
+      const cat = categories.find(c => c.id === t.catId);
+      if (!cat) return true;
+      const cn = cat.name.toLowerCase();
+      return !_hidden.some(h => cn.includes(h));
+    });
+  }
+
+  if (!waitingTasks.length) return;
+
+  const strip = document.createElement('div');
+  strip.id = 'waitingStrip';
+  strip.className = 'waiting-strip';
+
+  strip.innerHTML = `
+    <div class="waiting-strip-header" onclick="toggleWaitingStrip()">
+      <span class="waiting-strip-label">Waiting</span>
+      <span class="waiting-strip-arrow" id="waitingStripArrow">▾</span>
+    </div>
+    <div class="waiting-strip-body" id="waitingStripBody">
+      ${waitingTasks.map(t => {
+        const dueStr = t.due ? formatDate(t.due) : '';
+        return `<div class="waiting-row">
+          <span class="waiting-row-name">${escHtml(t.name)}</span>
+          ${dueStr ? `<span class="waiting-row-due">${dueStr}</span>` : ''}
+          <button class="waiting-done-btn" onclick="resolveWaiting('${t.id}')">Done</button>
+          <button class="waiting-done-btn" onclick="removeWaiting('${t.id}')" style="opacity:.5;">×</button>
+        </div>`;
+      }).join('')}
+    </div>`;
+
+  container.appendChild(strip);
+}
+
+function toggleWaitingStrip() {
+  const body  = document.getElementById('waitingStripBody');
+  const arrow = document.getElementById('waitingStripArrow');
+  if (!body) return;
+  const open = body.classList.toggle('open');
+  if (arrow) arrow.classList.toggle('open', open);
+}
+
+function resolveWaiting(id) {
+  const t = tasks.find(t => t.id === id);
+  if (!t) return;
+  t.done = true;
+  t.waiting = false;
+  scheduleSave();
+  renderOverview();
+}
+
+function removeWaiting(id) {
+  const t = tasks.find(t => t.id === id);
+  if (!t) return;
+  t.waiting = false;
+  scheduleSave();
+  renderOverview();
 }
 
 function initCentreSwipe() {
@@ -6603,6 +6733,7 @@ function renderOverview(){
 
   // Overdue strip — always render (empty = hidden)
   renderOverdueStrip(container);
+  renderWaitingStrip(container);
   tickClockOnly();
 }
 
