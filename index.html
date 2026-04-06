@@ -6042,7 +6042,21 @@ function renderWeek(){
   document.getElementById('weekGrid').innerHTML=days.map((d,i)=>{
     const _dn=DN_SHORT[(d.getDay()+6)%7];
     const ds=dateStr(d),isToday=ds===t;
-    const dayTasks=tasks.filter(tk=>occursOn(tk,ds)&&!tk.habit&&!(tk.dur>0&&tk.dur<30));
+    const dayTasks=tasks.filter(function(tk){
+        if(!occursOn(tk,ds))return false;
+        if(tk.habit)return false;
+        if(tk.dur>0&&tk.dur<30)return false;
+        if(!tk.catId)return true;
+        const _wc=categories.find(function(c){return c.id===tk.catId;});
+        if(!_wc)return true;
+        if(!catIsVisibleInMode(_wc))return false;
+        if(!fullAccessMode){
+          const cn=_wc.name.toLowerCase();
+          const sh=workMode?['wellness','habits','cycle','health']:['habits','cycle','health'];
+          if(sh.some(function(h){return cn.includes(h);}))return false;
+        }
+        return true;
+      });
     const dayEvents=[
       ...events.filter(ev=>occursOn(ev,ds)&&!(workMode&&ev.private)),
       ...getSecondaryEventsForDate(ds),
@@ -6399,19 +6413,21 @@ function renderWaitingStrip(container) {
   const _td = today();
   let waitingTasks = tasks.filter(t => t.waiting && !t.done);
 
-  // Apply same category visibility rules as tasks
-  if (!fullAccessMode) {
-    const _hidden = workMode
-      ? ['grooming','wellness','habits','cycle','health']
-      : ['grooming'];
-    waitingTasks = waitingTasks.filter(t => {
-      if (!t.catId) return true;
-      const cat = categories.find(c => c.id === t.catId);
-      if (!cat) return true;
+  // Filter by category visibility (user settings + system rules)
+  waitingTasks = waitingTasks.filter(function(t) {
+    if (!t.catId) return true;
+    const cat = categories.find(function(c) { return c.id === t.catId; });
+    if (!cat) return true;
+    if (!catIsVisibleInMode(cat)) return false;
+    if (!fullAccessMode) {
       const cn = cat.name.toLowerCase();
-      return !_hidden.some(h => cn.includes(h));
-    });
-  }
+      const sysHide = workMode
+        ? ['wellness','habits','cycle','health']
+        : ['habits','cycle','health'];
+      if (sysHide.some(function(h) { return cn.includes(h); })) return false;
+    }
+    return true;
+  });
 
   if (!waitingTasks.length) return;
 
@@ -6467,6 +6483,7 @@ function setCatVis(catId, mode, value) {
   buildCatVisGrid();
   if (document.getElementById('page-tasks')?.classList.contains('active')) renderTasks();
   if (document.getElementById('page-overview')?.classList.contains('active')) renderAllOverviewForDate();
+  if (document.getElementById('page-weekly')?.classList.contains('active')) renderWeek();
 }
 
 let _pendingCatVis = null;
@@ -6756,7 +6773,20 @@ function renderOverview(){
   const labelStr=isToday?'Today':formatDate(vd);
   const container=document.getElementById('overviewBlocks');
   if(!container)return;
-  const tasksForSchedule = (() => { if (!workMode) return tasks; const wc = categories.find(cat => cat.name.toLowerCase() === 'work'); return tasks.filter(t => wc && t.catId === wc.id); })();
+  const tasksForSchedule = tasks.filter(function(t) {
+    if (!t.catId) return true;
+    const _cat = categories.find(function(c) { return c.id === t.catId; });
+    if (!_cat) return true;
+    if (!catIsVisibleInMode(_cat)) return false;
+    if (!fullAccessMode) {
+      const cn = _cat.name.toLowerCase();
+      const sysHide = workMode
+        ? ['wellness','habits','cycle','health']
+        : ['habits','cycle','health'];
+      if (sysHide.some(function(h) { return cn.includes(h); })) return false;
+    }
+    return true;
+  });
 
   const asgn=assignBlocks(tasksForSchedule,vd);
   const now=new Date(),nowMins=isToday?(now.getHours()*60+now.getMinutes()):0;
@@ -6848,23 +6878,21 @@ function renderOverdueStrip(container) {
     if (t.done) return false;
     return t.due && t.due < _td;
   });
-  if (workMode) {
-    const wc = categories.find(cat => cat.name.toLowerCase() === 'work');
-    const hiddenCatNames = ['grooming','wellness','habits','cycle','health'];
-    overdueBase = overdueBase.filter(t => {
-      const cat = categories.find(c => c.id === t.catId);
-      const catName = cat ? cat.name.toLowerCase() : '';
-      if (hiddenCatNames.some(n => catName.includes(n))) return false;
-      return wc ? t.catId === wc.id : false;
-    });
-  } else if (!fullAccessMode) {
-    // Personal mode: still hide grooming
-    overdueBase = overdueBase.filter(t => {
-      const cat = categories.find(c => c.id === t.catId);
-      const catName = cat ? cat.name.toLowerCase() : '';
-      return !catName.includes('grooming');
-    });
-  }
+  // Filter by category visibility (user settings + system rules)
+  overdueBase = overdueBase.filter(function(t) {
+    if (!t.catId) return true;
+    const cat = categories.find(function(c) { return c.id === t.catId; });
+    if (!cat) return true;
+    if (!catIsVisibleInMode(cat)) return false;
+    if (!fullAccessMode) {
+      const cn = cat.name.toLowerCase();
+      const sysHide = workMode
+        ? ['wellness','habits','cycle','health']
+        : ['habits','cycle','health'];
+      if (sysHide.some(function(h) { return cn.includes(h); })) return false;
+    }
+    return true;
+  });
   const overdue = overdueBase;
   console.log('[OVERDUE STRIP] total tasks='+tasks.length+' overdue='+overdue.length+' doneIds='+tasks.filter(t=>t.done).map(t=>t.id).join(','));
   if (!overdue.length) { console.log('[OVERDUE STRIP] no overdue — strip cleared'); return; }
