@@ -41,7 +41,7 @@
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <style>
 @font-face{font-family:'Noto Serif Display';src:url('Handwriting.ttf') format('truetype');}
-:root{--font-body:'Noto Serif Display',Georgia,serif;--font-display:'Noto Serif Display',Georgia,serif;--bg:#f9f8f6;--card:rgba(255,254,250,.96);--text:#2c2c2c;--accent:#ebf3ff;--accent-dark:#c8daf0;--accent-normal:#ebf3ff;--accent-work:#ebefb9;--accent-work-dark:#d4d8a0;--accent-full:#efdbff;--accent-full-dark:#d9b8f0;--muted:#999;--border:#e8e8e8;--icon-stroke:1.8;--icon-color:#93aacd;--icon-color-work:#7e9e8c;
+:root{--font-body:'Noto Serif Display',Georgia,serif;--font-display:'Noto Serif Display',Georgia,serif;--bg:#f7f7f5;--card:#ffffff;--text:#1a1a1a;--accent:#ebf3ff;--accent-dark:#c8daf0;--accent-normal:#ebf3ff;--accent-work:#ebefb9;--accent-work-dark:#d4d8a0;--accent-full:#efdbff;--accent-full-dark:#d9b8f0;--muted:#9b9b9b;--border:#e9e9e7;--icon-stroke:1.8;--icon-color:#93aacd;--icon-color-work:#7e9e8c;
 --phase-menstrual:#dd2c60;--phase-follicular:#d78881;--phase-ovulation:#ac487c;--phase-luteal:#861a3a;--water-fill:var(--accent);--water-light:rgba(147,170,205,.13);--water-border:rgba(147,170,205,.25);--on-accent:#ffffff;--font-mono:'SF Mono','Monaco','Inconsolata','Fira Mono',monospace;
 --nutri-cal:var(--accent);
 --nutri-protein:var(--accent);
@@ -173,6 +173,10 @@ body::after{content:'';position:fixed;left:0;right:0;bottom:0;height:60px;pointe
 .cat-vis-btn{font-family:'Noto Serif Display',Georgia,serif;font-stretch:extra-condensed;text-transform:uppercase;letter-spacing:.07em;font-size:.58rem;padding:3px 8px;border-radius:20px;border:1.5px solid var(--border);background:none;color:var(--muted);cursor:pointer;transition:all .15s;white-space:nowrap;}
 .cat-vis-btn.on{border-color:var(--accent);color:var(--accent);background:rgba(147,170,205,.1);}
 .cat-vis-btn.locked{opacity:.5;cursor:default;}
+.rebook-btn{font-family:'Noto Serif Display',Georgia,serif;font-stretch:extra-condensed;text-transform:uppercase;letter-spacing:.08em;font-size:.62rem;padding:3px 10px;border-radius:20px;border:1.5px solid var(--accent-normal);background:none;color:var(--accent-dark);cursor:pointer;transition:all .15s;white-space:nowrap;flex-shrink:0;}
+.rebook-btn:hover{background:var(--accent-normal);color:var(--text);}
+.rebook-history{font-size:.7rem;color:var(--muted);margin-top:3px;}
+.rebook-banner{background:var(--accent-normal);border-radius:10px;padding:8px 14px;margin-bottom:14px;font-size:.78rem;color:var(--text);display:flex;align-items:center;justify-content:space-between;gap:8px;}
 .waiting-strip{margin-top:10px;border-radius:14px;border:1px solid var(--border);overflow:hidden;}
 .waiting-strip-header{display:flex;align-items:center;gap:8px;padding:9px 14px;cursor:pointer;user-select:none;background:var(--bg);}
 .waiting-strip-label{font-family:'Noto Serif Display',Georgia,serif;font-stretch:extra-condensed;text-transform:uppercase;letter-spacing:.1em;font-size:.68rem;color:var(--muted);flex:1;}
@@ -848,84 +852,7 @@ body::after{content:'';position:fixed;left:0;right:0;bottom:0;height:60px;pointe
 .rcp-drop-item:last-child{border-bottom:none;}
 .rcp-drop-item:hover,.rcp-drop-item.highlighted{background:var(--bg);}
 
-/* ══════════ STYLED PAGE ══════════════════════════════════════════ */
-.styled-tabs{display:flex;gap:5px;background:var(--bg);border-radius:14px;padding:4px;margin-bottom:16px;}
-.styled-tab{flex:1;font-family:'Noto Serif Display',Georgia,serif;font-weight:400;font-stretch:extra-condensed;text-transform:uppercase;letter-spacing:.08em;font-size:.8rem;padding:7px 10px;border:none;border-radius:10px;background:none;color:var(--muted);cursor:pointer;transition:all .18s;}
-.styled-tab.active{background:var(--card);color:var(--text);box-shadow:0 1px 6px rgba(0,0,0,.07);}
 
-.st-filter-bar{display:flex;gap:6px;overflow-x:auto;padding-bottom:6px;margin-bottom:14px;}
-.st-filter{flex-shrink:0;font-family:'Noto Serif Display',Georgia,serif;font-stretch:extra-condensed;text-transform:uppercase;letter-spacing:.07em;font-size:.72rem;padding:4px 12px;border-radius:20px;border:1.5px solid var(--border);background:none;color:var(--muted);cursor:pointer;transition:all .15s;}
-.st-filter.active{background:var(--accent);border-color:var(--accent);color:white;}
-
-/* closet grid */
-.st-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:6px;}
-.st-item{aspect-ratio:.7;border-radius:14px;border:1.5px solid var(--border);background:var(--card);display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding:8px 7px 9px;cursor:pointer;position:relative;overflow:hidden;transition:border-color .2s,transform .15s;-webkit-tap-highlight-color:transparent;}
-.st-item:active{transform:scale(.97);}
-.st-item:hover{border-color:var(--accent);}
-.st-item-swatch{position:absolute;inset:0;border-radius:12px;}
-.st-item-label{font-family:'Handwriting',Georgia,serif;font-size:.65rem;text-align:center;line-height:1.35;position:relative;z-index:1;background:rgba(255,255,255,.88);padding:3px 5px;border-radius:5px;width:100%;}
-.st-item-cat{font-family:'Noto Serif Display',Georgia,serif;font-stretch:extra-condensed;text-transform:uppercase;letter-spacing:.06em;font-size:.52rem;color:var(--muted);}
-.st-item-add{aspect-ratio:.7;border-radius:14px;border:1.5px dashed var(--border);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;cursor:pointer;color:var(--muted);font-size:1.5rem;transition:border-color .2s,color .2s;}
-.st-item-add:hover{border-color:var(--accent);color:var(--accent);}
-.st-item-del{position:absolute;top:5px;right:5px;z-index:2;background:rgba(255,255,255,.85);border:none;border-radius:50%;width:20px;height:20px;font-size:.75rem;cursor:pointer;display:none;align-items:center;justify-content:center;color:#c0554a;}
-.st-item:hover .st-item-del{display:flex;}
-
-/* add toggle */
-.st-add-toggle{font-family:'Noto Serif Display',Georgia,serif;font-weight:400;font-stretch:extra-condensed;text-transform:uppercase;letter-spacing:.1em;font-size:.88rem;color:var(--accent);cursor:pointer;user-select:none;}
-
-/* outfit cards */
-.st-outfit-list{display:flex;flex-direction:column;gap:10px;margin-bottom:4px;}
-.st-outfit-card{background:var(--card);border-radius:16px;padding:16px 18px;box-shadow:0 2px 10px rgba(0,0,0,.05);border:1.5px solid var(--border);display:flex;align-items:center;gap:14px;cursor:pointer;transition:border-color .2s;}
-.st-outfit-card:hover{border-color:var(--accent);}
-.st-outfit-swatches{display:flex;gap:5px;flex-shrink:0;}
-.st-outfit-swatch{border-radius:7px;flex-shrink:0;}
-.st-outfit-info{flex:1;}
-.st-outfit-name{font-size:.96rem;margin-bottom:2px;}
-.st-outfit-occ{font-size:.72rem;color:var(--muted);}
-.st-outfit-del{background:none;border:none;color:var(--border);font-size:1.1rem;cursor:pointer;padding:2px 4px;transition:color .15s;}
-.st-outfit-del:hover{color:#c0554a;}
-
-/* item picker in build-outfit */
-.st-picker-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;}
-.st-picker-item{aspect-ratio:.7;border-radius:10px;border:2px solid var(--border);overflow:hidden;position:relative;cursor:pointer;transition:border-color .15s;}
-.st-picker-item.selected{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent);}
-.st-picker-swatch{position:absolute;inset:0;}
-.st-picker-label{position:absolute;bottom:0;left:0;right:0;background:rgba(255,255,255,.88);font-family:'Handwriting',Georgia,serif;font-size:.58rem;text-align:center;padding:2px 3px;line-height:1.3;}
-
-/* weekly plan */
-.st-week-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:8px;}
-.st-day{display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;}
-.st-day-name{font-family:'Noto Serif Display',Georgia,serif;font-stretch:extra-condensed;text-transform:uppercase;letter-spacing:.06em;font-size:.6rem;color:var(--muted);}
-.st-day-num{font-size:.88rem;color:var(--text);}
-.st-day-dot{width:32px;height:40px;border-radius:8px;border:1.5px dashed var(--border);transition:border-color .15s;cursor:pointer;}
-.st-day-dot:hover{border-color:var(--accent);}
-.st-day-dot.has-look{border-style:solid;border-color:var(--border);}
-.st-day.is-today .st-day-num{color:var(--accent);}
-.st-day.is-today .st-day-dot{border-color:var(--accent);}
-
-/* plan list rows */
-.st-plan-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);}
-.st-plan-row:last-child{border-bottom:none;}
-.st-plan-swatches{display:flex;gap:3px;}
-.st-plan-swatch{width:18px;height:24px;border-radius:4px;}
-.st-plan-info{flex:1;}
-.st-plan-date{font-size:.85rem;}
-.st-plan-look{font-size:.72rem;color:var(--muted);}
-.st-plan-del{background:none;border:none;color:var(--border);font-size:1rem;cursor:pointer;transition:color .15s;}
-.st-plan-del:hover{color:#c0554a;}
-
-/* assign outfit sheet (mobile-friendly) */
-.st-assign-overlay{display:none;position:fixed;inset:0;z-index:350;flex-direction:column;justify-content:flex-end;}
-.st-assign-overlay.open{display:flex;}
-.st-assign-backdrop{flex:1;background:rgba(0,0,0,.3);}
-.st-assign-sheet{background:var(--card);border-radius:20px 20px 0 0;padding:0 0 env(safe-area-inset-bottom,16px);box-shadow:0 -4px 32px rgba(0,0,0,.12);max-height:70vh;overflow-y:auto;}
-.st-assign-handle{width:36px;height:4px;background:var(--border);border-radius:4px;margin:10px auto 0;}
-.st-assign-title{font-family:'Noto Serif Display',Georgia,serif;font-weight:400;font-stretch:extra-condensed;text-transform:uppercase;letter-spacing:.1em;font-size:.95rem;color:var(--muted);padding:12px 20px 6px;}
-.st-assign-list{display:flex;flex-direction:column;padding:4px 12px 8px;gap:5px;}
-.st-assign-opt{display:flex;align-items:center;gap:10px;padding:12px 10px;border-radius:12px;border:none;background:var(--bg);width:100%;cursor:pointer;text-align:left;font-family:'Handwriting',Georgia,serif;font-size:.92rem;transition:background .12s;}
-.st-assign-opt:hover,.st-assign-opt:active{background:var(--border);}
-.st-assign-cancel{margin:0 12px 8px;width:calc(100% - 24px);padding:13px;border-radius:12px;border:1.5px solid var(--border);background:var(--card);font-family:'Handwriting',Georgia,serif;font-size:.9rem;cursor:pointer;color:var(--muted);}
-/* ══════════ END STYLED CSS ═══════════════════════════════════════ */
 </style>
   <!-- Microsoft Authentication Library for Outlook calendar -->
   <script src="https://alcdn.msauth.net/browser/2.38.3/js/msal-browser.min.js"></script>
@@ -1030,6 +957,211 @@ body::after{content:'';position:fixed;left:0;right:0;bottom:0;height:60px;pointe
   body { font-weight: 400; }
   .card-title { font-weight: 300; }
 }
+
+/* ── iOS / small screen overrides (≤480px) ───────────────
+   Target: iPhone. Improves readability without touching
+   desktop or tablet layout.
+──────────────────────────────────────────────────────── */
+@media (max-width: 480px) {
+
+  /* Body — slightly larger base size, tighter top padding */
+  body {
+    font-size: 15px;
+    padding: 16px 12px 80px;
+  }
+
+  /* App title — smaller on phone */
+  .app-title { font-size: 2rem; letter-spacing: .12em; }
+  .app-date   { font-size: .8rem; margin-bottom: 18px; }
+
+  /* Cards — less horizontal padding, tighter radius */
+  .card {
+    padding: 20px 18px;
+    border-radius: 16px;
+  }
+  .card-title {
+    font-size: 1.1rem;
+  }
+
+  /* Nav drawer button — larger tap target */
+  .menu-btn {
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Filter bar — larger tap targets, wrap cleanly */
+  .filter-btn {
+    font-size: .78rem;
+    padding: 7px 16px;
+    min-height: 36px;
+  }
+
+  /* Tabs — taller for easier tapping */
+  .tab {
+    font-size: .78rem;
+    padding: 10px 8px;
+    min-height: 40px;
+  }
+
+  /* Task items — more breathing room */
+  .task-item {
+    padding: 13px 14px;
+    gap: 13px;
+  }
+  .task-item input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+  }
+
+  /* Item name — stronger weight on mobile */
+  .item-name {
+    font-size: 1rem;
+    font-weight: 400;
+  }
+
+  /* Meta tags — slightly larger */
+  .meta-tag {
+    font-size: .72rem;
+    padding: 3px 9px;
+  }
+
+  /* Form inputs — 16px prevents iOS zoom on focus */
+  .form-input,
+  .form-select {
+    font-size: 16px;
+    padding: 11px 13px;
+    border-radius: 12px;
+  }
+  .form-label {
+    font-size: .72rem;
+  }
+
+  /* Form grid — single column on phone */
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* Add button — full width, taller */
+  .add-btn {
+    font-size: 1rem;
+    padding: 13px;
+    min-height: 48px;
+    border-radius: 12px;
+  }
+
+  /* Event pills — more padding */
+  .event-pill {
+    padding: 11px 14px;
+    font-size: .92rem;
+  }
+
+  /* Block task items */
+  .block-task-item {
+    padding: 11px 14px;
+  }
+  .block-task-name { font-size: .96rem; }
+
+  /* Overdue / waiting strip rows */
+  .overdue-row,
+  .waiting-row {
+    padding: 10px 14px;
+    font-size: .88rem;
+  }
+
+  /* Habit cards — single column */
+  .habit-cards {
+    grid-template-columns: 1fr;
+  }
+  .habit-card {
+    padding: 18px 16px;
+  }
+  .habit-action-btn {
+    font-size: .82rem;
+    padding: 7px 14px;
+    min-height: 38px;
+  }
+
+  /* Modal — full width on phone */
+  .modal {
+    padding: 22px 18px;
+    border-radius: 16px;
+    max-height: 85vh;
+  }
+
+  /* Save / apply buttons */
+  .save-btn,
+  .apply-btn,
+  .modal-save {
+    min-height: 44px;
+    font-size: .92rem;
+    border-radius: 11px;
+  }
+
+  /* Settings grid — single column */
+  .settings-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* Recur toggle */
+  .recur-toggle,
+  .habit-toggle {
+    font-size: .86rem;
+    padding: 10px 14px;
+    min-height: 44px;
+  }
+
+  /* Drawer items — taller tap targets */
+  .drawer-item {
+    min-height: 48px;
+    font-size: .88rem;
+  }
+
+  /* Cat vis buttons */
+  .cat-vis-btn {
+    font-size: .64rem;
+    padding: 5px 10px;
+    min-height: 32px;
+  }
+
+  /* Rebook button */
+  .rebook-btn {
+    font-size: .68rem;
+    padding: 5px 12px;
+    min-height: 32px;
+  }
+
+  /* Water bar — taller for easier reading */
+  .water-bar-wrap {
+    min-height: 200px;
+  }
+
+  /* IO grid — single column */
+  .io-grid {
+    grid-template-columns: 1fr;
+  }
+  .io-btn {
+    min-height: 56px;
+    padding: 13px 16px;
+  }
+
+  /* Edit form grid — single column */
+  .edit-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* Ink toggle button — bigger for stylus/finger */
+  .ink-toggle-btn {
+    width: 36px;
+    height: 36px;
+    font-size: 18px;
+    right: 8px;
+  }
+
+}
 </style>
 </head>
 <body>
@@ -1073,10 +1205,6 @@ body::after{content:'';position:fixed;left:0;right:0;bottom:0;height:60px;pointe
     <button class="drawer-item" id="di-health" onclick="showPage('health');closeDrawer()">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
       Health
-    </button>
-    <button class="drawer-item" id="di-styled" onclick="showPage('styled');closeDrawer()">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.38 3.46L16 2a4 4 0 01-8 0L3.62 3.46a2 2 0 00-1.34 2.23l.58 3.57a1 1 0 00.99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 002-2V10h2.15a1 1 0 00.99-.84l.58-3.57a2 2 0 00-1.34-2.23z"/></svg>
-      Styled
     </button>
     <button class="drawer-item" id="di-cycle" onclick="showPage('cycle');closeDrawer()">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
@@ -1232,7 +1360,7 @@ body::after{content:'';position:fixed;left:0;right:0;bottom:0;height:60px;pointe
         <div class="form-group"><label class="form-label">Category</label><select class="form-select" id="psEvCat"><option value="">— none —</option></select></div>
         <div class="form-group"><label class="form-label">Type</label>
           <select class="form-select" id="psEvType" onchange="handlePsEvType()">
-            <option value="event">Event</option><option value="birthday">Birthday</option><option value="social">Social</option><option value="appointment">Appointment</option><option value="health">Health Appointment</option>
+            <option value="event">Event</option><option value="birthday">Birthday</option><option value="social">Social</option><option value="appointment">Appointment</option><option value="recurring-appointment">Recurring Appointment</option><option value="health">Health Appointment</option>
           </select>
         </div>
         <div class="form-group"><label class="form-label">Date</label><input class="form-input" type="date" id="psEvDate"/></div>
@@ -1661,7 +1789,7 @@ body::after{content:'';position:fixed;left:0;right:0;bottom:0;height:60px;pointe
         <div class="form-group"><label class="form-label">Category</label><select class="form-select" id="evCat"><option value="">— none —</option></select></div>
         <div class="form-group"><label class="form-label">Type</label>
           <select class="form-select" id="evType" onchange="handleEvType()">
-            <option value="event">Event</option><option value="birthday">Birthday</option><option value="social">Social</option><option value="appointment">Appointment</option><option value="health">Health Appointment</option><option value="health">Health Appointment</option>
+            <option value="event">Event</option><option value="birthday">Birthday</option><option value="social">Social</option><option value="appointment">Appointment</option><option value="recurring-appointment">Recurring Appointment</option><option value="health">Health Appointment</option><option value="health">Health Appointment</option>
           </select>
         </div>
         <div class="form-group"><label class="form-label">Status</label>
@@ -2075,103 +2203,7 @@ body::after{content:'';position:fixed;left:0;right:0;bottom:0;height:60px;pointe
   </div>
 
 
-  <!-- ═══════════════════════════ STYLED PAGE ═══════════════════════════ -->
-  <div class="page" id="page-styled">
-
-    <!-- Sub-nav tabs -->
-    <div class="styled-tabs">
-      <button class="styled-tab active" id="stab-closet" onclick="stShowTab('closet',this)">Closet</button>
-      <button class="styled-tab" id="stab-outfits" onclick="stShowTab('outfits',this)">Outfits</button>
-      <button class="styled-tab" id="stab-plan" onclick="stShowTab('plan',this)">Plan</button>
-    </div>
-
-    <!-- Pinterest info -->
-    <div id="stPinterestBanner" style="background:var(--card);border-radius:14px;padding:10px 14px;margin-bottom:10px;display:flex;align-items:flex-start;gap:8px;border:1.5px solid var(--border);">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:2px;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-      <div style="flex:1;font-size:.75rem;color:var(--muted);font-family:'Handwriting',Georgia,serif;line-height:1.5;"><span style="font-family:'Noto Serif Display',Georgia,serif;font-stretch:extra-condensed;text-transform:uppercase;letter-spacing:.08em;font-size:.7rem;color:var(--text);">Pinterest</span> — Pinterest's API doesn't allow reading your saved boards, so a live sync isn't possible. The best workflow: find a piece you love on Pinterest, then add it here with matching colour swatches. Your closet becomes your curated version of your inspo boards.</div>
-      <button onclick="document.getElementById('stPinterestBanner').style.display='none'" style="background:none;border:none;color:var(--muted);font-size:.9rem;cursor:pointer;flex-shrink:0;line-height:1;padding:0 2px;">×</button>
-    </div>
-    <!-- ── CLOSET ──────────────────────────────────────────────── -->
-    <div id="stab-content-closet">
-      <!-- Filter pills -->
-      <div class="st-filter-bar" id="stCatFilter">
-        <button class="st-filter active" data-cat="" onclick="stFilterCat(this)">All</button>
-        <button class="st-filter" data-cat="Tops" onclick="stFilterCat(this)">Tops</button>
-        <button class="st-filter" data-cat="Bottoms" onclick="stFilterCat(this)">Bottoms</button>
-        <button class="st-filter" data-cat="Dresses" onclick="stFilterCat(this)">Dresses</button>
-        <button class="st-filter" data-cat="Outerwear" onclick="stFilterCat(this)">Outerwear</button>
-        <button class="st-filter" data-cat="Shoes" onclick="stFilterCat(this)">Shoes</button>
-        <button class="st-filter" data-cat="Accessories" onclick="stFilterCat(this)">Accessories</button>
-      </div>
-      <!-- Grid -->
-      <div class="st-grid" id="stClosetGrid"></div>
-      <!-- Add item form (collapsible) -->
-      <div class="card" id="stAddItemCard" style="margin-top:4px;">
-        <div class="st-add-toggle" onclick="stToggleAddItem()">
-          <span id="stAddToggleLabel">+ Add item</span>
-        </div>
-        <div id="stAddItemForm" style="display:none;margin-top:14px;">
-          <div class="form-grid">
-            <div class="form-group full"><label class="form-label">Name</label><input class="form-input" id="stItemName" placeholder="e.g. Linen blazer"/></div>
-            <div class="form-group"><label class="form-label">Category</label>
-              <select class="form-select" id="stItemCat">
-                <option value="Tops">Tops</option>
-                <option value="Bottoms">Bottoms</option>
-                <option value="Dresses">Dresses</option>
-                <option value="Outerwear">Outerwear</option>
-                <option value="Shoes">Shoes</option>
-                <option value="Accessories">Accessories</option>
-              </select>
-            </div>
-            <div class="form-group"><label class="form-label">Colour</label>
-              <div style="display:flex;gap:8px;align-items:center;">
-                <input class="form-input" id="stItemColor" type="color" value="#93aacd" style="width:44px;height:36px;padding:2px;cursor:pointer;border-radius:8px;border:1.5px solid var(--border);background:none;"/>
-                <input class="form-input" id="stItemColor2" type="color" value="#93aacd" style="width:44px;height:36px;padding:2px;cursor:pointer;border-radius:8px;border:1.5px solid var(--border);background:none;" title="Second colour (optional gradient)"/>
-                <span style="font-size:.7rem;color:var(--muted);">+ gradient</span>
-              </div>
-            </div>
-            <div class="form-group full"><label class="form-label">Occasion tags (comma separated)</label><input class="form-input" id="stItemTags" placeholder="Work, Casual, Evening…"/></div>
-            <button class="add-btn" onclick="stAddItem()">+ Add to closet</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ── OUTFITS ─────────────────────────────────────────────── -->
-    <div id="stab-content-outfits" style="display:none;">
-      <div class="st-outfit-list" id="stOutfitList"></div>
-      <!-- Build outfit -->
-      <div class="card" id="stBuildCard" style="margin-top:4px;">
-        <div class="st-add-toggle" onclick="stToggleBuildOutfit()">
-          <span id="stBuildToggleLabel">+ Build outfit</span>
-        </div>
-        <div id="stBuildOutfitForm" style="display:none;margin-top:14px;">
-          <div class="form-group" style="margin-bottom:10px;"><label class="form-label">Outfit name</label><input class="form-input" id="stOutfitName" placeholder="e.g. Office chic"/></div>
-          <div class="form-group" style="margin-bottom:10px;"><label class="form-label">Occasion</label><input class="form-input" id="stOutfitOcc" placeholder="Work, Casual, Evening…"/></div>
-          <label class="form-label" style="margin-bottom:8px;display:block;">Pick items</label>
-          <div class="st-picker-grid" id="stItemPicker"></div>
-          <button class="add-btn" style="margin-top:12px;" onclick="stSaveOutfit()">+ Save outfit</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- ── PLAN ────────────────────────────────────────────────── -->
-    <div id="stab-content-plan" style="display:none;">
-      <div class="card">
-        <div class="card-title" style="margin-bottom:16px;">This week</div>
-        <div class="st-week-grid" id="stWeekGrid"></div>
-      </div>
-      <div class="card" style="margin-top:0;">
-        <div class="card-title" style="margin-bottom:12px;">Planned looks</div>
-        <div id="stPlanList"></div>
-        <div style="font-size:.8rem;color:var(--muted);margin-top:8px;">Tap a day above to assign an outfit.</div>
-      </div>
-    </div>
-
-  </div>
-  <!-- ═══════════════════════════ END STYLED PAGE ════════════════════════ -->
-
-
+  <!-- SETTINGS -->
   <div class="page" id="page-settings">
     <div class="card">
 
@@ -2983,7 +3015,7 @@ function renderWaterTimeline(isToday, blocksHtml){
   return `<div class="schedule-layout">${barHtml}<div>${blocksHtml}</div></div>`;
 }
 
-const THEME_DEFAULTS={'--bg':'#f9f8f6','--card':'#ffffff','--text':'#2c2c2c','--accent':'#ebf3ff','--accent-work':'#ebefb9','--muted':'#999999','--border':'#e8e8e8'};
+const THEME_DEFAULTS={'--bg':'#f7f7f5','--card':'#ffffff','--text':'#1a1a1a','--accent':'#ebf3ff','--accent-work':'#ebefb9','--muted':'#9b9b9b','--border':'#e9e9e7'};
 const THEME_LABELS={'--bg':'Background','--card':'Card','--text':'Text','--accent':'Personal Accent','--accent-work':'Work Accent','--accent-full':'Full Access Accent','--muted':'Muted text','--border':'Borders'};
 const EDITABLE=['--bg','--card','--text','--accent','--accent-work','--accent-full','--muted','--border'];
 const DOW_LABELS=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
@@ -3019,302 +3051,6 @@ function rcpDropSelect(inputId, dropId, name) {
 }
 
 // ══════════════════════════════════════════════════════════
-// STYLED — State & Helpers
-// ══════════════════════════════════════════════════════════
-let closetItems = [];   // {id, name, cat, color, color2, tags:[]}
-let outfits = [];       // {id, name, occ, itemIds:[]}
-let outfitPlan = {};    // {dateStr: outfitId}
-let _stPickerSelected = new Set();
-let _stAssignDate = null;
-let _stActiveCatFilter = '';
-
-function stId() { return 'STI-' + Date.now() + '-' + Math.random().toString(36).slice(2,6); }
-function stOId() { return 'STO-' + Date.now() + '-' + Math.random().toString(36).slice(2,6); }
-
-function stSwatch(item, w, h, radius) {
-  const r = radius || '8px';
-  const s = (w||36)+'px';
-  const ht = (h||46)+'px';
-  const bg = item.color2 && item.color2 !== item.color
-    ? `linear-gradient(150deg,${item.color},${item.color2})`
-    : item.color;
-  return `<div style="width:${s};height:${ht};border-radius:${r};background:${bg};flex-shrink:0;"></div>`;
-}
-
-// ── Load / Save ──────────────────────────────────────────
-function stLoadStorage() {
-  try {
-    const ci = localStorage.getItem('centre_closetItems'); if(ci) closetItems = JSON.parse(ci);
-    const ot = localStorage.getItem('centre_outfits');     if(ot) outfits = JSON.parse(ot);
-    const op = localStorage.getItem('centre_outfitPlan');  if(op) outfitPlan = JSON.parse(op);
-  } catch(e) {}
-}
-function stScheduleSave() {
-  try {
-    localStorage.setItem('centre_closetItems', JSON.stringify(closetItems));
-    localStorage.setItem('centre_outfits',     JSON.stringify(outfits));
-    localStorage.setItem('centre_outfitPlan',  JSON.stringify(outfitPlan));
-  } catch(e) {}
-  scheduleSave();
-}
-
-// ── Tab switching ────────────────────────────────────────
-function stShowTab(id, btn) {
-  ['closet','outfits','plan'].forEach(t => {
-    document.getElementById('stab-content-' + t).style.display = t === id ? '' : 'none';
-  });
-  document.querySelectorAll('.styled-tab').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  if(id === 'closet')  stRenderCloset();
-  if(id === 'outfits') { stRenderOutfits(); stRenderItemPicker(); }
-  if(id === 'plan')    stRenderPlan();
-}
-
-// ── Category filter ──────────────────────────────────────
-function stFilterCat(btn) {
-  _stActiveCatFilter = btn.dataset.cat || '';
-  document.querySelectorAll('.st-filter').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  stRenderCloset();
-}
-
-// ── Add/delete item ──────────────────────────────────────
-function stToggleAddItem() {
-  const form = document.getElementById('stAddItemForm');
-  const open = form.style.display === 'none';
-  form.style.display = open ? '' : 'none';
-  document.getElementById('stAddToggleLabel').textContent = open ? '— collapse' : '+ Add item';
-  if(open) document.getElementById('stItemName').focus();
-}
-
-function stAddItem() {
-  const name = document.getElementById('stItemName').value.trim();
-  if(!name) { document.getElementById('stItemName').focus(); return; }
-  const color  = document.getElementById('stItemColor').value;
-  const color2 = document.getElementById('stItemColor2').value;
-  const cat    = document.getElementById('stItemCat').value;
-  const tags   = document.getElementById('stItemTags').value.split(',').map(t=>t.trim()).filter(Boolean);
-  closetItems.push({ id: stId(), name, cat, color, color2, tags });
-  document.getElementById('stItemName').value = '';
-  document.getElementById('stItemTags').value = '';
-  stScheduleSave();
-  stRenderCloset();
-}
-
-function stDeleteItem(id) {
-  closetItems = closetItems.filter(i => i.id !== id);
-  outfits.forEach(o => { o.itemIds = o.itemIds.filter(iid => iid !== id); });
-  stScheduleSave();
-  stRenderCloset();
-  stRenderOutfits();
-}
-
-// ── Render closet grid ───────────────────────────────────
-function stRenderCloset() {
-  const grid = document.getElementById('stClosetGrid');
-  if(!grid) return;
-  const items = _stActiveCatFilter
-    ? closetItems.filter(i => i.cat === _stActiveCatFilter)
-    : closetItems;
-  if(!items.length) {
-    grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;color:var(--muted);font-size:.85rem;padding:20px 0;font-family:'Handwriting',Georgia,serif;">Your closet is empty — add your first piece below.</div>`;
-    return;
-  }
-  grid.innerHTML = items.map(item => {
-    const bg = item.color2 && item.color2 !== item.color
-      ? `linear-gradient(150deg,${item.color},${item.color2})`
-      : item.color;
-    return `<div class="st-item" onclick="">
-      <div class="st-item-swatch" style="background:${bg};"></div>
-      <button class="st-item-del" onclick="event.stopPropagation();stDeleteItem('${item.id}')" title="Remove">×</button>
-      <div class="st-item-label">${escHtml(item.name)}<br><span class="st-item-cat">${item.cat}</span></div>
-    </div>`;
-  }).join('');
-}
-
-// ── Build / save outfit ──────────────────────────────────
-function stToggleBuildOutfit() {
-  const form = document.getElementById('stBuildOutfitForm');
-  const open = form.style.display === 'none';
-  form.style.display = open ? '' : 'none';
-  document.getElementById('stBuildToggleLabel').textContent = open ? '— collapse' : '+ Build outfit';
-  if(open) { _stPickerSelected = new Set(); stRenderItemPicker(); }
-}
-
-function stRenderItemPicker() {
-  const grid = document.getElementById('stItemPicker');
-  if(!grid) return;
-  if(!closetItems.length) {
-    grid.innerHTML = `<div style="grid-column:1/-1;font-size:.8rem;color:var(--muted);font-family:'Handwriting',Georgia,serif;">Add items to your closet first.</div>`;
-    return;
-  }
-  grid.innerHTML = closetItems.map(item => {
-    const bg = item.color2 && item.color2 !== item.color
-      ? `linear-gradient(150deg,${item.color},${item.color2})`
-      : item.color;
-    const sel = _stPickerSelected.has(item.id) ? 'selected' : '';
-    return `<div class="st-picker-item ${sel}" onclick="stTogglePick('${item.id}')">
-      <div class="st-picker-swatch" style="background:${bg};"></div>
-      <div class="st-picker-label">${escHtml(item.name)}</div>
-    </div>`;
-  }).join('');
-}
-
-function stTogglePick(id) {
-  if(_stPickerSelected.has(id)) _stPickerSelected.delete(id);
-  else _stPickerSelected.add(id);
-  stRenderItemPicker();
-}
-
-function stSaveOutfit() {
-  const name = document.getElementById('stOutfitName').value.trim();
-  if(!name) { document.getElementById('stOutfitName').focus(); return; }
-  const occ   = document.getElementById('stOutfitOcc').value.trim();
-  const itemIds = [..._stPickerSelected];
-  outfits.push({ id: stOId(), name, occ, itemIds });
-  document.getElementById('stOutfitName').value = '';
-  document.getElementById('stOutfitOcc').value = '';
-  _stPickerSelected = new Set();
-  stScheduleSave();
-  stRenderOutfits();
-  stRenderItemPicker();
-  // collapse form
-  document.getElementById('stBuildOutfitForm').style.display = 'none';
-  document.getElementById('stBuildToggleLabel').textContent = '+ Build outfit';
-}
-
-function stDeleteOutfit(id) {
-  outfits = outfits.filter(o => o.id !== id);
-  Object.keys(outfitPlan).forEach(d => { if(outfitPlan[d] === id) delete outfitPlan[d]; });
-  stScheduleSave();
-  stRenderOutfits();
-}
-
-function stRenderOutfits() {
-  const list = document.getElementById('stOutfitList');
-  if(!list) return;
-  if(!outfits.length) {
-    list.innerHTML = `<div style="text-align:center;color:var(--muted);font-size:.85rem;padding:20px 0;font-family:'Handwriting',Georgia,serif;">No outfits yet — build your first look below.</div>`;
-    return;
-  }
-  list.innerHTML = outfits.map(o => {
-    const items = o.itemIds.map(id => closetItems.find(i=>i.id===id)).filter(Boolean);
-    const swatches = items.slice(0,4).map(item => stSwatch(item,28,36,'6px')).join('');
-    return `<div class="st-outfit-card">
-      <div class="st-outfit-swatches">${swatches}</div>
-      <div class="st-outfit-info">
-        <div class="st-outfit-name">${escHtml(o.name)}</div>
-        ${o.occ ? `<div class="st-outfit-occ">${escHtml(o.occ)}</div>` : ''}
-      </div>
-      <button class="st-outfit-del" onclick="stDeleteOutfit('${o.id}')">×</button>
-    </div>`;
-  }).join('');
-}
-
-// ── Plan page ────────────────────────────────────────────
-function stRenderPlan() {
-  stRenderWeekGrid();
-  stRenderPlanList();
-}
-
-function stRenderWeekGrid() {
-  const grid = document.getElementById('stWeekGrid');
-  if(!grid) return;
-  const t = today();
-  const now = new Date();
-  const dow = (now.getDay() + 6) % 7;
-  const days = Array.from({length:7}, (_,i) => {
-    const d = new Date(now); d.setDate(now.getDate() - dow + i); return d;
-  });
-  const DN = ['M','T','W','T','F','S','S'];
-  grid.innerHTML = days.map((d,i) => {
-    const ds = dateStr(d);
-    const isToday = ds === t;
-    const outfitId = outfitPlan[ds];
-    const outfit = outfitId ? outfits.find(o=>o.id===outfitId) : null;
-    let dotStyle = '';
-    if(outfit) {
-      const items = outfit.itemIds.map(id=>closetItems.find(i=>i.id===id)).filter(Boolean);
-      const cs = items.slice(0,2).map(i=>i.color);
-      if(cs.length>=2) dotStyle = `background:linear-gradient(135deg,${cs[0]},${cs[1]});`;
-      else if(cs.length===1) dotStyle = `background:${cs[0]};`;
-    }
-    return `<div class="st-day ${isToday?'is-today':''}" onclick="stOpenAssign('${ds}')">
-      <div class="st-day-name">${DN[i]}</div>
-      <div class="st-day-num">${d.getDate()}</div>
-      <div class="st-day-dot ${outfit?'has-look':''}" style="${dotStyle}"></div>
-    </div>`;
-  }).join('');
-}
-
-function stRenderPlanList() {
-  const list = document.getElementById('stPlanList');
-  if(!list) return;
-  const entries = Object.entries(outfitPlan)
-    .sort(([a],[b])=>a.localeCompare(b))
-    .map(([ds,oid]) => ({ds, outfit: outfits.find(o=>o.id===oid)}))
-    .filter(e=>e.outfit);
-  if(!entries.length) {
-    list.innerHTML = `<div style="font-size:.85rem;color:var(--muted);padding:8px 0;font-family:'Handwriting',Georgia,serif;">No looks planned yet.</div>`;
-    return;
-  }
-  list.innerHTML = entries.map(({ds,outfit}) => {
-    const items = outfit.itemIds.map(id=>closetItems.find(i=>i.id===id)).filter(Boolean);
-    const swatches = items.slice(0,4).map(i=>`<div class="st-plan-swatch" style="background:${i.color};"></div>`).join('');
-    const label = new Date(ds+'T00:00:00').toLocaleDateString('en-AU',{weekday:'short',day:'numeric',month:'short'});
-    return `<div class="st-plan-row">
-      <div class="st-plan-swatches">${swatches}</div>
-      <div class="st-plan-info">
-        <div class="st-plan-date">${label}</div>
-        <div class="st-plan-look">${escHtml(outfit.name)}${outfit.occ?' · '+escHtml(outfit.occ):''}</div>
-      </div>
-      <button class="st-plan-del" onclick="stUnplan('${ds}')">×</button>
-    </div>`;
-  }).join('');
-}
-
-function stUnplan(ds) {
-  delete outfitPlan[ds];
-  stScheduleSave();
-  stRenderPlan();
-}
-
-// ── Assign outfit sheet ──────────────────────────────────
-function stOpenAssign(ds) {
-  if(!outfits.length) { alert('Build an outfit first in the Outfits tab.'); return; }
-  _stAssignDate = ds;
-  const d = new Date(ds+'T00:00:00');
-  const label = d.toLocaleDateString('en-AU',{weekday:'long',day:'numeric',month:'long'});
-  const overlay = document.getElementById('stAssignOverlay');
-  document.getElementById('stAssignTitle').textContent = label;
-  const list = document.getElementById('stAssignList');
-  list.innerHTML = outfits.map(o => {
-    const items = o.itemIds.map(id=>closetItems.find(i=>i.id===id)).filter(Boolean);
-    const swatches = items.slice(0,3).map(i=>stSwatch(i,22,28,'4px')).join('');
-    const cur = outfitPlan[ds] === o.id;
-    return `<button class="st-assign-opt" onclick="stAssignOutfit('${o.id}')" style="${cur?'background:var(--accent);color:white;':''}">
-      <div style="display:flex;gap:3px;">${swatches}</div>
-      <span>${escHtml(o.name)}${o.occ?' — '+escHtml(o.occ):''}</span>
-    </button>`;
-  }).join('');
-  if(outfitPlan[ds]) {
-    list.innerHTML += `<button class="st-assign-opt" onclick="stUnplan('${ds}');stCloseAssign()" style="color:var(--muted);">× Remove look for this day</button>`;
-  }
-  overlay.classList.add('open');
-}
-
-function stAssignOutfit(outfitId) {
-  if(!_stAssignDate) return;
-  outfitPlan[_stAssignDate] = outfitId;
-  stScheduleSave();
-  stCloseAssign();
-  stRenderPlan();
-}
-
-function stCloseAssign() {
-  document.getElementById('stAssignOverlay').classList.remove('open');
-  _stAssignDate = null;
-}
 // ═════════════════════════════════════════════════════════
 
 async function gcalPullSecondary() {
@@ -3870,7 +3606,7 @@ function applyWorkMode() {
     document.documentElement.style.setProperty('--accent', fullAccent);
     document.documentElement.style.setProperty('--accent-dark', fullDark);
     // Show all nav items
-    ['di-habits','di-cycle','di-health','di-styled','di-lists'].forEach(id => {
+    ['di-habits','di-cycle','di-health','di-lists'].forEach(id => {
       const e = el(id); if (e) e.style.display = '';
     });
     ['overviewHealth','overviewHabits'].forEach(id => {
@@ -4125,7 +3861,6 @@ function showPage(p,btn){
   if(p==='habits'){renderHabitsDashboard();renderWaterHabitCard();renderNutriHabitCard();renderNegHabits();}
   if(p==='weekly'){renderPlannerPage();renderPlannerEventList();setTimeout(applyWeatherToWeekly,200);}
   if(p==='tasks'){renderCatSelects();renderTasks();}
-  if(p==='styled'){stRenderCloset();stRenderOutfits();stRenderPlan();}
   if(p==='events'){showPage('weekly',document.getElementById('di-weekly'));return;}  // merged into planner
   if(p==='events_list'){renderCatSelects();renderPlannerEventList();}
   if(p==='lists')renderGrocList();
@@ -5579,6 +5314,33 @@ function renderTasks(){
 // ---- EVENTS ----
 function handleEvType(){
   const type=document.getElementById('evType').value;
+  // Lazily create interval field if needed
+  if (!document.getElementById('evIntervalSuggestGroup')) {
+    var notesGroup = document.getElementById('evNotes');
+    if (notesGroup) {
+      var wrap = notesGroup.closest('.form-group');
+      if (wrap) {
+        var ig = document.createElement('div');
+        ig.className = 'form-group';
+        ig.id = 'evIntervalSuggestGroup';
+        ig.style.display = 'none';
+        ig.innerHTML = '<label class="form-label">Typical interval</label>'
+          + '<select class="form-select" id="evIntervalSuggest">'
+          + '<option value="">— none —</option>'
+          + '<option value="2">Every 2 weeks</option>'
+          + '<option value="4">Monthly</option>'
+          + '<option value="6">Every 6 weeks</option>'
+          + '<option value="8">Every 8 weeks</option>'
+          + '<option value="12">Every 3 months</option>'
+          + '<option value="26">Every 6 months</option>'
+          + '<option value="52">Yearly</option>'
+          + '</select>';
+        wrap.parentNode.insertBefore(ig, wrap.nextSibling);
+      }
+    }
+  }
+  var ig2 = document.getElementById('evIntervalSuggestGroup');
+  if (ig2) ig2.style.display = (type === 'recurring-appointment') ? 'block' : 'none';
   if(type==='birthday'){const sec=document.getElementById('evRecurSection'),btn=document.getElementById('evRecurToggle');sec.classList.add('open');btn.classList.add('active');btn.textContent='- Remove recurrence';buildDowRow('ev');document.getElementById('evRecurType').value='yearly';updateRecurUI('ev');btn.disabled=true;btn.style.opacity='.5';}
   else{document.getElementById('evRecurToggle').disabled=false;document.getElementById('evRecurToggle').style.opacity='1';}
 }
@@ -5590,9 +5352,62 @@ function handleModalEvType(){
 function addEvent(){
   const name=document.getElementById('evName').value.trim(),date=document.getElementById('evDate').value;if(!name||!date)return;
   const type=document.getElementById('evType').value;let recur=getRecur('ev');if(type==='birthday'&&!recur)recur={type:'yearly',endType:'never'};
-  events.push({id:newEventId(),_created:Date.now(),name,date,type,busyStatus:document.getElementById('evBusy').value,countdown:document.getElementById('evCountdown').checked,catId:document.getElementById('evCat').value,time:document.getElementById('evTime').value,timeEnd:document.getElementById('evTimeEnd').value,location:document.getElementById('evLocation').value.trim(),notes:document.getElementById('evNotes').value.trim(),recur});
+  var _evInt=parseInt((document.getElementById('evIntervalSuggest')||{}).value)||0;
+  events.push({id:newEventId(),_created:Date.now(),name,date,type,intervalWeeks:_evInt||undefined,busyStatus:document.getElementById('evBusy').value,countdown:document.getElementById('evCountdown').checked,catId:document.getElementById('evCat').value,time:document.getElementById('evTime').value,timeEnd:document.getElementById('evTimeEnd').value,location:document.getElementById('evLocation').value.trim(),notes:document.getElementById('evNotes').value.trim(),recur});
   document.getElementById('evName').value='';document.getElementById('evDate').value='';document.getElementById('evTime').value='';document.getElementById('evTimeEnd').value='';document.getElementById('evBusy').value='free';document.getElementById('evCountdown').checked=false;document.getElementById('evLocation').value='';document.getElementById('evNotes').value='';
   scheduleSave();renderEventList();renderOverviewEvents();renderOverviewUpcoming();
+}
+
+function rebookEvent(evId) {
+  var ev = events.find(function(e) { return e.id === evId; });
+  if (!ev) return;
+  document.querySelectorAll('.page').forEach(function(el) { el.classList.remove('active'); });
+  document.querySelectorAll('.drawer-item').forEach(function(el) { el.classList.remove('active'); });
+  document.getElementById('page-events').classList.add('active');
+  var di = document.getElementById('di-events');
+  if (di) di.classList.add('active');
+  setTimeout(function() {
+    var fields = [
+      ['evName', ev.name],
+      ['evType', ev.type || 'appointment'],
+      ['evCat',  ev.catId || ''],
+      ['evTime', ev.time || ''],
+      ['evTimeEnd', ev.timeEnd || ''],
+      ['evLocation', ev.location || ''],
+      ['evNotes', ev.notes || ''],
+      ['evDate', ''],
+      ['evBusy', ev.busyStatus || 'busy']
+    ];
+    fields.forEach(function(pair) {
+      var el = document.getElementById(pair[0]);
+      if (el) el.value = pair[1];
+    });
+    var typeEl = document.getElementById('evType');
+    if (typeEl) typeEl.dispatchEvent(new Event('change'));
+    var dateEl = document.getElementById('evDate');
+    if (dateEl) {
+      dateEl.style.borderColor = 'var(--accent-normal)';
+      dateEl.focus();
+      setTimeout(function() { dateEl.style.borderColor = ''; }, 3000);
+    }
+    var form = document.querySelector('#page-events .card');
+    if (form) {
+      var old = document.getElementById('rebookBanner');
+      if (old) old.remove();
+      var banner = document.createElement('div');
+      banner.id = 'rebookBanner';
+      banner.className = 'rebook-banner';
+      var msg = document.createElement('span');
+      msg.innerHTML = 'Rebooking <strong>' + escHtml(ev.name) + '</strong> — all fields filled, just pick a new date';
+      var btn = document.createElement('button');
+      btn.textContent = '×';
+      btn.style.cssText = 'background:none;border:none;cursor:pointer;font-size:1.1rem;color:var(--muted);padding:0;';
+      btn.onclick = function() { banner.remove(); };
+      banner.appendChild(msg);
+      banner.appendChild(btn);
+      form.insertBefore(banner, form.firstChild);
+    }
+  }, 50);
 }
 
 function deleteEvent(id){
@@ -5617,6 +5432,7 @@ function renderEventList(){
         <div style="display:flex;align-items:center;gap:8px">
           <div class="item-name" style="flex:1;display:flex;align-items:center;gap:4px;">${getPhaseDotHtml(ev.date||ev.next)}${evEmoji(ev,'var(--accent)')}${escHtml(ev.name)}</div>
           <button class="edit-btn" onclick="toggleEvEdit('${ev.id}');event.stopPropagation()">edit</button>
+          ${(ev.type==='appointment'||ev.type==='recurring-appointment'||ev.type==='health')?'<button class="rebook-btn" onclick="rebookEvent(\''+(ev.id)+'\')">↵ Rebook</button>':''}
           <button class="delete-btn" onclick="(function(){var _ev=events.find(x=>x.id==='${ev.id}');hasRecur(_ev)?promptRecurScope('${ev.id}','${ev.date||today()}','delete'):deleteEvent('${ev.id}')})()">×</button>
         </div>
         <div class="item-meta" style="margin-top:5px;gap:5px;">
@@ -12415,7 +12231,6 @@ function renderNextPeriodCard() {
 
 
 loadFromStorage();
-stLoadStorage();
 // Outlook silent reconnect on load
 setTimeout(msSilentReconnect, 1500);
 // ICS feed auto-pull on load
@@ -13862,15 +13677,7 @@ function teardownInk() {
 </script>
 
   <!-- STYLED assign outfit sheet -->
-  <div class="st-assign-overlay" id="stAssignOverlay">
-    <div class="st-assign-backdrop" onclick="stCloseAssign()"></div>
-    <div class="st-assign-sheet">
-      <div class="st-assign-handle"></div>
-      <div class="st-assign-title" id="stAssignTitle"></div>
-      <div class="st-assign-list" id="stAssignList"></div>
-      <button class="st-assign-cancel" onclick="stCloseAssign()">Cancel</button>
-    </div>
-  </div>
+  
 
 </body>
 </html>
