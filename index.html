@@ -41,7 +41,7 @@
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <style>
 @font-face{font-family:'Noto Serif Display';src:url('Handwriting.ttf') format('truetype');}
-:root{--font-body:'Noto Serif Display',Georgia,serif;--font-display:'Noto Serif Display',Georgia,serif;--bg:#f7f7f5;--card:#ffffff;--text:#1a1a1a;--accent:#ebf3ff;--accent-dark:#c8daf0;--accent-normal:#ebf3ff;--accent-work:#ebefb9;--accent-work-dark:#d4d8a0;--accent-full:#efdbff;--accent-full-dark:#d9b8f0;--muted:#9b9b9b;--border:#e9e9e7;--icon-stroke:1.8;--icon-color:#93aacd;--icon-color-work:#7e9e8c;
+:root{--font-body:'Noto Serif Display',Georgia,serif;--font-display:'Noto Serif Display',Georgia,serif;--bg:#faf8f4;--card:#ffffff;--text:#1a1814;--accent:#ebf3ff;--accent-dark:#c8daf0;--accent-normal:#ebf3ff;--accent-work:#ebefb9;--accent-work-dark:#d4d8a0;--accent-full:#efdbff;--accent-full-dark:#d9b8f0;--muted:#8c8880;--border:#e8e4de;--icon-stroke:1.8;--icon-color:#93aacd;--icon-color-work:#7e9e8c;
 --phase-menstrual:#dd2c60;--phase-follicular:#d78881;--phase-ovulation:#ac487c;--phase-luteal:#861a3a;--water-fill:var(--accent);--water-light:rgba(147,170,205,.13);--water-border:rgba(147,170,205,.25);--on-accent:#ffffff;--font-mono:'SF Mono','Monaco','Inconsolata','Fira Mono',monospace;
 --nutri-cal:var(--accent);
 --nutri-protein:var(--accent);
@@ -134,13 +134,13 @@ body::after{content:'';position:fixed;left:0;right:0;bottom:0;height:60px;pointe
 .task-section-hd::before{content:'';display:block;height:1px;width:14px;background:var(--border);flex-shrink:0;}
 .task-section-hd::after{content:'';flex:1;height:1px;background:var(--border);}
 .task-section.ts-overdue .task-section-hd::before,.task-section.ts-overdue .task-section-hd::after{background:rgba(192,85,74,.3);}
-.task-section.ts-today .task-section-hd::before,.task-section.ts-today .task-section-hd::after{background:rgba(147,170,205,.35);}
+.task-section.ts-today .task-section-hd::before,.task-section.ts-today .task-section-hd::after{background:var(--border);}
 .task-section-label{font-family:'Noto Serif Display',Georgia,serif;font-stretch:extra-condensed;text-transform:uppercase;letter-spacing:.22em;font-size:.56rem;color:var(--muted);white-space:nowrap;opacity:.5;font-weight:200;}
 .task-section.ts-overdue .task-section-label{color:#c0554a;}
 .task-section.ts-today .task-section-label{color:var(--text);font-weight:500;}
 .task-section-badge{font-family:'Noto Serif Display',Georgia,serif;font-size:.65rem;padding:1px 7px;border-radius:20px;background:var(--bg);border:1px solid var(--border);color:var(--muted);}
 .task-section.ts-overdue .task-section-badge{background:#fde8e8;border-color:rgba(192,85,74,.25);color:#c0554a;}
-.task-section.ts-today .task-section-badge{background:rgba(147,170,205,.12);border-color:rgba(147,170,205,.3);color:var(--accent);}
+.task-section.ts-today .task-section-badge{background:var(--bg);border-color:var(--border);color:var(--muted);}
 .task-section-body{display:flex;flex-direction:column;gap:5px;}
 .task-section.ts-collapsed .task-section-body{display:none;}
 /* Compact task row for grouped view */
@@ -173,7 +173,7 @@ body::after{content:'';position:fixed;left:0;right:0;bottom:0;height:60px;pointe
 .cat-vis-btn{font-family:'Noto Serif Display',Georgia,serif;font-stretch:extra-condensed;text-transform:uppercase;letter-spacing:.07em;font-size:.58rem;padding:3px 8px;border-radius:20px;border:1.5px solid var(--border);background:none;color:var(--muted);cursor:pointer;transition:all .15s;white-space:nowrap;}
 .cat-vis-btn.on{border-color:var(--accent);color:var(--accent);background:rgba(147,170,205,.1);}
 .cat-vis-btn.locked{opacity:.5;cursor:default;}
-.rebook-btn{font-family:'Noto Serif Display',Georgia,serif;font-stretch:extra-condensed;text-transform:uppercase;letter-spacing:.08em;font-size:.62rem;padding:3px 10px;border-radius:20px;border:1.5px solid var(--accent-normal);background:none;color:var(--accent-dark);cursor:pointer;transition:all .15s;white-space:nowrap;flex-shrink:0;}
+.rebook-btn{font-family:'Noto Serif Display',Georgia,serif;font-stretch:extra-condensed;text-transform:uppercase;letter-spacing:.08em;font-size:.62rem;padding:3px 10px;border-radius:20px;border:1.5px solid var(--border);background:none;color:var(--muted);cursor:pointer;transition:all .15s;white-space:nowrap;flex-shrink:0;}
 .rebook-btn:hover{background:var(--accent-normal);color:var(--text);}
 .rebook-history{font-size:.7rem;color:var(--muted);margin-top:3px;}
 .rebook-banner{background:var(--accent-normal);border-radius:10px;padding:8px 14px;margin-bottom:14px;font-size:.78rem;color:var(--text);display:flex;align-items:center;justify-content:space-between;gap:8px;}
@@ -395,7 +395,7 @@ body::after{content:'';position:fixed;left:0;right:0;bottom:0;height:60px;pointe
 .plan-week-day:hover{background:var(--bg);}
 .plan-week-day.active{border-color:var(--accent);background:var(--bg);}
 .plan-week-day.is-today .plan-day-num{color:var(--text);font-weight:600;}
-.is-today .day-items{border-top-color:var(--accent);}
+.is-today .day-items{border-top-color:var(--border);}
 .plan-day-name{font-family:'Noto Serif Display',Georgia,serif;font-stretch:extra-condensed;text-transform:uppercase;letter-spacing:.06em;font-size:.6rem;color:var(--muted);}
 .plan-day-num{font-family:'Noto Serif Display',Georgia,serif;font-stretch:extra-condensed;font-size:1rem;color:var(--text);line-height:1;}
 .plan-day-dots{display:flex;gap:2px;margin-top:2px;}
@@ -438,7 +438,7 @@ body::after{content:'';position:fixed;left:0;right:0;bottom:0;height:60px;pointe
 .day-name{font-size:.68rem;letter-spacing:.08em;}
 .day-num{font-family:'Noto Serif Display',Georgia,serif;font-variant-numeric:lining-nums tabular-nums;font-weight:400;font-stretch:extra-condensed;font-size:1.1rem;color:var(--text);}
 .day-col.is-today .day-num{color:var(--text);font-weight:600;}
-.day-col.is-today .day-header{border-color:var(--accent);}
+.day-col.is-today .day-header{border-color:var(--text);}
 .day-items{display:flex;flex-direction:column;gap:3px;min-height:80px;border-top:1.5px solid var(--border);padding-top:5px;margin-top:2px;}
 .day-task,.day-event{font-size:.7rem;padding:3px 5px;border-radius:5px;line-height:1.3;font-family:'Noto Serif Display',Georgia,serif;}
 /* day-add-btn removed */
@@ -639,7 +639,7 @@ body::after{content:'';position:fixed;left:0;right:0;bottom:0;height:60px;pointe
 .ctx-menu.open{display:flex;}
 .ctx-menu-item{font-family:var(--font-body);font-size:.88rem;padding:9px 14px;border-radius:9px;border:none;background:none;cursor:pointer;color:var(--text);text-align:left;transition:background .15s;width:100%;}
 .ctx-menu-item:hover{background:var(--bg);}
-.ctx-menu-item.danger{color:#c0554a;}
+.ctx-menu-item.danger{color:var(--muted);}
 .ctx-menu-sep{height:1px;background:var(--border);margin:3px 0;}
 .ctx-reschedule-row{display:none;padding:6px 10px 4px;flex-direction:column;gap:6px;}
 .ctx-reschedule-row.open{display:flex;}
@@ -747,9 +747,9 @@ body::after{content:'';position:fixed;left:0;right:0;bottom:0;height:60px;pointe
 .wb-dot{width:4px;height:4px;border-radius:50%;border:1px solid var(--card);flex-shrink:0;}
 .wb-ml{font-family:'Handwriting',Georgia,serif;font-size:.56rem;letter-spacing:.01em;white-space:nowrap;position:absolute;right:calc(50% + 7px);line-height:1;transition:color .4s,opacity .4s;text-align:right;}
 .wb-tick.past  .wb-dot{background:rgba(147,170,205,.7);}
-.wb-tick.past  .wb-ml{color:var(--accent);opacity:.7;}
+.wb-tick.past  .wb-ml{color:var(--muted);opacity:.7;}
 .wb-tick.current .wb-dot{background:var(--accent);width:5px;height:5px;}
-.wb-tick.current .wb-ml{color:var(--accent);opacity:1;font-size:.62rem;font-weight:600;}
+.wb-tick.current .wb-ml{color:var(--text);opacity:1;font-size:.62rem;font-weight:600;}
 .wb-tick.future .wb-dot{background:var(--water-border);}
 .wb-tick.future .wb-ml{color:var(--muted);opacity:.5;}
 .wb-tick.sips  .wb-dot{background:var(--border);opacity:.3;}
@@ -776,7 +776,7 @@ body::after{content:'';position:fixed;left:0;right:0;bottom:0;height:60px;pointe
 .cycle-cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:3px;}
 .cycle-cal-hdr{font-family:'Noto Serif Display',Georgia,serif;font-stretch:extra-condensed;text-transform:uppercase;letter-spacing:.06em;font-size:.62rem;color:var(--muted);text-align:center;padding:4px 0;}
 .cycle-cal-day{aspect-ratio:1;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Noto Serif Display',Georgia,serif;font-stretch:extra-condensed;font-size:.72rem;border:1.5px solid transparent;transition:all .18s;position:relative;}
-.cycle-cal-day.today{border-color:var(--accent);color:var(--accent);font-weight:bold;}
+.cycle-cal-day.today{border-color:var(--border);color:var(--text);font-weight:700;}
 .cycle-cal-day.period{background:var(--accent);color:var(--on-accent);}
 .cycle-cal-day.predicted-period{background:rgba(147,170,205,.22);color:var(--muted);}
 .cycle-cal-day.ovulation{background:rgba(196,168,130,.25);color:#a07040;}
@@ -816,7 +816,7 @@ body::after{content:'';position:fixed;left:0;right:0;bottom:0;height:60px;pointe
 .tacc-name{font-family:'Noto Serif Display',Georgia,serif;font-stretch:extra-condensed;text-transform:uppercase;letter-spacing:.1em;font-size:.72rem;color:var(--muted);flex-shrink:0;min-width:108px;transition:color .15s;}
 .tacc-name.active{color:var(--text);}
 .tacc-sum{flex:1;font-size:.68rem;color:var(--border);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 8px;font-family:'Noto Serif Display',Georgia,serif;}
-.tacc-sum.set{color:var(--accent);}
+.tacc-sum.set{color:var(--text);font-weight:500;}
 .tacc-chev{font-size:.58rem;color:var(--muted);transition:transform .2s;flex-shrink:0;}
 .tacc-trigger.open .tacc-chev{transform:rotate(180deg);}
 .tacc-body{display:none;flex-direction:column;gap:10px;padding:6px 0 16px;}
@@ -832,7 +832,7 @@ body::after{content:'';position:fixed;left:0;right:0;bottom:0;height:60px;pointe
 .tacc-dep-picker{display:none;flex-direction:column;gap:9px;background:var(--bg);border-radius:10px;padding:12px;border:1.5px solid var(--border);margin-top:4px;}
 .tacc-dep-picker.open{display:flex;}
 .tacc-dep-chain{display:flex;align-items:center;gap:5px;flex-wrap:wrap;}
-.tacc-dep-name{font-size:.75rem;padding:3px 9px;border-radius:7px;background:rgba(147,170,205,.15);color:var(--accent);font-weight:500;}
+.tacc-dep-name{font-size:.75rem;padding:3px 9px;border-radius:7px;background:var(--bg);color:var(--text);font-weight:500;}
 .tacc-dep-arrow{font-size:.75rem;color:var(--muted);}
 .tacc-dep-this{font-size:.75rem;padding:3px 9px;border-radius:7px;background:var(--border);color:var(--muted);}
 .tacc-dep-item{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:9px 11px;display:flex;flex-direction:column;gap:6px;}
@@ -843,8 +843,8 @@ body::after{content:'';position:fixed;left:0;right:0;bottom:0;height:60px;pointe
 
 .scope-pill-btn{font-family:'Handwriting',Georgia,serif;font-size:.82rem;padding:5px 12px;border:1.5px solid var(--border);border-radius:20px;background:var(--bg);color:var(--text);cursor:pointer;transition:border-color .15s,background .15s;}
 .scope-pill-btn:hover{border-color:var(--accent);background:var(--card);}
-.scope-pill-danger{border-color:#f0c0c0!important;color:#c0554a!important;}
-.scope-pill-danger:hover{border-color:#c0554a!important;background:#fde8e8!important;}
+.scope-pill-danger{border-color:var(--border)!important;color:var(--muted)!important;}
+.scope-pill-danger:hover{border-color:var(--muted)!important;background:var(--bg)!important;}
 
 .rcp-drop{position:absolute;top:100%;left:0;right:0;background:var(--card);border:1.5px solid var(--border);border-radius:10px;box-shadow:0 4px 20px rgba(0,0,0,.09);z-index:60;max-height:200px;overflow-y:auto;margin-top:2px;display:none;}
 .rcp-drop.open{display:block;}
@@ -1242,7 +1242,7 @@ body::after{content:'';position:fixed;left:0;right:0;bottom:0;height:60px;pointe
     <span style="display:block;width:22px;height:1.5px;background:currentColor;border-radius:2px;"></span>
     <span style="display:block;width:16px;height:1.5px;background:currentColor;border-radius:2px;"></span>
   </button>
-  <div style="text-align:center;">
+  <div id="appHeader" style="text-align:center;transition:opacity .25s ease,transform .25s ease;">
     <h1 class="app-title">centre</h1>
     <p class="app-date" id="appDate"></p>
   </div>
@@ -1291,7 +1291,7 @@ body::after{content:'';position:fixed;left:0;right:0;bottom:0;height:60px;pointe
             </div>
             <div class="water-meta">
               <span id="waterMl">0 ml today</span>
-              <span id="waterPct" style="color:var(--accent);"></span>
+              <span id="waterPct" style="color:var(--muted);"></span>
             </div>
           </div>
         </div>
@@ -1634,7 +1634,7 @@ body::after{content:'';position:fixed;left:0;right:0;bottom:0;height:60px;pointe
                   <select class="form-select" id="tNthMonth" onchange="tUpdSummaries()"><option value="every">Every month</option><option value="0">January</option><option value="1">February</option><option value="2">March</option><option value="3">April</option><option value="4">May</option><option value="5">June</option><option value="6">July</option><option value="7">August</option><option value="8">September</option><option value="9">October</option><option value="10">November</option><option value="11">December</option></select>
                 </div>
               </div>
-              <div id="tNthPreview" style="font-size:.72rem;color:var(--accent);padding:2px 0;"></div>
+              <div id="tNthPreview" style="font-size:.72rem;color:var(--muted);padding:2px 0;"></div>
               <div class="form-group"><label class="form-label">Ends</label><select class="form-select" id="tRNthEnds"><option value="never">Never</option><option value="after">After X</option><option value="date">On date</option></select></div>
             </div>
             <!-- on completion -->
@@ -2287,7 +2287,7 @@ body::after{content:'';position:fixed;left:0;right:0;bottom:0;height:60px;pointe
               <label style="font-size:.75rem;color:var(--muted);width:100px;flex-shrink:0;">Places</label>
               <input class="form-input" id="googleApiKeyInput" type="password" placeholder="AIzaSy… (Places API)" style="flex:1;min-width:160px;"/>
               <button class="apply-btn" onclick="saveGoogleApiKey()" style="padding:7px 14px;font-size:.8rem;">Save</button>
-              <span id="apiKeyStatus" style="font-size:.75rem;color:var(--accent);"></span>
+              <span id="apiKeyStatus" style="font-size:.75rem;color:var(--muted);"></span>
             </div>
 
           </div>
@@ -2787,7 +2787,7 @@ body::after{content:'';position:fixed;left:0;right:0;bottom:0;height:60px;pointe
         <label class="form-label">Ingredient text</label>
         <textarea class="form-input" id="ingPasteText" rows="7" placeholder="150g salmon fillet&#10;1 cup (180g) cooked rice&#10;2 tbsp soy sauce&#10;1 avocado, sliced&#10;Handful of spinach" style="resize:vertical;line-height:1.6;"></textarea>
       </div>
-      <div id="ingPasteStatus" style="font-size:.8rem;color:var(--accent);min-height:18px;"></div>
+      <div id="ingPasteStatus" style="font-size:.8rem;color:var(--muted);min-height:18px;"></div>
       <div id="ingParsedList" style="display:flex;flex-direction:column;gap:5px;"></div>
     </div>
     <div class="modal-actions">
@@ -3015,7 +3015,7 @@ function renderWaterTimeline(isToday, blocksHtml){
   return `<div class="schedule-layout">${barHtml}<div>${blocksHtml}</div></div>`;
 }
 
-const THEME_DEFAULTS={'--bg':'#f7f7f5','--card':'#ffffff','--text':'#1a1a1a','--accent':'#ebf3ff','--accent-work':'#ebefb9','--muted':'#9b9b9b','--border':'#e9e9e7'};
+const THEME_DEFAULTS={'--bg':'#faf8f4','--card':'#ffffff','--text':'#1a1814','--accent':'#ebf3ff','--accent-work':'#ebefb9','--muted':'#8c8880','--border':'#e8e4de'};
 const THEME_LABELS={'--bg':'Background','--card':'Card','--text':'Text','--accent':'Personal Accent','--accent-work':'Work Accent','--accent-full':'Full Access Accent','--muted':'Muted text','--border':'Borders'};
 const EDITABLE=['--bg','--card','--text','--accent','--accent-work','--accent-full','--muted','--border'];
 const DOW_LABELS=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
@@ -3404,19 +3404,14 @@ function scheduleSave(){
       localStorage.setItem('centre_eventSeq',eventSeq);
       localStorage.setItem('centre_catSeq',catSeq);
       // save theme — always save normal accent for --accent so work mode doesn't corrupt it
-      const theme={};EDITABLE.forEach(v=>{
-        if(v==='--accent'){
-          // Always persist the normal accent, not the potentially work-swapped one
-          const na=getComputedStyle(document.documentElement).getPropertyValue('--accent-normal').trim();
-          theme[v]=na||getComputedStyle(document.documentElement).getPropertyValue(v).trim();
-          // Also save --accent-normal explicitly so it survives the skip-accent logic on load
-          theme['--accent-normal']=na||theme[v];
-        } else {
-          theme[v]=getComputedStyle(document.documentElement).getPropertyValue(v).trim();
-        }
-      });['--icon-stroke','--icon-color','--icon-color-work'].forEach(v=>theme[v]=getComputedStyle(document.documentElement).getPropertyValue(v).trim());PHASE_VARS.forEach(v=>theme[v]=getComputedStyle(document.documentElement).getPropertyValue(v).trim());
-      localStorage.setItem('centre_theme',JSON.stringify(theme));
-      localStorage.setItem('centre_grocItems',JSON.stringify(grocItems));
+      const _scs2=getComputedStyle(document.documentElement);
+      const theme={};
+      ['--bg','--card','--text','--muted','--border','--accent-normal','--accent-work','--accent-full','--accent-work-dark','--accent-full-dark','--icon-color','--icon-color-work','--icon-stroke'].forEach(function(v){
+        const val=_scs2.getPropertyValue(v).trim();
+        if(val)theme[v]=val;
+      });
+      if(theme['--accent-normal'])theme['--accent']=theme['--accent-normal'];
+      localStorage.setItem('centre_theme',JSON.stringify(theme));      localStorage.setItem('centre_grocItems',JSON.stringify(grocItems));
       localStorage.setItem('centre_grocSeq',grocSeq);
       localStorage.setItem('centre_workMode',JSON.stringify(workMode));
       if(_fullAccessCode) localStorage.setItem('centre_fullAccessCode',_fullAccessCode);
@@ -3538,16 +3533,16 @@ function loadFromStorage(){
       // Inline darken (darken() not yet defined at load time)
       try{const _r=Math.max(0,parseInt(_aw.slice(1,3),16)-15),_g=Math.max(0,parseInt(_aw.slice(3,5),16)-15),_b=Math.max(0,parseInt(_aw.slice(5,7),16)-15);document.documentElement.style.setProperty('--accent-work-dark','#'+[_r,_g,_b].map(x=>x.toString(16).padStart(2,'0')).join(''));}catch(e){}
     }
-    if(th){const theme=JSON.parse(th);Object.entries(theme).forEach(([k,v])=>{
-      // Never restore --accent or --accent-dark directly — applyWorkMode sets these from --accent-normal
-      if(k==='--accent'||k==='--accent-dark')return;
-      document.documentElement.style.setProperty(k,v);
-      // Keep localStorage in sync with theme blob values
-      if(k==='--accent-normal') { localStorage.setItem('centre_accentNormal',v); console.log('[THEME LOAD] --accent-normal from blob: '+v); }
-      if(k==='--accent-work') localStorage.setItem('centre_accentWork',v);
-      if(k==='--accent-full') localStorage.setItem('centre_accentFull',v);
-    });// --accent-normal handled separately via centre_accentNormal key
-if(theme['--icon-stroke'])document.documentElement.style.setProperty('--icon-stroke',theme['--icon-stroke']);if(theme['--icon-color'])document.documentElement.style.setProperty('--icon-color',theme['--icon-color']);if(theme['--icon-color-work'])document.documentElement.style.setProperty('--icon-color-work',theme['--icon-color-work']);}
+    if(th){
+      try{
+        const theme=JSON.parse(th);
+        Object.entries(theme).forEach(([k,v])=>{
+          if(!v)return;
+          if(k==='--accent'||k==='--accent-dark')return;
+          document.documentElement.style.setProperty(k,v);
+        });
+      }catch(e){console.warn('Theme load error',e);}
+    }
   }catch(e){console.warn('Load failed',e);}
 }
 
@@ -3866,7 +3861,42 @@ function showPage(p,btn){
   if(p==='lists')renderGrocList();
   if(p==='cycle')renderCyclePage();
   if(p==='health')renderMeds();
-  if(p==='meals'){document.getElementById('mealFilterDate').value=today();document.getElementById('mealDate').value=today();
+  if(p==='meals'){// ── Header scroll fade ─────────────────────────────────
+(function() {
+  var _lastScrollY = 0;
+  var _headerEl = null;
+  var _ticking = false;
+  function onScroll() {
+    if (!_headerEl) _headerEl = document.getElementById('appHeader');
+    if (!_headerEl) return;
+    var sy = window.scrollY || document.documentElement.scrollTop;
+    var scrollingDown = sy > _lastScrollY;
+    var threshold = 60; // px before fade starts
+    if (sy > threshold) {
+      // Fading: scrolled past threshold
+      var opacity = scrollingDown
+        ? Math.max(0, 1 - (sy - threshold) / 80)  // fade out when going down
+        : Math.min(1, (sy < threshold + 80) ? 1 : 1); // fade in when going up
+      // Simpler: just fade based on scroll position
+      var fade = Math.max(0, 1 - (sy - threshold) / 60);
+      _headerEl.style.opacity = fade;
+      _headerEl.style.transform = 'translateY(' + Math.min(0, -(sy - threshold) * 0.3) + 'px)';
+    } else {
+      _headerEl.style.opacity = '1';
+      _headerEl.style.transform = 'none';
+    }
+    _lastScrollY = sy;
+    _ticking = false;
+  }
+  window.addEventListener('scroll', function() {
+    if (!_ticking) {
+      requestAnimationFrame(onScroll);
+      _ticking = true;
+    }
+  }, { passive: true });
+})();
+
+document.getElementById('mealFilterDate').value=today();document.getElementById('mealDate').value=today();
 const _mdi=document.getElementById('metricDate');if(_mdi)_mdi.value=today();const _md=document.getElementById('metricDate');if(_md&&!_md.value)_md.value=today();const mte=document.getElementById('mealType');if(mte)mte.value=smartMealType();renderCatSelects();renderMealLog();renderSuppGrid();populateLogRcpList();if(document.getElementById('nutriHabitCard'))renderNutriHabitCard();}
   if(p==='settings'){buildSettings();buildNutriColourGrid();loadGoogleApiKey();loadUsdaApiKey();loadAnthropicKey();loadAiUrl();renderWater();renderMilestoneChips();applyWorkMode();
     // Restore nutrition accordion state
@@ -4876,7 +4906,7 @@ function _renderCentreSubPanel(taskId, vd) {
     const isDueToday = !s.done && s.dueDate === td;
     return `<div class="centre-subtask-row" style="${isOverdue?'background:rgba(192,85,74,.07);border-radius:6px;padding:2px 4px;':''}">
       <input type="checkbox" ${s.done?'checked':''} onchange="toggleSt('${s.id}')">
-      <span class="centre-subtask-name ${s.done?'done':''}" style="${isOverdue?'color:#c0554a;':isDueToday?'color:var(--accent);':''}">${isOverdue?'⚠ ':''}${escHtml(s.name)}</span>
+      <span class="centre-subtask-name ${s.done?'done':''}" style="${isOverdue?'color:#c0554a;':isDueToday?'font-weight:500;':''}">${isOverdue?'⚠ ':''}${escHtml(s.name)}</span>
       ${s.dueDate&&!s.done?`<span style="font-size:.62rem;${isOverdue?'color:#c0554a;':'color:var(--muted);'}margin-left:auto;white-space:nowrap;">${formatDate(s.dueDate)}</span>`:''}
       ${s.dur&&!s.done?`<span style="font-size:.62rem;color:var(--muted);white-space:nowrap;">${s.dur}m</span>`:''}
     </div>`;
@@ -5111,7 +5141,7 @@ function renderTasks(){
             <div class="form-group" id="er${t.id}EndDateGroup" style="display:${t.recur?.endType==='on-date'?'block':'none'}">
               <label class="form-label">End date</label><input class="form-input" type="date" id="er${t.id}EndDate" value="${t.recur?.endDate||''}"/>
             </div>
-            <button type="button" class="recur-toggle" style="border-color:#e88;color:#c0554a;margin-top:4px;" onclick="removeTaskRecur('${t.id}')">✕ Remove recurrence</button>
+            <button type="button" class="recur-toggle" style="border-color:var(--border);color:var(--muted);margin-top:4px;" onclick="removeTaskRecur('${t.id}')">✕ Remove recurrence</button>
           </div>
         </div>
       </div>
@@ -5159,7 +5189,7 @@ function renderTasks(){
               <div class="form-group"><label class="form-label">By date (optional)</label><input class="form-input" type="date" id="eh${t.id}CumDeadline" value="${t.habit?.deadline||''}"/></div>
             </div>
           </div>
-          ${t.habit?'<button type="button" class="recur-toggle" style="border-color:#e88;color:#c0554a;margin-top:4px;" onclick="removeTaskHabit(\'${t.id}\')">✕ Remove habit</button>':''} 
+          ${t.habit?'<button type="button" class="recur-toggle" style="border-color:var(--border);color:var(--muted);margin-top:4px;" onclick="removeTaskHabit(\'${t.id}\')">✕ Remove habit</button>':''} 
         </div>
       </div>
       <div style="display:flex;align-items:center;gap:8px;padding:6px 0 2px;">
@@ -5977,8 +6007,8 @@ function renderWeek(){
     const _isEmpty=!dayEvents.length&&!dayTasks.length;
     return `<div class="day-col ${isToday?'is-today':''}${_isEmpty?' mobile-empty':''}">
       <div class="day-header">
-        <div class="day-name" style="${isToday?'color:var(--accent);':''}">${_dn}</div>
-        <div class="day-num" style="${isToday?'color:var(--accent);font-size:1.15rem;':''}">${d.getDate()}</div>
+        <div class="day-name" style="${isToday?'font-weight:600;':''}">${_dn}</div>
+        <div class="day-num" style="${isToday?'font-size:1.15rem;font-weight:700;':''}">${d.getDate()}</div>
         <div style="display:flex;align-items:center;justify-content:center;gap:2px;height:10px;">${_wcDot}<div class="day-weather" data-weather-day="${ds}"></div></div>
       </div>
       <div class="day-items">
@@ -6584,7 +6614,7 @@ function promptRecurScope(taskId, date, scope) {
         <div style="display:flex;flex-direction:column;padding:4px 12px 8px;gap:6px;">
           <button onclick="applyRecurScope('today','${taskId}','${date}','${scope}')" style="width:100%;padding:14px 16px;border-radius:12px;border:none;background:var(--bg);font-family:'Handwriting',Georgia,serif;font-size:.96rem;cursor:pointer;text-align:left;color:var(--text);">Just today</button>
           <button onclick="applyRecurScope('future','${taskId}','${date}','${scope}')" style="width:100%;padding:14px 16px;border-radius:12px;border:none;background:var(--bg);font-family:'Handwriting',Georgia,serif;font-size:.96rem;cursor:pointer;text-align:left;color:var(--text);">This &amp; future</button>
-          <button onclick="applyRecurScope('all','${taskId}','${date}','${scope}')" style="width:100%;padding:14px 16px;border-radius:12px;border:none;background:${danger?'#fde8e8':'var(--bg)'};font-family:'Handwriting',Georgia,serif;font-size:.96rem;cursor:pointer;text-align:left;color:${danger?'#c0554a':'var(--text)'};">Entire series${danger?' — delete all':''}</button>
+          <button onclick="applyRecurScope('all','${taskId}','${date}','${scope}')" style="width:100%;padding:14px 16px;border-radius:12px;border:none;background:${danger?'#fde8e8':'var(--bg)'};font-family:'Handwriting',Georgia,serif;font-size:.96rem;cursor:pointer;text-align:left;color:var(--text);">Entire series${danger?' — delete all':''}</button>
         </div>
         <div style="padding:0 12px 8px;">
           <button onclick="closeRecurPrompt()" style="width:100%;padding:13px;border-radius:12px;border:1.5px solid var(--border);background:var(--card);font-family:'Handwriting',Georgia,serif;font-size:.9rem;cursor:pointer;color:var(--muted);">Cancel</button>
@@ -6616,41 +6646,98 @@ function promptRecurScope(taskId, date, scope) {
 function promptRecurScopeEv(evId, date) {
   closeRecurPrompt();
   const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+
   if (isIOS) {
     const overlay = document.createElement('div');
     overlay.id = 'recurPromptBar';
     overlay.style.cssText = 'position:fixed;inset:0;z-index:400;display:flex;flex-direction:column;justify-content:flex-end;';
-    overlay.innerHTML = `
-      <div onclick="closeRecurPrompt()" style="flex:1;background:rgba(0,0,0,.32);"></div>
-      <div style="background:var(--card);border-radius:20px 20px 0 0;padding:0 0 env(safe-area-inset-bottom,16px);box-shadow:0 -4px 32px rgba(0,0,0,.15);transform:translateY(100%);transition:transform .28s cubic-bezier(.4,0,.2,1);" id="recurSheetInner">
-        <div style="width:36px;height:4px;background:var(--border);border-radius:4px;margin:10px auto 0;"></div>
-        <div style="padding:16px 20px 4px;font-family:'Noto Serif Display',Georgia,serif;font-weight:400;font-stretch:extra-condensed;text-transform:uppercase;letter-spacing:.1em;font-size:1rem;color:var(--muted);">Edit recurring event</div>
-        <div style="display:flex;flex-direction:column;padding:4px 12px 8px;gap:6px;">
-          <button onclick="applyRecurScopeEv('occurrence','${evId}','${date}')" style="width:100%;padding:14px 16px;border-radius:12px;border:none;background:var(--bg);font-family:'Handwriting',Georgia,serif;font-size:.96rem;cursor:pointer;text-align:left;color:var(--text);">This occurrence only</button>
-          <button onclick="applyRecurScopeEv('series','${evId}','${date}')" style="width:100%;padding:14px 16px;border-radius:12px;border:none;background:var(--bg);font-family:'Handwriting',Georgia,serif;font-size:.96rem;cursor:pointer;text-align:left;color:var(--text);">Edit entire series</button>
-        </div>
-        <div style="padding:0 12px 8px;">
-          <button onclick="closeRecurPrompt()" style="width:100%;padding:13px;border-radius:12px;border:1.5px solid var(--border);background:var(--card);font-family:'Handwriting',Georgia,serif;font-size:.9rem;cursor:pointer;color:var(--muted);">Cancel</button>
-        </div>
-      </div>`;
+
+    const inner = document.createElement('div');
+    inner.id = 'recurSheetInner';
+    inner.style.cssText = 'background:var(--card);border-radius:20px 20px 0 0;padding:0 0 env(safe-area-inset-bottom,16px);box-shadow:0 -4px 32px rgba(0,0,0,.15);transform:translateY(100%);transition:transform .28s cubic-bezier(.4,0,.2,1);';
+
+    const handle = document.createElement('div');
+    handle.style.cssText = 'width:36px;height:4px;background:var(--border);border-radius:4px;margin:10px auto 0;';
+
+    const title = document.createElement('div');
+    title.style.cssText = "padding:16px 20px 4px;font-family:'Noto Serif Display',Georgia,serif;font-weight:400;font-stretch:extra-condensed;text-transform:uppercase;letter-spacing:.1em;font-size:1rem;color:var(--muted);";
+    title.textContent = 'Edit recurring event';
+
+    const btnWrap = document.createElement('div');
+    btnWrap.style.cssText = 'display:flex;flex-direction:column;padding:4px 12px 8px;gap:6px;';
+
+    const mkBtn = function(label, scope) {
+      const b = document.createElement('button');
+      b.style.cssText = "width:100%;padding:14px 16px;border-radius:12px;border:none;background:var(--bg);font-family:'Handwriting',Georgia,serif;font-size:.96rem;cursor:pointer;text-align:left;color:var(--text);";
+      b.textContent = label;
+      b.onclick = function() { applyRecurScopeEv(scope, evId, date); };
+      return b;
+    };
+
+    btnWrap.appendChild(mkBtn('This occurrence only', 'occurrence'));
+    btnWrap.appendChild(mkBtn('Edit entire series', 'series'));
+
+    const cancelWrap = document.createElement('div');
+    cancelWrap.style.cssText = 'padding:0 12px 8px;';
+    const cancelBtn = document.createElement('button');
+    cancelBtn.style.cssText = "width:100%;padding:13px;border-radius:12px;border:1.5px solid var(--border);background:var(--card);font-family:'Handwriting',Georgia,serif;font-size:.9rem;cursor:pointer;color:var(--muted);";
+    cancelBtn.textContent = 'Cancel';
+    cancelBtn.onclick = closeRecurPrompt;
+    cancelWrap.appendChild(cancelBtn);
+
+    inner.appendChild(handle);
+    inner.appendChild(title);
+    inner.appendChild(btnWrap);
+    inner.appendChild(cancelWrap);
+
+    const backdrop = document.createElement('div');
+    backdrop.style.cssText = 'flex:1;background:rgba(0,0,0,.32);';
+    backdrop.onclick = closeRecurPrompt;
+
+    overlay.appendChild(backdrop);
+    overlay.appendChild(inner);
     document.body.appendChild(overlay);
-    requestAnimationFrame(() => { const inner = document.getElementById('recurSheetInner'); if (inner) inner.style.transform = 'translateY(0)'; });
+
+    requestAnimationFrame(function() { inner.style.transform = 'translateY(0)'; });
     overlay._timer = setTimeout(closeRecurPrompt, 12000);
+
   } else {
     const bar = document.createElement('div');
     bar.id = 'recurPromptBar';
-    bar.style.cssText = 'position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(16px);opacity:0;background:var(--card);border:1.5px solid var(--border);border-radius:16px;padding:10px 14px 10px 18px;box-shadow:0 8px 32px rgba(0,0,0,.12);z-index:300;display:flex;align-items:center;gap:8px;font-family:\'Handwriting\',Georgia,serif;font-size:.85rem;transition:opacity .18s,transform .18s;white-space:nowrap;';
-    bar.innerHTML =
-      '<span style="color:var(--muted);font-size:.76rem;letter-spacing:.04em;font-family:\'Noto Serif Display\',Georgia,serif;font-stretch:extra-condensed;text-transform:uppercase;">Edit recurring event</span>' +
-      '<div style="width:1px;height:18px;background:var(--border);margin:0 2px;flex-shrink:0;"></div>' +
-      '<button onclick="applyRecurScopeEv(\'occurrence\',\''+evId+'\',\''+date+'\');" class="scope-pill-btn">This occurrence</button>' +
-      '<button onclick="applyRecurScopeEv(\'series\',\''+evId+'\',\''+date+'\');" class="scope-pill-btn">Entire series</button>' +
-      '<button onclick="closeRecurPrompt()" style="background:none;border:none;color:var(--muted);font-size:1rem;cursor:pointer;padding:2px 4px;line-height:1;margin-left:2px;opacity:.7;">&#215;</button>';
+    bar.style.cssText = 'position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(16px);opacity:0;background:var(--card);border:1.5px solid var(--border);border-radius:16px;padding:10px 14px 10px 18px;box-shadow:0 8px 32px rgba(0,0,0,.12);z-index:300;display:flex;align-items:center;gap:8px;font-size:.85rem;transition:opacity .18s,transform .18s;white-space:nowrap;';
+
+    const lbl = document.createElement('span');
+    lbl.style.cssText = "color:var(--muted);font-size:.76rem;letter-spacing:.04em;font-family:'Noto Serif Display',Georgia,serif;font-stretch:extra-condensed;text-transform:uppercase;";
+    lbl.textContent = 'Edit recurring event';
+
+    const div = document.createElement('div');
+    div.style.cssText = 'width:1px;height:18px;background:var(--border);margin:0 2px;flex-shrink:0;';
+
+    const mkPill = function(label, scope) {
+      const b = document.createElement('button');
+      b.className = 'scope-pill-btn';
+      b.textContent = label;
+      b.onclick = function() { applyRecurScopeEv(scope, evId, date); };
+      return b;
+    };
+
+    const closeX = document.createElement('button');
+    closeX.style.cssText = 'background:none;border:none;color:var(--muted);font-size:1rem;cursor:pointer;padding:2px 4px;line-height:1;margin-left:2px;opacity:.7;';
+    closeX.innerHTML = '&#215;';
+    closeX.onclick = closeRecurPrompt;
+
+    bar.appendChild(lbl);
+    bar.appendChild(div);
+    bar.appendChild(mkPill('This occurrence', 'occurrence'));
+    bar.appendChild(mkPill('Entire series', 'series'));
+    bar.appendChild(closeX);
+
     document.body.appendChild(bar);
-    requestAnimationFrame(() => { bar.style.opacity='1'; bar.style.transform='translateX(-50%) translateY(0)'; });
+    requestAnimationFrame(function() { bar.style.opacity='1'; bar.style.transform='translateX(-50%) translateY(0)'; });
     bar._timer = setTimeout(closeRecurPrompt, 10000);
   }
 }
+
 
 function applyRecurScopeEv(scope, evId, date) {
   closeRecurPrompt();
@@ -8222,7 +8309,7 @@ function renderNegHabits(){
       +'</div></div>'
       +'<div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:12px;">'+ms+'</div>'
       +'<div style="display:flex;gap:8px;align-items:center;">'
-      +'<button class="habit-action-btn" style="color:#c0554a;border-color:rgba(192,85,74,.3);" onclick="negHabitRelapse(\''+h.id+'\')" title="Reset streak to today">I slipped today</button>'
+      +'<button class="habit-action-btn" style="color:var(--muted);border-color:var(--border);" onclick="negHabitRelapse(\''+h.id+'\')" title="Reset streak to today">I slipped today</button>'
       +'<button class="habit-action-btn" onclick="deleteNegHabit(\''+h.id+'\')" style="margin-left:auto;color:var(--muted);">Remove</button>'
       +'</div>'
       +'</div>';
@@ -8488,7 +8575,7 @@ function renderCategories(){
     const cidE=escHtml(cid);
     const iconBtn='<button type="button" class="icon-choose-btn" onclick="openIconPicker(&quot;edit&quot;,&quot;'+cidE+'&quot;)">'+svgIcon('palette','var(--accent)',11)+' Icon</button>';
     const uploadBtn='<label class="icon-choose-btn" style="cursor:pointer;margin:0;">'+svgIcon('upload','var(--accent)',11)+' Custom SVG<input type="file" accept=".svg" style="display:none;" onchange="uploadCatSvg(this,&quot;'+cidE+'&quot;)"/></label>';
-    const removeBtn=c.customSvg?'<button type="button" onclick="removeCatSvg(&quot;'+cidE+'&quot;)" style="font-family:var(--font-body);font-size:.7rem;background:none;border:1px solid #e8c0c0;border-radius:7px;padding:2px 7px;cursor:pointer;color:#c0554a;">✕ Remove</button>':'';
+    const removeBtn=c.customSvg?'<button type="button" onclick="removeCatSvg(&quot;'+cidE+'&quot;)" style="font-family:var(--font-body);font-size:.7rem;background:none;border:1px solid #e8c0c0;border-radius:7px;padding:2px 7px;cursor:pointer;color:var(--muted);">✕ Remove</button>':'';
     const delBtn='<button class="delete-btn" data-cat="'+cidE+'" onclick="deleteCategory(this.dataset.cat)" title="Delete">×</button>';
     const nameInput='<input class="form-input" value="'+escHtml(c.name)+'" style="flex:1;font-size:.92rem;" data-cat="'+cidE+'" onchange="updateCatName(this.dataset.cat,this.value)" onblur="updateCatName(this.dataset.cat,this.value)">';
     return '<div class="task-item" style="background:var(--bg);flex-direction:column;align-items:stretch;gap:8px;">'+
@@ -8648,7 +8735,7 @@ function renderMilestoneChips(){
   const sorted=[...MILESTONES].sort((a,b)=>a.days-b.days);
   if(!sorted.length){el.innerHTML='<p style="font-size:.78rem;color:var(--muted);font-family:\'Noto Serif Display\',Georgia,serif;">No milestones yet.</p>';return;}
   el.innerHTML=sorted.map(m=>`<div style="display:flex;align-items:center;gap:8px;padding:6px 10px;background:var(--bg);border-radius:10px;">
-    <span style="font-family:'Noto Serif Display',Georgia,serif;font-stretch:extra-condensed;text-transform:uppercase;letter-spacing:.08em;font-size:.75rem;color:var(--accent);min-width:40px;">${m.days}d</span>
+    <span style="font-family:'Noto Serif Display',Georgia,serif;font-stretch:extra-condensed;text-transform:uppercase;letter-spacing:.08em;font-size:.75rem;color:var(--text);font-weight:600;min-width:40px;">${m.days}d</span>
     <span style="flex:1;font-size:.82rem;color:${m.reward?'var(--text)':'var(--muted)'};font-family:'Noto Serif Display',Georgia,serif;">${m.reward||'No reward set'}</span>
     <button onclick="removeMilestone(${m.days})" style="background:none;border:none;color:var(--border);font-size:1rem;cursor:pointer;padding:0 4px;line-height:1;transition:color .15s;" onmouseover="this.style.color='#e88'" onmouseout="this.style.color='var(--border)'">×</button>
   </div>`).join('');
@@ -8873,24 +8960,20 @@ function applyTheme(){
   updateOnAccent();
   // Immediately save theme to localStorage (don't wait for debounce)
   try {
-    const _t={};
-    EDITABLE.forEach(v=>{
-      let val=getComputedStyle(document.documentElement).getPropertyValue(v).trim();
-      if(v==='--accent') val=getComputedStyle(document.documentElement).getPropertyValue('--accent-normal').trim()||val;
-      if(val) _t[v]=val;
+    const _cs = getComputedStyle(document.documentElement);
+    const _t = {};
+    // Save all editable vars — use --accent-normal value for --accent key
+    const _allVars = ['--bg','--card','--text','--muted','--border',
+      '--accent-normal','--accent-work','--accent-full',
+      '--accent-work-dark','--accent-full-dark',
+      '--icon-color','--icon-color-work','--icon-stroke'];
+    _allVars.forEach(v => {
+      const val = _cs.getPropertyValue(v).trim();
+      if (val) _t[v] = val;
     });
-    // Explicitly include --accent-normal so it survives load
-    const _an2=getComputedStyle(document.documentElement).getPropertyValue('--accent-normal').trim();
-    if(_an2) _t['--accent-normal']=_an2;
+    // Also save as --accent for backwards compat
+    if (_t['--accent-normal']) _t['--accent'] = _t['--accent-normal'];
     localStorage.setItem('centre_theme', JSON.stringify(_t));
-    // Save all accent variants immediately — not just in scheduleSave
-    const _an=getComputedStyle(document.documentElement).getPropertyValue('--accent-normal').trim();
-    const _aw=getComputedStyle(document.documentElement).getPropertyValue('--accent-work').trim();
-    const _af=getComputedStyle(document.documentElement).getPropertyValue('--accent-full').trim();
-    if(_an) localStorage.setItem('centre_accentNormal', _an);
-    if(_aw) localStorage.setItem('centre_accentWork', _aw);
-    if(_af) localStorage.setItem('centre_accentFull', _af);
-    console.log('[THEME SAVE] normal='+_an+' work='+_aw+' full='+_af);
   } catch(e) {}
   // Push theme to Firebase immediately
   if (window._fbReady && typeof fbSyncEnabled !== 'undefined' && fbSyncEnabled) {
@@ -10075,7 +10158,7 @@ function renderMultiAddResult() {
         <input type="checkbox" class="multiadd-item-check" id="mai-${i}" checked>
         <span class="multiadd-item-text">${escHtml(item.name)}</span>
         ${item.qty ? `<span class="multiadd-item-meta">${escHtml(item.qty)}</span>` : ''}
-        ${item.aisle ? `<span class="multiadd-item-meta" style="color:var(--accent);">${escHtml(item.aisle)}</span>` : ''}
+        ${item.aisle ? `<span class="multiadd-item-meta" style="color:var(--muted);">${escHtml(item.aisle)}</span>` : ''}
       </div>`).join('');
   } else {
     container.innerHTML = multiAddParsed.map((item, i) => `
@@ -11502,7 +11585,7 @@ async function applyWeatherToWeekly() {
       _hourlyWind: data.hourly.windspeed_10m ? data.hourly.windspeed_10m.slice(fi*24, fi*24+24) : [],
     };
 
-    el.innerHTML = `<span style="display:inline-flex;align-items:center;gap:2px;cursor:pointer;" onclick="showWeatherPop('${ds}',this)" title="Tap for weather details">${weatherSVG(data.daily.weathercode[fi], 12)}<span style="font-size:.65rem;color:var(--accent);">${Math.round(data.daily.temperature_2m_max[fi])}°</span></span>`;
+    el.innerHTML = `<span style="display:inline-flex;align-items:center;gap:2px;cursor:pointer;" onclick="showWeatherPop('${ds}',this)" title="Tap for weather details">${weatherSVG(data.daily.weathercode[fi], 12)}<span style="font-size:.65rem;color:var(--text);font-weight:500;">${Math.round(data.daily.temperature_2m_max[fi])}°</span></span>`;
     el.style.cssText += ';display:flex;justify-content:center;margin-top:2px;';
   });
 }
@@ -12980,7 +13063,7 @@ function openOccurrenceModal(evId, ds) {
 
   document.getElementById('occModalContent').innerHTML = isCancelled ? `
     <div style="font-size:.9rem;color:var(--muted);text-align:center;padding:12px 0;">
-      This occurrence is <strong style="color:#c0554a;">cancelled</strong>.
+      This occurrence is <strong style="color:var(--muted);">cancelled</strong>.
     </div>` : `
     <div class="form-group"><label class="form-label">Name</label>
       <input class="form-input" id="occName" value="${escHtml(occ.name)}"/>
@@ -13007,10 +13090,28 @@ function openOccurrenceModal(evId, ds) {
     <button class="modal-cancel" onclick="closeOccurrenceModal()">Close</button>
     <button class="modal-save" onclick="reinstateOccurrence('${evId}','${ds}')">Reinstate</button>` : `
     <button class="modal-cancel" onclick="closeOccurrenceModal()">Cancel</button>
-    ${isRecurring ? `<button class="modal-save" style="background:#c0554a;" onclick="cancelOccurrence('${evId}','${ds}')">Cancel this date</button>` : ''}
+    ${isRecurring ? `<button class="modal-cancel" onclick="cancelOccurrence('${evId}','${ds}')">Cancel this date</button>` : ''}
+    ${isRecurring ? `<button class="modal-cancel" onclick="closeOccurrenceModal();editEventSeries('${evId}')">Edit series</button>` : ''}
     <button class="modal-save" onclick="saveOccurrence('${evId}','${ds}')">Save</button>`;
 
   document.getElementById('occurrenceModalOverlay').classList.add('open');
+}
+
+function editEventSeries(evId) {
+  // Navigate to events page and open the series edit form
+  document.querySelectorAll('.page').forEach(function(el) { el.classList.remove('active'); });
+  document.querySelectorAll('.drawer-item').forEach(function(el) { el.classList.remove('active'); });
+  document.getElementById('page-events').classList.add('active');
+  const di = document.getElementById('di-events');
+  if (di) di.classList.add('active');
+  setTimeout(function() {
+    renderEventList();
+    setTimeout(function() {
+      toggleEvEdit(evId);
+      const el = document.getElementById('evedit-' + evId);
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 100);
+  }, 50);
 }
 
 function closeOccurrenceModal() {
