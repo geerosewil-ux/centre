@@ -582,7 +582,7 @@ body::after{content:'';position:fixed;left:0;right:0;bottom:0;height:60px;pointe
 .modal{background:var(--card);border-radius:20px;padding:28px;width:100%;max-width:480px;box-shadow:0 8px 40px rgba(0,0,0,.12);max-height:90vh;overflow-y:auto;}
 .modal-title{font-family:'Urbanist',sans-serif;font-weight:200;font-size:.58rem;letter-spacing:.22em;text-transform:uppercase;color:var(--text);margin-bottom:20px;}
 .modal-form{display:flex;flex-direction:column;gap:12px;}
-.modal-actions{display:flex;gap:8px;margin-top:8px;}
+.modal-actions{display:flex;gap:8px;margin-top:14px;position:sticky;bottom:-28px;background:var(--card);padding:12px 0 0;border-top:1px solid var(--border);}
 .modal-save{font-family:'Urbanist',sans-serif;font-weight:200;font-size:.82rem;letter-spacing:.1em;flex:1;background:var(--accent);color:white;border:none;border-radius:10px;padding:10px;cursor:pointer;}
 .modal-cancel{font-family:'Urbanist',sans-serif;font-size:.92rem;background:none;border:1.5px solid var(--border);border-radius:10px;padding:10px 16px;cursor:pointer;color:var(--muted);}
 .empty-msg{text-align:center;color:var(--muted);font-size:.8rem;padding:24px 0;font-family:'Urbanist',sans-serif;font-style:italic;letter-spacing:.05em;opacity:.6;display:block;}
@@ -971,7 +971,7 @@ body::after{content:'';position:fixed;left:0;right:0;bottom:0;height:60px;pointe
   <meta name="theme-color" id="centreThemeColor" content="#f8eeec">
 </head>
 <body>
-<!-- BUILD-MEDS-SUPPLY -->
+<!-- BUILD-APPTS-DAY -->
 
 <div class="app-header">
   <!-- DRAWER OVERLAY -->
@@ -2026,7 +2026,7 @@ body::after{content:'';position:fixed;left:0;right:0;bottom:0;height:60px;pointe
 
   <!-- ══════════════════════ -->
   <div class="page" id="page-settings">
-    <div id="buildStamp" style="font-family:'Urbanist',sans-serif;font-size:.5rem;letter-spacing:.1em;color:var(--muted);opacity:.4;text-align:center;padding:4px;">BUILD-MEDS-SUPPLY</div>
+    <div id="buildStamp" style="font-family:'Urbanist',sans-serif;font-size:.5rem;letter-spacing:.1em;color:var(--muted);opacity:.4;text-align:center;padding:4px;">BUILD-APPTS-DAY</div>
     <div class="card">
 
       <!-- HANDWRITING -->
@@ -5930,35 +5930,34 @@ function evEmoji(ev,color){
 }
 function overviewApptStripHtml(){
   if(typeof appointments==='undefined'||!appointments.length)return '';
-  const t=today();
-  const soon=[];
+  const vd=(typeof getCentreDate==='function')?getCentreDate():today();
+  const rows=[];
   appointments.forEach(function(a){
     if(isApptSnoozed(a))return;
     const st=getApptStatus(a);
-    if(st.state==='overdue'||st.state==='due-soon'){ soon.push({a:a,st:st}); return; }
-    if(st.state==='booked'&&st.date){
-      const diff=Math.round((new Date(st.date+'T00:00:00')-new Date(t+'T00:00:00'))/86400000);
-      if(diff<=14) soon.push({a:a,st:st});
+    // booked on the viewed day
+    if(st.state==='booked'&&st.date===vd){ rows.push({a:a,st:st,kind:'booked'}); return; }
+    // due (unbooked) on the viewed day
+    if(st.state!=='booked'){
+      const ghosts=getApptGhostsForDate(vd);
+      if(ghosts.some(function(g){return g.id===a.id;})) rows.push({a:a,st:st,kind:'due'});
     }
   });
-  if(!soon.length)return '';
-  const order={overdue:0,'due-soon':1,booked:2};
-  soon.sort(function(x,y){return (order[x.st.state]||9)-(order[y.st.state]||9);});
-  const rows=soon.map(function(o){
-    const booked=o.st.state==='booked';
-    const col=o.st.state==='overdue'?'var(--muted)':(o.st.state==='due-soon'?'#c08040':'var(--accent)');
-    return '<div class="event-pill" style="background:var(--bg);'+(o.st.state==='overdue'?'opacity:.72;':'')+'">'+
+  if(!rows.length)return '';
+  const html=rows.map(function(o){
+    const col=o.kind==='booked'?'var(--accent)':'#c08040';
+    return '<div class="event-pill" style="background:var(--bg);">'+
       '<span style="width:5px;height:5px;border-radius:50%;background:'+col+';flex-shrink:0;display:block;"></span>'+
       '<span style="flex:1;">'+escHtml(o.a.name)+'</span>'+
-      '<span style="font-size:.58rem;color:'+col+';white-space:nowrap;">'+escHtml(o.st.label)+'</span>'+
+      '<span style="font-size:.58rem;color:'+col+';white-space:nowrap;">'+(o.kind==='booked'?'Booked':'Due')+'</span>'+
       '<button onclick="event.stopPropagation();openRebook(\''+o.a.id+'\')" style="font-size:.52rem;letter-spacing:.14em;text-transform:uppercase;background:none;border:1px solid var(--border);border-radius:20px;padding:3px 10px;margin-left:6px;cursor:pointer;color:var(--muted);white-space:nowrap;">'+
-        (booked?'Change':'Book')+'</button>'+
+        (o.kind==='booked'?'Change':'Book')+'</button>'+
     '</div>';
   }).join('');
   return '<div style="height:1px;background:var(--border);margin:14px 0 12px;"></div>'+
     '<div onclick="showPage(\'appts\')" style="cursor:pointer;font-family:\'Urbanist\',sans-serif;font-weight:200;text-transform:uppercase;letter-spacing:.24em;font-size:.5rem;color:var(--muted);margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;">'+
       '<span>Appointments</span><span style="opacity:.5;letter-spacing:0;">view all &rsaquo;</span></div>'+
-    '<div class="events-strip">'+rows+'</div>';
+    '<div class="events-strip">'+html+'</div>';
 }
 
 function renderOverviewEvents(){
@@ -9876,6 +9875,34 @@ function dndDrop(e,toBlockId,vd){
 }
 
 // ---- UPCOMING EVENTS (countdown) ----
+function upcomingApptRowsHtml(){
+  if(typeof appointments==='undefined'||!appointments.length)return '';
+  const t=today();
+  const out=[];
+  appointments.forEach(function(a){
+    if(isApptSnoozed(a))return;
+    const st=getApptStatus(a);
+    if(st.state==='booked')return;           // already an event in the list
+    if(!st.date)return;
+    const days=Math.round((new Date(st.date+'T00:00:00')-new Date(t+'T00:00:00'))/86400000);
+    if(days>21)return;
+    out.push({a:a,st:st,days:days});
+  });
+  if(!out.length)return '';
+  out.sort(function(x,y){return x.days-y.days;});
+  return '<div style="height:1px;background:var(--border);margin:6px 0;"></div>'+
+    out.map(function(o){
+      const overdue=o.days<0;
+      const col=overdue?'var(--muted)':'#c08040';
+      const lbl=overdue?Math.abs(o.days)+'d overdue':(o.days===0?'Due today':(o.days===1?'Due tomorrow':'Due in '+o.days+'d'));
+      return '<div onclick="openRebook(\''+o.a.id+'\')" title="Tap to book" style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:11px;background:var(--bg);cursor:pointer;'+(overdue?'opacity:.72;':'')+'">'+
+        '<div style="width:3px;min-height:20px;align-self:stretch;border-radius:2px;background:'+col+';flex-shrink:0;"></div>'+
+        '<span style="flex:1;font-family:var(--font-body);font-size:.82rem;">'+escHtml(o.a.name)+'</span>'+
+        '<span style="font-size:.72rem;color:'+col+';white-space:nowrap;">'+lbl+'</span>'+
+      '</div>';
+    }).join('');
+}
+
 function renderOverviewUpcoming(){
   const container=document.getElementById('overviewUpcoming');
   if(!container)return;
@@ -9894,7 +9921,7 @@ function renderOverviewUpcoming(){
     return days<=14;                    // all others: within 14 days
   }).sort((a,b)=>a.days-b.days);
 
-  if(!withDays.length){container.style.display='none';return;}
+  if(!withDays.length&&!upcomingApptRowsHtml()){container.style.display='none';return;}
   container.style.display='';
 
   const soon=withDays.filter(({days})=>days<=3);
@@ -9919,6 +9946,7 @@ function renderOverviewUpcoming(){
       ${soon.map(item=>renderRow(item,true)).join('')}
       ${soon.length&&later.length?`<div style="height:1px;background:var(--border);margin:4px 0;"></div>`:''}
       ${later.map(item=>renderRow(item,false)).join('')}
+      ${upcomingApptRowsHtml()}
     </div>`;
 }
 
