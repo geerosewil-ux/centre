@@ -961,7 +961,7 @@ body::after{content:'';position:fixed;left:0;right:0;bottom:0;height:60px;pointe
   <link href="https://fonts.googleapis.com/css2?family=Urbanist:ital,wght@0,100;0,200;0,300;1,100;1,200&display=swap" rel="stylesheet">
 </head>
 <body>
-<!-- BUILD-0721-0317 -->
+<!-- BUILD-EVENTS-FIX -->
 
 <div class="app-header">
   <!-- DRAWER OVERLAY -->
@@ -982,6 +982,10 @@ body::after{content:'';position:fixed;left:0;right:0;bottom:0;height:60px;pointe
     <button class="drawer-item" id="di-tasks" onclick="showPage('tasks');closeDrawer()">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
       Tasks
+    </button>
+    <button class="drawer-item" id="di-events" onclick="showPage('events');closeDrawer()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      Events
     </button>
     <button class="drawer-item" id="di-habits" onclick="showPage('habits');closeDrawer()">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.09 6.26H21l-5.47 3.97 2.09 6.26L12 14.51l-5.62 3.98 2.09-6.26L2 8.26h6.91z"/></svg>
@@ -2008,7 +2012,7 @@ body::after{content:'';position:fixed;left:0;right:0;bottom:0;height:60px;pointe
 
   <!-- ══════════════════════ -->
   <div class="page" id="page-settings">
-    <div id="buildStamp" style="font-family:'Urbanist',sans-serif;font-size:.5rem;letter-spacing:.1em;color:var(--muted);opacity:.4;text-align:center;padding:4px;">BUILD-0721-0317</div>
+    <div id="buildStamp" style="font-family:'Urbanist',sans-serif;font-size:.5rem;letter-spacing:.1em;color:var(--muted);opacity:.4;text-align:center;padding:4px;">BUILD-EVENTS-FIX</div>
     <div class="card">
 
       <!-- HANDWRITING -->
@@ -2919,7 +2923,8 @@ function setWorkspaceAccent(key,val){
   if(key==='--accent-normal'){localStorage.setItem('centre_accentNormal',val);try{db.ref('centre/'+FB_TOKEN+'/_theme/--accent-normal').set(val);}catch(e){}}
   if(key==='--accent-work'){localStorage.setItem('centre_accentWork',val);document.documentElement.style.setProperty('--accent-work-dark',darken(val,15));try{db.ref('centre/'+FB_TOKEN+'/_theme/--accent-work').set(val);}catch(e){}}
   if(key==='--accent-full'){localStorage.setItem('centre_accentFull',val);try{db.ref('centre/'+FB_TOKEN+'/_theme/--accent-full').set(val);}catch(e){}}
-  applyWorkMode();renderAccentSwatches();
+  applyWorkMode();
+closeAllOverlaysOnLoad();renderAccentSwatches();
 }
 
 const THEME_DEFAULTS={'--bg':'#f8eeec','--card':'#ffffff','--text':'#2a1e1a','--accent':'#d4607a','--accent-work':'#ebefb9','--muted':'#c0a89a','--border':'#ecddd8'};
@@ -9673,7 +9678,7 @@ function renderOverviewUpcoming(){
     const bg=highlight?`${hexToRgba(col,.08)}`:'var(--bg)';
     const labelCol=highlight?col:'var(--muted)';
     // Phase dot now handled by getPhaseDotHtml helper
-    return `<div style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:11px;background:${bg};">
+    return `<div onclick="openOccurrenceModal('${ev.id}','${next}')" title="Tap to edit" style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:11px;background:${bg};cursor:pointer;">
       <div style="width:3px;min-height:20px;align-self:stretch;border-radius:2px;background:${col};flex-shrink:0;"></div>
       <span style="flex:1;font-family:var(--font-body,Georgia,serif);font-size:.82rem;">${getPhaseDotHtml(ev.date||ev.next||'')}${evEmoji(ev,'var(--accent)')}${escHtml(ev.name)}</span>
       <span style="font-family:var(--font-body,Georgia,serif);font-size:.8rem;color:${labelCol};">${dayLabel}</span>
@@ -13611,6 +13616,24 @@ renderOverview(null, true);
 renderWater(true);
 tickClock();
 applyWorkMode();
+
+// ── Defensive: ensure no modal/overlay is left open on load ──
+function closeAllOverlaysOnLoad(){
+  try{
+    document.querySelectorAll('.modal-overlay,.multiadd-overlay').forEach(function(el){
+      el.classList.remove('open');
+      el.style.display='none';
+    });
+    ['planEditModal','iconPickerModal','ctxMenu','multiAddOverlay','timeOfDayTint'].forEach(function(id){
+      const el=document.getElementById(id);
+      if(el&&id!=='timeOfDayTint'){el.classList.remove('open');el.style.display='none';}
+    });
+    // Remove any dynamically-injected stray modals left in the body
+    document.querySelectorAll('body > .modal-overlay').forEach(function(el){
+      if(!el.id) el.remove();
+    });
+  }catch(e){}
+}
 </script>
 
   <!-- STYLED assign outfit sheet -->
