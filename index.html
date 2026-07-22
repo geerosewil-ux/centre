@@ -965,7 +965,7 @@ body::after{content:'';position:fixed;left:0;right:0;bottom:0;height:60px;pointe
   <link href="https://fonts.googleapis.com/css2?family=Urbanist:ital,wght@0,100;0,200;0,300;1,100;1,200&display=swap" rel="stylesheet">
 </head>
 <body>
-<!-- BUILD-VISIBLE-EDIT -->
+<!-- BUILD-APPTS-NAV -->
 
 <div class="app-header">
   <!-- DRAWER OVERLAY -->
@@ -990,6 +990,10 @@ body::after{content:'';position:fixed;left:0;right:0;bottom:0;height:60px;pointe
     <button class="drawer-item" id="di-events" onclick="showPage('events');closeDrawer()">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
       Events
+    </button>
+    <button class="drawer-item" id="di-appts" onclick="showPage('events');showEvTab('appts',document.getElementById('evTabAppts'));closeDrawer()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/></svg>
+      Appointments
     </button>
     <button class="drawer-item" id="di-habits" onclick="showPage('habits');closeDrawer()">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.09 6.26H21l-5.47 3.97 2.09 6.26L12 14.51l-5.62 3.98 2.09-6.26L2 8.26h6.91z"/></svg>
@@ -2016,7 +2020,7 @@ body::after{content:'';position:fixed;left:0;right:0;bottom:0;height:60px;pointe
 
   <!-- ══════════════════════ -->
   <div class="page" id="page-settings">
-    <div id="buildStamp" style="font-family:'Urbanist',sans-serif;font-size:.5rem;letter-spacing:.1em;color:var(--muted);opacity:.4;text-align:center;padding:4px;">BUILD-VISIBLE-EDIT</div>
+    <div id="buildStamp" style="font-family:'Urbanist',sans-serif;font-size:.5rem;letter-spacing:.1em;color:var(--muted);opacity:.4;text-align:center;padding:4px;">BUILD-APPTS-NAV</div>
     <div class="card">
 
       <!-- HANDWRITING -->
@@ -2837,16 +2841,16 @@ function renderWaterTimeline(isToday, blocksHtml){
 
 
 const CENTRE_SCHEMES = {
-  rose:       {name:'Rose',      accent:'#d4607a',accentLight:'#fad0c8',accentDark:'#b84d64',bg:'#f8eeec',text:'#2a1e1a',muted:'#b88878',border:'#f5e0db',row:'#fdf5f3'},
-  berry:      {name:'Berry',     accent:'#c0306a',accentLight:'#f0c8d8',accentDark:'#982050',bg:'#fbeef4',text:'#280a18',muted:'#b06880',border:'#f2d8e8',row:'#fdf4f8'},
-  periwinkle: {name:'Periwinkle',accent:'#6070d4',accentLight:'#c8c8f0',accentDark:'#4858b0',bg:'#f2f2fc',text:'#14143a',muted:'#8888c8',border:'#e0e0f8',row:'#f6f6fe'},
-  pistachio:  {name:'Pistachio', accent:'#78a020',accentLight:'#ccd898',accentDark:'#588010',bg:'#f6f6e8',text:'#181a08',muted:'#90a048',border:'#e0e8b8',row:'#fafae8'},
-  tangerine:  {name:'Tangerine', accent:'#f07828',accentLight:'#fcd8b0',accentDark:'#c05818',bg:'#fdf5ee',text:'#281808',muted:'#c08048',border:'#fce8d0',row:'#fff8f2'},
-  glacier:    {name:'Glacier',   accent:'#5898c8',accentLight:'#c0dff0',accentDark:'#3878a8',bg:'#f4f8fc',text:'#0c1820',muted:'#78a8c8',border:'#d8ecf8',row:'#f8fcfe'},
+  rose:       {name:'Rose',      accent:'#d4607a',accentLight:'#fad0c8',accentDark:'#b84d64',bg:'#f8eeec',text:'#2a1e1a',muted:'#b88878',border:'#f5e0db',row:'#fdf5f3',mPersonal:'#d4607a',mWork:'#b0847a',mFull:'#a06a90'},
+  berry:      {name:'Berry',     accent:'#c0306a',accentLight:'#f0c8d8',accentDark:'#982050',bg:'#fbeef4',text:'#280a18',muted:'#b06880',border:'#f2d8e8',row:'#fdf4f8',mPersonal:'#c0306a',mWork:'#a06080',mFull:'#8a3a80'},
+  periwinkle: {name:'Periwinkle',accent:'#6070d4',accentLight:'#c8c8f0',accentDark:'#4858b0',bg:'#f2f2fc',text:'#14143a',muted:'#8888c8',border:'#e0e0f8',row:'#f6f6fe',mPersonal:'#6070d4',mWork:'#7a80b0',mFull:'#8060c0'},
+  pistachio:  {name:'Pistachio', accent:'#78a020',accentLight:'#ccd898',accentDark:'#588010',bg:'#f6f6e8',text:'#181a08',muted:'#90a048',border:'#e0e8b8',row:'#fafae8',mPersonal:'#78a020',mWork:'#90a060',mFull:'#5a9060'},
+  tangerine:  {name:'Tangerine', accent:'#f07828',accentLight:'#fcd8b0',accentDark:'#c05818',bg:'#fdf5ee',text:'#281808',muted:'#c08048',border:'#fce8d0',row:'#fff8f2',mPersonal:'#f07828',mWork:'#c09060',mFull:'#d06a50'},
+  glacier:    {name:'Glacier',   accent:'#5898c8',accentLight:'#c0dff0',accentDark:'#3878a8',bg:'#f4f8fc',text:'#0c1820',muted:'#78a8c8',border:'#d8ecf8',row:'#f8fcfe',mPersonal:'#5898c8',mWork:'#7aa0b8',mFull:'#6a80c0'},
 };
 let activeScheme='rose';
 
-function applyScheme(key){
+function applyScheme(key,resetModes){
   const s=CENTRE_SCHEMES[key];if(!s)return;
   activeScheme=key;
   const r=document.documentElement;
@@ -2862,6 +2866,19 @@ function applyScheme(key){
   r.style.setProperty('--water-fill',s.accent);
   r.style.setProperty('--water-light',s.accentLight);
   document.body.style.background=s.bg;
+  // Mode accents follow the scheme unless the user has overridden them
+  const ovP=localStorage.getItem('centre_accentNormal');
+  const ovW=localStorage.getItem('centre_accentWork');
+  const ovF=localStorage.getItem('centre_accentFull');
+  r.style.setProperty('--accent-normal', (!resetModes&&ovP)?ovP:(s.mPersonal||s.accent));
+  r.style.setProperty('--accent-work',   (!resetModes&&ovW)?ovW:(s.mWork||s.accent));
+  r.style.setProperty('--accent-full',   (!resetModes&&ovF)?ovF:(s.mFull||s.accent));
+  r.style.setProperty('--accent-work-dark', darken((!resetModes&&ovW)?ovW:(s.mWork||s.accent),15));
+  if(resetModes){
+    localStorage.removeItem('centre_accentNormal');
+    localStorage.removeItem('centre_accentWork');
+    localStorage.removeItem('centre_accentFull');
+  }
   localStorage.setItem('centre_scheme',key);
   try{db.ref('centre/'+FB_TOKEN+'/_scheme').set(key);}catch(e){}
   renderSchemePicker();
@@ -2869,7 +2886,7 @@ function applyScheme(key){
 
 function loadScheme(){
   const saved=localStorage.getItem('centre_scheme')||'rose';
-  applyScheme(saved);
+  applyScheme(saved,false);
 }
 
 function renderSchemePicker(){
@@ -2889,7 +2906,7 @@ function renderSchemePicker(){
     lbl.style.cssText='font-size:.46rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-family:Urbanist,sans-serif;font-weight:'+(active?'500':'200')+';';
     lbl.textContent=s.name;
     wrap.appendChild(swatch);wrap.appendChild(lbl);
-    wrap.onclick=(function(k){return function(){applyScheme(k);};})(key);
+    wrap.onclick=(function(k){return function(){applyScheme(k,true);applyWorkMode();renderAccentSwatches();};})(key);
     el.appendChild(wrap);
   });
 }
@@ -2899,8 +2916,6 @@ function renderAccentSwatches(){
     {label:'Rose',val:'#d4607a'},{label:'Berry',val:'#c0306a'},
     {label:'Periwinkle',val:'#6070d4'},{label:'Pistachio',val:'#78a020'},
     {label:'Tangerine',val:'#f07828'},{label:'Glacier',val:'#5898c8'},
-    {label:'Lilac',val:'#9060c0'},{label:'Sage',val:'#6a9870'},
-    {label:'Coral',val:'#e05848'},{label:'Gold',val:'#c09020'},
   ];
   const modes=[
     {id:'accentPersonalSwatches',key:'--accent-normal'},
