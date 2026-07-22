@@ -102,8 +102,8 @@ body::after{content:'';position:fixed;left:0;right:0;bottom:0;height:60px;pointe
 
 /* TABS */
 .tabs{display:flex;gap:6px;background:var(--bg);border-radius:12px;padding:4px;margin-bottom:20px;}
-.tab{font-family:'Urbanist',sans-serif;font-weight:200;font-size:.5rem;letter-spacing:.16em;text-transform:uppercase;background:none;border:none;border-radius:9px;padding:7px 10px;cursor:pointer;color:var(--muted);transition:all .2s;}
-.tab.active{background:var(--card);color:var(--text);box-shadow:0 1px 6px rgba(0,0,0,.08);}
+.tab{font-family:'Urbanist',sans-serif;font-weight:200;font-size:.62rem;letter-spacing:.18em;text-transform:uppercase;background:none;border:none;border-radius:9px;padding:9px 16px;cursor:pointer;color:var(--muted);transition:all .2s;}
+.tab.active{background:var(--card);color:var(--accent);box-shadow:0 1px 6px rgba(212,96,122,.12);font-weight:300;}
 
 /* RECURRENCE */
 .recur-section{display:none;flex-direction:column;gap:10px;padding:12px;background:var(--bg);border-radius:12px;margin-top:4px;}
@@ -235,9 +235,9 @@ body::after{content:'';position:fixed;left:0;right:0;bottom:0;height:60px;pointe
 .meta-recur{background:#edf0fe;color:#5a6bbf;}
 .meta-dur{background:#f3f0fe;color:#7a60c0;font-variant-numeric:lining-nums tabular-nums;}
 .meta-habit{background:var(--accent);color:var(--on-accent);}
-.delete-btn{background:none;border:none;color:transparent;font-size:1rem;cursor:pointer;padding:2px 4px;border-radius:6px;transition:color .18s;flex-shrink:0;}.task-item:hover .delete-btn{color:#ccc;}
+.delete-btn{background:none;border:none;color:var(--muted);opacity:.55;font-size:1rem;cursor:pointer;padding:2px 5px;border-radius:6px;transition:all .18s;flex-shrink:0;line-height:1;}.task-item:hover .delete-btn{color:#ccc;}
 .delete-btn:hover{color:#e88;}
-.edit-btn{background:none;border:none;color:transparent;font-size:.82rem;cursor:pointer;padding:2px 6px;border-radius:6px;transition:color .18s;flex-shrink:0;font-family:'Urbanist',sans-serif;font-stretch:normal;letter-spacing:.04em;}.task-item:hover .edit-btn{color:#bbb;}
+.edit-btn{background:none;border:none;color:var(--muted);opacity:.75;font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;cursor:pointer;padding:3px 7px;border-radius:6px;transition:all .18s;flex-shrink:0;font-family:'Urbanist',sans-serif;font-weight:200;}.task-item:hover .edit-btn{color:#bbb;}
 .edit-btn:hover{color:var(--accent);}
 .edit-form{display:none;flex-direction:column;gap:10px;margin-top:10px;padding-top:10px;border-top:1px solid var(--border);}
 .edit-form.open{display:flex;}
@@ -597,7 +597,7 @@ body::after{content:'';position:fixed;left:0;right:0;bottom:0;height:60px;pointe
 .subtask-row input[type="checkbox"]{accent-color:var(--accent);width:13px;height:13px;flex-shrink:0;cursor:pointer;}
 .subtask-row-name{flex:1;font-size:.82rem;font-family:'Urbanist',sans-serif;}
 .subtask-row.done .subtask-row-name{text-decoration:line-through;opacity:.48;}
-.subtask-del{background:none;border:none;color:var(--border);font-size:1rem;cursor:pointer;padding:0 3px;line-height:1;flex-shrink:0;transition:color .15s;}
+.subtask-del{background:none;border:none;color:var(--muted);opacity:.5;font-size:.92rem;cursor:pointer;padding:0 3px;line-height:1;flex-shrink:0;transition:all .18s;}
 .subtask-del:hover{color:#e88;}
 .subtask-add-row{display:flex;gap:6px;margin-top:6px;align-items:center;}
 .subtask-add-input{font-family:'Urbanist',sans-serif;font-size:.82rem;border:1.5px solid var(--border);border-radius:8px;padding:5px 10px;outline:none;flex:1;background:var(--bg);color:var(--text);transition:border-color .2s;}
@@ -611,7 +611,7 @@ body::after{content:'';position:fixed;left:0;right:0;bottom:0;height:60px;pointe
 .subtask-row input[type="checkbox"]{accent-color:var(--accent);width:13px;height:13px;flex-shrink:0;cursor:pointer;}
 .subtask-row-name{flex:1;font-size:.82rem;}
 .subtask-row.done .subtask-row-name{text-decoration:line-through;opacity:.45;}
-.subtask-del{background:none;border:none;color:transparent;font-size:.92rem;cursor:pointer;padding:0 2px;line-height:1;flex-shrink:0;transition:color .12s;}
+.subtask-del{background:none;border:none;color:var(--muted);opacity:.5;font-size:.92rem;cursor:pointer;padding:0 3px;line-height:1;flex-shrink:0;transition:color .12s;}
 .subtask-row:hover .subtask-del{color:#ccc;}
 .subtask-del:hover{color:#e88 !important;}
 /* add-form inside task edit */
@@ -954,6 +954,10 @@ body::after{content:'';position:fixed;left:0;right:0;bottom:0;height:60px;pointe
   body { font-weight: 400; }
   .card-title { font-weight: 300; }
 }
+
+.edit-btn:hover{opacity:1;color:var(--accent);}
+.delete-btn:hover{opacity:1;color:#c05848;}
+.subtask-del:hover{opacity:1;color:#c05848;}
 </style>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -961,7 +965,7 @@ body::after{content:'';position:fixed;left:0;right:0;bottom:0;height:60px;pointe
   <link href="https://fonts.googleapis.com/css2?family=Urbanist:ital,wght@0,100;0,200;0,300;1,100;1,200&display=swap" rel="stylesheet">
 </head>
 <body>
-<!-- BUILD-CANCEL-GONE -->
+<!-- BUILD-VISIBLE-EDIT -->
 
 <div class="app-header">
   <!-- DRAWER OVERLAY -->
@@ -1574,7 +1578,7 @@ body::after{content:'';position:fixed;left:0;right:0;bottom:0;height:60px;pointe
 
   <!-- EVENTS -->
   <div class="page" id="page-events">
-    <div style="display:flex;gap:6px;padding:0 0 4px;">
+    <div class="tabs" style="margin-bottom:14px;">
       <button class="tab active" id="evTabEvents" onclick="showEvTab('events',this)">Events</button>
       <button class="tab" id="evTabAppts" onclick="showEvTab('appts',this)">Appointments</button>
     </div>
@@ -2012,7 +2016,7 @@ body::after{content:'';position:fixed;left:0;right:0;bottom:0;height:60px;pointe
 
   <!-- ══════════════════════ -->
   <div class="page" id="page-settings">
-    <div id="buildStamp" style="font-family:'Urbanist',sans-serif;font-size:.5rem;letter-spacing:.1em;color:var(--muted);opacity:.4;text-align:center;padding:4px;">BUILD-CANCEL-GONE</div>
+    <div id="buildStamp" style="font-family:'Urbanist',sans-serif;font-size:.5rem;letter-spacing:.1em;color:var(--muted);opacity:.4;text-align:center;padding:4px;">BUILD-VISIBLE-EDIT</div>
     <div class="card">
 
       <!-- HANDWRITING -->
