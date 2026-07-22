@@ -961,7 +961,7 @@ body::after{content:'';position:fixed;left:0;right:0;bottom:0;height:60px;pointe
   <link href="https://fonts.googleapis.com/css2?family=Urbanist:ital,wght@0,100;0,200;0,300;1,100;1,200&display=swap" rel="stylesheet">
 </head>
 <body>
-<!-- BUILD-EVENTS-FIX -->
+<!-- BUILD-CANCEL-GONE -->
 
 <div class="app-header">
   <!-- DRAWER OVERLAY -->
@@ -2012,7 +2012,7 @@ body::after{content:'';position:fixed;left:0;right:0;bottom:0;height:60px;pointe
 
   <!-- ══════════════════════ -->
   <div class="page" id="page-settings">
-    <div id="buildStamp" style="font-family:'Urbanist',sans-serif;font-size:.5rem;letter-spacing:.1em;color:var(--muted);opacity:.4;text-align:center;padding:4px;">BUILD-EVENTS-FIX</div>
+    <div id="buildStamp" style="font-family:'Urbanist',sans-serif;font-size:.5rem;letter-spacing:.1em;color:var(--muted);opacity:.4;text-align:center;padding:4px;">BUILD-CANCEL-GONE</div>
     <div class="card">
 
       <!-- HANDWRITING -->
@@ -2923,8 +2923,7 @@ function setWorkspaceAccent(key,val){
   if(key==='--accent-normal'){localStorage.setItem('centre_accentNormal',val);try{db.ref('centre/'+FB_TOKEN+'/_theme/--accent-normal').set(val);}catch(e){}}
   if(key==='--accent-work'){localStorage.setItem('centre_accentWork',val);document.documentElement.style.setProperty('--accent-work-dark',darken(val,15));try{db.ref('centre/'+FB_TOKEN+'/_theme/--accent-work').set(val);}catch(e){}}
   if(key==='--accent-full'){localStorage.setItem('centre_accentFull',val);try{db.ref('centre/'+FB_TOKEN+'/_theme/--accent-full').set(val);}catch(e){}}
-  applyWorkMode();
-closeAllOverlaysOnLoad();renderAccentSwatches();
+  applyWorkMode();renderAccentSwatches();
 }
 
 const THEME_DEFAULTS={'--bg':'#f8eeec','--card':'#ffffff','--text':'#2a1e1a','--accent':'#d4607a','--accent-work':'#ebefb9','--muted':'#c0a89a','--border':'#ecddd8'};
@@ -13634,18 +13633,9 @@ function closeAllOverlaysOnLoad(){
     });
   }catch(e){}
 }
-</script>
 
-  <!-- STYLED assign outfit sheet -->
-  <div class="st-assign-overlay" id="stAssignOverlay">
-    <div class="st-assign-backdrop" onclick="stCloseAssign()"></div>
-    <div class="st-assign-sheet">
-      <div class="st-assign-handle"></div>
-      <div class="st-assign-title" id="stAssignTitle"></div>
-      <div class="st-assign-list" id="stAssignList"></div>
-      <button class="st-assign-cancel" onclick="stCloseAssign()">Cancel</button>
-    </div>
-  </div>
+closeAllOverlaysOnLoad();
+</script>
 
 </body>
 </html>
