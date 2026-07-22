@@ -958,6 +958,8 @@ body::after{content:'';position:fixed;left:0;right:0;bottom:0;height:60px;pointe
 .edit-btn:hover{opacity:1;color:var(--accent);}
 .delete-btn:hover{opacity:1;color:#c05848;}
 .subtask-del:hover{opacity:1;color:#c05848;}
+
+.appt-ghost{font-style:italic;letter-spacing:.02em;}
 </style>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -969,7 +971,7 @@ body::after{content:'';position:fixed;left:0;right:0;bottom:0;height:60px;pointe
   <meta name="theme-color" id="centreThemeColor" content="#f8eeec">
 </head>
 <body>
-<!-- BUILD-SPARKLE -->
+<!-- BUILD-MEDS-SUPPLY -->
 
 <div class="app-header">
   <!-- DRAWER OVERLAY -->
@@ -1104,6 +1106,7 @@ body::after{content:'';position:fixed;left:0;right:0;bottom:0;height:60px;pointe
         <div class="card" id="overviewBlocks"></div>
         <div class="card" id="overviewHealth">
           <div class="card-title" style="margin-bottom:14px;">My Health</div>
+          <div id="overviewMedAlert" style="display:none;"></div>
           <div id="overviewCycle" style="margin-bottom:10px;"></div>
           <div id="overviewMeals"></div>
         </div>
@@ -2023,7 +2026,7 @@ body::after{content:'';position:fixed;left:0;right:0;bottom:0;height:60px;pointe
 
   <!-- ══════════════════════ -->
   <div class="page" id="page-settings">
-    <div id="buildStamp" style="font-family:'Urbanist',sans-serif;font-size:.5rem;letter-spacing:.1em;color:var(--muted);opacity:.4;text-align:center;padding:4px;">BUILD-SPARKLE</div>
+    <div id="buildStamp" style="font-family:'Urbanist',sans-serif;font-size:.5rem;letter-spacing:.1em;color:var(--muted);opacity:.4;text-align:center;padding:4px;">BUILD-MEDS-SUPPLY</div>
     <div class="card">
 
       <!-- HANDWRITING -->
@@ -2479,6 +2482,19 @@ body::after{content:'';position:fixed;left:0;right:0;bottom:0;height:60px;pointe
         <div class="form-group"><label class="form-label">Frequency</label><input class="form-input" id="medFreq" placeholder="e.g. Twice daily"/></div>
       </div>
       <div class="form-group"><label class="form-label">Prescriber</label><input class="form-input" id="medPrescriber" placeholder="e.g. Dr Smith"/></div>
+      <div style="border-top:1px solid var(--border);padding-top:12px;margin-top:2px;">
+        <div style="font-size:.5rem;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;">Supply</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+          <div class="form-group"><label class="form-label">Pack size (units)</label><input class="form-input" type="number" min="1" id="medPackSize" placeholder="e.g. 30"/></div>
+          <div class="form-group"><label class="form-label">Units per day</label><input class="form-input" type="number" min="0" step="0.5" id="medDosePerDay" placeholder="e.g. 2"/></div>
+          <div class="form-group"><label class="form-label">Repeats left</label><input class="form-input" type="number" min="0" id="medRepeats" placeholder="e.g. 3"/></div>
+          <div class="form-group"><label class="form-label">Last filled</label><input class="form-input" type="date" id="medLastFilled"/></div>
+        </div>
+        <label style="display:flex;align-items:center;gap:8px;font-size:.68rem;color:var(--muted);margin-top:8px;cursor:pointer;">
+          <input type="checkbox" id="medAsNeeded" style="width:15px;height:15px;accent-color:var(--accent);cursor:pointer;"/>
+          Taken as needed (no daily countdown)
+        </label>
+      </div>
       <div class="form-group"><label class="form-label">Refill date <span style="font-size:.68rem;color:var(--muted);text-transform:none;letter-spacing:0;">(leave blank if unknown)</span></label><input class="form-input" type="date" id="medRefill"/></div>
       <div class="form-group"><label class="form-label">Notes / side effects</label><textarea class="form-input" id="medNotes" rows="3" placeholder="Any notes, reactions, instructions…" style="resize:vertical;"></textarea></div>
     </div>
@@ -5826,6 +5842,7 @@ function renderWeek(){
   const clickable=ev.recur?`onclick="openOccurrenceModal('${ev.id}','${ds}')"`:`onclick="openOccurrenceModal('${ev.id}','${ds}')"`;
   return `<div class="day-event" style="background:${bg};cursor:pointer;" ${clickable} title="Tap to edit">${getPhaseDotHtml(ev.date||ev.next||'')}${evEmoji(ev,'var(--accent)')}${escHtml(displayName)}</div>`;
 }).join('')}
+        ${(typeof getApptGhostsForDate==='function'?getApptGhostsForDate(ds):[]).map(_ga=>`<div class="day-event appt-ghost" style="background:transparent;border:1px dashed var(--accent);opacity:.55;cursor:pointer;" onclick="openRebook('${_ga.id}')" title="Due — tap to book">${escHtml(_ga.name)} · due</div>`).join('')}
         ${dayTasks.map(tk=>{const cat=categories.find(c=>c.id===tk.catId);const bg='';return `<div class="day-task" style="${bg?'background:'+bg:''}" title="${escHtml(tk.name)}">${escHtml(tk.name)}</div>`;}).join('')}
         <!-- meals log hidden from weekly calendar -->
       </div>
@@ -5911,7 +5928,41 @@ function evEmoji(ev,color){
   }
   return '';
 }
+function overviewApptStripHtml(){
+  if(typeof appointments==='undefined'||!appointments.length)return '';
+  const t=today();
+  const soon=[];
+  appointments.forEach(function(a){
+    if(isApptSnoozed(a))return;
+    const st=getApptStatus(a);
+    if(st.state==='overdue'||st.state==='due-soon'){ soon.push({a:a,st:st}); return; }
+    if(st.state==='booked'&&st.date){
+      const diff=Math.round((new Date(st.date+'T00:00:00')-new Date(t+'T00:00:00'))/86400000);
+      if(diff<=14) soon.push({a:a,st:st});
+    }
+  });
+  if(!soon.length)return '';
+  const order={overdue:0,'due-soon':1,booked:2};
+  soon.sort(function(x,y){return (order[x.st.state]||9)-(order[y.st.state]||9);});
+  const rows=soon.map(function(o){
+    const booked=o.st.state==='booked';
+    const col=o.st.state==='overdue'?'var(--muted)':(o.st.state==='due-soon'?'#c08040':'var(--accent)');
+    return '<div class="event-pill" style="background:var(--bg);'+(o.st.state==='overdue'?'opacity:.72;':'')+'">'+
+      '<span style="width:5px;height:5px;border-radius:50%;background:'+col+';flex-shrink:0;display:block;"></span>'+
+      '<span style="flex:1;">'+escHtml(o.a.name)+'</span>'+
+      '<span style="font-size:.58rem;color:'+col+';white-space:nowrap;">'+escHtml(o.st.label)+'</span>'+
+      '<button onclick="event.stopPropagation();openRebook(\''+o.a.id+'\')" style="font-size:.52rem;letter-spacing:.14em;text-transform:uppercase;background:none;border:1px solid var(--border);border-radius:20px;padding:3px 10px;margin-left:6px;cursor:pointer;color:var(--muted);white-space:nowrap;">'+
+        (booked?'Change':'Book')+'</button>'+
+    '</div>';
+  }).join('');
+  return '<div style="height:1px;background:var(--border);margin:14px 0 12px;"></div>'+
+    '<div onclick="showPage(\'appts\')" style="cursor:pointer;font-family:\'Urbanist\',sans-serif;font-weight:200;text-transform:uppercase;letter-spacing:.24em;font-size:.5rem;color:var(--muted);margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;">'+
+      '<span>Appointments</span><span style="opacity:.5;letter-spacing:0;">view all &rsaquo;</span></div>'+
+    '<div class="events-strip">'+rows+'</div>';
+}
+
 function renderOverviewEvents(){
+  try{renderOverviewMedAlert();}catch(e){}
   const viewDate=getCentreDate();
   const isToday=viewDate===today();
   const _secEvs=[...getSecondaryEventsForDate(viewDate),...getMsEventsForDate(viewDate),...getIcsEventsForDate(viewDate)];const allEvs=[...events.filter(ev=>occursOn(ev,viewDate)&&!(workMode&&ev.private)),..._secEvs].sort((a,b)=>{if(a.time&&!b.time)return 1;if(!a.time&&b.time)return -1;return(a.time||'').localeCompare(b.time||'');});
@@ -5933,7 +5984,7 @@ function renderOverviewEvents(){
     <span class="card-title" style="margin-bottom:0;white-space:nowrap;">Events</span>
   </div>`;
 
-  if(!hasEvents){container.innerHTML=header+`<p class="empty-msg">No events${isToday?' today':' this day'}.</p>`;return;}
+  if(!hasEvents){container.innerHTML=header+`<p class="empty-msg">No events${isToday?' today':' this day'}.</p>`+overviewApptStripHtml();return;}
 
   // Birthdays on top, horizontal divider, other events below
   let inner='';
@@ -5959,7 +6010,7 @@ function renderOverviewEvents(){
     inner=`<div class="events-strip">${otherEvs.map(pillHtml).join('')}</div>`;
   }
 
-  container.innerHTML=header+inner;
+  container.innerHTML=header+inner+overviewApptStripHtml();
 }
 
 const NOTE_HINTS={
@@ -6674,6 +6725,11 @@ function openMedModal(id) {
   document.getElementById('medPrescriber').value = m ? (m.prescriber||'') : '';
   document.getElementById('medRefill').value = m ? (m.refill||'') : '';
   document.getElementById('medNotes').value = m ? (m.notes||'') : '';
+  document.getElementById('medPackSize').value   = m ? (m.packSize||'') : '';
+  document.getElementById('medDosePerDay').value = m ? (m.dosePerDay||'') : '';
+  document.getElementById('medRepeats').value    = m ? (m.repeats===0?0:(m.repeats||'')) : '';
+  document.getElementById('medLastFilled').value = m ? (m.lastFilled||'') : '';
+  document.getElementById('medAsNeeded').checked = m ? !!m.asNeeded : false;
   document.getElementById('medModal').classList.add('open');
 }
 function closeMedModal() {
@@ -6689,7 +6745,12 @@ function saveMed() {
     freq: document.getElementById('medFreq').value.trim(),
     prescriber: document.getElementById('medPrescriber').value.trim(),
     refill: document.getElementById('medRefill').value,
-    notes: document.getElementById('medNotes').value.trim()
+    notes: document.getElementById('medNotes').value.trim(),
+    packSize:   document.getElementById('medPackSize').value,
+    dosePerDay: document.getElementById('medDosePerDay').value,
+    repeats:    document.getElementById('medRepeats').value===''?'':parseInt(document.getElementById('medRepeats').value),
+    lastFilled: document.getElementById('medLastFilled').value,
+    asNeeded:   document.getElementById('medAsNeeded').checked
   };
   if (id) {
     const m = meds.find(x => x.id === id);
@@ -6726,6 +6787,139 @@ function daysUntil(ds) {
   return Math.round(diff / 86400000);
 }
 
+// ══════════ MEDICATION SUPPLY ══════════
+const MED_CHEMIST_LEAD=5;   // days notice for a chemist run
+const MED_GP_LEAD=14;       // days notice to get a GP appointment
+
+function medUnitsRemaining(m){
+  if(m.asNeeded)return null;
+  const dpd=parseFloat(m.dosePerDay);
+  if(!dpd||dpd<=0)return null;
+  let baseDate, baseUnits;
+  if(m.adjustOn&&m.adjustUnits!=null&&m.adjustUnits!==''){ baseDate=m.adjustOn; baseUnits=parseFloat(m.adjustUnits); }
+  else if(m.lastFilled&&m.packSize){ baseDate=m.lastFilled; baseUnits=parseFloat(m.packSize); }
+  else return null;
+  const days=Math.floor((new Date(today()+'T00:00:00')-new Date(baseDate+'T00:00:00'))/86400000);
+  if(isNaN(days))return null;
+  return Math.max(0, baseUnits - days*dpd);
+}
+
+function medDaysLeft(m){
+  const u=medUnitsRemaining(m);
+  const dpd=parseFloat(m.dosePerDay);
+  if(u===null||!dpd||dpd<=0)return null;
+  return Math.floor(u/dpd);
+}
+
+function getMedStatus(m){
+  const days=medDaysLeft(m);
+  const rep=(m.repeats===''||m.repeats==null)?null:parseInt(m.repeats);
+  const noRepeats=(rep!==null&&rep<=0);
+  if(noRepeats){
+    if(days===null)return{state:'script',label:'No repeats left — new script needed',days:null};
+    if(days<=MED_GP_LEAD)return{state:'script',days:days,
+      label:days<=0?'Out of supply — new script needed':days+' days left · no repeats — see GP'};
+  }
+  if(days!==null){
+    if(days<=0)return{state:'out',days:days,label:'Out of supply'};
+    if(days<=MED_CHEMIST_LEAD)return{state:'refill',days:days,label:days+' days left — refill at chemist'};
+    return{state:'ok',days:days,label:days+' days left'};
+  }
+  return{state:'none',days:null,label:''};
+}
+
+function medSupplyPct(m){
+  const u=medUnitsRemaining(m); const pack=parseFloat(m.packSize);
+  if(u===null||!pack||pack<=0)return null;
+  return Math.max(0,Math.min(100,Math.round(u/pack*100)));
+}
+
+function medFilledToday(id){
+  const m=meds.find(function(x){return x.id===id;}); if(!m)return;
+  m.lastFilled=today();
+  m.adjustOn=''; m.adjustUnits='';
+  const rep=(m.repeats===''||m.repeats==null)?null:parseInt(m.repeats);
+  if(rep!==null&&rep>0)m.repeats=rep-1;
+  scheduleSave(); renderMeds();
+  try{renderOverviewMedAlert();}catch(e){}
+}
+
+function medAdjustCount(id){
+  const m=meds.find(function(x){return x.id===id;}); if(!m)return;
+  const cur=medUnitsRemaining(m);
+  const v=prompt('How many units do you actually have left?', cur!==null?String(Math.round(cur)):'');
+  if(v===null)return;
+  const n=parseFloat(v);
+  if(isNaN(n)||n<0)return;
+  m.adjustUnits=n; m.adjustOn=today();
+  scheduleSave(); renderMeds();
+  try{renderOverviewMedAlert();}catch(e){}
+}
+
+function openGpBooking(id){
+  const m=meds.find(function(x){return x.id===id;}); if(!m)return;
+  let ov=document.getElementById('gpBookOverlay');
+  if(!ov){ ov=document.createElement('div'); ov.id='gpBookOverlay'; ov.className='modal-overlay';
+    ov.onclick=function(e){ if(e.target===ov) closeGpBooking(); };
+    document.body.appendChild(ov); }
+  const d=new Date(); d.setDate(d.getDate()+7);
+  ov.innerHTML='<div class="modal" style="max-width:340px;">'+
+    '<div class="modal-title">Book GP — new script</div>'+
+    '<div style="font-size:.68rem;color:var(--muted);margin-bottom:14px;">For '+escHtml(m.name)+
+      (m.prescriber?' · '+escHtml(m.prescriber):'')+'</div>'+
+    '<div class="modal-form">'+
+      '<div class="form-group"><label class="form-label">Date</label>'+
+        '<input class="form-input" type="date" id="gpBookDate" value="'+dateStr(d)+'"/></div>'+
+      '<div class="form-group"><label class="form-label">Time (optional)</label>'+
+        '<input class="form-input" type="time" id="gpBookTime"/></div>'+
+    '</div>'+
+    '<div class="modal-actions" style="margin-top:14px;">'+
+      '<button class="modal-cancel" onclick="closeGpBooking()">Cancel</button>'+
+      '<button class="modal-save" onclick="createGpBooking(\''+m.id+'\')">Save booking</button>'+
+    '</div></div>';
+  ov.style.display='flex'; ov.classList.add('open');
+}
+function closeGpBooking(){ const o=document.getElementById('gpBookOverlay'); if(o){o.classList.remove('open');o.style.display='none';} }
+function createGpBooking(id){
+  const m=meds.find(function(x){return x.id===id;}); if(!m)return;
+  const ds=(document.getElementById('gpBookDate')||{}).value;
+  const tm=(document.getElementById('gpBookTime')||{}).value;
+  if(!ds)return;
+  events.push({id:newEventId(),name:'GP — script for '+m.name,date:ds,time:tm||'',
+    type:'appointment',catId:'',notes:m.prescriber||'',recur:null,medId:m.id});
+  m.gpBooked=ds;
+  scheduleSave(); closeGpBooking(); renderMeds();
+  try{renderOverviewMedAlert();}catch(e){}
+  try{renderPlannerPage();}catch(e){}
+}
+
+function getMedAlerts(){
+  if(typeof meds==='undefined')return [];
+  return meds.filter(function(m){
+    const st=getMedStatus(m);
+    return st.state==='script'||st.state==='refill'||st.state==='out';
+  });
+}
+
+function renderOverviewMedAlert(){
+  const el=document.getElementById('overviewMedAlert');
+  if(!el)return;
+  const alerts=getMedAlerts();
+  if(!alerts.length){ el.innerHTML=''; el.style.display='none'; return; }
+  el.style.display='block';
+  el.innerHTML='<div style="background:rgba(0,0,0,.035);border:1px solid var(--border);border-radius:12px;padding:10px 13px;margin-bottom:10px;">'+
+    '<div style="font-size:.5rem;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-bottom:7px;">Medication</div>'+
+    alerts.map(function(m){
+      const st=getMedStatus(m);
+      const needGp=(st.state==='script'&&!m.gpBooked);
+      return '<div style="display:flex;align-items:center;gap:8px;padding:3px 0;">'+
+        '<span style="flex:1;font-size:.7rem;font-weight:200;opacity:.8;">'+escHtml(m.name)+'</span>'+
+        '<span style="font-size:.56rem;color:var(--muted);white-space:nowrap;">'+escHtml(st.label)+'</span>'+
+        (needGp?'<button onclick="openGpBooking(\''+m.id+'\')" style="font-size:.5rem;letter-spacing:.14em;text-transform:uppercase;background:none;border:1px solid var(--border);border-radius:20px;padding:3px 9px;margin-left:5px;cursor:pointer;color:var(--muted);white-space:nowrap;">Book GP</button>':'')+
+      '</div>';
+    }).join('')+'</div>';
+}
+
 function renderMeds() {
   const list = document.getElementById('medList');
   const empty = document.getElementById('medEmpty');
@@ -6760,6 +6954,19 @@ function renderMeds() {
           <button onclick="deleteMed('${m.id}')" style="background:none;border:none;color:#ccc;font-size:1rem;cursor:pointer;padding:2px 4px;">×</button>
         </div>
       </div>
+      ${(()=>{const st=getMedStatus(m);const pct=medSupplyPct(m);const u=medUnitsRemaining(m);
+        if(st.state==='none'&&pct===null)return '';
+        const col=st.state==='script'?'#b06030':(st.state==='out'?'#b06030':(st.state==='refill'?'#c08040':'var(--accent)'));
+        return `${pct!==null?`<div style="height:4px;background:var(--border);border-radius:20px;overflow:hidden;margin-top:2px;"><div style="height:100%;width:${pct}%;background:${col};border-radius:20px;transition:width .4s;"></div></div>`:''}
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-top:4px;">
+          <span style="font-size:.62rem;color:${col};">${escHtml(st.label)}${u!==null?` · ${Math.round(u)} left`:''}${(m.repeats!==''&&m.repeats!=null)?` · ${m.repeats} repeat${m.repeats==1?'':'s'}`:''}</span>
+          <span style="display:flex;gap:5px;">
+            ${st.state==='script'&&!m.gpBooked?`<button onclick="openGpBooking('${m.id}')" style="font-size:.52rem;letter-spacing:.14em;text-transform:uppercase;background:none;border:1px solid var(--accent);color:var(--accent);border-radius:8px;padding:3px 9px;cursor:pointer;">Book GP</button>`:''}
+            ${m.gpBooked?`<span style="font-size:.55rem;color:var(--muted);">GP ${formatDate(m.gpBooked)}</span>`:''}
+            <button onclick="medAdjustCount('${m.id}')" style="font-size:.52rem;letter-spacing:.14em;text-transform:uppercase;background:none;border:1px solid var(--border);color:var(--muted);border-radius:8px;padding:3px 9px;cursor:pointer;">Adjust</button>
+            <button onclick="medFilledToday('${m.id}')" style="font-size:.52rem;letter-spacing:.14em;text-transform:uppercase;background:none;border:1px solid var(--border);color:var(--muted);border-radius:8px;padding:3px 9px;cursor:pointer;">Filled</button>
+          </span>
+        </div>`;})()}
       ${refillWarn?`<div style="font-size:.75rem;padding:5px 10px;border-radius:8px;background:#fef0e8;color:#b06030;">${refillLabel}</div>`:''}
       ${m.refill&&!refillWarn?`<div style="font-size:.72rem;color:var(--muted);">Refill: ${formatDate(m.refill)}</div>`:''}
       ${m.notes?`<div style="font-size:.78rem;color:var(--muted);border-top:1px solid var(--border);padding-top:6px;margin-top:2px;white-space:pre-line;">${escHtml(m.notes)}</div>`:''}
@@ -12069,8 +12276,8 @@ function renderNextPeriodCard() {
 
 
 // ════════════════ APPOINTMENTS ════════════════
-let appointments=[];
-function newApptId(){return 'APPT-'+Date.now();}
+let appointments = [];
+function newApptId(){ return 'APPT-' + Date.now() + '-' + Math.floor(Math.random()*999); }
 
 function showEvTab(tab,btn){
   ['events','appts'].forEach(function(t){
@@ -12082,101 +12289,330 @@ function showEvTab(tab,btn){
   if(tab==='appts')renderAppointments();
 }
 
-function addAppointment(name,provider,phone,company,intervalWeeks){
+// ── Core helpers ──────────────────────────────────────────
+function getLastAttended(a){ return (a.history&&a.history.length)?a.history[a.history.length-1]:null; }
+
+function getApptBooking(a){
+  return events.filter(function(ev){return ev.apptId===a.id&&ev.date>=today();})
+               .sort(function(x,y){return x.date.localeCompare(y.date);})[0]||null;
+}
+
+function getApptDueDate(a){
+  const last=getLastAttended(a);
+  if(!last||!a.intervalWeeks)return null;
+  const d=new Date(last+'T00:00:00');
+  d.setDate(d.getDate()+a.intervalWeeks*7);
+  return dateStr(d);
+}
+
+// Auto-log any booking whose date has passed (undoable)
+function autoLogPassedBookings(){
+  let changed=false;
+  appointments.forEach(function(a){
+    events.filter(function(ev){return ev.apptId===a.id&&ev.date<today();}).forEach(function(ev){
+      if(!a.history)a.history=[];
+      if(!a.autoDates)a.autoDates=[];
+      if(a.history.indexOf(ev.date)===-1){
+        a.history.push(ev.date); a.history.sort();
+        a.autoDates.push(ev.date);
+        changed=true;
+      }
+    });
+  });
+  if(changed)scheduleSave();
+  return changed;
+}
+
+function undoAttended(id,ds){
+  const a=appointments.find(function(x){return x.id===id;}); if(!a)return;
+  a.history=(a.history||[]).filter(function(d){return d!==ds;});
+  a.autoDates=(a.autoDates||[]).filter(function(d){return d!==ds;});
+  // also drop the linked booking so it doesn't immediately re-log
+  events=events.filter(function(ev){return !(ev.apptId===id&&ev.date===ds);});
+  scheduleSave(); renderAppointments();
+}
+
+function getApptStatus(a){
+  const booking=getApptBooking(a);
+  if(booking) return {state:'booked',date:booking.date,
+    label:'Booked '+formatDate(booking.date)+(booking.time?' · '+fmtTimeStr(booking.time):'')};
+  const due=getApptDueDate(a);
+  if(!due) return {state:'none',label:'No visits logged yet'};
+  const diff=Math.round((new Date(due+'T00:00:00')-new Date(today()+'T00:00:00'))/86400000);
+  if(diff<0)  return {state:'overdue',date:due,label:'Overdue by '+Math.abs(diff)+' days'};
+  if(diff<=14)return {state:'due-soon',date:due,label:'Due in '+diff+' days'};
+  return {state:'ok',date:due,label:'Due '+formatDate(due)};
+}
+
+function getOverdueAppts(){
+  return appointments.filter(function(a){
+    if(isApptSnoozed(a))return false;
+    return getApptStatus(a).state==='overdue';
+  });
+}
+
+function isApptSnoozed(a){ return a.snoozeUntil && a.snoozeUntil>today(); }
+function snoozeAppt(id,days){
+  const a=appointments.find(function(x){return x.id===id;}); if(!a)return;
+  const d=new Date(); d.setDate(d.getDate()+(days||7));
+  a.snoozeUntil=dateStr(d);
+  scheduleSave(); renderAppointments();
+}
+
+// ── Ghost due dates for the calendar ──────────────────────
+function getApptGhostsForDate(ds){
+  if(ds<today())return [];
+  const out=[];
+  appointments.forEach(function(a){
+    if(!a.intervalWeeks)return;
+    if(getApptBooking(a))return;          // a real booking exists — show that instead
+    const due=getApptDueDate(a);
+    if(!due)return;
+    let d=new Date(due+'T00:00:00');
+    for(let i=0;i<26;i++){
+      const cand=dateStr(d);
+      if(cand===ds){ out.push(a); return; }
+      if(cand>ds) return;
+      d.setDate(d.getDate()+a.intervalWeeks*7);
+    }
+  });
+  return out;
+}
+
+// ── CRUD ──────────────────────────────────────────────────
+function addAppointment(name,provider,phone,company,intervalWeeks,location,bookingUrl){
   if(!name)return;
-  appointments.push({id:newApptId(),name:name,provider:provider||'',phone:phone||'',company:company||'',intervalWeeks:parseInt(intervalWeeks)||6,history:[]});
-  ['apptName','apptProvider','apptPhone','apptCompany'].forEach(function(id){const el=document.getElementById(id);if(el)el.value='';});
-  const iv=document.getElementById('apptInterval');if(iv)iv.value='6';
-  scheduleSave();renderAppointments();
+  appointments.push({id:newApptId(),name:name,provider:provider||'',phone:phone||'',
+    company:company||'',location:location||'',bookingUrl:bookingUrl||'',intervalWeeks:parseInt(intervalWeeks)||6,history:[],autoDates:[]});
+  ['apptName','apptProvider','apptPhone','apptCompany','apptLocation','apptBookingUrl'].forEach(function(id){
+    const el=document.getElementById(id); if(el)el.value='';
+  });
+  const iv=document.getElementById('apptInterval'); if(iv)iv.value='6';
+  scheduleSave(); renderAppointments();
 }
 
 function deleteAppointment(id){
-  if(!confirm('Remove this appointment type?'))return;
+  if(!confirm('Remove this appointment type? Its bookings stay on your calendar.'))return;
   appointments=appointments.filter(function(a){return a.id!==id;});
-  scheduleSave();renderAppointments();
+  scheduleSave(); renderAppointments();
 }
 
 function logAppointmentDate(id,ds){
-  const a=appointments.find(function(a){return a.id===id;});
+  const a=appointments.find(function(x){return x.id===id;});
   if(!a||!ds)return;
   if(!a.history)a.history=[];
-  if(!a.history.includes(ds)){a.history.push(ds);a.history.sort();}
-  scheduleSave();renderAppointments();
+  if(a.history.indexOf(ds)===-1){a.history.push(ds);a.history.sort();}
+  a.snoozeUntil='';
+  scheduleSave(); renderAppointments();
 }
 
 function removeLastApptDate(id){
-  const a=appointments.find(function(a){return a.id===id;});
+  const a=appointments.find(function(x){return x.id===id;});
   if(!a||!a.history||!a.history.length)return;
-  a.history.pop();scheduleSave();renderAppointments();
+  const last=a.history.pop();
+  a.autoDates=(a.autoDates||[]).filter(function(d){return d!==last;});
+  scheduleSave(); renderAppointments();
 }
 
-function getApptStatus(appt){
-  if(!appt.history||!appt.history.length)return{state:'none',label:'No history yet'};
-  const last=appt.history[appt.history.length-1];
-  const nd=new Date(last+'T00:00:00');
-  nd.setDate(nd.getDate()+(appt.intervalWeeks*7));
-  const diff=Math.round((nd-new Date(today()+'T00:00:00'))/86400000);
-  const nb=events.find(function(ev){return(ev.type==='appointment'||ev.type==='recurring-appointment')&&ev.name.toLowerCase().includes(appt.name.toLowerCase())&&ev.date>today();});
-  if(nb)return{state:'booked',label:'Next: '+formatDate(nb.date)+(nb.time?' · '+fmtTimeStr(nb.time):'')};
-  if(diff<0)return{state:'overdue',label:'Overdue · '+Math.abs(diff)+'d · No booking'};
-  if(diff<=14)return{state:'due-soon',label:'Due in '+diff+'d · No booking'};
-  return{state:'ok',label:'Due '+formatDate(dateStr(nd))+' · No booking'};
+// ── Re-book ───────────────────────────────────────────────
+function createApptBooking(id,ds,time){
+  const a=appointments.find(function(x){return x.id===id;});
+  if(!a||!ds)return;
+  events.push({id:newEventId(),
+    name:a.name+(a.provider?' · '+a.provider:''),
+    date:ds, time:time||'', type:'appointment',
+    catId:a.catId||'', notes:a.company||'', location:a.location||'', apptId:a.id, recur:null});
+  a.snoozeUntil='';
+  scheduleSave(); closeRebook(); renderAppointments();
+  try{ if(typeof renderPlannerPage==='function')renderPlannerPage(); }catch(e){}
+  try{ if(typeof renderAllOverviewForDate==='function')renderAllOverviewForDate(); }catch(e){}
 }
 
+function closeRebook(){
+  const ov=document.getElementById('rebookOverlay');
+  if(ov){ov.classList.remove('open');ov.style.display='none';}
+}
+
+function openRebook(id){
+  const a=appointments.find(function(x){return x.id===id;}); if(!a)return;
+  const suggested=getApptDueDate(a)||today();
+  const start=suggested<today()?today():suggested;
+  let ov=document.getElementById('rebookOverlay');
+  if(!ov){ ov=document.createElement('div'); ov.id='rebookOverlay'; ov.className='modal-overlay';
+    ov.onclick=function(e){ if(e.target===ov) closeRebook(); };
+    document.body.appendChild(ov); }
+  const bookLink=(a.bookingUrl?
+    '<a href="'+a.bookingUrl+'" target="_blank" rel="noopener" style="display:block;text-align:center;font-size:.62rem;letter-spacing:.16em;text-transform:uppercase;padding:9px;border-radius:9px;background:var(--accent);color:#fff;text-decoration:none;margin-bottom:12px;">Book online &rsaquo;</a>':'');
+  const contact=(a.phone?
+    '<div style="display:flex;gap:8px;margin-top:14px;padding-top:12px;border-top:1px solid var(--border);">'+
+      '<a href="tel:'+a.phone+'" style="flex:1;text-align:center;font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;padding:8px;border-radius:9px;border:1px solid var(--border);color:var(--text);text-decoration:none;">Call</a>'+
+      '<a href="sms:'+a.phone+'" style="flex:1;text-align:center;font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;padding:8px;border-radius:9px;border:1px solid var(--accent);color:var(--accent);text-decoration:none;">Text '+escHtml(a.provider||'')+'</a>'+
+    '</div>':'');
+  ov.innerHTML=
+    '<div class="modal" style="max-width:340px;">'+
+      '<div class="modal-title">Book '+escHtml(a.name)+'</div>'+
+      bookLink+
+      '<div class="modal-form">'+
+        '<div class="form-group"><label class="form-label">Date</label>'+
+          '<input class="form-input" type="date" id="rebookDate" value="'+start+'"/></div>'+
+        '<div class="form-group"><label class="form-label">Time (optional)</label>'+
+          '<input class="form-input" type="time" id="rebookTime"/></div>'+
+      '</div>'+
+      contact+
+      '<div class="modal-actions" style="margin-top:14px;">'+
+        '<button class="modal-cancel" onclick="closeRebook()">Cancel</button>'+
+        '<button class="modal-save" onclick="createApptBooking(\''+a.id+'\',document.getElementById(\'rebookDate\').value,document.getElementById(\'rebookTime\').value)">Save booking</button>'+
+      '</div>'+
+    '</div>';
+  ov.style.display='flex';
+  ov.classList.add('open');
+}
+
+// ── Render ────────────────────────────────────────────────
 function renderAppointments(){
   const container=document.getElementById('apptsContainer');
   if(!container)return;
+  autoLogPassedBookings();
   container.innerHTML='';
+
+  // ── Overdue strip (grey, quiet) ──
+  const overdue=getOverdueAppts();
+  if(overdue.length){
+    const strip=document.createElement('div');
+    strip.style.cssText='background:rgba(0,0,0,.035);border:1px solid var(--border);border-radius:12px;'+
+      'padding:11px 14px;margin-bottom:12px;';
+    const head=document.createElement('div');
+    head.style.cssText='font-size:.56rem;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;';
+    head.textContent=overdue.length+(overdue.length===1?' appointment overdue':' appointments overdue');
+    strip.appendChild(head);
+    overdue.forEach(function(a){
+      const row=document.createElement('div');
+      row.style.cssText='display:flex;align-items:center;gap:8px;padding:4px 0;';
+      const nm=document.createElement('span');
+      nm.style.cssText='flex:1;font-size:.72rem;font-weight:200;color:var(--text);opacity:.75;';
+      nm.textContent=a.name+' · '+getApptStatus(a).label.toLowerCase();
+      const bk=document.createElement('button');
+      bk.style.cssText='font-size:.56rem;letter-spacing:.14em;text-transform:uppercase;background:none;'+
+        'border:1px solid var(--border);border-radius:8px;padding:4px 10px;cursor:pointer;color:var(--muted);';
+      bk.textContent='Book';
+      bk.onclick=(function(x){return function(){openRebook(x);};})(a.id);
+      const sz=document.createElement('button');
+      sz.style.cssText='font-size:.56rem;letter-spacing:.14em;text-transform:uppercase;background:none;'+
+        'border:none;cursor:pointer;color:var(--muted);opacity:.6;padding:4px 6px;';
+      sz.textContent='Snooze';
+      sz.onclick=(function(x){return function(){snoozeAppt(x,7);};})(a.id);
+      row.appendChild(nm);row.appendChild(bk);row.appendChild(sz);
+      strip.appendChild(row);
+    });
+    container.appendChild(strip);
+  }
+
+  // ── New appointment form ──
   const fc=document.createElement('div');fc.className='card';fc.style.marginBottom='12px';
   fc.innerHTML='<div class="card-title">New Appointment Type</div><div class="form-grid">'+
     '<div class="form-group full"><label class="form-label">Name</label><input class="form-input" id="apptName" placeholder="e.g. Eyebrows, Lashes, Physio"/></div>'+
     '<div class="form-group"><label class="form-label">Provider</label><input class="form-input" id="apptProvider" placeholder="e.g. Sarah"/></div>'+
     '<div class="form-group"><label class="form-label">Salon / Company</label><input class="form-input" id="apptCompany" placeholder="e.g. The Lash Studio"/></div>'+
     '<div class="form-group"><label class="form-label">Phone</label><input class="form-input" type="tel" id="apptPhone" placeholder="04xx xxx xxx"/></div>'+
-    '<div class="form-group"><label class="form-label">Interval (weeks)</label><input class="form-input" type="number" id="apptInterval" min="1" value="6"/></div>'+
+    '<div class="form-group"><label class="form-label">Every (weeks)</label><input class="form-input" type="number" id="apptInterval" min="1" value="6"/></div>'+
+    '<div class="form-group full"><label class="form-label">Booking link (optional)</label><input class="form-input" id="apptBookingUrl" placeholder="https://fresha.com/…"/></div>'+
+    '<div class="form-group full"><label class="form-label">Location (optional)</label><div style="position:relative"><input class="form-input loc-input" id="apptLocation" placeholder="Search for a location…" autocomplete="off" oninput="locSearch(this,\'apptLocation\',\'apptLocDrop\')"/><div class="loc-dropdown" id="apptLocDrop"></div></div></div>'+
     '</div>';
-  const ab=document.createElement('button');ab.className='add-btn';ab.textContent='+ Add';
+  const ab=document.createElement('button');
+  ab.style.cssText='font-size:.56rem;letter-spacing:.18em;text-transform:uppercase;background:var(--accent);'+
+    'color:#fff;border:none;border-radius:9px;padding:8px 20px;cursor:pointer;margin-top:10px;align-self:flex-end;';
+  ab.textContent='+ add';
   ab.onclick=function(){addAppointment(
     (document.getElementById('apptName')||{}).value||'',
     (document.getElementById('apptProvider')||{}).value||'',
     (document.getElementById('apptPhone')||{}).value||'',
     (document.getElementById('apptCompany')||{}).value||'',
-    (document.getElementById('apptInterval')||{}).value||6
-  );};
-  fc.querySelector('.form-grid').after(ab);
+    (document.getElementById('apptInterval')||{}).value||6,
+    (document.getElementById('apptLocation')||{}).value||'',
+    (document.getElementById('apptBookingUrl')||{}).value||'');};
+  fc.appendChild(ab);
   container.appendChild(fc);
-  if(!appointments.length){const em=document.createElement('div');em.className='empty-msg';em.textContent='No appointment types yet.';container.appendChild(em);return;}
-  const SC={none:'var(--muted)',booked:'var(--accent)',overdue:'#c05848','due-soon':'#c08040',ok:'var(--muted)'};
-  appointments.forEach(function(appt){
-    const st=getApptStatus(appt),col=SC[st.state]||'var(--muted)';
-    const last=appt.history&&appt.history.length?appt.history[appt.history.length-1]:null;
+
+  if(!appointments.length){
+    const em=document.createElement('div');em.className='empty-msg';
+    em.textContent='No appointment types yet.';container.appendChild(em);return;
+  }
+
+  const SC={none:'var(--muted)',booked:'var(--accent)',overdue:'var(--muted)','due-soon':'#c08040',ok:'var(--muted)'};
+
+  appointments.slice().sort(function(x,y){
+    const ord={overdue:0,'due-soon':1,none:2,ok:3,booked:4};
+    return (ord[getApptStatus(x).state]||9)-(ord[getApptStatus(y).state]||9);
+  }).forEach(function(appt){
+    const st=getApptStatus(appt), col=SC[st.state]||'var(--muted)';
+    const last=getLastAttended(appt);
+    const wasAuto=last&&(appt.autoDates||[]).indexOf(last)>=0;
+
     const card=document.createElement('div');card.className='card';card.style.marginBottom='10px';
-    const hdr=document.createElement('div');hdr.style.cssText='display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px;';
+    if(isApptSnoozed(appt))card.style.opacity='.6';
+
+    const hdr=document.createElement('div');
+    hdr.style.cssText='display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px;gap:10px;';
     const nb=document.createElement('div');
-    const ne=document.createElement('div');ne.style.cssText='font-size:.9rem;font-weight:200;color:var(--text);margin-bottom:2px;';ne.textContent=appt.name;nb.appendChild(ne);
-    if(appt.provider||appt.company){const s=document.createElement('div');s.style.cssText='font-size:.68rem;color:var(--muted);';s.textContent=[appt.provider,appt.company].filter(Boolean).join(' · ');nb.appendChild(s);}
-    const ac=document.createElement('div');ac.style.cssText='display:flex;gap:6px;align-items:center;';
-    if(appt.phone){
-      const ca=document.createElement('a');ca.href='tel:'+appt.phone;ca.style.cssText='font-size:.68rem;padding:4px 10px;border-radius:20px;border:1px solid var(--border);color:var(--text);text-decoration:none;';ca.textContent='Call';
-      const sa=document.createElement('a');sa.href='sms:'+appt.phone;sa.style.cssText='font-size:.68rem;padding:4px 10px;border-radius:20px;border:1px solid var(--accent);color:var(--accent);text-decoration:none;';sa.textContent='Text';
-      ac.appendChild(ca);ac.appendChild(sa);
+    const ne=document.createElement('div');
+    ne.style.cssText='font-size:.82rem;font-weight:200;color:var(--text);margin-bottom:2px;';
+    ne.textContent=appt.name; nb.appendChild(ne);
+    if(appt.provider||appt.company){
+      const s=document.createElement('div');
+      s.style.cssText='font-size:.62rem;color:var(--muted);';
+      s.textContent=[appt.provider,appt.company,appt.location].filter(Boolean).join(' · ');
+      nb.appendChild(s);
     }
-    const db2=document.createElement('button');db2.style.cssText='background:none;border:none;color:var(--muted);font-size:1rem;cursor:pointer;padding:2px 6px;';db2.textContent='×';
-    db2.onclick=(function(id){return function(){deleteAppointment(id);};})(appt.id);
-    ac.appendChild(db2);hdr.appendChild(nb);hdr.appendChild(ac);card.appendChild(hdr);
-    const pill=document.createElement('div');pill.style.cssText='display:inline-flex;align-items:center;gap:6px;font-size:.65rem;padding:3px 10px;border-radius:20px;border:1px solid '+(st.state==='overdue'?'rgba(192,88,72,.25)':'var(--border)')+';margin-bottom:10px;';
-    pill.innerHTML='<div style="width:6px;height:6px;border-radius:50%;background:'+col+';flex-shrink:0;"></div><span style="color:'+col+';">'+escHtml(st.label)+'</span>';
+    const ac=document.createElement('div');ac.style.cssText='display:flex;gap:6px;align-items:center;';
+    const rb=document.createElement('button');
+    rb.style.cssText='font-size:.56rem;letter-spacing:.16em;text-transform:uppercase;background:var(--accent);'+
+      'color:#fff;border:none;border-radius:20px;padding:5px 13px;cursor:pointer;';
+    rb.textContent=st.state==='booked'?'Re-book':'Book';
+    rb.onclick=(function(x){return function(){openRebook(x);};})(appt.id);
+    ac.appendChild(rb);
+    const db=document.createElement('button');db.className='delete-btn';db.textContent='×';
+    db.onclick=(function(x){return function(){deleteAppointment(x);};})(appt.id);
+    ac.appendChild(db);
+    hdr.appendChild(nb);hdr.appendChild(ac);card.appendChild(hdr);
+
+    const pill=document.createElement('div');
+    pill.style.cssText='display:inline-flex;align-items:center;gap:6px;font-size:.6rem;padding:3px 11px;'+
+      'border-radius:20px;border:1px solid var(--border);margin-bottom:10px;';
+    pill.innerHTML='<span style="width:5px;height:5px;border-radius:50%;background:'+col+';display:block;"></span>'+
+      '<span style="color:'+col+';">'+escHtml(st.label)+'</span>';
     card.appendChild(pill);
-    const ft=document.createElement('div');ft.style.cssText='display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;';
-    const ll=document.createElement('span');ll.style.cssText='font-size:.65rem;color:var(--muted);';ll.textContent=(last?'Last: '+formatDate(last):'Nothing logged')+' · every '+appt.intervalWeeks+'w';ft.appendChild(ll);
+
+    const ft=document.createElement('div');
+    ft.style.cssText='display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;';
+    const ll=document.createElement('span');
+    ll.style.cssText='font-size:.6rem;color:var(--muted);';
+    ll.textContent=(last?'Last visit '+formatDate(last)+(wasAuto?' (auto)':''):'Nothing logged')+' · every '+appt.intervalWeeks+'w';
+    ft.appendChild(ll);
+
     const lr=document.createElement('div');lr.style.cssText='display:flex;gap:6px;align-items:center;';
-    if(last){const ub=document.createElement('button');ub.style.cssText='font-size:.62rem;border:1px solid var(--border);border-radius:8px;padding:3px 8px;background:none;color:var(--muted);cursor:pointer;';ub.textContent='Undo';ub.onclick=(function(id){return function(){removeLastApptDate(id);};})(appt.id);lr.appendChild(ub);}
-    const di=document.createElement('input');di.type='date';di.value=today();di.style.cssText='font-size:.65rem;font-family:Urbanist,sans-serif;border:1px solid var(--border);border-radius:8px;padding:3px 8px;background:var(--row,#fff);color:var(--text);';lr.appendChild(di);
-    const lb=document.createElement('button');lb.style.cssText='font-size:.65rem;background:var(--accent);color:#fff;border:none;border-radius:8px;padding:4px 10px;cursor:pointer;';lb.textContent='Log date';
-    lb.onclick=(function(id,inp){return function(){logAppointmentDate(id,inp.value);};})(appt.id,di);lr.appendChild(lb);
-    ft.appendChild(lr);card.appendChild(ft);container.appendChild(card);
+    if(last){
+      const ub=document.createElement('button');
+      ub.style.cssText='font-size:.56rem;letter-spacing:.14em;text-transform:uppercase;border:1px solid var(--border);'+
+        'border-radius:8px;padding:4px 9px;background:none;color:var(--muted);cursor:pointer;';
+      ub.textContent=wasAuto?'Didn\u2019t go':'Undo';
+      ub.onclick=(function(x,d,auto){return function(){ auto?undoAttended(x,d):removeLastApptDate(x); };})(appt.id,last,wasAuto);
+      lr.appendChild(ub);
+    }
+    const di=document.createElement('input');di.type='date';di.value=today();
+    di.style.cssText='font-size:.6rem;font-family:Urbanist,sans-serif;border:1px solid var(--border);'+
+      'border-radius:8px;padding:4px 8px;background:var(--row,#fff);color:var(--text);';
+    lr.appendChild(di);
+    const lb=document.createElement('button');
+    lb.style.cssText='font-size:.56rem;letter-spacing:.14em;text-transform:uppercase;background:none;'+
+      'border:1px solid var(--accent);color:var(--accent);border-radius:8px;padding:4px 10px;cursor:pointer;';
+    lb.textContent='Log visit';
+    lb.onclick=(function(x,inp){return function(){logAppointmentDate(x,inp.value);};})(appt.id,di);
+    lr.appendChild(lb);
+    ft.appendChild(lr);card.appendChild(ft);
+    container.appendChild(card);
   });
 }
+
 
 (function(){var _TV='ce2-v1';if(localStorage.getItem('centre_themeVer')!==_TV){localStorage.removeItem('centre_theme');localStorage.setItem('centre_themeVer',_TV);}})();
 loadFromStorage();
@@ -13767,6 +14203,8 @@ if(typeof applyWorkMode==='function'){
 }
 applyModeTheme();
 updateFavicon();
+try{autoLogPassedBookings();}catch(e){}
+try{loadGoogleApiKey();}catch(e){}
 </script>
 
 </body>
