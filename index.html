@@ -971,7 +971,7 @@ body::after{content:'';position:fixed;left:0;right:0;bottom:0;height:60px;pointe
   <meta name="theme-color" id="centreThemeColor" content="#f8eeec">
 </head>
 <body>
-<!-- BUILD-GLACIER-C -->
+<!-- BUILD-BOOKING-EDIT -->
 
 <div class="app-header">
   <!-- DRAWER OVERLAY -->
@@ -2026,7 +2026,7 @@ body::after{content:'';position:fixed;left:0;right:0;bottom:0;height:60px;pointe
 
   <!-- ══════════════════════ -->
   <div class="page" id="page-settings">
-    <div id="buildStamp" style="font-family:'Urbanist',sans-serif;font-size:.5rem;letter-spacing:.1em;color:var(--muted);opacity:.4;text-align:center;padding:4px;">BUILD-GLACIER-C</div>
+    <div id="buildStamp" style="font-family:'Urbanist',sans-serif;font-size:.5rem;letter-spacing:.1em;color:var(--muted);opacity:.4;text-align:center;padding:4px;">BUILD-BOOKING-EDIT</div>
     <div class="card">
 
       <!-- HANDWRITING -->
@@ -5950,8 +5950,13 @@ function overviewApptStripHtml(){
       '<span style="width:5px;height:5px;border-radius:50%;background:'+col+';flex-shrink:0;display:block;"></span>'+
       '<span style="flex:1;">'+escHtml(o.a.name)+'</span>'+
       '<span style="font-size:.58rem;color:'+col+';white-space:nowrap;">'+(o.kind==='booked'?'Booked':'Due')+'</span>'+
-      '<button onclick="event.stopPropagation();openRebook(\''+o.a.id+'\')" style="font-size:.52rem;letter-spacing:.14em;text-transform:uppercase;background:none;border:1px solid var(--border);border-radius:20px;padding:3px 10px;margin-left:6px;cursor:pointer;color:var(--muted);white-space:nowrap;">'+
-        (o.kind==='booked'?'Change':'Book')+'</button>'+
+      (function(){
+        if(o.kind==='booked'){
+          const bk=getApptBookings(o.a).filter(function(ev){return ev.date===vd;})[0];
+          if(bk) return '<button onclick="event.stopPropagation();editApptBooking(\''+bk.id+'\')" style="font-size:.52rem;letter-spacing:.14em;text-transform:uppercase;background:none;border:1px solid var(--border);border-radius:20px;padding:3px 10px;margin-left:6px;cursor:pointer;color:var(--muted);white-space:nowrap;">Edit</button>';
+        }
+        return '<button onclick="event.stopPropagation();openRebook(\''+o.a.id+'\')" style="font-size:.52rem;letter-spacing:.14em;text-transform:uppercase;background:none;border:1px solid var(--border);border-radius:20px;padding:3px 10px;margin-left:6px;cursor:pointer;color:var(--muted);white-space:nowrap;">Book</button>';
+      })()+
     '</div>';
   }).join('');
   return '<div style="height:1px;background:var(--border);margin:14px 0 12px;"></div>'+
@@ -12423,7 +12428,7 @@ function addAppointment(name,provider,phone,company,intervalWeeks,location,booki
 }
 
 function deleteAppointment(id){
-  if(!confirm('Remove this appointment type? Its bookings stay on your calendar.'))return;
+  if(!confirm('Delete the whole "'+ (appointments.find(function(x){return x.id===id;})||{}).name +'" appointment type?\n\nIndividual bookings can be deleted separately from the card.'))return;
   appointments=appointments.filter(function(a){return a.id!==id;});
   scheduleSave(); renderAppointments();
 }
@@ -12500,6 +12505,44 @@ function openRebook(id){
 }
 
 // ── Render ────────────────────────────────────────────────
+// ── Booking management (individual occurrences) ───────────
+function getApptBookings(a){
+  return events.filter(function(ev){return ev.apptId===a.id;})
+               .sort(function(x,y){return (x.date||'').localeCompare(y.date||'');});
+}
+
+function editApptBooking(evId){
+  const ev=events.find(function(e){return e.id===evId;});
+  if(!ev)return;
+  if(typeof openOccurrenceModal==='function'){ openOccurrenceModal(evId, ev.date); return; }
+  const ds=prompt('New date (YYYY-MM-DD):', ev.date);
+  if(ds){ ev.date=ds; scheduleSave(); renderAppointments(); }
+}
+
+function deleteApptBooking(evId){
+  const ev=events.find(function(e){return e.id===evId;});
+  if(!ev)return;
+  if(!confirm('Delete this booking? The appointment type stays.'))return;
+  events=events.filter(function(e){return e.id!==evId;});
+  scheduleSave(); renderAppointments();
+  try{renderPlannerPage();}catch(e){}
+  try{renderAllOverviewForDate();}catch(e){}
+}
+
+function toggleApptHistory(id){
+  const el=document.getElementById('apptHist-'+id);
+  if(el) el.style.display = (el.style.display==='none'||!el.style.display) ? 'block' : 'none';
+}
+
+function removeApptVisit(id,ds){
+  const a=appointments.find(function(x){return x.id===id;}); if(!a)return;
+  if(!confirm('Remove the visit logged on '+formatDate(ds)+'?'))return;
+  a.history=(a.history||[]).filter(function(d){return d!==ds;});
+  a.autoDates=(a.autoDates||[]).filter(function(d){return d!==ds;});
+  events=events.filter(function(ev){return !(ev.apptId===id&&ev.date===ds);});
+  scheduleSave(); renderAppointments();
+}
+
 function renderAppointments(){
   const container=document.getElementById('apptsContainer');
   if(!container)return;
@@ -12640,6 +12683,59 @@ function renderAppointments(){
     lb.onclick=(function(x,inp){return function(){logAppointmentDate(x,inp.value);};})(appt.id,di);
     lr.appendChild(lb);
     ft.appendChild(lr);card.appendChild(ft);
+
+    // ── Bookings & visit history ──
+    const bookings=getApptBookings(appt).filter(function(ev){return ev.date>=today();});
+    const past=(appt.history||[]).slice().reverse();
+    if(bookings.length||past.length){
+      const more=document.createElement('div');
+      more.style.cssText='margin-top:10px;padding-top:9px;border-top:1px solid var(--border);';
+
+      bookings.forEach(function(ev){
+        const row=document.createElement('div');
+        row.style.cssText='display:flex;align-items:center;gap:8px;padding:3px 0;';
+        const lbl=document.createElement('span');
+        lbl.style.cssText='flex:1;font-size:.62rem;color:var(--muted);';
+        lbl.textContent='Booked '+formatDate(ev.date)+(ev.time?' · '+fmtTimeStr(ev.time):'');
+        const ed=document.createElement('button');
+        ed.style.cssText='font-size:.52rem;letter-spacing:.14em;text-transform:uppercase;background:none;border:1px solid var(--border);border-radius:8px;padding:3px 9px;cursor:pointer;color:var(--muted);';
+        ed.textContent='Edit';
+        ed.onclick=(function(x){return function(){editApptBooking(x);};})(ev.id);
+        const dl=document.createElement('button');
+        dl.style.cssText='background:none;border:none;color:var(--muted);opacity:.55;font-size:.9rem;cursor:pointer;padding:0 4px;line-height:1;';
+        dl.textContent='×'; dl.title='Delete this booking';
+        dl.onclick=(function(x){return function(){deleteApptBooking(x);};})(ev.id);
+        row.appendChild(lbl);row.appendChild(ed);row.appendChild(dl);
+        more.appendChild(row);
+      });
+
+      if(past.length){
+        const tog=document.createElement('button');
+        tog.style.cssText='font-size:.52rem;letter-spacing:.14em;text-transform:uppercase;background:none;border:none;color:var(--muted);opacity:.7;cursor:pointer;padding:4px 0;';
+        tog.textContent='Visit history ('+past.length+')';
+        tog.onclick=(function(x){return function(){toggleApptHistory(x);};})(appt.id);
+        more.appendChild(tog);
+
+        const hist=document.createElement('div');
+        hist.id='apptHist-'+appt.id; hist.style.display='none';
+        past.forEach(function(ds){
+          const hr=document.createElement('div');
+          hr.style.cssText='display:flex;align-items:center;gap:8px;padding:2px 0;';
+          const hl=document.createElement('span');
+          hl.style.cssText='flex:1;font-size:.6rem;color:var(--muted);opacity:.8;';
+          hl.textContent=formatDate(ds)+(((appt.autoDates||[]).indexOf(ds)>=0)?' (auto)':'');
+          const hx=document.createElement('button');
+          hx.style.cssText='background:none;border:none;color:var(--muted);opacity:.5;font-size:.85rem;cursor:pointer;padding:0 4px;line-height:1;';
+          hx.textContent='×'; hx.title='Remove this visit';
+          hx.onclick=(function(x,dd){return function(){removeApptVisit(x,dd);};})(appt.id,ds);
+          hr.appendChild(hl);hr.appendChild(hx);
+          hist.appendChild(hr);
+        });
+        more.appendChild(hist);
+      }
+      card.appendChild(more);
+    }
+
     container.appendChild(card);
   });
 }
