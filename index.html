@@ -960,6 +960,90 @@ body::after{content:'';position:fixed;left:0;right:0;bottom:0;height:60px;pointe
 .subtask-del:hover{opacity:1;color:#c05848;}
 
 .appt-ghost{font-style:italic;letter-spacing:.02em;}
+
+/* ══════════════ TV DISPLAY MODE ══════════════ */
+body.tv-mode{padding:0!important;margin:0!important;background:var(--tv-bg)!important;overflow:hidden;}
+#tvRoot{
+  position:fixed;inset:0;background:var(--tv-bg);color:var(--tv-text);
+  font-family:'Urbanist',sans-serif;
+  padding:2vw 2.4vw 1.6vw;display:flex;flex-direction:column;
+  transition:transform 2s ease;
+}
+#tvRoot .tv-lbl{font-size:.76vw;letter-spacing:.32em;text-transform:uppercase;color:var(--tv-muted);font-weight:300;}
+#tvRoot .tv-dot{width:.46vw;height:.46vw;border-radius:50%;flex-shrink:0;display:inline-block;}
+#tvRoot .tv-rule{height:.07vw;background:var(--tv-line);width:100%;margin-bottom:1.3vw;}
+#tvRoot svg{vertical-align:middle;}
+
+#tvRoot .tv-hd{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:1.4vw;}
+#tvRoot .tv-hd-day{font-size:1vw;font-weight:200;letter-spacing:.34em;text-transform:uppercase;color:var(--tv-muted);margin-bottom:.35vw;}
+#tvRoot .tv-hd-date{font-size:3.9vw;font-weight:100;letter-spacing:.02em;line-height:.95;}
+#tvRoot .tv-hd-wx{display:flex;align-items:center;gap:1.2vw;}
+#tvRoot .tv-hd-temp{font-size:3.9vw;font-weight:100;line-height:.95;}
+#tvRoot .tv-hd-meta{text-align:right;font-size:.88vw;font-weight:200;color:var(--tv-muted);line-height:1.6;}
+#tvRoot .tv-hd-cond{font-size:1.08vw;font-weight:200;color:var(--tv-text);}
+
+#tvRoot .tv-body{display:grid;grid-template-columns:1fr 1.45fr 1.12fr;gap:2vw;flex:1;min-height:0;overflow:hidden;}
+#tvRoot .tv-col{display:flex;flex-direction:column;min-height:0;overflow:hidden;}
+#tvRoot .tv-col + .tv-col{padding-left:2vw;border-left:.07vw solid var(--tv-line-soft);}
+
+#tvRoot .tv-ev{display:flex;flex-direction:column;gap:.62vw;margin-top:.85vw;}
+#tvRoot .tv-ev-row{display:flex;align-items:baseline;gap:.75vw;}
+#tvRoot .tv-ev-t{font-size:.96vw;font-weight:300;color:var(--tv-accent);min-width:4.1vw;}
+#tvRoot .tv-ev-n{font-size:1.24vw;font-weight:200;line-height:1.28;}
+#tvRoot .tv-ev-sm{font-size:1.04vw;}
+
+#tvRoot .tv-blk{margin-bottom:.88vw;}
+#tvRoot .tv-blk-h{display:flex;align-items:center;gap:.65vw;margin-bottom:.4vw;}
+#tvRoot .tv-blk-n{font-size:.8vw;letter-spacing:.26em;text-transform:uppercase;font-weight:300;color:var(--tv-muted);}
+#tvRoot .tv-blk-now .tv-blk-n{color:var(--tv-accent);font-weight:400;}
+#tvRoot .tv-blk-t{font-size:.68vw;font-weight:200;color:var(--tv-muted);opacity:.62;}
+#tvRoot .tv-blk-wx{margin-left:auto;display:flex;align-items:center;gap:.4vw;font-size:.76vw;font-weight:200;color:var(--tv-muted);}
+#tvRoot .tv-rain{color:var(--tv-cool);}
+#tvRoot .tv-task{display:flex;align-items:center;gap:.68vw;padding:.4vw 0 .4vw .1vw;
+  font-size:1.14vw;font-weight:200;border-bottom:.06vw solid var(--tv-line-soft);}
+#tvRoot .tv-task:last-child{border-bottom:none;}
+#tvRoot .tv-task.tv-done{opacity:.34;text-decoration:line-through;}
+#tvRoot .tv-task-d{margin-left:auto;font-size:.78vw;color:var(--tv-muted);}
+#tvRoot .tv-empty{font-size:.8vw;color:var(--tv-muted);opacity:.38;padding:.1vw 0 .4vw;font-style:italic;}
+
+#tvRoot .tv-wx-stats{display:grid;grid-template-columns:1fr 1fr;gap:.9vw .7vw;margin-top:.9vw;}
+#tvRoot .tv-wx-s{display:flex;flex-direction:column;gap:.08vw;}
+#tvRoot .tv-wx-k{font-size:.64vw;letter-spacing:.2em;text-transform:uppercase;color:var(--tv-muted);font-weight:300;}
+#tvRoot .tv-wx-v{font-size:1.2vw;font-weight:200;}
+#tvRoot .tv-wx-v small{font-size:.7vw;color:var(--tv-muted);}
+#tvRoot .tv-hrs{display:flex;justify-content:space-between;margin:1vw 0 .9vw;padding:.85vw 0;
+  border-top:.07vw solid var(--tv-line);border-bottom:.07vw solid var(--tv-line);}
+#tvRoot .tv-hr{display:flex;flex-direction:column;align-items:center;gap:.26vw;flex:1;}
+#tvRoot .tv-hr-t{font-size:.66vw;color:var(--tv-muted);font-weight:300;letter-spacing:.06em;}
+#tvRoot .tv-hr-ic{line-height:1;}
+#tvRoot .tv-hr-v{font-size:1.02vw;font-weight:200;}
+#tvRoot .tv-hr-r{font-size:.6vw;color:var(--tv-cool);font-weight:300;min-height:.75vw;}
+#tvRoot .tv-sun{display:flex;justify-content:space-between;font-size:.8vw;font-weight:200;color:var(--tv-muted);}
+
+#tvRoot .tv-days{display:flex;flex-direction:column;gap:.44vw;margin-top:.8vw;}
+#tvRoot .tv-day{display:flex;align-items:center;gap:.65vw;font-size:.92vw;font-weight:200;}
+#tvRoot .tv-day-n{width:2.4vw;color:var(--tv-muted);letter-spacing:.12em;text-transform:uppercase;font-size:.7vw;font-weight:300;}
+#tvRoot .tv-day-ic{width:1.2vw;text-align:center;}
+#tvRoot .tv-day-bar{flex:1;height:.22vw;background:var(--tv-line);border-radius:1vw;position:relative;overflow:hidden;}
+#tvRoot .tv-day-fill{position:absolute;height:100%;border-radius:1vw;background:linear-gradient(90deg,var(--tv-cool),var(--tv-accent));}
+#tvRoot .tv-day-hl{font-size:.82vw;color:var(--tv-muted);min-width:3.2vw;text-align:right;}
+
+#tvRoot .tv-wk{margin-top:1.3vw;padding-top:1.1vw;border-top:.07vw solid var(--tv-line);}
+#tvRoot .tv-wk-hd{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:.75vw;}
+#tvRoot .tv-wk-range{font-size:.8vw;font-weight:200;color:var(--tv-muted);}
+#tvRoot .tv-wk-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:1.1vw;}
+#tvRoot .tv-wk-col{display:flex;flex-direction:column;gap:.3vw;padding-right:1.1vw;border-right:.06vw solid var(--tv-line-soft);}
+#tvRoot .tv-wk-col:last-child{border-right:none;padding-right:0;}
+#tvRoot .tv-wk-top{display:flex;align-items:baseline;gap:.5vw;margin-bottom:.32vw;}
+#tvRoot .tv-wk-dn{font-size:.68vw;letter-spacing:.2em;text-transform:uppercase;color:var(--tv-muted);font-weight:300;}
+#tvRoot .tv-wk-dd{font-size:1.5vw;font-weight:100;line-height:1;}
+#tvRoot .tv-wk-wx{margin-left:auto;font-size:.66vw;color:var(--tv-muted);font-weight:200;display:flex;align-items:center;gap:.2vw;}
+#tvRoot .tv-wk-col.tv-today .tv-wk-dd{color:var(--tv-accent);font-weight:300;}
+#tvRoot .tv-wk-col.tv-today .tv-wk-dn{color:var(--tv-accent);}
+#tvRoot .tv-wk-item{font-size:.82vw;font-weight:200;line-height:1.35;display:flex;align-items:baseline;gap:.38vw;}
+#tvRoot .tv-wk-item .tv-dot{width:.32vw;height:.32vw;align-self:center;}
+#tvRoot .tv-wk-none{font-size:.72vw;color:var(--tv-muted);opacity:.32;font-style:italic;}
+
 </style>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -971,7 +1055,7 @@ body::after{content:'';position:fixed;left:0;right:0;bottom:0;height:60px;pointe
   <meta name="theme-color" id="centreThemeColor" content="#f8eeec">
 </head>
 <body>
-<!-- BUILD-BOOKING-EDIT -->
+<!-- BUILD-CAST-RECIPE -->
 
 <div class="app-header">
   <!-- DRAWER OVERLAY -->
@@ -1247,6 +1331,16 @@ body::after{content:'';position:fixed;left:0;right:0;bottom:0;height:60px;pointe
           </div>
           <div class="form-group"><label class="form-label">Duration (mins)</label>
             <input class="form-input" type="number" id="tDur" min="1" placeholder="e.g. 30" oninput="tUpdSummaries()"/>
+          </div>
+          <div class="form-group"><label class="form-label">Schedule into</label>
+            <select class="form-select" id="tBlock">
+              <option value="">Auto — best fit</option>
+              <option value="sunrise">Sunrise · 7–9am</option>
+              <option value="morning">Morning · 9am–12pm</option>
+              <option value="service">Service · 12–4pm</option>
+              <option value="closing">Closing Shift · 4–8pm</option>
+              <option value="winddown">Wind Down · 8–10pm</option>
+            </select>
           </div>
         </div>
         <div class="form-group" id="tStartDateGroup" style="display:none;margin-bottom:10px;">
@@ -2026,8 +2120,20 @@ body::after{content:'';position:fixed;left:0;right:0;bottom:0;height:60px;pointe
 
   <!-- ══════════════════════ -->
   <div class="page" id="page-settings">
-    <div id="buildStamp" style="font-family:'Urbanist',sans-serif;font-size:.5rem;letter-spacing:.1em;color:var(--muted);opacity:.4;text-align:center;padding:4px;">BUILD-BOOKING-EDIT</div>
+    <div id="buildStamp" style="font-family:'Urbanist',sans-serif;font-size:.5rem;letter-spacing:.1em;color:var(--muted);opacity:.4;text-align:center;padding:4px;">BUILD-CAST-RECIPE</div>
     <div class="card">
+
+      <!-- DISPLAY ON TV -->
+      <div class="settings-section" style="margin-bottom:24px;">
+        <div class="settings-section-title">Display on TV</div>
+        <p style="font-size:.78rem;color:var(--muted);font-family:'Urbanist',sans-serif;margin-bottom:12px;line-height:1.6;">A read-only dashboard for a big screen — today's events, schedule, weather and the week. Updates live.</p>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;">
+          <button onclick="centreCast()" id="castBtn" style="font-family:'Urbanist',sans-serif;font-weight:200;font-size:.6rem;letter-spacing:.16em;text-transform:uppercase;background:var(--accent);color:var(--on-accent,#fff);border:none;border-radius:9px;padding:9px 18px;cursor:pointer;">Cast to TV</button>
+          <button onclick="openTvView()" style="font-family:'Urbanist',sans-serif;font-weight:200;font-size:.6rem;letter-spacing:.16em;text-transform:uppercase;background:none;color:var(--muted);border:1.5px solid var(--border);border-radius:9px;padding:9px 18px;cursor:pointer;">Open TV view</button>
+          <button onclick="copyTvUrl()" id="copyTvBtn" style="font-family:'Urbanist',sans-serif;font-weight:200;font-size:.6rem;letter-spacing:.16em;text-transform:uppercase;background:none;color:var(--muted);border:1.5px solid var(--border);border-radius:9px;padding:9px 18px;cursor:pointer;">Copy link</button>
+        </div>
+        <div id="castNote" style="font-size:.7rem;color:var(--muted);font-family:'Urbanist',sans-serif;line-height:1.6;min-height:18px;"></div>
+      </div>
 
       <!-- HANDWRITING -->
       <div class="settings-section" style="margin-bottom:24px;">
@@ -3801,7 +3907,7 @@ function showPage(p,btn){
   if(p==='health')renderMeds();
   if(p==='meals'){document.getElementById('mealFilterDate').value=today();document.getElementById('mealDate').value=today();
 const _mdi=document.getElementById('metricDate');if(_mdi)_mdi.value=today();const _md=document.getElementById('metricDate');if(_md&&!_md.value)_md.value=today();const mte=document.getElementById('mealType');if(mte)mte.value=smartMealType();renderCatSelects();renderMealLog();renderSuppGrid();populateLogRcpList();if(document.getElementById('nutriHabitCard'))renderNutriHabitCard();}
-  if(p==='settings'){renderSchemePicker();renderModeSchemePickers();buildSettings();buildNutriColourGrid();loadGoogleApiKey();loadUsdaApiKey();loadAnthropicKey();loadAiUrl();renderWater();renderMilestoneChips();applyWorkMode();
+  if(p==='settings'){initCastUI();renderSchemePicker();renderModeSchemePickers();buildSettings();buildNutriColourGrid();loadGoogleApiKey();loadUsdaApiKey();loadAnthropicKey();loadAiUrl();renderWater();renderMilestoneChips();applyWorkMode();
     // Restore nutrition accordion state
     setTimeout(()=>{
       const body=document.getElementById('nutriAccordionBody');
@@ -4138,6 +4244,12 @@ function renderHabits(){
   const container=document.getElementById('habitCards');
   const empty=document.getElementById('habitEmpty');
   const summary=document.getElementById('habitSummary');
+  // Legacy targets — the habits page now renders via renderHabitsDashboard().
+  // Without this guard every caller (saveTask, removeTaskHabit) threw.
+  if(!container||!empty||!summary){
+    try{ if(typeof renderHabitsDashboard==='function') renderHabitsDashboard(); }catch(e){}
+    return;
+  }
   if(!hts.length){container.innerHTML='';empty.style.display='block';summary.textContent='';return;}
   empty.style.display='none';
   const todayDone=hts.filter(t=>{
@@ -4278,11 +4390,12 @@ function addTask(){
   const due=document.getElementById('tDueDate')?.value||'';
   const dur=parseInt(document.getElementById('tDur')?.value)||0;
   const catId=document.getElementById('tCat')?.value||'';
+  const preferredBlock=document.getElementById('tBlock')?.value||'';
 
   const startDate = document.getElementById('tStartDate')?.value || '';
   const _tWaiting = document.getElementById('tWaiting')?.checked || false;
   tasks.push({
-    id:newId,_created:Date.now(),name,notes,catId,dur,due,
+    id:newId,_created:Date.now(),name,notes,catId,dur,due,preferredBlock,
     startDate: startDate || null,
     done:false,
     waiting: _tWaiting,
@@ -4310,6 +4423,7 @@ function addTask(){
   document.getElementById('tName').value='';
   document.getElementById('tDueDate').value='';
   document.getElementById('tDur').value='';
+  const _tb=document.getElementById('tBlock'); if(_tb)_tb.value='';
   tResetAccordionForm();
   _newTaskMilestones = []; renderHabitMilestoneList();
   scheduleSave();renderTasks();
@@ -4498,6 +4612,13 @@ function saveTask(id){
   t.due=document.getElementById('edue-'+id).value;
   t.dur=parseInt(document.getElementById('edur-'+id).value)||0;
   t.catId=document.getElementById('ecat-'+id).value;
+  const _eb=document.getElementById('eblock-'+id);
+  if(_eb){
+    const wasBlock=t.preferredBlock||'';
+    t.preferredBlock=_eb.value||'';
+    // Clearing old auto-stamped pins lets the new preference take effect immediately
+    if(t.preferredBlock!==wasBlock) t.blockPins={};
+  }
   const waitingFor=document.getElementById('ewaiting-'+id);
   t.waitingFor=waitingFor?waitingFor.value.trim():'';
   t.status=t.waitingFor?'waiting':'';
@@ -4993,6 +5114,12 @@ function renderTasks(){
         <div class="form-group full"><label class="form-label">Notes</label><textarea class="form-input" id="enotes-${t.id}" rows="2" style="resize:vertical;">${escHtml(t.notes||'')}</textarea></div>
         <div class="form-group"><label class="form-label">Due date</label><input class="form-input" type="date" id="edue-${t.id}" value="${t.due||''}"/></div>
         <div class="form-group"><label class="form-label">Duration (mins)</label><input class="form-input" type="number" id="edur-${t.id}" value="${t.dur||''}" min="1"/></div>
+        <div class="form-group"><label class="form-label">Schedule into</label>
+          <select class="form-select" id="eblock-${t.id}">
+            <option value="" ${!t.preferredBlock?'selected':''}>Auto — best fit</option>
+            ${TIME_BLOCKS.map(b=>`<option value="${b.id}" ${t.preferredBlock===b.id?'selected':''}>${escHtml(b.label)}</option>`).join('')}
+          </select>
+        </div>
         <div class="form-group full"><label class="form-label">Category</label>
           <select class="form-select" id="ecat-${t.id}">
             <option value="" ${!t.catId?'selected':''}>— none —</option>
@@ -6067,7 +6194,11 @@ function assignBlocks(tl, viewDate){
     if(pin&&TIME_BLOCKS.find(b=>b.id===pin)){
       asgn[pin].push(t);bl[pin]+=dur;return;
     }
-    // 2. Keyword hint in task notes
+    // 2. Standing block preference set on the task
+    if(t.preferredBlock&&TIME_BLOCKS.find(b=>b.id===t.preferredBlock)){
+      asgn[t.preferredBlock].push(t);bl[t.preferredBlock]+=dur;return;
+    }
+    // 3. Keyword hint in task notes
     const hint=noteBlockHint(t.notes, t.name);
     if(hint&&TIME_BLOCKS.find(b=>b.id===hint)){
       asgn[hint].push(t);bl[hint]+=dur;return;
@@ -7931,7 +8062,7 @@ function renderRecipeList(){
         <div style="display:flex;gap:5px;flex-shrink:0;align-items:center;flex-wrap:wrap;justify-content:flex-end;">
           <input type="number" id="lsrv-${r.id}" value="1" min="0.5" step="0.5" title="Servings"
             style="width:44px;font-family:var(--font-body);font-size:.78rem;border:1.5px solid var(--border);border-radius:7px;padding:4px 5px;background:var(--card);color:var(--text);text-align:center;outline:none;">
-          <button id="logBtn-${r.id}" style="font-size:.72rem;padding:4px 10px;border:1.5px solid var(--accent);border-radius:8px;background:none;color:var(--accent);cursor:pointer;white-space:nowrap;" onclick="(function(){const sv=parseFloat(document.getElementById('lsrv-'+r.id)?.value)||1;logFromRecipe(r.id,sv);})()">Log</button>
+          <button id="logBtn-${r.id}" style="font-size:.72rem;padding:4px 10px;border:1.5px solid var(--accent);border-radius:8px;background:none;color:var(--accent);cursor:pointer;white-space:nowrap;" onclick="(function(){const sv=parseFloat(document.getElementById('lsrv-${r.id}')?.value)||1;logFromRecipe('${r.id}',sv);})()">Log</button>
           ${r.ingredients?`<button style="font-size:.72rem;padding:4px 10px;border:1.5px solid var(--border);border-radius:8px;background:none;color:var(--muted);cursor:pointer;white-space:nowrap;" onclick="addRecipeToGrocery('${r.id}')">+ Grocery</button>`:''}
           <button style="font-size:.72rem;padding:4px 8px;border:1.5px solid var(--border);border-radius:8px;background:none;color:var(--muted);cursor:pointer;" onclick="toggleRecipeDetail('${r.id}')">↓</button>
           <button class="delete-btn" onclick="deleteRecipe('${r.id}')">×</button>
@@ -10528,6 +10659,7 @@ function applyRemoteData(remote) {
   }
   // Hide Centre banner — sync successful
   fbSetStatus(true, 'Connected — live sync active');
+  try{ if(typeof isTvMode==="function"&&isTvMode()) renderTV(); }catch(e){}
 }
 
 // ---- SYNC TOKEN (passphrase-based path security) ----
@@ -14308,6 +14440,359 @@ function updateFavicon(){
     }
   }catch(e){}
 }
+// ══════════════════ TV DISPLAY MODE (?tv=1) ══════════════════
+function isTvMode(){ try{ return /[?&]tv=1/.test(location.search); }catch(e){ return false; } }
+
+function _tvHex(h){ h=(h||'').trim().replace('#',''); if(h.length===3)h=h[0]+h[0]+h[1]+h[1]+h[2]+h[2];
+  return [parseInt(h.slice(0,2),16)||0,parseInt(h.slice(2,4),16)||0,parseInt(h.slice(4,6),16)||0]; }
+function _tvRgb(r,g,b){ return '#'+[r,g,b].map(function(x){return Math.max(0,Math.min(255,Math.round(x))).toString(16).padStart(2,'0');}).join(''); }
+function _tvShade(hex,amt){ const c=_tvHex(hex); return _tvRgb(c[0]+amt,c[1]+amt,c[2]+amt); }
+function _tvSat(hex,f){ const c=_tvHex(hex); const l=(c[0]+c[1]+c[2])/3;
+  return _tvRgb(l+(c[0]-l)*f, l+(c[1]-l)*f, l+(c[2]-l)*f); }
+
+// Lift the active scheme for a bright TV panel: deeper text, stronger accent, cleaner ground
+function applyTvPalette(){
+  const cs=getComputedStyle(document.documentElement);
+  const g=function(v,d){ const x=cs.getPropertyValue(v).trim(); return x||d; };
+  const bg=g('--bg','#f8eeec'), accent=g('--accent','#d4607a');
+  const text=g('--text','#2a1e1a'), muted=g('--muted','#b88878'), border=g('--border','#f5e0db');
+  const r=document.documentElement;
+  r.style.setProperty('--tv-bg',    _tvShade(bg, 8));
+  r.style.setProperty('--tv-accent',_tvSat(_tvShade(accent,-24), 1.12));
+  r.style.setProperty('--tv-text',  _tvShade(text,-14));
+  r.style.setProperty('--tv-muted', _tvShade(muted,-42));
+  r.style.setProperty('--tv-line',  _tvShade(border,-14));
+  r.style.setProperty('--tv-line-soft', _tvShade(border,-4));
+  r.style.setProperty('--tv-cool', '#4f7f9c');
+  r.style.setProperty('--tv-warn', '#b8681c');
+}
+
+function _tvHourIdx(h){ return h; }
+function _tvAvg(arr,a,b){ if(!arr)return null; let s=0,n=0;
+  for(let i=a;i<b&&i<arr.length;i++){ if(typeof arr[i]==='number'){s+=arr[i];n++;} }
+  return n?Math.round(s/n):null; }
+function _tvMax(arr,a,b){ if(!arr)return null; let m=null;
+  for(let i=a;i<b&&i<arr.length;i++){ if(typeof arr[i]==='number'&&(m===null||arr[i]>m))m=arr[i]; }
+  return m===null?null:Math.round(m); }
+function _tvTime(iso){ if(!iso)return ''; const d=new Date(iso);
+  let h=d.getHours(); const m=d.getMinutes(); const ap=h>=12?'pm':'am';
+  h=h>12?h-12:(h===0?12:h); return h+':'+String(m).padStart(2,'0')+ap; }
+function _tvHrLabel(h){ const ap=h>=12?'pm':'am'; const x=h>12?h-12:(h===0?12:h); return x+ap; }
+
+function _tvMondayWeek(){
+  const n=new Date(); const dow=(n.getDay()+6)%7;
+  const mon=new Date(n); mon.setDate(n.getDate()-dow);
+  return Array.from({length:7},function(_,i){ const d=new Date(mon); d.setDate(mon.getDate()+i); return d; });
+}
+
+function _tvEventsOn(ds){
+  return events.filter(function(ev){
+    if(!occursOn(ev,ds))return false;
+    if(typeof catIsVisibleInMode==='function'&&!catIsVisibleInMode(ev.catId))return false;
+    if(typeof getEffectiveOccurrence==='function'){
+      const o=getEffectiveOccurrence(ev,ds); if(o&&o.cancelled)return false;
+    }
+    return true;
+  }).sort(function(a,b){ return (a.time||'99').localeCompare(b.time||'99'); });
+}
+
+function _tvApptsDue(){
+  if(typeof appointments==='undefined'||!appointments.length)return [];
+  const t=today(); const out=[];
+  appointments.forEach(function(a){
+    if(typeof isApptSnoozed==='function'&&isApptSnoozed(a))return;
+    const st=getApptStatus(a);
+    if(st.state==='booked'&&st.date){
+      const dd=Math.round((new Date(st.date+'T00:00:00')-new Date(t+'T00:00:00'))/86400000);
+      if(dd<=14) out.push({a:a,st:st,kind:'booked',days:dd});
+      return;
+    }
+    if(st.date){
+      const dd=Math.round((new Date(st.date+'T00:00:00')-new Date(t+'T00:00:00'))/86400000);
+      if(dd<=21) out.push({a:a,st:st,kind:'due',days:dd});
+    }
+  });
+  out.sort(function(x,y){ return x.days-y.days; });
+  return out.slice(0,4);
+}
+
+async function renderTV(){
+  const root=document.getElementById('tvRoot'); if(!root)return;
+  applyTvPalette();
+  const t=today();
+  const now=new Date();
+  const E=(typeof escHtml==='function')?escHtml:function(s){return s;};
+
+  let wx=null; try{ wx=await fetchWeather(); }catch(e){}
+  const H=wx&&wx.hourly?wx.hourly:null;
+  const D=wx&&wx.daily?wx.daily:null;
+
+  const curH=now.getHours();
+  const curTemp = H?_tvAvg(H.temperature_2m,curH,curH+1):null;
+  const feels   = H?_tvAvg(H.apparent_temperature,curH,curH+1):null;
+  const rainNow = H?_tvMax(H.precipitation_probability,curH,curH+3):null;
+  const uvMax   = D&&D.uv_index_max?Math.round(D.uv_index_max[0]):null;
+  const wind    = H?_tvAvg(H.windspeed_10m,curH,curH+1):null;
+  const hi=D&&D.temperature_2m_max?Math.round(D.temperature_2m_max[0]):null;
+  const lo=D&&D.temperature_2m_min?Math.round(D.temperature_2m_min[0]):null;
+  const codeNow=H&&H.weathercode?H.weathercode[curH]:0;
+  const WCODE={0:'Clear',1:'Mostly clear',2:'Partly cloudy',3:'Overcast',45:'Fog',48:'Fog',
+    51:'Light drizzle',53:'Drizzle',55:'Drizzle',61:'Light rain',63:'Rain',65:'Heavy rain',
+    71:'Snow',73:'Snow',75:'Snow',80:'Showers',81:'Showers',82:'Heavy showers',
+    95:'Storms',96:'Storms',99:'Storms'};
+  const condTxt=WCODE[codeNow]||'';
+
+  // ── header ──
+  const head=
+    '<div class="tv-hd">'+
+      '<div>'+
+        '<div class="tv-hd-day">'+now.toLocaleDateString('en-AU',{weekday:'long'})+'</div>'+
+        '<div class="tv-hd-date">'+now.toLocaleDateString('en-AU',{day:'numeric',month:'long'})+'</div>'+
+      '</div>'+
+      '<div class="tv-hd-wx">'+
+        '<div class="tv-hd-meta">'+
+          (condTxt?'<div class="tv-hd-cond">'+condTxt+'</div>':'')+
+          (feels!==null?'<div>Feels '+feels+'°</div>':'')+
+          ((hi!==null&&lo!==null)?'<div>&uarr; '+hi+'°&nbsp;&nbsp;&darr; '+lo+'°</div>':'')+
+        '</div>'+
+        (curTemp!==null?'<div class="tv-hd-temp">'+curTemp+'°</div>':'')+
+      '</div>'+
+    '</div><div class="tv-rule"></div>';
+
+  // ── left: events + appointments ──
+  const evs=_tvEventsOn(t);
+  let left='<div class="tv-lbl">Today</div><div class="tv-ev">';
+  left += evs.length ? evs.map(function(ev){
+      return '<div class="tv-ev-row"><span class="tv-ev-t">'+(ev.time?fmtTimeStr(ev.time):'')+'</span>'+
+             '<span class="tv-ev-n">'+E(ev.name)+'</span></div>';
+    }).join('')
+    : '<div class="tv-empty">nothing on today</div>';
+  left+='</div>';
+
+  const ap=_tvApptsDue();
+  if(ap.length){
+    left+='<div class="tv-lbl" style="margin-top:1.6vw;">Appointments</div><div class="tv-ev">'+
+      ap.map(function(o){
+        const col=o.kind==='booked'?'var(--tv-accent)':'var(--tv-warn)';
+        const lbl=o.kind==='booked'
+          ? formatDate(o.st.date)
+          : (o.days<0?Math.abs(o.days)+'d overdue':(o.days===0?'due today':'due in '+o.days+'d'));
+        return '<div class="tv-ev-row"><span class="tv-dot" style="background:'+col+';align-self:center;"></span>'+
+               '<span class="tv-ev-n tv-ev-sm">'+E(o.a.name)+' · '+lbl+'</span></div>';
+      }).join('')+'</div>';
+  }
+
+  // ── middle: schedule with per-block weather ──
+  const asgn=(typeof assignBlocks==='function')?assignBlocks(tasks,t):{};
+  let mid='<div class="tv-lbl">Schedule</div><div style="margin-top:.85vw;">';
+  TIME_BLOCKS.forEach(function(b){
+    const items=asgn[b.id]||[];
+    const hrs=(typeof BLOCK_HOURS!=='undefined'&&BLOCK_HOURS[b.id])?BLOCK_HOURS[b.id]:null;
+    let wxs='';
+    if(H&&hrs){
+      const tp=_tvAvg(H.temperature_2m,hrs[0],hrs[1]);
+      const rn=_tvMax(H.precipitation_probability,hrs[0],hrs[1]);
+      const cd=H.weathercode?H.weathercode[Math.floor((hrs[0]+hrs[1])/2)]:0;
+      const ic=(typeof weatherSVG==='function')?weatherSVG(cd,13):'';
+      wxs='<span class="tv-blk-wx">'+ic+
+          (rn!==null&&rn>=30?'<span class="tv-rain">'+rn+'%</span>':'')+
+          (tp!==null?'<span>'+tp+'°</span>':'')+'</span>';
+    }
+    const active=(t===today() && now.getHours()*60+now.getMinutes()>=b.start && now.getHours()*60+now.getMinutes()<b.end);
+    mid+='<div class="tv-blk'+(active?' tv-blk-now':'')+'">'+
+      '<div class="tv-blk-h"><span class="tv-blk-n">'+E(b.label)+'</span>'+
+      '<span class="tv-blk-t">'+fmtTime(b.start)+' – '+fmtTime(b.end)+'</span>'+wxs+'</div>'+
+      (items.length
+        ? items.map(function(tk){
+            const done=(typeof isTaskDoneOn==='function')&&isTaskDoneOn(tk,t);
+            return '<div class="tv-task'+(done?' tv-done':'')+'">'+
+              '<span class="tv-dot" style="background:var(--tv-accent);"></span>'+E(tk.name)+
+              (tk.dur?'<span class="tv-task-d">'+tk.dur+'m</span>':'')+'</div>';
+          }).join('')
+        : '<div class="tv-empty">nothing scheduled</div>')+
+    '</div>';
+  });
+  mid+='</div>';
+
+  // ── right: weather ──
+  let right='<div class="tv-lbl">Weather</div>';
+  right+='<div class="tv-wx-stats">'+
+    '<div class="tv-wx-s"><span class="tv-wx-k">Rain</span><span class="tv-wx-v" style="color:var(--tv-cool);">'+(rainNow!==null?rainNow+'%':'—')+'</span></div>'+
+    '<div class="tv-wx-s"><span class="tv-wx-k">UV</span><span class="tv-wx-v">'+(uvMax!==null?uvMax:'—')+'</span></div>'+
+    '<div class="tv-wx-s"><span class="tv-wx-k">Wind</span><span class="tv-wx-v">'+(wind!==null?wind:'—')+' <small>km/h</small></span></div>'+
+    '<div class="tv-wx-s"><span class="tv-wx-k">Feels</span><span class="tv-wx-v">'+(feels!==null?feels+'°':'—')+'</span></div>'+
+  '</div>';
+
+  if(H){
+    const slots=[9,12,15,18,21].filter(function(h){return h>=curH-1;});
+    const use=slots.length>=4?slots:[9,12,15,18,21];
+    right+='<div class="tv-hrs">'+use.map(function(h){
+      const tp=_tvAvg(H.temperature_2m,h,h+1);
+      const rn=_tvMax(H.precipitation_probability,h,h+1);
+      const cd=H.weathercode?H.weathercode[h]:0;
+      return '<div class="tv-hr"><span class="tv-hr-t">'+_tvHrLabel(h)+'</span>'+
+        '<span class="tv-hr-ic">'+((typeof weatherSVG==='function')?weatherSVG(cd,15):'')+'</span>'+
+        '<span class="tv-hr-v">'+(tp!==null?tp+'°':'—')+'</span>'+
+        '<span class="tv-hr-r">'+(rn!==null&&rn>=20?rn+'%':'')+'</span></div>';
+    }).join('')+'</div>';
+  }
+
+  if(D&&D.sunrise&&D.sunset){
+    right+='<div class="tv-sun"><span>&uarr; '+_tvTime(D.sunrise[0])+'</span><span>&darr; '+_tvTime(D.sunset[0])+'</span></div>';
+  }
+
+  if(D&&D.time){
+    const idx=[1,2,3,4].filter(function(i){return i<D.time.length;});
+    let mn=999,mx=-999;
+    idx.forEach(function(i){
+      mn=Math.min(mn,D.temperature_2m_min[i]); mx=Math.max(mx,D.temperature_2m_max[i]);
+    });
+    const span=(mx-mn)||1;
+    right+='<div class="tv-lbl" style="margin-top:1.4vw;">Week ahead</div><div class="tv-days">'+
+      idx.map(function(i){
+        const dl=new Date(D.time[i]+'T00:00:00').toLocaleDateString('en-AU',{weekday:'short'});
+        const lo2=Math.round(D.temperature_2m_min[i]), hi2=Math.round(D.temperature_2m_max[i]);
+        const l=((lo2-mn)/span)*100, w=Math.max(8,((hi2-lo2)/span)*100);
+        return '<div class="tv-day"><span class="tv-day-n">'+dl+'</span>'+
+          '<span class="tv-day-ic">'+((typeof weatherSVG==='function')?weatherSVG(D.weathercode[i],14):'')+'</span>'+
+          '<span class="tv-day-bar"><span class="tv-day-fill" style="left:'+l+'%;width:'+w+'%;"></span></span>'+
+          '<span class="tv-day-hl">'+lo2+'° '+hi2+'°</span></div>';
+      }).join('')+'</div>';
+  }
+
+  // ── weekly planner strip ──
+  const week=_tvMondayWeek();
+  const wkRange=week[0].toLocaleDateString('en-AU',{day:'numeric',month:'short'})+' – '+
+                week[6].toLocaleDateString('en-AU',{day:'numeric',month:'short'});
+  let wk='<div class="tv-wk"><div class="tv-wk-hd"><span class="tv-lbl">This week</span>'+
+         '<span class="tv-wk-range">'+wkRange+'</span></div><div class="tv-wk-grid">';
+  week.forEach(function(d){
+    const ds=dateStr(d), isT=(ds===t);
+    const dEvs=_tvEventsOn(ds);
+    const dTasks=tasks.filter(function(tk){
+      if(!occursOn(tk,ds))return false;
+      if(typeof catIsVisibleInMode==='function'&&!catIsVisibleInMode(tk.catId))return false;
+      return true;
+    });
+    const ghosts=(typeof getApptGhostsForDate==='function')?getApptGhostsForDate(ds):[];
+    let dwx='';
+    if(D&&D.time){
+      const di=D.time.indexOf(ds);
+      if(di>=0){
+        const ic=(typeof weatherSVG==='function')?weatherSVG(D.weathercode[di],12):'';
+        dwx='<span class="tv-wk-wx">'+ic+Math.round(D.temperature_2m_max[di])+'°</span>';
+      }
+    }
+    const items=[]
+      .concat(dEvs.map(function(e){return{n:e.name,c:'var(--tv-accent)'};}))
+      .concat(dTasks.map(function(x){return{n:x.name,c:'var(--tv-accent)'};}))
+      .concat(ghosts.map(function(g){return{n:g.name+' due',c:'var(--tv-warn)'};}))
+      .slice(0,4);
+    wk+='<div class="tv-wk-col'+(isT?' tv-today':'')+'">'+
+      '<div class="tv-wk-top"><span class="tv-wk-dn">'+d.toLocaleDateString('en-AU',{weekday:'short'})+'</span>'+
+      '<span class="tv-wk-dd">'+d.getDate()+'</span>'+dwx+'</div>'+
+      (items.length
+        ? items.map(function(it){ return '<div class="tv-wk-item"><span class="tv-dot" style="background:'+it.c+';"></span>'+E(it.n)+'</div>'; }).join('')
+        : '<div class="tv-wk-none">nothing scheduled</div>')+
+    '</div>';
+  });
+  wk+='</div></div>';
+
+  root.innerHTML=head+'<div class="tv-body">'+
+    '<div class="tv-col">'+left+'</div>'+
+    '<div class="tv-col">'+mid+'</div>'+
+    '<div class="tv-col">'+right+'</div>'+
+  '</div>'+wk;
+}
+
+let _tvDrift=0, _tvWakeLock=null;
+function _tvBurnInShift(){
+  const r=document.getElementById('tvRoot'); if(!r)return;
+  _tvDrift=(_tvDrift+1)%4;
+  const dx=[0,2,3,1][_tvDrift], dy=[0,1,3,2][_tvDrift];
+  r.style.transform='translate('+dx+'px,'+dy+'px)';
+}
+
+async function _tvWake(){
+  try{ if('wakeLock' in navigator){ _tvWakeLock=await navigator.wakeLock.request('screen'); } }catch(e){}
+}
+
+function startTvMode(){
+  document.body.classList.add('tv-mode');
+  ['.top-bar','#navDrawer','#drawerOverlay','.dashboard','.save-indicator','.nav']
+    .forEach(function(sel){ document.querySelectorAll(sel).forEach(function(el){ el.style.display='none'; }); });
+  let root=document.getElementById('tvRoot');
+  if(!root){ root=document.createElement('div'); root.id='tvRoot'; document.body.appendChild(root); }
+  applyTvPalette();
+  renderTV();
+  setInterval(renderTV, 60000);        // clock + current block
+  setInterval(_tvBurnInShift, 240000); // gentle drift
+  _tvWake();
+  document.addEventListener('visibilitychange', function(){ if(!document.hidden){ _tvWake(); renderTV(); } });
+}
+
+// ══════════════ CAST TO TV ══════════════
+function tvUrl(){ return location.origin + location.pathname + '?tv=1'; }
+
+function castSupported(){ return typeof window.PresentationRequest === 'function'; }
+
+function _castNote(msg,warn){
+  const el=document.getElementById('castNote'); if(!el)return;
+  el.textContent=msg||'';
+  el.style.color = warn ? '#b8681c' : 'var(--muted)';
+}
+
+let _castConn=null;
+function centreCast(){
+  const url=tvUrl();
+  if(!castSupported()){
+    _castNote('This browser can\'t cast directly. On iPhone or iPad, use AirPlay screen mirroring from Control Centre. Otherwise use Copy link and open it in the TV\'s browser.', true);
+    return;
+  }
+  try{
+    const req=new PresentationRequest([url]);
+    _castNote('Choose a device…');
+    req.start().then(function(conn){
+      _castConn=conn;
+      _castNote('Casting to ' + (conn.label || 'your TV') + '.');
+      conn.onclose=function(){ _castNote('Cast ended.'); _castConn=null; };
+      conn.onterminate=function(){ _castNote('Cast ended.'); _castConn=null; };
+    }).catch(function(e){
+      if(e && (e.name==='NotAllowedError'||e.name==='AbortError')){ _castNote(''); return; }
+      _castNote('Couldn\'t start casting — no Cast device found on this network.', true);
+    });
+  }catch(e){
+    _castNote('Casting isn\'t available here. Use Copy link instead.', true);
+  }
+}
+
+function openTvView(){ window.open(tvUrl(), '_blank', 'noopener'); }
+
+function copyTvUrl(){
+  const url=tvUrl();
+  const done=function(){
+    const b=document.getElementById('copyTvBtn');
+    if(b){ const o=b.textContent; b.textContent='Copied'; setTimeout(function(){b.textContent=o;},1500); }
+    _castNote(url);
+  };
+  try{
+    if(navigator.clipboard&&navigator.clipboard.writeText){
+      navigator.clipboard.writeText(url).then(done).catch(function(){ _castNote(url); });
+    } else {
+      const ta=document.createElement('textarea'); ta.value=url;
+      ta.style.cssText='position:fixed;opacity:0;'; document.body.appendChild(ta);
+      ta.select(); document.execCommand('copy'); document.body.removeChild(ta); done();
+    }
+  }catch(e){ _castNote(url); }
+}
+
+function initCastUI(){
+  const b=document.getElementById('castBtn'); if(!b)return;
+  if(!castSupported()){
+    b.style.opacity='.5';
+    b.title='Direct casting needs Chrome or Edge';
+  }
+}
 
 function tickClock(){
   try{ tickClockOnly(); }catch(e){}
@@ -14346,6 +14831,9 @@ applyModeTheme();
 updateFavicon();
 try{autoLogPassedBookings();}catch(e){}
 try{loadGoogleApiKey();}catch(e){}
+
+// Boot TV display mode if ?tv=1
+try{ if(isTvMode()) startTvMode(); }catch(e){ console.warn("TV mode failed:",e); }
 </script>
 
 </body>
