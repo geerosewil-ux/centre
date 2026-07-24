@@ -1055,7 +1055,7 @@ body.tv-mode{padding:0!important;margin:0!important;background:var(--tv-bg)!impo
   <meta name="theme-color" id="centreThemeColor" content="#f8eeec">
 </head>
 <body>
-<!-- BUILD-CAST-RECIPE -->
+<!-- BUILD-SYNC-FIX -->
 
 <div class="app-header">
   <!-- DRAWER OVERLAY -->
@@ -2120,7 +2120,7 @@ body.tv-mode{padding:0!important;margin:0!important;background:var(--tv-bg)!impo
 
   <!-- ══════════════════════ -->
   <div class="page" id="page-settings">
-    <div id="buildStamp" style="font-family:'Urbanist',sans-serif;font-size:.5rem;letter-spacing:.1em;color:var(--muted);opacity:.4;text-align:center;padding:4px;">BUILD-CAST-RECIPE</div>
+    <div id="buildStamp" style="font-family:'Urbanist',sans-serif;font-size:.5rem;letter-spacing:.1em;color:var(--muted);opacity:.4;text-align:center;padding:4px;">BUILD-SYNC-FIX</div>
     <div class="card">
 
       <!-- DISPLAY ON TV -->
@@ -4395,7 +4395,7 @@ function addTask(){
   const startDate = document.getElementById('tStartDate')?.value || '';
   const _tWaiting = document.getElementById('tWaiting')?.checked || false;
   tasks.push({
-    id:newId,_created:Date.now(),name,notes,catId,dur,due,preferredBlock,
+    id:newId,_created:Date.now(),_modified:Date.now(),name,notes,catId,dur,due,preferredBlock,
     startDate: startDate || null,
     done:false,
     waiting: _tWaiting,
@@ -4522,6 +4522,7 @@ function overdueTaskTick(cb, id) {
 
 function toggleTask(id,forDate){
   const t=tasks.find(t=>t.id===id);if(!t)return;
+  touchItem(t);
   const ds=forDate||today();
   // For habit tasks: toggle is date-scoped log, not a permanent done flag
   if(t.habit){
@@ -4604,6 +4605,7 @@ function getEditRecur(id){
 }
 function saveTask(id){
   const t=tasks.find(t=>t.id===id);if(!t)return;
+  touchItem(t);
   t.name=document.getElementById('ename-'+id).value.trim()||t.name;
   // Waiting status
   const _ewait = document.getElementById('ewait-'+id);
@@ -5385,7 +5387,7 @@ function handleModalEvType(){
 function addEvent(){
   const name=document.getElementById('evName').value.trim(),date=document.getElementById('evDate').value;if(!name||!date)return;
   const type=document.getElementById('evType').value;let recur=getRecur('ev');if(type==='birthday'&&!recur)recur={type:'yearly',endType:'never'};
-  events.push({id:newEventId(),_created:Date.now(),name,date,type,busyStatus:document.getElementById('evBusy').value,countdown:document.getElementById('evCountdown').checked,catId:document.getElementById('evCat').value,time:document.getElementById('evTime').value,timeEnd:document.getElementById('evTimeEnd').value,location:document.getElementById('evLocation').value.trim(),notes:document.getElementById('evNotes').value.trim(),recur});
+  events.push({_created:Date.now(),_modified:Date.now(),id:newEventId(),_created:Date.now(),name,date,type,busyStatus:document.getElementById('evBusy').value,countdown:document.getElementById('evCountdown').checked,catId:document.getElementById('evCat').value,time:document.getElementById('evTime').value,timeEnd:document.getElementById('evTimeEnd').value,location:document.getElementById('evLocation').value.trim(),notes:document.getElementById('evNotes').value.trim(),recur});
   document.getElementById('evName').value='';document.getElementById('evDate').value='';document.getElementById('evTime').value='';document.getElementById('evTimeEnd').value='';document.getElementById('evBusy').value='free';document.getElementById('evCountdown').checked=false;document.getElementById('evLocation').value='';document.getElementById('evNotes').value='';
   scheduleSave();renderEventList();renderOverviewEvents();renderOverviewUpcoming();
 }
@@ -6018,7 +6020,7 @@ function closeModal(){document.getElementById('modalOverlay').classList.remove('
 function saveModalEvent(){
   const name=document.getElementById('mEvName').value.trim();if(!name||!modalDate)return;
   const type=document.getElementById('mEvType').value;let recur=getRecur('m');if(type==='birthday'&&!recur)recur={type:'yearly',endType:'never'};
-  events.push({id:newEventId(),name,date:modalDate,type,catId:document.getElementById('mEvCat').value,time:document.getElementById('mEvTime').value,location:document.getElementById('mEvLocation').value.trim(),notes:document.getElementById('mEvNotes').value.trim(),recur});
+  events.push({_created:Date.now(),_modified:Date.now(),id:newEventId(),name,date:modalDate,type,catId:document.getElementById('mEvCat').value,time:document.getElementById('mEvTime').value,location:document.getElementById('mEvLocation').value.trim(),notes:document.getElementById('mEvNotes').value.trim(),recur});
   scheduleSave();closeModal();renderWeek();renderOverviewEvents();
 }
 
@@ -7020,7 +7022,7 @@ function createGpBooking(id){
   const ds=(document.getElementById('gpBookDate')||{}).value;
   const tm=(document.getElementById('gpBookTime')||{}).value;
   if(!ds)return;
-  events.push({id:newEventId(),name:'GP — script for '+m.name,date:ds,time:tm||'',
+  events.push({_created:Date.now(),_modified:Date.now(),id:newEventId(),name:'GP — script for '+m.name,date:ds,time:tm||'',
     type:'appointment',catId:'',notes:m.prescriber||'',recur:null,medId:m.id});
   m.gpBooked=ds;
   scheduleSave(); closeGpBooking(); renderMeds();
@@ -10355,7 +10357,11 @@ function initFirebase(manual) {
         const _msSincePush = Date.now() - parseInt(localStorage.getItem('centre_lastPush') || '0');
         if (_msSincePush < 3000) { fbSetStatus(true, 'Connected — live sync active'); return; }
 
-        if (remoteTs > localTs) {
+        // Previously gated on `remoteTs > localTs`, which compared the incoming
+        // timestamp against THIS device's own last push — so any device that had
+        // pushed recently went permanently deaf to the other. applyRemoteData()
+        // now merges per item by _modified, so the gate is unnecessary and harmful.
+        if (true) {
           let hadLocalOnly = false;
 
           const mTasks = mergeById(remote.tasks, tasks);
@@ -10523,6 +10529,35 @@ function pullFromFirebase() {
   }).catch(e => fbSetStatus(false, 'Pull failed: ' + e.message));
 }
 
+// ══════════ SYNC MERGE (per-item, last-write-wins) ══════════
+// The old gate compared remote._ts against THIS device's last push time, which meant
+// any device that had pushed recently permanently rejected the other's changes.
+// Merging per item by _modified removes the whole-array race.
+function touchItem(o){ if(o) o._modified = Date.now(); return o; }
+
+function mergeItemsById(remoteArr, localArr, lastPushTs){
+  const rm = Array.isArray(remoteArr) ? remoteArr : null;
+  const lc = Array.isArray(localArr) ? localArr : [];
+  if(!rm) return lc;
+  const byId = {};
+  rm.forEach(function(x){ if(x&&x.id) byId[x.id]=x; });
+  lc.forEach(function(x){
+    if(!x||!x.id) return;
+    const r = byId[x.id];
+    if(!r){
+      // Local-only. Keep it only if created since our last push (genuinely new).
+      // Otherwise it was already synced once and has since been deleted elsewhere.
+      if((x._created||0) > lastPushTs) byId[x.id] = x;
+      return;
+    }
+    // Present on both sides — newest edit wins.
+    const lmod = x._modified || x._created || 0;
+    const rmod = r._modified || r._created || 0;
+    if(lmod > rmod) byId[x.id] = x;
+  });
+  return Object.keys(byId).map(function(k){ return byId[k]; });
+}
+
 function applyRemoteData(remote) {
   // Reset view to today when syncing remote data
   centreDate = null;
@@ -10530,14 +10565,9 @@ function applyRemoteData(remote) {
   eventsViewDate = null;
   // Only overwrite tasks/recurDoneLog if remote is newer than local
   const _applyTs = parseInt(localStorage.getItem('centre_lastPush') || '0');
-  const _remoteTs = remote._ts || 0;
-  const _remoteIsNewer = _remoteTs > _applyTs;
-  console.log('[SYNC] remoteTs='+_remoteTs+' localPush='+_applyTs+' newer='+_remoteIsNewer+' localDone='+tasks.filter(t=>t.done).map(t=>t.id).join(','));
-  if (remote.tasks && (_remoteIsNewer || !tasks.length)) {
-    console.log('[SYNC] OVERWRITING tasks — remoteDone='+remote.tasks.filter(t=>t.done).map(t=>t.id).join(','));
-    tasks = remote.tasks;
-  }
-  if (remote.events) events = remote.events;
+  // Per-item merge — no whole-array timestamp gate (see mergeItemsById)
+  if (remote.tasks)  tasks  = mergeItemsById(remote.tasks,  tasks,  _applyTs);
+  if (remote.events) events = mergeItemsById(remote.events, events, _applyTs);
   if (remote.appointments) appointments = remote.appointments;
   if (remote.categories) categories = remote.categories;
   if (remote.habitLog) habitLog = remote.habitLog;
@@ -10562,18 +10592,17 @@ function applyRemoteData(remote) {
   if (remote.negHabitSeq) negHabitSeq = remote.negHabitSeq;
   // For recurDoneLog: use remote if newer, BUT always merge to preserve local catch-up ticks
   if (remote.recurDoneLog) {
-    if (_remoteIsNewer || !recurDoneLog.length) {
-      // Remote is newer — but still rescue any local entries not in remote
-      const remoteRDLKeys = new Set(remote.recurDoneLog.map(function(e){return e.taskId+'|'+e.date;}));
-      const localOnlyRDL = recurDoneLog.filter(function(e){return !remoteRDLKeys.has(e.taskId+'|'+e.date);});
-      recurDoneLog = localOnlyRDL.length ? remote.recurDoneLog.concat(localOnlyRDL) : remote.recurDoneLog;
-    }
-    // If local is newer: keep local but add any remote entries we don't have
-    else {
-      const localRDLKeys = new Set(recurDoneLog.map(function(e){return e.taskId+'|'+e.date;}));
-      const remoteOnlyRDL = remote.recurDoneLog.filter(function(e){return !localRDLKeys.has(e.taskId+'|'+e.date);});
-      if (remoteOnlyRDL.length) recurDoneLog = recurDoneLog.concat(remoteOnlyRDL);
-    }
+    // Append-only tick log keyed by taskId|date — a union is always correct,
+    // so no timestamp comparison is needed (and none can be right).
+    const seen = new Set();
+    const merged = [];
+    (remote.recurDoneLog || []).concat(recurDoneLog || []).forEach(function(e){
+      if(!e) return;
+      const k = e.taskId + '|' + e.date;
+      if(seen.has(k)) return;
+      seen.add(k); merged.push(e);
+    });
+    recurDoneLog = merged;
   } else if (!recurDoneLog.length && remote.recurDoneLog) {
     recurDoneLog = remote.recurDoneLog;
   }
@@ -12586,7 +12615,7 @@ function removeLastApptDate(id){
 function createApptBooking(id,ds,time){
   const a=appointments.find(function(x){return x.id===id;});
   if(!a||!ds)return;
-  events.push({id:newEventId(),
+  events.push({_created:Date.now(),_modified:Date.now(),id:newEventId(),
     name:a.name+(a.provider?' · '+a.provider:''),
     date:ds, time:time||'', type:'appointment',
     catId:a.catId||'', notes:a.company||'', location:a.location||'', apptId:a.id, recur:null});
