@@ -1055,7 +1055,7 @@ body.tv-mode{padding:0!important;margin:0!important;background:var(--tv-bg)!impo
   <meta name="theme-color" id="centreThemeColor" content="#f8eeec">
 </head>
 <body>
-<!-- BUILD-SYNC-FIX -->
+<!-- BUILD-PARTNER -->
 
 <div class="app-header">
   <!-- DRAWER OVERLAY -->
@@ -1700,6 +1700,16 @@ body.tv-mode{padding:0!important;margin:0!important;background:var(--tv-bg)!impo
             <option value="event">Event</option><option value="birthday">Birthday</option><option value="social">Social</option><option value="appointment">Appointment</option><option value="health">Health Appointment</option><option value="health">Health Appointment</option>
           </select>
         </div>
+        <div class="form-group full" style="background:var(--bg);border-radius:10px;padding:10px 12px;margin-bottom:2px;">
+          <label style="display:flex;align-items:center;gap:9px;font-size:.78rem;color:var(--text);cursor:pointer;font-family:'Urbanist',sans-serif;">
+            <input type="checkbox" id="evPartnerOwned" style="width:16px;height:16px;accent-color:var(--accent);cursor:pointer;" onchange="evTogglePartnerOwned()"/>
+            This is Matt's event <span style="color:var(--muted);font-size:.7rem;">(schedule &amp; planner only, not Centre)</span>
+          </label>
+          <label id="evPartnerAttendWrap" style="display:flex;align-items:center;gap:9px;font-size:.78rem;color:var(--text);cursor:pointer;font-family:'Urbanist',sans-serif;margin-top:8px;">
+            <input type="checkbox" id="evPartnerAttending" style="width:16px;height:16px;accent-color:var(--accent);cursor:pointer;"/>
+            Matt's attending <span style="color:var(--muted);font-size:.7rem;">(emails him the details)</span>
+          </label>
+        </div>
         <div class="form-group"><label class="form-label">Status</label>
           <select class="form-select" id="evBusy">
             <option value="free">Free</option>
@@ -2120,8 +2130,20 @@ body.tv-mode{padding:0!important;margin:0!important;background:var(--tv-bg)!impo
 
   <!-- ══════════════════════ -->
   <div class="page" id="page-settings">
-    <div id="buildStamp" style="font-family:'Urbanist',sans-serif;font-size:.5rem;letter-spacing:.1em;color:var(--muted);opacity:.4;text-align:center;padding:4px;">BUILD-SYNC-FIX</div>
+    <div id="buildStamp" style="font-family:'Urbanist',sans-serif;font-size:.5rem;letter-spacing:.1em;color:var(--muted);opacity:.4;text-align:center;padding:4px;">BUILD-PARTNER</div>
     <div class="card">
+
+      <!-- PARTNER SHARING -->
+      <div class="settings-section" style="margin-bottom:24px;">
+        <div class="settings-section-title">Sharing with Matt</div>
+        <p style="font-size:.78rem;color:var(--muted);font-family:'Urbanist',sans-serif;margin-bottom:12px;line-height:1.6;">When you mark Matt attending an event, Centre emails him the details. Add his events with the "This is Matt's event" toggle to see them in your schedule and planner (but not Centre).</p>
+        <div class="settings-grid">
+          <div class="setting-item"><label class="setting-label">Matt's name</label><input class="hex-input" id="partnerNameInput" placeholder="Matt" value=""/></div>
+          <div class="setting-item"><label class="setting-label">Matt's email</label><input class="hex-input" id="partnerEmailInput" type="email" placeholder="matt@example.com" value=""/></div>
+        </div>
+        <button onclick="savePartnerSettings()" style="margin-top:10px;font-family:'Urbanist',sans-serif;font-weight:200;font-size:.6rem;letter-spacing:.16em;text-transform:uppercase;background:var(--accent);color:var(--on-accent,#fff);border:none;border-radius:9px;padding:9px 18px;cursor:pointer;">Save</button>
+        <span id="partnerSaveNote" style="font-size:.7rem;color:var(--muted);margin-left:10px;font-family:'Urbanist',sans-serif;"></span>
+      </div>
 
       <!-- DISPLAY ON TV -->
       <div class="settings-section" style="margin-bottom:24px;">
@@ -2533,6 +2555,8 @@ body.tv-mode{padding:0!important;margin:0!important;background:var(--tv-bg)!impo
     </div>
   </div>
 
+</div>
+
 <!-- WEEKLY MODAL -->
 <div class="modal-overlay" id="modalOverlay">
   <div class="modal">
@@ -2743,33 +2767,6 @@ body.tv-mode{padding:0!important;margin:0!important;background:var(--tv-bg)!impo
     </div>
   </div>
 </div>
-
-<!-- FOOD DETAIL MODAL (shows when selecting from search) -->
-<div class="modal-overlay" id="foodDetailOverlay">
-  <div class="modal" style="max-width:400px;">
-    <div class="modal-title" id="foodDetailName">Add Food</div>
-    <div id="foodDetailMacros" style="margin-bottom:14px;"></div>
-    <div class="modal-form">
-      <div class="form-group">
-        <label class="form-label">Amount</label>
-        <div style="display:flex;gap:8px;align-items:center;">
-          <input class="form-input" type="number" id="foodDetailGrams" min="1" step="1" value="100" oninput="updateFoodDetailPreview()" style="width:90px;"/>
-          <span style="font-size:.85rem;color:var(--muted);">g</span>
-          <select class="form-select" id="foodDetailPreset" onchange="applyFoodPreset()" style="flex:1;">
-            <option value="">— or pick a serving —</option>
-          </select>
-        </div>
-      </div>
-      <div id="foodDetailPreview" style="font-size:.78rem;color:var(--muted);padding:8px 10px;background:var(--bg);border-radius:8px;margin-top:4px;min-height:32px;"></div>
-    </div>
-    <div class="modal-actions">
-      <button class="modal-cancel" onclick="closeFoodDetailModal()">Cancel</button>
-      <button class="modal-save" onclick="confirmFoodDetailAdd()">Add to Recipe</button>
-    </div>
-  </div>
-</div>
-
-</div><!-- /app-header -->
 
 <script>
 // ---- ID GENERATION ----
@@ -3907,7 +3904,7 @@ function showPage(p,btn){
   if(p==='health')renderMeds();
   if(p==='meals'){document.getElementById('mealFilterDate').value=today();document.getElementById('mealDate').value=today();
 const _mdi=document.getElementById('metricDate');if(_mdi)_mdi.value=today();const _md=document.getElementById('metricDate');if(_md&&!_md.value)_md.value=today();const mte=document.getElementById('mealType');if(mte)mte.value=smartMealType();renderCatSelects();renderMealLog();renderSuppGrid();populateLogRcpList();if(document.getElementById('nutriHabitCard'))renderNutriHabitCard();}
-  if(p==='settings'){initCastUI();renderSchemePicker();renderModeSchemePickers();buildSettings();buildNutriColourGrid();loadGoogleApiKey();loadUsdaApiKey();loadAnthropicKey();loadAiUrl();renderWater();renderMilestoneChips();applyWorkMode();
+  if(p==='settings'){initCastUI();loadPartnerSettings();renderSchemePicker();renderModeSchemePickers();buildSettings();buildNutriColourGrid();loadGoogleApiKey();loadUsdaApiKey();loadAnthropicKey();loadAiUrl();renderWater();renderMilestoneChips();applyWorkMode();
     // Restore nutrition accordion state
     setTimeout(()=>{
       const body=document.getElementById('nutriAccordionBody');
@@ -5384,11 +5381,70 @@ function handleModalEvType(){
   if(type==='birthday'){const sec=document.getElementById('mRecurSection'),btn=document.getElementById('mRecurToggle');sec.classList.add('open');btn.classList.add('active');btn.textContent='- Remove recurrence';btn.disabled=true;btn.style.opacity='.5';buildDowRow('m');document.getElementById('mRecurType').value='yearly';updateRecurUI('m');}
   else{document.getElementById('mRecurToggle').disabled=false;document.getElementById('mRecurToggle').style.opacity='1';}
 }
+// ── PARTNER (Matt) SHARING ──
+// Label prefix for partner-owned events in schedule/planner
+function partnerTag(ev){ return ev&&ev.partnerOwned ? (partnerName()+': ') : ''; }
+
+function savePartnerSettings(){
+  const nm=(document.getElementById('partnerNameInput')||{}).value||'';
+  const em=(document.getElementById('partnerEmailInput')||{}).value||'';
+  localStorage.setItem('centre_partnerName', nm.trim()||'Matt');
+  localStorage.setItem('centre_partnerEmail', em.trim());
+  const note=document.getElementById('partnerSaveNote'); if(note){note.textContent='Saved';setTimeout(function(){note.textContent='';},1500);}
+}
+function loadPartnerSettings(){
+  const n=document.getElementById('partnerNameInput'), e=document.getElementById('partnerEmailInput');
+  if(n) n.value=localStorage.getItem('centre_partnerName')||'';
+  if(e) e.value=localStorage.getItem('centre_partnerEmail')||'';
+}
+
+function evTogglePartnerOwned(){
+  const owned=document.getElementById('evPartnerOwned');
+  const wrap=document.getElementById('evPartnerAttendWrap');
+  if(owned&&wrap) wrap.style.display=owned.checked?'none':'flex';
+}
+function partnerEmail(){ return localStorage.getItem('centre_partnerEmail')||''; }
+function partnerName(){ return localStorage.getItem('centre_partnerName')||'Matt'; }
+
+function notifyPartner(ev){
+  const to=partnerEmail();
+  if(!to){ if(typeof toast==='function') toast('Add Matt\'s email in Settings first'); return; }
+  const nm=partnerName();
+  const when=formatDate(ev.date)+(ev.time?' at '+fmtTimeStr(ev.time):'');
+  const payload={
+    to:to, partnerName:nm,
+    eventName:ev.name, date:ev.date, time:ev.time||'',
+    location:ev.location||'', notes:ev.notes||'', whenLabel:when
+  };
+  // Try the Firebase Function (automatic send). Fall back to mailto if it isn't set up.
+  const fnUrl=(typeof _centreAiUrl!=='undefined'&&_centreAiUrl)?_centreAiUrl.replace(/\/[^\/]*$/,'/notifyPartner'):'';
+  if(fnUrl){
+    fetch(fnUrl,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})
+      .then(function(r){ if(!r.ok) throw new Error('fn'); if(typeof toast==='function') toast('Emailed '+nm); })
+      .catch(function(){ partnerMailtoFallback(payload); });
+  } else {
+    partnerMailtoFallback(payload);
+  }
+}
+function partnerMailtoFallback(p){
+  const subj=encodeURIComponent('Event: '+p.eventName);
+  const body=encodeURIComponent(
+    'Hi '+p.partnerName+',\n\nYou\'re down for:\n\n'+p.eventName+'\n'+p.whenLabel+
+    (p.location?'\n'+p.location:'')+(p.notes?'\n\n'+p.notes:'')+'\n\n(Sent from Centre)');
+  window.location.href='mailto:'+encodeURIComponent(p.to)+'?subject='+subj+'&body='+body;
+}
+
 function addEvent(){
   const name=document.getElementById('evName').value.trim(),date=document.getElementById('evDate').value;if(!name||!date)return;
+  const _newEv=null;
   const type=document.getElementById('evType').value;let recur=getRecur('ev');if(type==='birthday'&&!recur)recur={type:'yearly',endType:'never'};
-  events.push({_created:Date.now(),_modified:Date.now(),id:newEventId(),_created:Date.now(),name,date,type,busyStatus:document.getElementById('evBusy').value,countdown:document.getElementById('evCountdown').checked,catId:document.getElementById('evCat').value,time:document.getElementById('evTime').value,timeEnd:document.getElementById('evTimeEnd').value,location:document.getElementById('evLocation').value.trim(),notes:document.getElementById('evNotes').value.trim(),recur});
-  document.getElementById('evName').value='';document.getElementById('evDate').value='';document.getElementById('evTime').value='';document.getElementById('evTimeEnd').value='';document.getElementById('evBusy').value='free';document.getElementById('evCountdown').checked=false;document.getElementById('evLocation').value='';document.getElementById('evNotes').value='';
+  events.push({_created:Date.now(),_modified:Date.now(),id:newEventId(),_created:Date.now(),name,date,type,busyStatus:document.getElementById('evBusy').value,countdown:document.getElementById('evCountdown').checked,catId:document.getElementById('evCat').value,time:document.getElementById('evTime').value,timeEnd:document.getElementById('evTimeEnd').value,location:document.getElementById('evLocation').value.trim(),notes:document.getElementById('evNotes').value.trim(),partnerOwned:document.getElementById('evPartnerOwned')?.checked||false,partnerAttending:document.getElementById('evPartnerAttending')?.checked||false,recur});
+  document.getElementById('evName').value='';document.getElementById('evDate').value='';document.getElementById('evTime').value='';document.getElementById('evTimeEnd').value='';document.getElementById('evBusy').value='free';document.getElementById('evCountdown').checked=false;
+  const _ev=events[events.length-1];
+  if(_ev&&_ev.partnerAttending&&!_ev.partnerOwned){try{notifyPartner(_ev);}catch(e){}}
+  const _po=document.getElementById('evPartnerOwned');if(_po)_po.checked=false;
+  const _pa=document.getElementById('evPartnerAttending');if(_pa)_pa.checked=false;
+  evTogglePartnerOwned();document.getElementById('evLocation').value='';document.getElementById('evNotes').value='';
   scheduleSave();renderEventList();renderOverviewEvents();renderOverviewUpcoming();
 }
 
@@ -6098,7 +6154,7 @@ function renderOverviewEvents(){
   try{renderOverviewMedAlert();}catch(e){}
   const viewDate=getCentreDate();
   const isToday=viewDate===today();
-  const _secEvs=[...getSecondaryEventsForDate(viewDate),...getMsEventsForDate(viewDate),...getIcsEventsForDate(viewDate)];const allEvs=[...events.filter(ev=>occursOn(ev,viewDate)&&!(workMode&&ev.private)),..._secEvs].sort((a,b)=>{if(a.time&&!b.time)return 1;if(!a.time&&b.time)return -1;return(a.time||'').localeCompare(b.time||'');});
+  const _secEvs=[...getSecondaryEventsForDate(viewDate),...getMsEventsForDate(viewDate),...getIcsEventsForDate(viewDate)];const allEvs=[...events.filter(ev=>occursOn(ev,viewDate)&&!(workMode&&ev.private)&&!ev.partnerOwned),..._secEvs].sort((a,b)=>{if(a.time&&!b.time)return 1;if(!a.time&&b.time)return -1;return(a.time||'').localeCompare(b.time||'');});
   const birthdays=allEvs.filter(ev=>ev.type==='birthday');
   const otherEvs=allEvs.filter(ev=>ev.type!=='birthday');
   const container=document.getElementById('overviewEvents');
@@ -14850,6 +14906,19 @@ function closeAllOverlaysOnLoad(){
 }
 
 closeAllOverlaysOnLoad();
+
+// Mode switch applies the whole theme, not just the accent
+if(typeof applyWorkMode==='function'){
+  const _origApplyWorkMode=applyWorkMode;
+  applyWorkMode=function(){ try{_origApplyWorkMode.apply(this,arguments);}catch(e){} applyModeTheme(); };
+}
+applyModeTheme();
+updateFavicon();
+try{autoLogPassedBookings();}catch(e){}
+try{loadGoogleApiKey();}catch(e){}
+
+// Boot TV display mode if ?tv=1
+try{ if(isTvMode()) startTvMode(); }catch(e){ console.warn("TV mode failed:",e); }
 
 // Mode switch applies the whole theme, not just the accent
 if(typeof applyWorkMode==='function'){
