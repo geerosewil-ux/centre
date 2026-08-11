@@ -1055,7 +1055,7 @@ body.tv-mode{padding:0!important;margin:0!important;background:var(--tv-bg)!impo
   <meta name="theme-color" id="centreThemeColor" content="#f8eeec">
 </head>
 <body>
-<!-- BUILD-PARTNER -->
+<!-- BUILD-PARTNER-2 -->
 
 <div class="app-header">
   <!-- DRAWER OVERLAY -->
@@ -1278,6 +1278,16 @@ body.tv-mode{padding:0!important;margin:0!important;background:var(--tv-bg)!impo
             <div style="display:flex;align-items:center;gap:8px;">
               <input type="checkbox" id="psEvPrivate" style="accent-color:var(--accent);width:15px;height:15px;cursor:pointer;">
               <label for="psEvPrivate" class="form-label" style="margin:0;cursor:pointer;">Private (hidden in Work Mode)</label>
+        <div style="background:var(--bg);border-radius:11px;padding:11px 13px;display:flex;flex-direction:column;gap:9px;margin-top:8px;">
+          <label style="display:flex;align-items:center;gap:9px;font-size:.8rem;color:var(--text);cursor:pointer;font-family:'Urbanist',sans-serif;font-weight:200;">
+            <input type="checkbox" id="psPartnerOwned" onchange="psTogglePartnerOwned()" style="width:15px;height:15px;accent-color:var(--accent);cursor:pointer;flex-shrink:0;"/>
+            <span id="psPartnerOwnedLabel">This is Matt's event — show in my schedule only, no invite sent</span>
+          </label>
+          <label id="psPartnerAttendWrap" style="display:flex;align-items:center;gap:9px;font-size:.8rem;color:var(--text);cursor:pointer;font-family:'Urbanist',sans-serif;font-weight:200;">
+            <input type="checkbox" id="psPartnerAttending" style="width:15px;height:15px;accent-color:var(--accent);cursor:pointer;flex-shrink:0;"/>
+            <span id="psPartnerAttendLabel">Matt's attending — email him the details</span>
+          </label>
+        </div>
             </div>
           </div>
         </div>
@@ -2130,7 +2140,7 @@ body.tv-mode{padding:0!important;margin:0!important;background:var(--tv-bg)!impo
 
   <!-- ══════════════════════ -->
   <div class="page" id="page-settings">
-    <div id="buildStamp" style="font-family:'Urbanist',sans-serif;font-size:.5rem;letter-spacing:.1em;color:var(--muted);opacity:.4;text-align:center;padding:4px;">BUILD-PARTNER</div>
+    <div id="buildStamp" style="font-family:'Urbanist',sans-serif;font-size:.5rem;letter-spacing:.1em;color:var(--muted);opacity:.4;text-align:center;padding:4px;">BUILD-PARTNER-2</div>
     <div class="card">
 
       <!-- PARTNER SHARING -->
@@ -5793,6 +5803,7 @@ function shiftWeek(dir){weekOffset+=dir;renderWeek();setTimeout(applyWeatherToWe
 let plannerMonthOffset = 0;
 
 function openPlannerSheet() {
+  try{ psRefreshPartnerLabels(); }catch(e){}
   const sheet = document.getElementById('plannerSheet');
   const panel = document.getElementById('plannerSheetPanel');
   // Pre-fill today's date
@@ -5833,6 +5844,19 @@ function handlePsEvType() {
   }
 }
 
+function psTogglePartnerOwned(){
+  const owned=document.getElementById('psPartnerOwned');
+  const wrap=document.getElementById('psPartnerAttendWrap');
+  if(owned&&wrap) wrap.style.display=owned.checked?'none':'flex';
+}
+function psRefreshPartnerLabels(){
+  const nm=(typeof partnerName==='function')?partnerName():'Matt';
+  const a=document.getElementById('psPartnerOwnedLabel');
+  const b=document.getElementById('psPartnerAttendLabel');
+  if(a) a.textContent="This is "+nm+"'s event — show in my schedule only, no invite sent";
+  if(b) b.textContent=nm+"'s attending — email "+(nm==='Matt'?'him':'them')+" the details";
+}
+
 function savePlannerEvent() {
   const name = document.getElementById('psEvName').value.trim();
   const date = document.getElementById('psEvDate').value;
@@ -5854,13 +5878,20 @@ function savePlannerEvent() {
     notes: document.getElementById('psEvNotes').value.trim(),
     countdown: document.getElementById('psEvCountdown').checked,
     private: document.getElementById('psEvPrivate')?.checked || false,
+    partnerOwned: document.getElementById('psPartnerOwned')?.checked || false,
+    partnerAttending: document.getElementById('psPartnerAttending')?.checked || false,
     recur
   });
+  const _pev = events[events.length - 1];
+  // Only email when Matt is ATTENDING and it is NOT his own event
+  if (_pev && _pev.partnerAttending && !_pev.partnerOwned) { try { notifyPartner(_pev); } catch(e){} }
   // Reset form
   ['psEvName','psEvDate','psEvTime','psEvTimeEnd','psEvLocation','psEvNotes'].forEach(id => {
     const el = document.getElementById(id); if (el) el.value = '';
   });
   document.getElementById('psEvCountdown').checked = false;
+  ['psPartnerOwned','psPartnerAttending'].forEach(id => { const el=document.getElementById(id); if(el) el.checked=false; });
+  if (typeof psTogglePartnerOwned === 'function') psTogglePartnerOwned();
   if (document.getElementById('psEvPrivate')) document.getElementById('psEvPrivate').checked = false;
   if (document.getElementById('psEvBusy')) document.getElementById('psEvBusy').value = 'free';
   document.getElementById('psEvType').value = 'event';
