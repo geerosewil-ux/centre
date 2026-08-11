@@ -1051,6 +1051,12 @@ body.tv-mode{padding:0!important;margin:0!important;background:var(--tv-bg)!impo
 .matt-dot{background:var(--matt)!important;}
 /* "+ Matt" badge on shared events */
 .matt-badge{font-size:.6rem;font-weight:300;letter-spacing:.03em;padding:2px 8px;border-radius:20px;background:var(--matt-soft);color:var(--matt);white-space:nowrap;font-family:'Urbanist',sans-serif;display:inline-flex;align-items:center;gap:3px;}
+
+/* Context menu as a comfortable tap target on phones */
+@media(max-width:519px){
+  .ctx-menu.open{ padding:8px; box-shadow:0 -4px 30px rgba(0,0,0,.18); border-radius:16px; }
+  .ctx-menu button{ padding:13px 14px; font-size:.9rem; }
+}
 </style>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1062,7 +1068,7 @@ body.tv-mode{padding:0!important;margin:0!important;background:var(--tv-bg)!impo
   <meta name="theme-color" id="centreThemeColor" content="#f8eeec">
 </head>
 <body>
-<!-- BUILD-MATT-COLOUR -->
+<!-- BUILD-BADGE-UPCOMING -->
 
 <div class="app-header">
   <!-- DRAWER OVERLAY -->
@@ -2147,7 +2153,7 @@ body.tv-mode{padding:0!important;margin:0!important;background:var(--tv-bg)!impo
 
   <!-- ══════════════════════ -->
   <div class="page" id="page-settings">
-    <div id="buildStamp" style="font-family:'Urbanist',sans-serif;font-size:.5rem;letter-spacing:.1em;color:var(--muted);opacity:.4;text-align:center;padding:4px;">BUILD-MATT-COLOUR</div>
+    <div id="buildStamp" style="font-size:.7rem;letter-spacing:.15em;color:var(--accent);opacity:.7;text-align:center;padding:8px;font-weight:400;">BUILD-BADGE-UPCOMING</div>
     <div class="card">
 
       <!-- PARTNER SHARING -->
@@ -7232,10 +7238,35 @@ function openCtxMenu(e, taskId, forDate) {
   const rr = document.getElementById('ctxRescheduleRow');
   if (rr) rr.classList.remove('open');
   // Position near tap/click
-  const x = e.clientX || (e.touches && e.touches[0].clientX) || 0;
-  const y = e.clientY || (e.touches && e.touches[0].clientY) || 0;
-  menu.style.left = Math.min(x, window.innerWidth - 190) + 'px';
-  menu.style.top  = Math.min(y, window.innerHeight - 200) + 'px';
+  // Position from the tapped element's rect, not the raw event coords —
+  // a tap on a text node often reports clientX/Y of 0, pinning the menu to the corner.
+  let x = e.clientX, y = e.clientY;
+  if ((!x || !y) && e.currentTarget && e.currentTarget.getBoundingClientRect) {
+    const r = e.currentTarget.getBoundingClientRect();
+    x = x || (r.left + 12); y = y || (r.bottom + 4);
+  }
+  if ((!x || !y) && e.target && e.target.getBoundingClientRect) {
+    const r = e.target.getBoundingClientRect();
+    x = x || (r.left + 12); y = y || (r.bottom + 4);
+  }
+  x = x || 40; y = y || 120;
+  const isNarrow = window.innerWidth < 520;
+  if (isNarrow) {
+    // On phones, dock the menu as a centered sheet — no aiming required
+    menu.style.left = '50%';
+    menu.style.top  = 'auto';
+    menu.style.bottom = '16px';
+    menu.style.transform = 'translateX(-50%)';
+    menu.style.width = 'calc(100% - 32px)';
+    menu.style.maxWidth = '360px';
+  } else {
+    menu.style.bottom = 'auto';
+    menu.style.transform = 'none';
+    menu.style.width = '';
+    menu.style.maxWidth = '';
+    menu.style.left = Math.min(x, window.innerWidth - 190) + 'px';
+    menu.style.top  = Math.min(y, window.innerHeight - 220) + 'px';
+  }
   // Show/hide recurring task options
   const t = tasks.find(x => x.id === taskId);
   const isRecur = t && t.recur;
@@ -7277,14 +7308,27 @@ function ctxLongPress(e, taskId, forDate) {
 
 function ctxEdit() {
   if (!_ctxTaskId) return;
+  const id = _ctxTaskId;
   closeCtxMenu();
+  // If the edit form for this task is already on the current page, just open it —
+  // don't yank the user over to the Tasks page.
+  let el = document.getElementById('edit-' + id);
+  if (el) {
+    if (typeof toggleEditForm === 'function') toggleEditForm(id);
+    else el.classList.add('open');
+    el.scrollIntoView({behavior:'smooth', block:'center'});
+    return;
+  }
+  // Otherwise navigate to Tasks and open it there.
   showPage('tasks', document.getElementById('di-tasks'));
   closeDrawer();
-  // Open the task's edit form after render
   setTimeout(() => {
-    const el = document.getElementById('edit-' + _ctxTaskId);
-    if (el && !el.classList.contains('open')) el.classList.add('open');
-    el?.scrollIntoView({behavior:'smooth', block:'center'});
+    const el2 = document.getElementById('edit-' + id);
+    if (el2 && !el2.classList.contains('open')) {
+      if (typeof toggleEditForm === 'function') toggleEditForm(id);
+      else el2.classList.add('open');
+    }
+    el2 && el2.scrollIntoView({behavior:'smooth', block:'center'});
   }, 150);
 }
 
@@ -10148,7 +10192,7 @@ function renderOverviewUpcoming(){
 
   const t=today();
   // Show: any event within 14 days, OR any pinned (countdown:true) event within 60 days
-  const withDays=events.map(ev=>{
+  const withDays=events.filter(ev=>!ev.partnerOwned).map(ev=>{
     const next=ev.recur?nextOccurrence(ev,t):ev.date;
     if(!next)return null;
     const diffMs=new Date(next+'T00:00:00')-new Date(t+'T00:00:00');
@@ -10175,7 +10219,7 @@ function renderOverviewUpcoming(){
     // Phase dot now handled by getPhaseDotHtml helper
     return `<div onclick="openOccurrenceModal('${ev.id}','${next}')" title="Tap to edit" style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:11px;background:${bg};cursor:pointer;">
       <div style="width:3px;min-height:20px;align-self:stretch;border-radius:2px;background:${col};flex-shrink:0;"></div>
-      <span style="flex:1;font-family:var(--font-body,Georgia,serif);font-size:.82rem;">${getPhaseDotHtml(ev.date||ev.next||'')}${evEmoji(ev,'var(--accent)')}${escHtml(ev.name)}</span>
+      <span style="flex:1;font-family:var(--font-body,Georgia,serif);font-size:.82rem;">${getPhaseDotHtml(ev.date||ev.next||'')}${evEmoji(ev,'var(--accent)')}${escHtml(ev.name)}${ev.partnerAttending&&!ev.partnerOwned?`<span class="matt-badge" style="margin-left:6px;">+ ${escHtml((typeof partnerName==='function')?partnerName():'Matt')}</span>`:''}</span>
       <span style="font-family:var(--font-body,Georgia,serif);font-size:.8rem;color:${labelCol};">${dayLabel}</span>
     </div>`;
   }
@@ -13705,7 +13749,16 @@ function openOccurrenceModal(evId, ds) {
     <div class="form-group"><label class="form-label">Notes</label>
       <input class="form-input" id="occNotes" value="${escHtml(occ.notes||'')}"/>
     </div>
-    ${isRecurring ? `<div style="font-size:.72rem;color:var(--muted);padding:2px 0;">Changes apply to this occurrence only. The series continues unchanged.</div>` : ''}`;
+    ${!isRecurring ? `<div style="background:var(--bg);border-radius:11px;padding:11px 13px;display:flex;flex-direction:column;gap:9px;margin-top:4px;">
+      <label style="display:flex;align-items:center;gap:9px;font-size:.8rem;color:var(--text);cursor:pointer;font-family:'Urbanist',sans-serif;font-weight:200;">
+        <input type="checkbox" id="occPartnerOwned" onchange="occTogglePartnerOwned()" ${ev.partnerOwned?'checked':''} style="width:15px;height:15px;accent-color:var(--accent);cursor:pointer;flex-shrink:0;"/>
+        <span>This is ${escHtml((typeof partnerName==='function')?partnerName():'Matt')}'s event — schedule only, no invite</span>
+      </label>
+      <label id="occPartnerAttendWrap" style="display:${ev.partnerOwned?'none':'flex'};align-items:center;gap:9px;font-size:.8rem;color:var(--text);cursor:pointer;font-family:'Urbanist',sans-serif;font-weight:200;">
+        <input type="checkbox" id="occPartnerAttending" ${ev.partnerAttending?'checked':''} style="width:15px;height:15px;accent-color:var(--accent);cursor:pointer;flex-shrink:0;"/>
+        <span>${escHtml((typeof partnerName==='function')?partnerName():'Matt')}'s attending — email the details</span>
+      </label>
+    </div>` : `<div style="font-size:.72rem;color:var(--muted);padding:2px 0;">Changes apply to this occurrence only. The series continues unchanged.</div>`}`;
 
   // Actions
   const actions = document.getElementById('occModalActions');
@@ -13723,6 +13776,12 @@ function closeOccurrenceModal() {
   document.getElementById('occurrenceModalOverlay').classList.remove('open');
 }
 
+function occTogglePartnerOwned(){
+  const o=document.getElementById('occPartnerOwned');
+  const w=document.getElementById('occPartnerAttendWrap');
+  if(o&&w) w.style.display=o.checked?'none':'flex';
+}
+
 function saveOccurrence(evId, ds) {
   const key = occurrenceKey(evId, ds);
   const name = document.getElementById('occName').value.trim();
@@ -13731,11 +13790,28 @@ function saveOccurrence(evId, ds) {
   const catId = document.getElementById('occCat').value;
   const notes = document.getElementById('occNotes').value.trim();
   eventOverrides[key] = { name, date, time, catId, notes, cancelled: false };
+  // Partner flags live on the base event, not the per-date override
+  const _po = document.getElementById('occPartnerOwned');
+  const _pa = document.getElementById('occPartnerAttending');
+  if (_po || _pa) {
+    const baseEv = events.find(e => e.id === evId);
+    if (baseEv) {
+      const wasAttending = baseEv.partnerAttending;
+      baseEv.partnerOwned = _po ? _po.checked : false;
+      baseEv.partnerAttending = (_pa && !_po.checked) ? _pa.checked : false;
+      if (typeof touchItem === 'function') touchItem(baseEv);
+      // Email if newly marked attending (and not his own event)
+      if (baseEv.partnerAttending && !wasAttending && !baseEv.partnerOwned) {
+        try { notifyPartner(baseEv); } catch(e){}
+      }
+    }
+  }
   scheduleSave();
   closeOccurrenceModal();
   renderWeek();
   if (document.getElementById('page-planner')?.classList.contains('active')) renderPlannerPage();
-  showToast('Occurrence updated ✓');
+  try{ renderOverviewEvents(); }catch(e){}
+  showToast('Event updated ✓');
 }
 
 function cancelOccurrence(evId, ds) {
@@ -15020,6 +15096,7 @@ try{loadGoogleApiKey();}catch(e){}
 
 // Boot TV display mode if ?tv=1
 try{ if(isTvMode()) startTvMode(); }catch(e){ console.warn("TV mode failed:",e); }
+try{console.log('%cCentre build: BUILD-BADGE-UPCOMING','font-size:16px;color:#c04a66;font-weight:bold;');}catch(e){}
 </script>
 
 </body>
