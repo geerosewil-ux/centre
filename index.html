@@ -1068,7 +1068,7 @@ body.tv-mode{padding:0!important;margin:0!important;background:var(--tv-bg)!impo
   <meta name="theme-color" id="centreThemeColor" content="#f8eeec">
 </head>
 <body>
-<!-- BUILD-BADGE-UPCOMING -->
+<!-- BUILD-FIXES-4 -->
 
 <div class="app-header">
   <!-- DRAWER OVERLAY -->
@@ -2153,7 +2153,7 @@ body.tv-mode{padding:0!important;margin:0!important;background:var(--tv-bg)!impo
 
   <!-- ══════════════════════ -->
   <div class="page" id="page-settings">
-    <div id="buildStamp" style="font-size:.7rem;letter-spacing:.15em;color:var(--accent);opacity:.7;text-align:center;padding:8px;font-weight:400;">BUILD-BADGE-UPCOMING</div>
+    <div id="buildStamp" style="font-size:.7rem;letter-spacing:.15em;color:var(--accent);opacity:.7;text-align:center;padding:8px;font-weight:400;">BUILD-FIXES-4</div>
     <div class="card">
 
       <!-- PARTNER SHARING -->
@@ -5077,6 +5077,9 @@ function renderTasks(){
     return true;
   });
 
+  // Tasks waiting on someone else live ONLY in the Waiting section, not the main list.
+  base = base.filter(function(t){ return !(t.waitingFor && !t.done); });
+
   function taskIsOverdue(t){if(t.habit||t.done)return false;if(t.recur)return recurHasMissedOccurrence(t);return t.due&&t.due<td;}
   const overdueCount=base.filter(taskIsOverdue).length;
   const pendingCount=tasks.filter(t=>t.recur?true:t.habit?!isTaskDoneOn(t,td):!t.done).length;
@@ -5810,7 +5813,7 @@ function savePlannerEvEdit(id) {
 }
 
 // ---- WEEKLY ----
-function getWeekDates(offset){const now=new Date();const start=new Date(now);start.setDate(now.getDate()-3+offset*7);return Array.from({length:7},(_,i)=>{const d=new Date(start);d.setDate(start.getDate()+i);return d;});}
+function getWeekDates(offset){const now=new Date();const dow=(now.getDay()+6)%7;/* 0=Mon..6=Sun */const start=new Date(now);start.setDate(now.getDate()-dow+offset*7);/* anchor to Monday */return Array.from({length:7},(_,i)=>{const d=new Date(start);d.setDate(start.getDate()+i);return d;});}
 function shiftWeek(dir){weekOffset+=dir;renderWeek();setTimeout(applyWeatherToWeekly,150);}
 // ---- PLANNER ----
 let plannerMonthOffset = 0;
@@ -13749,7 +13752,7 @@ function openOccurrenceModal(evId, ds) {
     <div class="form-group"><label class="form-label">Notes</label>
       <input class="form-input" id="occNotes" value="${escHtml(occ.notes||'')}"/>
     </div>
-    ${!isRecurring ? `<div style="background:var(--bg);border-radius:11px;padding:11px 13px;display:flex;flex-direction:column;gap:9px;margin-top:4px;">
+    ${`<div style="background:var(--bg);border-radius:11px;padding:11px 13px;display:flex;flex-direction:column;gap:9px;margin-top:4px;">
       <label style="display:flex;align-items:center;gap:9px;font-size:.8rem;color:var(--text);cursor:pointer;font-family:'Urbanist',sans-serif;font-weight:200;">
         <input type="checkbox" id="occPartnerOwned" onchange="occTogglePartnerOwned()" ${ev.partnerOwned?'checked':''} style="width:15px;height:15px;accent-color:var(--accent);cursor:pointer;flex-shrink:0;"/>
         <span>This is ${escHtml((typeof partnerName==='function')?partnerName():'Matt')}'s event — schedule only, no invite</span>
@@ -13758,7 +13761,8 @@ function openOccurrenceModal(evId, ds) {
         <input type="checkbox" id="occPartnerAttending" ${ev.partnerAttending?'checked':''} style="width:15px;height:15px;accent-color:var(--accent);cursor:pointer;flex-shrink:0;"/>
         <span>${escHtml((typeof partnerName==='function')?partnerName():'Matt')}'s attending — email the details</span>
       </label>
-    </div>` : `<div style="font-size:.72rem;color:var(--muted);padding:2px 0;">Changes apply to this occurrence only. The series continues unchanged.</div>`}`;
+    </div>`}
+    ${isRecurring ? `<div style="font-size:.72rem;color:var(--muted);padding:2px 0;">Partner setting applies to the whole series. Other changes apply to this occurrence only.</div>` : ''}`;
 
   // Actions
   const actions = document.getElementById('occModalActions');
@@ -15096,7 +15100,7 @@ try{loadGoogleApiKey();}catch(e){}
 
 // Boot TV display mode if ?tv=1
 try{ if(isTvMode()) startTvMode(); }catch(e){ console.warn("TV mode failed:",e); }
-try{console.log('%cCentre build: BUILD-BADGE-UPCOMING','font-size:16px;color:#c04a66;font-weight:bold;');}catch(e){}
+try{console.log('%cCentre build: BUILD-FIXES-4','font-size:16px;color:#c04a66;font-weight:bold;');}catch(e){}
 </script>
 
 </body>
