@@ -1068,7 +1068,7 @@ body.tv-mode{padding:0!important;margin:0!important;background:var(--tv-bg)!impo
   <meta name="theme-color" id="centreThemeColor" content="#f8eeec">
 </head>
 <body>
-<!-- BUILD-FIXES-4 -->
+<!-- BUILD-TAP-EDIT -->
 
 <div class="app-header">
   <!-- DRAWER OVERLAY -->
@@ -2153,7 +2153,7 @@ body.tv-mode{padding:0!important;margin:0!important;background:var(--tv-bg)!impo
 
   <!-- ══════════════════════ -->
   <div class="page" id="page-settings">
-    <div id="buildStamp" style="font-size:.7rem;letter-spacing:.15em;color:var(--accent);opacity:.7;text-align:center;padding:8px;font-weight:400;">BUILD-FIXES-4</div>
+    <div id="buildStamp" style="font-size:.7rem;letter-spacing:.15em;color:var(--accent);opacity:.7;text-align:center;padding:8px;font-weight:400;">BUILD-TAP-EDIT</div>
     <div class="card">
 
       <!-- PARTNER SHARING -->
@@ -2759,6 +2759,18 @@ body.tv-mode{padding:0!important;margin:0!important;background:var(--tv-bg)!impo
 </div>
 
 <!-- OCCURRENCE MODAL -->
+
+<div class="modal-overlay" id="taskEditOverlay" onclick="if(event.target===this)closeTaskEditModal()">
+  <div class="modal" style="max-width:460px;">
+    <div class="modal-title" id="taskEditTitle">Edit task</div>
+    <div id="taskEditBody" style="display:flex;flex-direction:column;gap:12px;"></div>
+    <div style="display:flex;gap:8px;margin-top:16px;">
+      <button onclick="saveTaskModal()" style="flex:1;background:var(--accent);color:var(--on-accent,#fff);border:none;border-radius:10px;padding:12px;font-family:'Urbanist',sans-serif;font-size:.62rem;letter-spacing:.16em;text-transform:uppercase;cursor:pointer;">Save</button>
+      <button onclick="deleteTaskFromModal()" style="background:none;border:1.5px solid var(--border);color:var(--muted);border-radius:10px;padding:12px 18px;font-family:'Urbanist',sans-serif;font-size:.62rem;letter-spacing:.16em;text-transform:uppercase;cursor:pointer;">Delete</button>
+      <button onclick="closeTaskEditModal()" style="background:none;border:1.5px solid var(--border);color:var(--muted);border-radius:10px;padding:12px 18px;font-family:'Urbanist',sans-serif;font-size:.62rem;letter-spacing:.16em;text-transform:uppercase;cursor:pointer;">Cancel</button>
+    </div>
+  </div>
+</div>
 <div class="modal-overlay" id="occurrenceModalOverlay" onclick="if(event.target===this)closeOccurrenceModal()">
   <div class="modal" style="max-width:420px;">
     <div class="modal-title" id="occModalTitle">Edit Occurrence</div>
@@ -4623,6 +4635,71 @@ function getEditRecur(id){
     endDate: document.getElementById('er'+id+'EndDate')?.value||''
   };
 }
+// ══════════ TASK EDIT MODAL (works from any page — Centre, schedule, etc.) ══════════
+let _taskEditId = null;
+function openTaskEditModal(id){
+  const t = tasks.find(x => x.id === id);
+  if(!t) return;
+  _taskEditId = id;
+  const catOpts = ['<option value="">— none —</option>']
+    .concat(categories.map(function(cat){
+      return '<option value="'+cat.id+'"'+(t.catId===cat.id?' selected':'')+'>'+escHtml(cat.name)+'</option>';
+    })).join('');
+  const blockOpts = ['<option value="">Auto — best fit</option>']
+    .concat(TIME_BLOCKS.map(function(b){
+      return '<option value="'+b.id+'"'+(t.preferredBlock===b.id?' selected':'')+'>'+escHtml(b.label)+'</option>';
+    })).join('');
+  const L = 'font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-family:\'Urbanist\',sans-serif;margin-bottom:4px;display:block;';
+  const F = 'width:100%;font-family:\'Urbanist\',sans-serif;font-size:.9rem;border:1.5px solid var(--border);border-radius:9px;padding:9px 11px;background:var(--bg);color:var(--text);outline:none;';
+  document.getElementById('taskEditBody').innerHTML =
+    '<div><label style="'+L+'">Task</label><input id="tm_name" style="'+F+'" value="'+escHtml(t.name)+'"/></div>'+
+    '<div style="display:flex;gap:10px;">'+
+      '<div style="flex:1;"><label style="'+L+'">Due date</label><input id="tm_due" type="date" style="'+F+'" value="'+(t.due||'')+'"/></div>'+
+      '<div style="flex:1;"><label style="'+L+'">Duration (min)</label><input id="tm_dur" type="number" min="1" style="'+F+'" value="'+(t.dur||'')+'"/></div>'+
+    '</div>'+
+    '<div style="display:flex;gap:10px;">'+
+      '<div style="flex:1;"><label style="'+L+'">Category</label><select id="tm_cat" style="'+F+'">'+catOpts+'</select></div>'+
+      '<div style="flex:1;"><label style="'+L+'">Schedule into</label><select id="tm_block" style="'+F+'">'+blockOpts+'</select></div>'+
+    '</div>'+
+    '<div><label style="'+L+'">Notes</label><textarea id="tm_notes" rows="2" style="'+F+'resize:vertical;">'+escHtml(t.notes||'')+'</textarea></div>'+
+    '<div><label style="'+L+'">Waiting on (leave blank if not waiting)</label><input id="tm_waiting" style="'+F+'" value="'+escHtml(t.waitingFor||'')+'" placeholder="e.g. John — awaiting approval"/></div>';
+  document.getElementById('taskEditOverlay').classList.add('open');
+}
+function closeTaskEditModal(){
+  document.getElementById('taskEditOverlay').classList.remove('open');
+  _taskEditId = null;
+}
+function saveTaskModal(){
+  const t = tasks.find(x => x.id === _taskEditId);
+  if(!t){ closeTaskEditModal(); return; }
+  touchItem(t);
+  const g = id => document.getElementById(id);
+  t.name = g('tm_name').value.trim() || t.name;
+  t.due = g('tm_due').value;
+  t.dur = parseInt(g('tm_dur').value) || 0;
+  t.catId = g('tm_cat').value;
+  const wasBlock = t.preferredBlock || '';
+  t.preferredBlock = g('tm_block').value || '';
+  if(t.preferredBlock !== wasBlock) t.blockPins = {};
+  t.notes = g('tm_notes').value.trim();
+  t.waitingFor = g('tm_waiting').value.trim();
+  t.status = t.waitingFor ? 'waiting' : '';
+  scheduleSave();
+  closeTaskEditModal();
+  try{ renderTasks(); }catch(e){}
+  try{ renderOverview(); }catch(e){}
+  try{ renderOverviewWaiting(); }catch(e){}
+  try{ renderWeek(); }catch(e){}
+  showToast('Task updated ✓');
+}
+function deleteTaskFromModal(){
+  const id = _taskEditId;
+  if(!id) return;
+  if(!confirm('Delete this task?')) return;
+  closeTaskEditModal();
+  if(typeof deleteTask === 'function') deleteTask(id);
+}
+
 function saveTask(id){
   const t=tasks.find(t=>t.id===id);if(!t)return;
   touchItem(t);
@@ -7288,24 +7365,45 @@ function closeCtxMenu() {
 }
 
 function ctxDesktopClick(e, taskId, forDate) {
-  // Tap (touch) OR click (mouse) both open the action menu — Edit / Reschedule / etc.
-  // Previously touch bailed out, leaving no way to edit a task from the Centre page.
+  // Mouse click opens the edit modal directly. (Touch is handled by ctxLongPress:
+  // quick tap = edit, long press = action menu.) Right-click uses the context menu.
   e.stopPropagation();
+  if (e.pointerType === 'touch') return;   // let the pointer handler own touch
+  _ctxTaskId = taskId;
+  if (typeof openTaskEditModal === 'function') { openTaskEditModal(taskId); return; }
   openCtxMenu(e, taskId, forDate);
 }
 
 function ctxLongPress(e, taskId, forDate) {
   if (e.button !== undefined && e.button !== 0) return; // right-click handled by contextmenu
   _ctxMoved = false;
+  let _fired = false;                       // did the long-press menu open?
+  const startX = e.clientX, startY = e.clientY;
   clearTimeout(_ctxLongTimer);
   _ctxLongTimer = setTimeout(() => {
-    if (!_ctxMoved) openCtxMenu(e, taskId, forDate);
+    if (!_ctxMoved) { _fired = true; openCtxMenu(e, taskId, forDate); }
   }, 500);
-  // Cancel on move/up
-  const cancel = () => { clearTimeout(_ctxLongTimer); };
-  const moved  = () => { _ctxMoved = true; clearTimeout(_ctxLongTimer); };
-  e.target.addEventListener('pointermove', moved, {once:true});
-  e.target.addEventListener('pointerup',   cancel, {once:true});
+  // A quick tap (pointerup before the timer) should EDIT — not just cancel and do nothing.
+  const up = () => {
+    clearTimeout(_ctxLongTimer);
+    if (!_fired && !_ctxMoved) {
+      _ctxTaskId = taskId;                  // set so ctxEdit/openTaskEditModal target this task
+      if (typeof openTaskEditModal === 'function') openTaskEditModal(taskId);
+    }
+    cleanup();
+  };
+  const moved = () => {
+    // only treat as a drag if the finger actually travelled
+    _ctxMoved = true; clearTimeout(_ctxLongTimer);
+  };
+  const cancel = () => { clearTimeout(_ctxLongTimer); cleanup(); };
+  const cleanup = () => {
+    e.target.removeEventListener('pointermove', moved);
+    e.target.removeEventListener('pointerup', up);
+    e.target.removeEventListener('pointercancel', cancel);
+  };
+  e.target.addEventListener('pointermove', moved);
+  e.target.addEventListener('pointerup',   up,   {once:true});
   e.target.addEventListener('pointercancel', cancel, {once:true});
 }
 
@@ -7313,26 +7411,11 @@ function ctxEdit() {
   if (!_ctxTaskId) return;
   const id = _ctxTaskId;
   closeCtxMenu();
-  // If the edit form for this task is already on the current page, just open it —
-  // don't yank the user over to the Tasks page.
-  let el = document.getElementById('edit-' + id);
-  if (el) {
-    if (typeof toggleEditForm === 'function') toggleEditForm(id);
-    else el.classList.add('open');
-    el.scrollIntoView({behavior:'smooth', block:'center'});
-    return;
-  }
-  // Otherwise navigate to Tasks and open it there.
+  // Open the task edit modal in place — no page jump.
+  if (typeof openTaskEditModal === 'function') { openTaskEditModal(id); return; }
+  // Fallback: inline form on Tasks page
   showPage('tasks', document.getElementById('di-tasks'));
-  closeDrawer();
-  setTimeout(() => {
-    const el2 = document.getElementById('edit-' + id);
-    if (el2 && !el2.classList.contains('open')) {
-      if (typeof toggleEditForm === 'function') toggleEditForm(id);
-      else el2.classList.add('open');
-    }
-    el2 && el2.scrollIntoView({behavior:'smooth', block:'center'});
-  }, 150);
+  setTimeout(function(){ const el=document.getElementById('edit-'+id); if(el&&!el.classList.contains('open')) el.classList.add('open'); }, 150);
 }
 
 function ctxSkipOccurrence() {
@@ -15100,7 +15183,7 @@ try{loadGoogleApiKey();}catch(e){}
 
 // Boot TV display mode if ?tv=1
 try{ if(isTvMode()) startTvMode(); }catch(e){ console.warn("TV mode failed:",e); }
-try{console.log('%cCentre build: BUILD-FIXES-4','font-size:16px;color:#c04a66;font-weight:bold;');}catch(e){}
+try{console.log('%cCentre build: BUILD-TAP-EDIT','font-size:16px;color:#c04a66;font-weight:bold;');}catch(e){}
 </script>
 
 </body>
