@@ -1068,7 +1068,7 @@ body.tv-mode{padding:0!important;margin:0!important;background:var(--tv-bg)!impo
   <meta name="theme-color" id="centreThemeColor" content="#f8eeec">
 </head>
 <body>
-<!-- BUILD-TAP-EDIT -->
+<!-- BUILD-WAIT-NOEMAIL -->
 
 <div class="app-header">
   <!-- DRAWER OVERLAY -->
@@ -1298,7 +1298,7 @@ body.tv-mode{padding:0!important;margin:0!important;background:var(--tv-bg)!impo
           </label>
           <label id="psPartnerAttendWrap" style="display:flex;align-items:center;gap:9px;font-size:.8rem;color:var(--text);cursor:pointer;font-family:'Urbanist',sans-serif;font-weight:200;">
             <input type="checkbox" id="psPartnerAttending" style="width:15px;height:15px;accent-color:var(--accent);cursor:pointer;flex-shrink:0;"/>
-            <span id="psPartnerAttendLabel">Matt's attending — email him the details</span>
+            <span id="psPartnerAttendLabel">Matt's attending</span>
           </label>
         </div>
             </div>
@@ -1730,7 +1730,7 @@ body.tv-mode{padding:0!important;margin:0!important;background:var(--tv-bg)!impo
           </label>
           <label id="evPartnerAttendWrap" style="display:flex;align-items:center;gap:9px;font-size:.78rem;color:var(--text);cursor:pointer;font-family:'Urbanist',sans-serif;margin-top:8px;">
             <input type="checkbox" id="evPartnerAttending" style="width:16px;height:16px;accent-color:var(--accent);cursor:pointer;"/>
-            Matt's attending <span style="color:var(--muted);font-size:.7rem;">(emails him the details)</span>
+            Matt's attending 
           </label>
         </div>
         <div class="form-group"><label class="form-label">Status</label>
@@ -2153,13 +2153,13 @@ body.tv-mode{padding:0!important;margin:0!important;background:var(--tv-bg)!impo
 
   <!-- ══════════════════════ -->
   <div class="page" id="page-settings">
-    <div id="buildStamp" style="font-size:.7rem;letter-spacing:.15em;color:var(--accent);opacity:.7;text-align:center;padding:8px;font-weight:400;">BUILD-TAP-EDIT</div>
+    <div id="buildStamp" style="font-size:.7rem;letter-spacing:.15em;color:var(--accent);opacity:.7;text-align:center;padding:8px;font-weight:400;">BUILD-WAIT-NOEMAIL</div>
     <div class="card">
 
       <!-- PARTNER SHARING -->
       <div class="settings-section" style="margin-bottom:24px;">
         <div class="settings-section-title">Sharing with Matt</div>
-        <p style="font-size:.78rem;color:var(--muted);font-family:'Urbanist',sans-serif;margin-bottom:12px;line-height:1.6;">When you mark Matt attending an event, Centre emails him the details. Add his events with the "This is Matt's event" toggle to see them in your schedule and planner (but not Centre).</p>
+        <p style="font-size:.78rem;color:var(--muted);font-family:'Urbanist',sans-serif;margin-bottom:12px;line-height:1.6;">When you mark Matt attending an event, it shows on your Centre and schedule. (Emailing him can be added later.) Add his events with the "This is Matt's event" toggle to see them in your schedule and planner (but not Centre).</p>
         <div class="settings-grid">
           <div class="setting-item"><label class="setting-label">Matt's name</label><input class="hex-input" id="partnerNameInput" placeholder="Matt" value=""/></div>
           <div class="setting-item"><label class="setting-label">Matt's email</label><input class="hex-input" id="partnerEmailInput" type="email" placeholder="matt@example.com" value=""/></div>
@@ -5510,25 +5510,12 @@ function partnerEmail(){ return localStorage.getItem('centre_partnerEmail')||'';
 function partnerName(){ return localStorage.getItem('centre_partnerName')||'Matt'; }
 
 function notifyPartner(ev){
-  const to=partnerEmail();
-  if(!to){ if(typeof toast==='function') toast('Add Matt\'s email in Settings first'); return; }
-  const nm=partnerName();
-  const when=formatDate(ev.date)+(ev.time?' at '+fmtTimeStr(ev.time):'');
-  const payload={
-    to:to, partnerName:nm,
-    eventName:ev.name, date:ev.date, time:ev.time||'',
-    location:ev.location||'', notes:ev.notes||'', whenLabel:when
-  };
-  // Try the Firebase Function (automatic send). Fall back to mailto if it isn't set up.
-  const fnUrl=(typeof _centreAiUrl!=='undefined'&&_centreAiUrl)?_centreAiUrl.replace(/\/[^\/]*$/,'/notifyPartner'):'';
-  if(fnUrl){
-    fetch(fnUrl,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})
-      .then(function(r){ if(!r.ok) throw new Error('fn'); if(typeof toast==='function') toast('Emailed '+nm); })
-      .catch(function(){ partnerMailtoFallback(payload); });
-  } else {
-    partnerMailtoFallback(payload);
-  }
+  // Email sending is disabled for now — the partner-attending flag still saves and
+  // displays (badge on Centre, tinted rows in schedule). Re-enable later by restoring
+  // the Firebase/mailto send here. Kept as a no-op so existing call sites don't throw.
+  return;
 }
+
 function partnerMailtoFallback(p){
   const subj=encodeURIComponent('Event: '+p.eventName);
   const body=encodeURIComponent(
@@ -5947,7 +5934,7 @@ function psRefreshPartnerLabels(){
   const a=document.getElementById('psPartnerOwnedLabel');
   const b=document.getElementById('psPartnerAttendLabel');
   if(a) a.textContent="This is "+nm+"'s event — show in my schedule only, no invite sent";
-  if(b) b.textContent=nm+"'s attending — email "+(nm==='Matt'?'him':'them')+" the details";
+  if(b) b.textContent=nm+"'s attending";
 }
 
 function savePlannerEvent() {
@@ -6362,6 +6349,8 @@ function assignBlocks(tl, viewDate){
   const td=tl.filter(t=>{
     if(t.date!==undefined)return false;
     if(!t.name)return false;
+    // Tasks waiting on someone else live only in the Waiting section, not the schedule.
+    if(t.waitingFor && !t.done)return false;
     if(!occursOn(t, vd))return false;
     // Project tasks with a startDate: hide before that date
     if(t.startDate && vd < t.startDate) return false;
@@ -13842,7 +13831,7 @@ function openOccurrenceModal(evId, ds) {
       </label>
       <label id="occPartnerAttendWrap" style="display:${ev.partnerOwned?'none':'flex'};align-items:center;gap:9px;font-size:.8rem;color:var(--text);cursor:pointer;font-family:'Urbanist',sans-serif;font-weight:200;">
         <input type="checkbox" id="occPartnerAttending" ${ev.partnerAttending?'checked':''} style="width:15px;height:15px;accent-color:var(--accent);cursor:pointer;flex-shrink:0;"/>
-        <span>${escHtml((typeof partnerName==='function')?partnerName():'Matt')}'s attending — email the details</span>
+        <span>${escHtml((typeof partnerName==='function')?partnerName():'Matt')}'s attending</span>
       </label>
     </div>`}
     ${isRecurring ? `<div style="font-size:.72rem;color:var(--muted);padding:2px 0;">Partner setting applies to the whole series. Other changes apply to this occurrence only.</div>` : ''}`;
@@ -15183,7 +15172,7 @@ try{loadGoogleApiKey();}catch(e){}
 
 // Boot TV display mode if ?tv=1
 try{ if(isTvMode()) startTvMode(); }catch(e){ console.warn("TV mode failed:",e); }
-try{console.log('%cCentre build: BUILD-TAP-EDIT','font-size:16px;color:#c04a66;font-weight:bold;');}catch(e){}
+try{console.log('%cCentre build: BUILD-WAIT-NOEMAIL','font-size:16px;color:#c04a66;font-weight:bold;');}catch(e){}
 </script>
 
 </body>
