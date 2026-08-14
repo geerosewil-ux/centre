@@ -1068,7 +1068,7 @@ body.tv-mode{padding:0!important;margin:0!important;background:var(--tv-bg)!impo
   <meta name="theme-color" id="centreThemeColor" content="#f8eeec">
 </head>
 <body>
-<!-- BUILD-WAIT-NOEMAIL -->
+<!-- BUILD-OVERDUE-FIX -->
 
 <div class="app-header">
   <!-- DRAWER OVERLAY -->
@@ -2153,7 +2153,7 @@ body.tv-mode{padding:0!important;margin:0!important;background:var(--tv-bg)!impo
 
   <!-- ══════════════════════ -->
   <div class="page" id="page-settings">
-    <div id="buildStamp" style="font-size:.7rem;letter-spacing:.15em;color:var(--accent);opacity:.7;text-align:center;padding:8px;font-weight:400;">BUILD-WAIT-NOEMAIL</div>
+    <div id="buildStamp" style="font-size:.7rem;letter-spacing:.15em;color:var(--accent);opacity:.7;text-align:center;padding:8px;font-weight:400;">BUILD-OVERDUE-FIX</div>
     <div class="card">
 
       <!-- PARTNER SHARING -->
@@ -6346,15 +6346,17 @@ function assignBlocks(tl, viewDate){
   const nowMins=isToday?(new Date().getHours()*60+new Date().getMinutes()):0;
   // Only show tasks that actually occur on vd — exact date match, recurring logic included
   // For recurring tasks: exclude if already ticked on vd (they stay greyed in task list, not in schedule)
+  const _todayStr = today();
+  const _viewingToday = (vd === _todayStr);
   const td=tl.filter(t=>{
     if(t.date!==undefined)return false;
     if(!t.name)return false;
-    // Tasks waiting on someone else live only in the Waiting section, not the schedule.
     if(t.waitingFor && !t.done)return false;
-    if(!occursOn(t, vd))return false;
-    // Project tasks with a startDate: hide before that date
     if(t.startDate && vd < t.startDate) return false;
-    return true;
+    if(occursOn(t, vd)) return true;
+    // Roll overdue one-off tasks forward into TODAY so they are not lost.
+    if(_viewingToday && !t.recur && !t.done && t.due && t.due < _todayStr) return true;
+    return false;
   }).sort((a,b)=>{
     // Sort ONLY by due date and duration for bucketing — never by done-status,
     // which would cause completed tasks to migrate between blocks when ticked.
@@ -7354,8 +7356,9 @@ function closeCtxMenu() {
 }
 
 function ctxDesktopClick(e, taskId, forDate) {
-  // Mouse click opens the edit modal directly. (Touch is handled by ctxLongPress:
-  // quick tap = edit, long press = action menu.) Right-click uses the context menu.
+  // Mouse click opens the edit modal directly. (Touch handled by ctxLongPress.)
+  const _tg = e.target;
+  if (_tg && _tg.closest && _tg.closest('input,button,select,textarea,a')) return;
   e.stopPropagation();
   if (e.pointerType === 'touch') return;   // let the pointer handler own touch
   _ctxTaskId = taskId;
@@ -7365,6 +7368,9 @@ function ctxDesktopClick(e, taskId, forDate) {
 
 function ctxLongPress(e, taskId, forDate) {
   if (e.button !== undefined && e.button !== 0) return; // right-click handled by contextmenu
+  // Never treat a tap on the checkbox (or interactive controls) as edit — let it tick.
+  const _tg = e.target;
+  if (_tg && _tg.closest && _tg.closest('input,button,select,textarea,a,label')) return;
   _ctxMoved = false;
   let _fired = false;                       // did the long-press menu open?
   const startX = e.clientX, startY = e.clientY;
@@ -15172,7 +15178,7 @@ try{loadGoogleApiKey();}catch(e){}
 
 // Boot TV display mode if ?tv=1
 try{ if(isTvMode()) startTvMode(); }catch(e){ console.warn("TV mode failed:",e); }
-try{console.log('%cCentre build: BUILD-WAIT-NOEMAIL','font-size:16px;color:#c04a66;font-weight:bold;');}catch(e){}
+try{console.log('%cCentre build: BUILD-OVERDUE-FIX','font-size:16px;color:#c04a66;font-weight:bold;');}catch(e){}
 </script>
 
 </body>
