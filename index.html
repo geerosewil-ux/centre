@@ -1068,7 +1068,7 @@ body.tv-mode{padding:0!important;margin:0!important;background:var(--tv-bg)!impo
   <meta name="theme-color" id="centreThemeColor" content="#f8eeec">
 </head>
 <body>
-<!-- BUILD-DATALOSS-FIX -->
+<!-- BUILD-IMPORT-RECUR -->
 
 <div class="app-header">
   <!-- DRAWER OVERLAY -->
@@ -2153,7 +2153,7 @@ body.tv-mode{padding:0!important;margin:0!important;background:var(--tv-bg)!impo
 
   <!-- ══════════════════════ -->
   <div class="page" id="page-settings">
-    <div id="buildStamp" style="font-size:.7rem;letter-spacing:.15em;color:var(--accent);opacity:.7;text-align:center;padding:8px;font-weight:400;">BUILD-DATALOSS-FIX</div>
+    <div id="buildStamp" style="font-size:.7rem;letter-spacing:.15em;color:var(--accent);opacity:.7;text-align:center;padding:8px;font-weight:400;">BUILD-IMPORT-RECUR</div>
     <div class="card">
 
       <!-- PARTNER SHARING -->
@@ -9332,12 +9332,16 @@ function importExcel(input){
             const doneRaw=col(r,['Done','Complete','Completed','status']);
             const done=doneRaw.toLowerCase()==='yes'||doneRaw==='1'||doneRaw.toLowerCase()==='true';
             const id=col(r,['ID','id']);
+            const recurRaw=col(r,['Recurrence','Recur','Repeat','Recurring']);
+            const recur=strToRecur(recurRaw);
             const ex=id?tasks.find(t=>t.id===id):null;
             if(ex){
               ex.name=name;ex.due=due||ex.due;ex.dur=dur||ex.dur;ex.done=done;
               if(cat)ex.catId=cat.id;
+              if(recurRaw!==undefined && recurRaw!=='') ex.recur=recur;
+              if(typeof touchItem==='function') touchItem(ex);
             }else{
-              tasks.push({id:id||newTaskId(),name,due,dur,done,catId:cat?cat.id:'',recur:null,habit:null,blockPins:{}});
+              tasks.push({id:id||newTaskId(),_created:Date.now(),_modified:Date.now(),name,due,dur,done,catId:cat?cat.id:'',recur:recur,habit:null,blockPins:{}});
               tc++;
             }
           }catch(err){errs.push('Task row '+(i+1)+': '+err.message);}
@@ -9361,12 +9365,18 @@ function importExcel(input){
             const notes=col(r,['Notes','Note','Description','desc'])||'';
             const type=col(r,['Type','event_type'])||'event';
             const id=col(r,['ID','id']);
+            // Parse the Recurrence column so repeating events survive import.
+            const recurRaw=col(r,['Recurrence','Recur','Repeat','Recurring']);
+            let recur=strToRecur(recurRaw);
+            // Birthdays are yearly by convention even if the column was blank.
+            if(!recur && /birthday/i.test(type)) recur={type:'yearly',endType:'never'};
             const ex=id?events.find(ev=>ev.id===id):null;
             if(ex){
               ex.name=name;ex.date=date;ex.type=type;ex.notes=notes;
               if(cat)ex.catId=cat.id;if(time)ex.time=time;
+              if(recurRaw!==undefined && recurRaw!=='') ex.recur=recur; // only overwrite if a value was given
             }else{
-              events.push({id:id||newEventId(),name,date,type,catId:cat?cat.id:'',time,timeEnd:'',notes,location:'',busyStatus:'free',recur:null});
+              events.push({id:id||newEventId(),_created:Date.now(),_modified:Date.now(),name,date,type,catId:cat?cat.id:'',time,timeEnd:'',notes,location:'',busyStatus:'free',recur:recur});
               ec++;
             }
           }catch(err){errs.push('Event row '+(i+1)+': '+err.message);}
@@ -15202,7 +15212,7 @@ try{loadGoogleApiKey();}catch(e){}
 
 // Boot TV display mode if ?tv=1
 try{ if(isTvMode()) startTvMode(); }catch(e){ console.warn("TV mode failed:",e); }
-try{console.log('%cCentre build: BUILD-DATALOSS-FIX','font-size:16px;color:#c04a66;font-weight:bold;');}catch(e){}
+try{console.log('%cCentre build: BUILD-IMPORT-RECUR','font-size:16px;color:#c04a66;font-weight:bold;');}catch(e){}
 </script>
 
 </body>
