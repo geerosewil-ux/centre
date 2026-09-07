@@ -1068,7 +1068,7 @@ body.tv-mode{padding:0!important;margin:0!important;background:var(--tv-bg)!impo
   <meta name="theme-color" id="centreThemeColor" content="#f8eeec">
 </head>
 <body>
-<!-- BUILD-OVERDUE-FIX -->
+<!-- BUILD-DATALOSS-FIX -->
 
 <div class="app-header">
   <!-- DRAWER OVERLAY -->
@@ -2153,7 +2153,7 @@ body.tv-mode{padding:0!important;margin:0!important;background:var(--tv-bg)!impo
 
   <!-- ══════════════════════ -->
   <div class="page" id="page-settings">
-    <div id="buildStamp" style="font-size:.7rem;letter-spacing:.15em;color:var(--accent);opacity:.7;text-align:center;padding:8px;font-weight:400;">BUILD-OVERDUE-FIX</div>
+    <div id="buildStamp" style="font-size:.7rem;letter-spacing:.15em;color:var(--accent);opacity:.7;text-align:center;padding:8px;font-weight:400;">BUILD-DATALOSS-FIX</div>
     <div class="card">
 
       <!-- PARTNER SHARING -->
@@ -2812,6 +2812,7 @@ function newCatId(){return 'CAT-'+String(++catSeq).padStart(4,'0');}
 
 // ---- STATE ----
 let _suppressOverviewRender=false;
+let deletedIds = {}; try{ deletedIds = JSON.parse(localStorage.getItem('centre_deletedIds')||'{}'); }catch(e){ deletedIds={}; }
 let tasks=[],events=[],waterFilled=0,waterGoal=8,waterWeekOffset=0,meals=[],mealSeq=0,templates=[],templateSeq=0,recipes=[],recipeSeq=0,activeFilter='all',weekOffset=0,modalDate=null,eventsViewDate=null,scheduleViewDate=null;
 let eventOverrides={};  // { 'evtId_YYYY-MM-DD': {cancelled,name,date,time,notes,catId} }
 let nutriGoals={cal:2000,protein:150,carbs:200,fat:65,fibre:30,sugar:50,sodium:2300,potassium:3500,magnesium:400,calcium:1000,iron:18,zinc:8};
@@ -4554,7 +4555,6 @@ function overdueTaskTick(cb, id) {
 
 function toggleTask(id,forDate){
   const t=tasks.find(t=>t.id===id);if(!t)return;
-  touchItem(t);
   const ds=forDate||today();
   // For habit tasks: toggle is date-scoped log, not a permanent done flag
   if(t.habit){
@@ -4586,9 +4586,10 @@ function toggleTask(id,forDate){
   }
   // Non-recurring, non-habit task: normal done toggle
   t.done=!t.done;
+  if(typeof touchItem==='function')touchItem(t);  // stamp AFTER the change so sync sees this as newest
   scheduleSave();renderTasks();renderOverview();renderOverviewWaiting();
 }
-function deleteTask(id){tasks=tasks.filter(t=>t.id!==id);subtasks=subtasks.filter(s=>s.taskId!==id);habitLog=habitLog.filter(e=>e.taskId!==id);recurDoneLog=recurDoneLog.filter(e=>e.taskId!==id);scheduleSave();renderTasks();renderOverview();}
+function deleteTask(id){try{ if(typeof deletedIds==='undefined'){window.deletedIds={};} deletedIds[id]=Date.now(); localStorage.setItem('centre_deletedIds',JSON.stringify(deletedIds)); }catch(e){} tasks=tasks.filter(t=>t.id!==id);subtasks=subtasks.filter(s=>s.taskId!==id);habitLog=habitLog.filter(e=>e.taskId!==id);recurDoneLog=recurDoneLog.filter(e=>e.taskId!==id);scheduleSave();renderTasks();renderOverview();}
 function setFilter(f,btn){activeFilter=f;document.querySelectorAll('#page-tasks .filter-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderTasks();}
 function toggleEditForm(id){const f=document.getElementById('edit-'+id);if(f)f.classList.toggle('open');}
 function toggleEditRecur(id){
@@ -10763,20 +10764,34 @@ function mergeItemsById(remoteArr, localArr, lastPushTs){
   const lc = Array.isArray(localArr) ? localArr : [];
   if(!rm) return lc;
   const byId = {};
-  rm.forEach(function(x){ if(x&&x.id) byId[x.id]=x; });
+  rm.forEach(function(x){ if(x&&x.id && !(typeof deletedIds!=='undefined'&&deletedIds[x.id])) byId[x.id]=x; });
   lc.forEach(function(x){
     if(!x||!x.id) return;
     const r = byId[x.id];
+    if(typeof deletedIds!=='undefined' && deletedIds[x.id]){ return; } // tombstoned — stay deleted
     if(!r){
-      // Local-only. Keep it only if created since our last push (genuinely new).
-      // Otherwise it was already synced once and has since been deleted elsewhere.
-      if((x._created||0) > lastPushTs) byId[x.id] = x;
+      // Local-only item. A missing remote entry is NOT proof of deletion — the
+      // remote can arrive empty or partial. Deleting on absence is what wiped data.
+      // Safe rule: KEEP local-only items. Real deletions are handled explicitly by
+      // deleteTask writing a tombstone, not by inference from absence.
+      byId[x.id] = x;
       return;
     }
     // Present on both sides — newest edit wins.
     const lmod = x._modified || x._created || 0;
     const rmod = r._modified || r._created || 0;
-    if(lmod > rmod) byId[x.id] = x;
+    if(lmod > rmod){ byId[x.id] = x; }
+    else if(lmod === rmod){
+      // Timestamps can't decide (legacy items with no _modified). Rather than let
+      // 'remote wins' silently flip state, merge conservatively:
+      //  - a completion is sticky: if EITHER side is done, keep it done
+      //  - otherwise preserve the local values the user set on this device
+      const merged = Object.assign({}, r);
+      merged.done = (r.done || x.done);
+      merged.status = x.status || r.status;
+      merged.waitingFor = (x.waitingFor !== undefined ? x.waitingFor : r.waitingFor);
+      byId[x.id] = merged;
+    }
   });
   return Object.keys(byId).map(function(k){ return byId[k]; });
 }
@@ -10789,8 +10804,17 @@ function applyRemoteData(remote) {
   // Only overwrite tasks/recurDoneLog if remote is newer than local
   const _applyTs = parseInt(localStorage.getItem('centre_lastPush') || '0');
   // Per-item merge — no whole-array timestamp gate (see mergeItemsById)
-  if (remote.tasks)  tasks  = mergeItemsById(remote.tasks,  tasks,  _applyTs);
-  if (remote.events) events = mergeItemsById(remote.events, events, _applyTs);
+  // Guard: an empty remote collection must never wipe a populated local one.
+  if (remote.tasks && !(remote.tasks.length === 0 && tasks.length > 0)) {
+    tasks = mergeItemsById(remote.tasks, tasks, _applyTs);
+  } else if (remote.tasks && remote.tasks.length === 0 && tasks.length > 0) {
+    console.warn('[SYNC] ignored empty remote tasks — kept '+tasks.length+' local');
+  }
+  if (remote.events && !(remote.events.length === 0 && events.length > 0)) {
+    events = mergeItemsById(remote.events, events, _applyTs);
+  } else if (remote.events && remote.events.length === 0 && events.length > 0) {
+    console.warn('[SYNC] ignored empty remote events — kept '+events.length+' local');
+  }
   if (remote.appointments) appointments = remote.appointments;
   if (remote.categories) categories = remote.categories;
   if (remote.habitLog) habitLog = remote.habitLog;
@@ -15178,7 +15202,7 @@ try{loadGoogleApiKey();}catch(e){}
 
 // Boot TV display mode if ?tv=1
 try{ if(isTvMode()) startTvMode(); }catch(e){ console.warn("TV mode failed:",e); }
-try{console.log('%cCentre build: BUILD-OVERDUE-FIX','font-size:16px;color:#c04a66;font-weight:bold;');}catch(e){}
+try{console.log('%cCentre build: BUILD-DATALOSS-FIX','font-size:16px;color:#c04a66;font-weight:bold;');}catch(e){}
 </script>
 
 </body>
