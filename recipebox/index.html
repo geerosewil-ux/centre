@@ -639,6 +639,7 @@ button,input,select{font:inherit;color:inherit}
   var LIQ = /\b(juice|syrup|milk|cream|oil|vinegar|wine|beer|liqueur|amaretto|spirit|water|stock|broth|sauce|vodka|gin|rum|whisky|whiskey|brandy|cordial|beverage|extract|essence|cider|kombucha|coffee|tea)\b/i;
   function isLiquid(food) { return !!food && (food.liquid || (LIQ.test(food.name || '') && !/powder|dried|flour|solid|cube|paste|bar\b/i.test(food.name || ''))); }
   function displayAmount(row, food) {
+    if (!row.g && !row.ml) return '';
     if (isLiquid(food) && (row.ml != null || row.g != null)) return fmt(row.ml != null ? row.ml : row.g / ((food && food.density) || 1)) + ' ml';
     return fmt(row.g) + ' g';
   }
@@ -669,7 +670,7 @@ var FOIL = {
 };
 function finishCss(kind, paper, px, hasColor, tone) {
   var L = (0.299 * paper[0] + 0.587 * paper[1] + 0.114 * paper[2]) / 255, dark = L < 0.45;
-  var u = Math.max(1, Math.round(px / 28 * 10) / 10), out = [], fc, hi, lo, sh;
+  var u = Math.min(1.1, Math.max(.45, Math.round(px / 60 * 100) / 100)), out = [], fc, hi, lo, sh;
   if (kind === 'foil') {
     fc = FOIL[tone] || FOIL.gold;
     return [
@@ -680,7 +681,7 @@ function finishCss(kind, paper, px, hasColor, tone) {
   }
   hi = dark ? 'rgba(255,255,255,.2)' : 'rgba(255,255,255,.95)';
   lo = dark ? 'rgba(0,0,0,.6)' : 'rgba(60,50,30,.36)';
-  if (kind === 'raise') sh = (-u) + 'px ' + (-u) + 'px ' + u + 'px ' + hi + ', ' + u + 'px ' + u + 'px ' + (u * 2) + 'px ' + lo;
+  if (kind === 'raise') sh = (-u) + 'px ' + (-u) + 'px ' + (u * 1.5) + 'px ' + hi + ', ' + u + 'px ' + u + 'px ' + (u * 2.5) + 'px ' + lo;
   else if (kind === 'press') sh = u + 'px ' + u + 'px ' + u + 'px ' + hi + ', ' + (-u) + 'px ' + (-u) + 'px ' + u + 'px ' + lo;
   else sh = '0 ' + u + 'px 0 ' + (dark ? 'rgba(255,255,255,.16)' : 'rgba(255,255,255,.9)') + ', 0 ' + (-u) + 'px 0 ' + (dark ? 'rgba(0,0,0,.5)' : 'rgba(40,35,25,.2)');
   if ((kind === 'raise' || kind === 'press') && !hasColor) out.push(['color', 'rgb(' + paper.join(',') + ')']);
@@ -755,6 +756,8 @@ var matches = lsGet('rb.matches', {});
 var region = lsGet('rb.region', 'au');
 var CATS = ['Breakfast', 'Lunch', 'Dinner', 'Soups', 'Baking', 'Snacks', 'Dessert', 'Drinks', 'Other'];
 
+var SMALLW = { a: 1, an: 1, and: 1, as: 1, at: 1, but: 1, by: 1, for: 1, in: 1, of: 1, on: 1, or: 1, the: 1, to: 1, with: 1, from: 1, per: 1, n: 1 };
+function titleWords(s) { return String(s || '').trim().replace(/\s+/g, ' ').split(' ').map(function (w, i) { var lw = w.toLowerCase(); return i > 0 && SMALLW[lw] ? lw : w.charAt(0).toUpperCase() + w.slice(1); }).join(' '); }
 function titleCase(s) { s = String(s || '').trim(); return s.charAt(0).toUpperCase() + s.slice(1); }
 function shortFood(f) { return f ? f.name.replace(/\s*\(.*?\)/g, '').split(',').slice(0, 3).join(',') : ''; }
 function frac(x) {
@@ -1161,7 +1164,7 @@ function cartView() {
   });
   wrap.appendChild(tb);
   var addIn = h('input', { type: 'text', placeholder: 'Add something else: milk, bin bags, flowers', 'aria-label': 'Add an extra item', class: 'search', onkeydown: function (e) { if (e.key === 'Enter') addExtra(); } });
-  function addExtra() { var v = addIn.value.trim(); if (!v) return; cart.manual.push({ id: uid(), name: v, got: false }); saveCart(); render(); }
+  function addExtra() { var v = addIn.value.trim(); if (!v) return; cart.manual.push({ id: uid(), name: titleWords(v), got: false }); saveCart(); render(); }
   var ext = h('section', { class: 'csec' }, h('h2', { style: 'font-size:20px' }, 'Add to the list'), h('div', { class: 'tools', style: 'margin-top:8px' }, addIn, h('button', { class: 'btn', type: 'button', onclick: addExtra }, 'Add')));
   var qa = h('div', { class: 'chips', 'aria-label': 'Your usual items' });
   usuals.forEach(function (u) {
@@ -1172,7 +1175,7 @@ function cartView() {
   ext.appendChild(h('div', { class: 'lab2', style: 'margin:14px 0 6px' }, 'Your usuals'));
   ext.appendChild(qa);
   var uIn = h('input', { type: 'text', class: 'search', placeholder: 'Add a usual, e.g. oat milk', 'aria-label': 'New usual item', onkeydown: function (e) { if (e.key === 'Enter') addU(); } });
-  function addU() { var v = uIn.value.trim(); if (!v || usuals.some(function (x) { return x.toLowerCase() === v.toLowerCase(); })) return; usuals.push(titleCase(v)); lsSet('rb.usuals', usuals); render(); }
+  function addU() { var v = uIn.value.trim(); if (!v || usuals.some(function (x) { return x.toLowerCase() === v.toLowerCase(); })) return; usuals.push(titleWords(v)); lsSet('rb.usuals', usuals); render(); }
   ext.appendChild(editUsuals ? h('div', { class: 'tools', style: 'margin-top:6px' }, uIn, h('button', { class: 'btn', type: 'button', onclick: addU }, 'Add'), h('button', { class: 'btn quiet', type: 'button', onclick: function () { editUsuals = false; render(); } }, 'Done')) : h('button', { class: 'btn quiet', type: 'button', onclick: function () { editUsuals = true; render(); } }, 'Edit usuals'));
   wrap.appendChild(ext);
   var gotManual = cart.manual.filter(function (m) { return m.got; });
@@ -1824,9 +1827,19 @@ function rowForLine(line, extra, preset) {
   return row;
 }
 // Work out the grams for a row from its text and chosen food (or the manual override).
+function asisFood(name) {
+  var id = 'custom:asis:' + (E.nameKey(name) || 'item');
+  if (!FOODS[id]) FOODS[id] = { id: id, name: titleCase(name) + ' (no nutrition data)', source: 'custom', per100: {}, density: null };
+  return FOODS[id];
+}
 function solve(row) {
   var f = FOODS[row.foodId], out = { g: null, ml: null, why: '' };
   if (row.skip) return out;
+  if (row.asis) {
+    var af = asisFood(row.parsed.name), gg = row.manualG != null && row.manualG !== '' ? Number(row.manualG) : 0, rw = { foodId: af.id, g: gg, original: row.parsed.original };
+    if (row.parsed.qty != null && !(row.manualG != null && row.manualG !== '')) { rw.n = row.parsed.qty; rw.u = row.parsed.unit || 'each'; }
+    out.g = gg; out.row = rw; return out;
+  }
   if (row.manualG != null && row.manualG !== '') {
     out.g = Number(row.manualG); if (f && f.liquid && f.density) out.ml = out.g / f.density; return out;
   }
@@ -1841,7 +1854,7 @@ function draftRecipe(d) {
     var s = solve(row); if (row.skip || s.g == null) return;
     var base = s.row || { foodId: row.foodId, g: Math.round(s.g * 10) / 10, original: row.parsed.original };
     if (s.ml != null && base.ml == null) base.ml = Math.round(s.ml * 10) / 10;
-    base.foodId = row.foodId; base.g = Math.round(s.g * 10) / 10; base.label = (row.shown != null && String(row.shown).trim()) ? String(row.shown).trim() : titleCase(row.parsed.name || shortFood(FOODS[row.foodId]));
+    base.foodId = row.asis ? asisFood(row.parsed.name).id : row.foodId; base.g = Math.round(s.g * 10) / 10; base.label = (row.shown != null && String(row.shown).trim()) ? String(row.shown).trim() : titleCase(row.parsed.name || shortFood(FOODS[row.foodId]));
     if (row.keep && row.keep.n != null && row.manualG === row.keep.g0) { base.n = row.keep.n; base.u = row.keep.u; }
     if (row.cnt && row.manualG != null) { base.n = row.cnt.n; base.u = row.cnt.u; }
     ings.push(base);
@@ -1920,7 +1933,7 @@ function addView() {
     el.appendChild(h('label', { class: 'shown' }, 'Shown on the card as', h('input', { type: 'text', value: row.shown != null ? row.shown : '', 'aria-label': 'Name on the card for ' + row.parsed.original, oninput: function (e) { row.shown = e.target.value; refreshSummary(); } })));
     el.appendChild(h('div', { class: 'hint', style: 'margin:6px 0 2px' }, 'Nutrition comes from:'));
     el.appendChild(h('div', { class: 'rctl' }, sel, search));
-    el.appendChild(h('div', { class: 'rctl2' }, h('label', { class: 'amt' }, 'Amount ', gIn, uSel), h('label', { class: 'chk' }, skip, ' Leave out'), stat));
+    el.appendChild(h('div', { class: 'rctl2' }, h('label', { class: 'amt' }, 'Amount ', gIn, uSel), h('label', { class: 'chk' }, skip, ' Leave out'), h('label', { class: 'chk' }, h('input', { type: 'checkbox', checked: !!row.asis, onchange: function (e) { row.asis = e.target.checked; redraw(); refreshSummary(); } }), ' Add as written, no nutrition'), stat));
     el.appendChild(why);
     return el;
   }
@@ -2200,7 +2213,7 @@ function savePantry() {
   pantry.forEach(function (p) {
     if (!(p.low > 0)) return;
     var inCart = cart.manual.filter(function (m) { return m.pid === p.id; })[0];
-    if (p.g <= p.low && !inCart) { cart.manual.push({ id: uid(), name: titleCase(p.name), got: false, pid: p.id }); saveCart(); }
+    if (p.g <= p.low && !inCart) { cart.manual.push({ id: uid(), name: titleWords(p.name), got: false, pid: p.id }); saveCart(); }
     else if (p.g > p.low && inCart && !inCart.got) { cart.manual = cart.manual.filter(function (m) { return m !== inCart; }); saveCart(); }
   });
   lsSet('rb.pantry', pantry);
@@ -2251,7 +2264,7 @@ function pantryView() {
   placeSel = h('select', { id: 'pan-place', 'aria-label': 'Where it is kept' }, ['Cupboard', 'Fridge', 'Freezer'].map(function (x) { return h('option', { value: x }, x); }));
   unitSel = h('select', { id: 'pan-unit', 'aria-label': 'Unit' }, h('option', { value: '1' }, 'g'), h('option', { value: '1000' }, 'kg'), h('option', { value: 'ml' }, 'ml'), h('option', { value: 'l' }, 'L'), h('option', { value: 'each' }, 'whole'));
   function add() {
-    var n = nameIn.value.trim(), raw = gIn.value.trim(), isEach = unitSel.value === 'each', ew = selF.value ? eachW(FOODS[selF.value]) : 0, uv = unitSel.value, dens = (selF.value && FOODS[selF.value] && FOODS[selF.value].density) || 1, g = parseFloat(raw) * (isEach ? ew : uv === 'ml' ? dens : uv === 'l' ? 1000 * dens : parseFloat(uv)), pl = placeSel.value;
+    var n = titleWords(nameIn.value), raw = gIn.value.trim(), isEach = unitSel.value === 'each', ew = selF.value ? eachW(FOODS[selF.value]) : 0, uv = unitSel.value, dens = (selF.value && FOODS[selF.value] && FOODS[selF.value].density) || 1, g = parseFloat(raw) * (isEach ? ew : uv === 'ml' ? dens : uv === 'l' ? 1000 * dens : parseFloat(uv)), pl = placeSel.value;
     if (!n) { toast('Type what you have first.'); return; }
     if (!raw || !(g >= 0)) { if (!pantry.some(function (x) { return x.name.toLowerCase() === n.toLowerCase(); })) pantry.push({ id: uid(), name: n, foodId: '', g: 0, nog: true, place: pl }); savePantry(); render(); return; }
     if (!selF.value) { toast('Pick the food it is.'); return; }
@@ -2297,7 +2310,7 @@ function pantryView() {
   var list = h('div', { class: 'plist' });
   items.sort(function (a, b) { return a.name.localeCompare(b.name); }).forEach(function (p) {
     var fd = FOODS[p.foodId], ew = p.cnt ? eachW(fd) : 0, lq = !ew && isLiq(fd), dn = (fd && fd.density) || 1, inp = h('input', { type: 'number', min: '0', step: 'any', inputmode: 'decimal', value: String(ew ? Math.round(p.g / ew * 2) / 2 : lq ? Math.round(p.g / dn) : p.g), 'aria-label': (ew ? 'Number of ' : lq ? 'Millilitres of ' : 'Grams of ') + p.name, onchange: function (e) { var v = Math.max(0, parseFloat(e.target.value) || 0); p.g = ew ? Math.round(v * ew * 10) / 10 : lq ? Math.round(v * dn * 10) / 10 : v; savePantry(); render(); } });
-    list.appendChild(h('div', { class: 'prow' }, h('div', { style: 'min-width:0' }, h('b', null, titleCase(p.name)), h('div', { class: 'hint' }, fd ? shortFood(fd) : '')),
+    list.appendChild(h('div', { class: 'prow' }, h('div', { style: 'min-width:0' }, h('b', null, titleWords(p.name)), h('div', { class: 'hint' }, fd ? shortFood(fd) : '')),
       p.nog ? h('span', { class: 'hint' }, 'have it') : h('span', { class: 'plw' },
         (p.low > 0 && p.g <= p.low) ? h('span', { class: 'lowb' }, 'Running low') : null,
         h('label', { class: 'plab' }, inp, ew ? ' whole' : lq ? ' ml' : ' g'),
@@ -2318,7 +2331,7 @@ function allTags() {
   Object.keys(seen).sort().forEach(function (t) { if (out.indexOf(t) < 0) out.push(t); });
   return out.map(function (t) { return [t, seen[t]]; });
 }
-function parseTags(s) { var seen = {}, out = []; String(s || '').split(',').forEach(function (t) { t = titleCase(t.trim()); if (t && !seen[t.toLowerCase()]) { seen[t.toLowerCase()] = 1; out.push(t); } }); return out; }
+function parseTags(s) { var seen = {}, out = []; String(s || '').split(',').forEach(function (t) { t = titleWords(t); if (t && !seen[t.toLowerCase()]) { seen[t.toLowerCase()] = 1; out.push(t); } }); return out; }
 
 /* editing a saved recipe */
 function draftFromRecipe(r) {
