@@ -9,7 +9,7 @@
 :root{
   --ground:#F7F7F5; --card:#FFFFFF; --ink:#111111; --ink-2:#6B6B63; --line:#E4E4E0; --rule:#EEEEEA;
   --accent:#3F4A3C; --on-accent:#FFFFFF; --shadow:rgba(17,17,17,.28);
-  --font-serif:'Bodoni Moda',Georgia,'Times New Roman',serif;
+  --font-serif:'Cormorant Garamond',Georgia,'Times New Roman',serif;
   --font-body:'Figtree',system-ui,-apple-system,'Segoe UI',sans-serif;
 }
 @media (prefers-color-scheme:dark) and (min-width:99999px){
@@ -19,7 +19,9 @@
 *{box-sizing:border-box}
 body{margin:0;background:var(--ground);color:var(--ink);font:15px/1.5 var(--font-body);padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 56px}
 .app{max-width:1240px;margin:0 auto}
-h1,h2,h3{font-family:var(--font-serif);font-weight:500;margin:0;text-wrap:balance}
+h1,h2,h3{font-family:var(--font-serif);font-weight:500;margin:0;text-wrap:balance;letter-spacing:.005em}
+body{font-feature-settings:'kern','liga';-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;font-variant-numeric:lining-nums}
+.ir b,.nm{font-variant-numeric:tabular-nums lining-nums}
 button,input,select{font:inherit;color:inherit}
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:16px}
@@ -278,6 +280,8 @@ button,input,select{font:inherit;color:inherit}
 @media (max-width:560px){.row2 .nvtog span:last-child{display:none}}
 .corner{display:flex;gap:6px;align-items:center;flex:0 0 auto}.rnd{width:36px;height:36px;border:1px solid var(--line);border-radius:50%;background:var(--card);color:var(--ink-2);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;padding:0}.qed{display:flex;flex-direction:column;gap:8px;margin:0 0 14px;padding:14px;border:1px solid var(--line);border-radius:14px;background:var(--card)}.qrow{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.qrow input[type=text]{flex:1 1 140px;min-width:0}.qrow input[type=number]{width:90px}
 .plw{display:inline-flex;align-items:center;gap:14px;flex-wrap:wrap;justify-content:flex-end}.lowb{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--rose);border:1px solid currentColor;border-radius:99px;padding:2px 10px}.plab.low{display:inline-flex;align-items:center;gap:6px}.lowin{width:68px}
+.wheel-wrap{background:transparent!important;border:0!important;box-shadow:none!important}
+.usel{margin-left:6px;min-height:40px}.rctl2 .amt input,.amt input{width:104px!important;min-width:104px}.amt{display:inline-flex;align-items:center;gap:4px}
 .uadd{font:500 13px var(--font-body);min-height:34px;padding:0 14px;border:1px solid var(--line);border-radius:99px;background:var(--card);color:var(--ink);cursor:pointer}.uadd:hover{border-color:var(--ink-2)}
 .ico{display:inline-flex;align-items:center;justify-content:center;line-height:0}.ico svg{display:block}.corner .heart,.cc.heart{display:inline-flex;align-items:center;justify-content:center;padding:0;line-height:0}.cc.heart svg{display:block}
 .rnd.armed{color:#fff;background:#9C2A3A!important;border-color:#9C2A3A!important}.rnd:hover{color:var(--ink);border-color:var(--ink-2)}.corner .heart{width:36px;height:36px}
@@ -441,11 +445,14 @@ button,input,select{font:inherit;color:inherit}
     }
     if (VOL[u] != null || u === 'cup' || u === 'tbsp' || u === 'tsp') {
       ml = qty * (VOL[u] != null ? VOL[u] : R[u]);
+      if ((!food || !food.density) && (u === 'tsp' || u === 'tbsp') && ml <= R.tbsp + 0.01) return { g: ml * 0.8, ml: null, basis: 'count x spoon (estimated)' };
       if (!food || !food.density) return { g: null, ml: ml, basis: 'volume', error: 'needs density' };
       return { g: ml * food.density, ml: ml, basis: 'volume x density' };
     }
     if (!u) {
       w = food && food.unitWeights && (food.unitWeights.each || food.unitWeights.whole);
+      if (!w && food && /^Egg, chicken, white/i.test(food.name)) w = 33;
+      if (!w && food && /^Egg, chicken, yolk/i.test(food.name)) w = 18;
       if (w) return { g: qty * w, ml: null, basis: 'count x each' };
       return { g: null, ml: null, error: 'needs unit weight' };
     }
@@ -618,19 +625,21 @@ button,input,select{font:inherit;color:inherit}
     var m = toMetric(parsed.qty, parsed.unit, food, region);
     if (m.error && m.g == null) return { needs: m.error, parsed: parsed };
     var row = { foodId: food.id, g: Math.round(m.g * 10) / 10, original: parsed.original };
-    if (food.liquid) {
+    if (isLiquid(food)) {
       if (m.ml != null) row.ml = Math.round(m.ml * 10) / 10;
+      else if (!food.density) row.ml = row.g;
       else if (food.density) row.ml = Math.round(m.g / food.density * 10) / 10;
     }
     if (parsed.note) row.note = parsed.note;
-    if (m.basis.indexOf('count') === 0) { row.n = parsed.qty; row.u = parsed.unit; }
+    if (m.basis.indexOf('count') === 0) { row.n = parsed.qty; row.u = /^(t|tsp|teaspoons?)$/i.test(parsed.unit) ? 'tsp' : /^(tbsp|tablespoons?)$/i.test(parsed.unit) ? 'tbsp' : parsed.unit; }
     return row;
   }
 
   // Display helper: amounts are only ever shown as grams or ml.
   var LIQ = /\b(juice|syrup|milk|cream|oil|vinegar|wine|beer|liqueur|amaretto|spirit|water|stock|broth|sauce|vodka|gin|rum|whisky|whiskey|brandy|cordial|beverage|extract|essence|cider|kombucha|coffee|tea)\b/i;
+  function isLiquid(food) { return !!food && (food.liquid || (LIQ.test(food.name || '') && !/powder|dried|flour|solid|cube|paste|bar\b/i.test(food.name || ''))); }
   function displayAmount(row, food) {
-    if (row.ml != null && food && (food.liquid || LIQ.test(food.name || ''))) return fmt(row.ml) + ' ml';
+    if (isLiquid(food) && (row.ml != null || row.g != null)) return fmt(row.ml != null ? row.ml : row.g / ((food && food.density) || 1)) + ' ml';
     return fmt(row.g) + ' g';
   }
   function fmt(x) { return (x < 10 ? Math.round(x * 10) / 10 : Math.round(x)).toString(); }
@@ -639,7 +648,7 @@ button,input,select{font:inherit;color:inherit}
     NUTRIENTS: NUTRIENTS, NKEYS: NKEYS, REGIONS: REGIONS, DAILY: DAILY,
     parseNumber: parseNumber, parseLine: parseLine, unitKey: unitKey, toMetric: toMetric, coverage: coverage, energyFromMacros: energyFromMacros,
     scale: scale, sumNutrients: sumNutrients, nutrition: nutrition, planDay: planDay, shoppingList: shoppingList, rank: rank,
-    ingredientFromLine: ingredientFromLine, matchFoods: matchFoods, nameKey: nameKey, displayAmount: displayAmount
+    ingredientFromLine: ingredientFromLine, isLiquid: isLiquid, matchFoods: matchFoods, nameKey: nameKey, displayAmount: displayAmount
   };
 });
 
@@ -686,11 +695,11 @@ function lsSet(k, v) { var ok = false; try { localStorage.setItem(k, JSON.string
 var ROLEKEYS = ['h1', 'h2', 'bd', 'nm', 'eb'];
 var ROLES = [['h1', 'Title'], ['h2', 'Subtitle'], ['bd', 'Body'], ['nm', 'Measurements'], ['eb', 'Labels']];
 var DEFT = {
-  h1: { f: 'Bodoni Moda', c: '#111111', w: 500 }, h2: { f: 'Bodoni Moda', c: '#111111', w: 500 },
+  h1: { f: 'Cormorant Garamond', c: '#111111', w: 600 }, h2: { f: 'Cormorant Garamond', c: '#111111', w: 500 },
   bd: { f: 'Figtree', c: '#2A2A27', w: 400 }, nm: { f: 'Figtree', c: '#111111', w: 500 },
   eb: { f: 'Figtree', c: '#6B6B63', w: 600 }
 };
-var SZ = { h1: { full: 34, mini: 22 }, h2: { full: 19, mini: 14 }, bd: { full: 15, mini: 13 }, nm: { full: 15, mini: 13 }, eb: { full: 11, mini: 10 } };
+var SZ = { h1: { full: 38, mini: 24 }, h2: { full: 21, mini: 15 }, bd: { full: 15, mini: 13 }, nm: { full: 15, mini: 13 }, eb: { full: 11, mini: 10 } };
 var BFONTS = [
   ['Bodoni Moda', '"Bodoni Moda",Georgia,serif'], ['Cormorant Garamond', '"Cormorant Garamond",Georgia,serif'],
   ['Fraunces', 'Fraunces,Georgia,serif'], ['Playfair Display', '"Playfair Display",Georgia,serif'],
@@ -730,6 +739,7 @@ function loadDesign() {
   return base;
 }
 var design = loadDesign();
+(function () { if (lsGet('rb.typo2', 0)) return; ['h1', 'h2'].forEach(function (k) { var t = design.text && design.text[k]; if (t && t.f === 'Bodoni Moda') { t.f = 'Cormorant Garamond'; t.w = k === 'h1' ? 600 : 500; } }); lsSet('rb.design', design); lsSet('rb.typo2', 1); })();
 var user = lsGet('rb.user', { rating: {}, fav: {} });
 var S = { flip: {}, view: 'recipes', sel: null, detail: false, q: '', sort: 'az', serv: {}, role: 'h1' };
 
@@ -1366,7 +1376,7 @@ function miniCard(r) {
   return cardShell('mini wi', [top, title, meta]);
 }
 
-function plU(u, n) { return u && u !== 'each' ? ' ' + u + (n > 1 && !/s$/.test(u) ? 's' : '') : ''; }
+function plU(u, n) { return u && u !== 'each' ? ' ' + u + (n > 1 && !/s$|^(tsp|tbsp|g|ml)$/.test(u) ? 's' : '') : ''; }
 // How an ingredient reads on a card: counted things (1 onion, 2 egg whites) show as counts, everything else as g or ml.
 function ingText(it, f, food) {
   var g = it.g * f, ml = it.ml != null ? it.ml * f : null, name = it.label || shortFood(food);
@@ -1833,6 +1843,7 @@ function draftRecipe(d) {
     if (s.ml != null && base.ml == null) base.ml = Math.round(s.ml * 10) / 10;
     base.foodId = row.foodId; base.g = Math.round(s.g * 10) / 10; base.label = (row.shown != null && String(row.shown).trim()) ? String(row.shown).trim() : titleCase(row.parsed.name || shortFood(FOODS[row.foodId]));
     if (row.keep && row.keep.n != null && row.manualG === row.keep.g0) { base.n = row.keep.n; base.u = row.keep.u; }
+    if (row.cnt && row.manualG != null) { base.n = row.cnt.n; base.u = row.cnt.u; }
     ings.push(base);
   });
   return { id: 'draft', name: d.name, servings: Math.max(1, Number(d.serves) || 1), ingredients: ings };
@@ -1882,8 +1893,19 @@ function addView() {
         }, 250);
       } });
     if (row.q) search.value = row.q;
-    var gIn = h('input', { type: 'number', min: '0', step: 'any', inputmode: 'decimal', 'aria-label': 'Grams for ' + row.parsed.original, value: row.skip ? '' : (row.manualG != null ? row.manualG : (s.g != null ? Math.round(s.g * 10) / 10 : '')),
-      oninput: function (e) { row.manualG = e.target.value === '' ? null : Number(e.target.value); var s2 = solve(row); stat.textContent = statText(row, s2); statWhy(s2); refreshSummary(); } });
+    var RG = E.REGIONS[region] || E.REGIONS.au;
+    function uf(u) { var fd = FOODS[row.foodId], dn = (fd && fd.density) || (u === 'ml' ? 1 : 0.8); return u === 'ml' ? ((fd && fd.density) || 1) : u === 'each' ? eachW(fd) : u === 'tsp' ? RG.tsp * dn : u === 'tbsp' ? RG.tbsp * dn : u === 'cup' ? RG.cup * dn : 1; }
+    var defU = isLiq(f) ? 'ml' : 'g'; if (s.row && s.row.n != null) defU = /^(tsp|tbsp)$/.test(s.row.u) ? s.row.u : (!s.row.u || s.row.u === 'each') ? 'each' : defU;
+    var unitNow = row.uSel || defU;
+    var gShown = row.skip ? '' : (row.manualG != null ? row.manualG : (s.g != null ? Math.round(s.g * 10) / 10 : ''));
+    var gIn = h('input', { type: 'number', min: '0', step: 'any', inputmode: 'decimal', 'aria-label': 'Amount for ' + row.parsed.original, value: gShown === '' ? '' : String(Math.round(gShown / (uf(unitNow) || 1) * 100) / 100),
+      oninput: function (e) {
+        var fac = uf(unitNow); if (e.target.value !== '' && !fac) { toast('I do not know the weight of that. Use g.'); return; }
+        row.manualG = e.target.value === '' ? null : Number(e.target.value) * fac;
+        row.cnt = (unitNow === 'g' || unitNow === 'ml' || e.target.value === '') ? null : { n: Number(e.target.value), u: unitNow };
+        var s2 = solve(row); stat.textContent = statText(row, s2); statWhy(s2); refreshSummary(); } });
+    var uSel = h('select', { class: 'usel', 'aria-label': 'Unit', onchange: function (e) { row.uSel = e.target.value; if (row.manualG == null && s.g != null) row.manualG = s.g; if (row.manualG != null && !(e.target.value === 'g' || e.target.value === 'ml')) { var fc = uf(e.target.value); row.cnt = fc ? { n: Math.round(row.manualG / fc * 100) / 100, u: e.target.value } : null; } else row.cnt = null; redraw(); refreshSummary(); } },
+      [['g', 'g'], ['ml', 'ml'], ['each', 'whole'], ['tsp', 'tsp'], ['tbsp', 'tbsp'], ['cup', 'cup']].map(function (u) { return h('option', { value: u[0], selected: unitNow === u[0] }, u[1]); }));
     var skip = h('input', { type: 'checkbox', checked: row.skip, onchange: function (e) { row.skip = e.target.checked; redraw(); refreshSummary(); } });
     function statText(rw, sv) {
       var fd = FOODS[rw.foodId];
@@ -1898,7 +1920,7 @@ function addView() {
     el.appendChild(h('label', { class: 'shown' }, 'Shown on the card as', h('input', { type: 'text', value: row.shown != null ? row.shown : '', 'aria-label': 'Name on the card for ' + row.parsed.original, oninput: function (e) { row.shown = e.target.value; refreshSummary(); } })));
     el.appendChild(h('div', { class: 'hint', style: 'margin:6px 0 2px' }, 'Nutrition comes from:'));
     el.appendChild(h('div', { class: 'rctl' }, sel, search));
-    el.appendChild(h('div', { class: 'rctl2' }, h('label', null, 'Grams ', gIn), h('label', { class: 'chk' }, skip, ' Leave out'), stat));
+    el.appendChild(h('div', { class: 'rctl2' }, h('label', { class: 'amt' }, 'Amount ', gIn, uSel), h('label', { class: 'chk' }, skip, ' Leave out'), stat));
     el.appendChild(why);
     return el;
   }
@@ -2190,13 +2212,18 @@ function pantryItem(foodId) { for (var i = 0; i < pantry.length; i++) if (pantry
 function pantryPlan(r, servings) {
   var f = servings / r.servings, left = {}, out = [];
   r.ingredients.forEach(function (it) {
-    var p = pantryItem(it.foodId); if (!p) return;
-    var have = left[p.id] != null ? left[p.id] : p.g, take = Math.min(have, it.g * f);
+    var p = pantryItem(it.foodId), fd = FOODS[it.foodId], need = it.g * f;
+    if (!p && fd && /^Egg, chicken, (white|yolk)/i.test(fd.name)) {
+      p = pantry.filter(function (x) { var xf = FOODS[x.foodId]; return xf && /^Egg, chicken, whole/i.test(xf.name); })[0];
+      if (p) { var wholeW = eachW(FOODS[p.foodId]) || 55, cntNeed = it.n != null ? it.n * f : Math.max(1, Math.round(need / (eachW(fd) || 30))); need = cntNeed * wholeW; }
+    }
+    if (!p) return;
+    var have = left[p.id] != null ? left[p.id] : p.g, take = Math.min(have, need);
     if (take > 0) { left[p.id] = have - take; out.push({ p: p, take: take, label: it.label || p.name }); }
   });
   return out;
 }
-function eachW(food) { var u = food && food.unitWeights; return u ? (u.each || u.whole || 0) : 0; }
+function eachW(food) { var u = food && food.unitWeights, w = u ? (u.each || u.whole || 0) : 0; if (!w && food) w = /^Egg, chicken, white/i.test(food.name) ? 33 : /^Egg, chicken, yolk/i.test(food.name) ? 18 : 0; return w; }
 function isLiq(fd) { return !!fd && /ml$/.test(E.displayAmount({ g: 1, ml: 1 }, fd)); }
 function pantryLine(plan) { return plan.map(function (x) { var fd = FOODS[x.p.foodId], w = x.p.cnt ? eachW(fd) : 0, lq = isLiq(fd); return (w ? frac(Math.round(x.take / w * 2) / 2 || x.take / w) + ' ' : lq ? Math.round(x.take / (fd.density || 1)) + ' ml ' : Math.round(x.take) + ' g ') + x.label.toLowerCase(); }).join(', '); }
 function doCooked(r, servings) {
