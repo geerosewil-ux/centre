@@ -327,6 +327,11 @@ button,input,select{font:inherit;color:inherit}
  .ptools .pamt select{width:96px!important;flex:0 0 96px}.ptools .pamt input{min-width:0}.ptools .pexp{display:flex;flex-direction:column;align-items:stretch;gap:4px}.ptools .pexp input{width:100%}
  .plw .plab:not(.low):not(.pexp){display:flex;flex-direction:row;align-items:center;gap:8px}.plw .plab:not(.low):not(.pexp) input{width:100%!important}.plw .pexp{grid-column:1/-1}.plw{align-items:end}
 }
+.tinfo{display:flex;flex-direction:column;gap:10px;margin:2px 0 4px;text-align:left}.tbits{display:flex;flex-wrap:wrap;gap:6px 22px;font-size:13px;color:var(--ink)}.tbits em{font-style:normal;font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-2);margin-right:4px}.abds{display:inline-flex;flex-wrap:wrap;gap:8px;align-items:center}.abd{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;color:var(--sage,#3F4A3C)}.abd .ico{display:inline-flex}.tinfo .abd{padding:5px 12px 5px 9px;border:1px solid var(--line);border-radius:99px}
+.fltb{display:inline-flex;align-items:center;gap:5px}.timerow{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:10px}.timerow label{display:flex;flex-direction:column;gap:6px;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-2)}.aheadbox{display:flex;flex-direction:column;gap:8px;margin:12px 0}.aheadrow{display:flex;align-items:center;gap:12px;flex-wrap:wrap}.aheadrow input[type=text]{flex:1 1 220px;min-width:0}
+@media (max-width:640px){.timerow{grid-template-columns:1fr 1fr}.aheadrow input[type=text]{font-size:16px;min-height:44px}.timerow input{font-size:16px;min-height:44px}}
+.fltg{display:inline-flex;gap:6px}.iconb[aria-pressed=true]{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}.tinfo{margin-top:16px!important}
+.psbar{position:sticky;bottom:14px;display:flex;align-items:center;gap:12px;margin-top:18px;padding:10px 14px;border:1px solid var(--line);border-radius:99px;background:var(--card);box-shadow:0 8px 24px -10px rgba(0,0,0,.3);z-index:6}.psbar span{flex:1;font-size:13px}.psel{width:20px;height:20px;margin-top:2px;accent-color:var(--accent)}
 </style>
 
 <div class="app" id="app"></div>
@@ -451,6 +456,16 @@ button,input,select{font:inherit;color:inherit}
 
   // Convert a parsed measure to grams (and ml where meaningful).
   // Returns { g, ml, basis } or { error }. basis explains how the number was reached so the UI can show it.
+  // Typical weight of one whole item (g) for common produce, used when the food has no unit weight of its own.
+  var EACH_DEFAULT = [[/^apple,/i, 180], [/^pear,/i, 180], [/^orange,/i, 180], [/^mandarin,/i, 80], [/^kiwifruit,/i, 75], [/^peach,/i, 150], [/^nectarine,/i, 140], [/^plum,/i, 70], [/^apricot,/i, 40], [/^lime,/i, 50], [/^grapefruit,/i, 250], [/^banana,/i, 118], [/^potato,/i, 150], [/^sweet potato,|^kumara,/i, 250], [/^cucumber,/i, 250], [/^eggplant,/i, 400], [/^leek,/i, 200], [/^beetroot,/i, 80], [/^shallot,/i, 30], [/^mushroom,/i, 20], [/^chilli|^chili/i, 10], [/^fennel,/i, 300], [/^corn,.*cob/i, 250], [/^avocado,/i, 150], [/^mango,/i, 300], [/^bread,/i, 35]];
+  function defaultEach(food) {
+    if (!food || !food.name) return 0;
+    if (/^Egg, chicken, white/i.test(food.name)) return 33;
+    if (/^Egg, chicken, yolk/i.test(food.name)) return 18;
+    if (/dried|juice|canned|puree|sauce|stewed|jam|chips|crisps|flour|powder|extract|syrup/i.test(food.name)) return 0;
+    for (var i = 0; i < EACH_DEFAULT.length; i++) if (EACH_DEFAULT[i][0].test(food.name)) return EACH_DEFAULT[i][1];
+    return 0;
+  }
   function toMetric(qty, unit, food, region) {
     var R = REGIONS[region || 'au'] || REGIONS.au, u = unitKey(unit), ml, g, w;
     if (qty == null || isNaN(qty)) return { error: 'no quantity' };
@@ -466,8 +481,7 @@ button,input,select{font:inherit;color:inherit}
     }
     if (!u) {
       w = food && food.unitWeights && (food.unitWeights.each || food.unitWeights.whole);
-      if (!w && food && /^Egg, chicken, white/i.test(food.name)) w = 33;
-      if (!w && food && /^Egg, chicken, yolk/i.test(food.name)) w = 18;
+      if (!w) w = defaultEach(food);
       if (w) return { g: qty * w, ml: null, basis: 'count x each' };
       return { g: null, ml: null, error: 'needs unit weight' };
     }
@@ -664,7 +678,7 @@ button,input,select{font:inherit;color:inherit}
     NUTRIENTS: NUTRIENTS, NKEYS: NKEYS, REGIONS: REGIONS, DAILY: DAILY,
     parseNumber: parseNumber, parseLine: parseLine, unitKey: unitKey, toMetric: toMetric, coverage: coverage, energyFromMacros: energyFromMacros,
     scale: scale, sumNutrients: sumNutrients, nutrition: nutrition, planDay: planDay, shoppingList: shoppingList, rank: rank,
-    ingredientFromLine: ingredientFromLine, isLiquid: isLiquid, matchFoods: matchFoods, nameKey: nameKey, displayAmount: displayAmount
+    ingredientFromLine: ingredientFromLine, isLiquid: isLiquid, matchFoods: matchFoods, nameKey: nameKey, displayAmount: displayAmount, defaultEach: defaultEach
   };
 });
 
@@ -765,7 +779,7 @@ function loadDesign() {
 var design = loadDesign();
 (function () { if (lsGet('rb.typo2', 0)) return; ['h1', 'h2'].forEach(function (k) { var t = design.text && design.text[k]; if (t && t.f === 'Bodoni Moda') { t.f = 'Cormorant Garamond'; t.w = k === 'h1' ? 600 : 500; } }); lsSet('rb.design', design); lsSet('rb.typo2', 1); })();
 var user = lsGet('rb.user', { rating: {}, fav: {} });
-var S = { flip: {}, view: 'recipes', sel: null, detail: false, q: '', sort: 'az', serv: {}, role: 'h1' };
+var S = { flip: {}, view: 'recipes', sel: null, detail: false, q: '', flt: '', sort: 'az', serv: {}, role: 'h1' };
 
 /* ---------- engine, foods, recipes ---------- */
 var E = RBEngine;
@@ -833,7 +847,19 @@ var RECIPES = SAMPLES.concat(mine);
       lines: ['96 g Cherry, black, canned in syrup|Amarena cherries|12', '150 ml amaretto|Amaretto', '80 ml amarena syrup', '120 ml lemon juice', '33 g egg white|Egg white|1'],
       steps: ['Make the extra-large ice cubes in advance (optional): put 2 amarena cherries in each mould, fill with water and freeze completely, about 6 hours. Use plain ice if you prefer.',
         'Combine all the ingredients, the amarena cherries, amaretto, amarena syrup, lemon juice and egg white, in a high-powered blender and blitz until pale pink and frothy.',
-        'Pour over the ice cubes into glasses and serve.'] }];
+        'Pour over the ice cubes into glasses and serve.'] },
+    { id: 'seed-xmas-gingerbread', name: 'Christmas Gingerbread Biscuits', sub: 'Makes about 40, keeps 2 weeks in an airtight container', cat: 'Baking', tags: ['Baking', 'Christmas'], mins: 70, hands: 30, cook: 10, chill: 30, ahead: true, aheadNote: 'keeps 2 weeks airtight', servings: 40,
+      lines: ['125 g butter|Soft butter', '100 g brown sugar|Brown sugar, firmly packed', '125 ml treacle|Treacle', '18 g egg yolk|Egg yolk|1', '375 g plain flour|Plain flour', '6 g ground ginger|Ground ginger', '2 g mixed spice|Mixed spice||asis', '5 g bicarbonate of soda|Bicarbonate of soda', '0 g cachous|Gold and silver cachous||asis', '66 g egg white|Royal icing: egg whites|2', '480 g icing sugar|Royal icing: pure icing sugar, approximately', '0 g food colouring|Food colourings||asis'],
+      steps: ['Beat the butter and sugar in a small bowl with an electric mixer until creamy, then beat in the treacle and egg yolk. Stir in the sifted dry ingredients.',
+        'Knead the dough on a floured surface until smooth, cover and refrigerate for 30 minutes.',
+        'Roll the dough out between sheets of baking paper until 4 mm thick. Cut shapes with Christmas biscuit cutters. Cut a small hole in each shape for hanging, if desired.',
+        'Place the shapes 3 cm apart on greased oven trays. Bake in a moderate oven for 10 minutes or until firm.',
+        'Transfer to wire racks to cool. Spread or pipe Royal Icing onto the shapes and decorate with cachous.',
+        'Royal icing: beat the egg whites in a small bowl with an electric mixer until just frothy. Gradually beat in enough sifted icing sugar for a mixture to form very stiff peaks. Divide the icing into several small bowls and tint each with colouring as desired. Keep the surface of the icing covered with a damp tea-towel to prevent it drying out.',
+        'Gingerbread house (optional): roll the dough out on a floured surface until 1 cm thick and cut shapes from paper patterns, re-rolling as necessary. Cut Christmas trees and small gingerbread people with biscuit cutters, then cut two chimney shapes about 6 cm high from leftover dough. Place on lightly greased trays and bake in a moderately hot oven for about 10 minutes or until firm.',
+        'Glaze: combine all ingredients in a small pan and stir over low heat, without boiling, until sugar and gelatine dissolve.',
+        'Stand the gingerbread on trays for 5 minutes, brush with glaze, then transfer to wire racks to cool. Cover a small board or tray with foil, spread a thin layer of Royal Icing over the foil to represent snow and scrape over the surface slightly with a fork to roughen.',
+        'Assemble the house using icing to secure the pieces together; use icing to join the chimney pieces to the roof. Stick cotton wool on top to represent smoke, if desired. Add a little water to a small amount of icing and use it to put peaks of snow on the underside of the roof. Use icing to secure sweets to the house and decorate as desired. Place trees and people on the board, create a fence around the house with sweets, and lightly dust with a little extra sifted icing sugar. Decorate the edge of the board with ribbon, if desired.'] }];
   seeds.forEach(function (sd) {
     if (done.indexOf(sd.id) >= 0 || mine.some(function (x) { return x.id === sd.id; })) return;
     if (!FOODS['custom:amaretto']) { var am = { id: 'custom:amaretto', name: 'Amaretto liqueur (estimate)', source: 'custom', liquid: true, density: 1.05, per100: { kj: 1255, kcal: 300, protein: 0, fat: 0, carb: 40, sugars: 40, fibre: 0, satfat: 0, monofat: 0, polyfat: 0, sodium: 5, potassium: 5, calcium: 1, iron: 0, magnesium: 1, zinc: 0, vita: 0, vitc: 0, vitd: 0, vitb12: 0, folate: 0 } }; custom.push(am); FOODS[am.id] = am; lsSet('rb.foods', custom); }
@@ -843,14 +869,20 @@ var RECIPES = SAMPLES.concat(mine);
         var cf = AFCD.filter(function (f) { return f.name === 'Cherry, black, canned in syrup'; })[0];
         row = cf && E.ingredientFromLine(E.parseLine('96 g cherries'), cf, region);
       } else if (/amaretto/.test(parts[0])) row = E.ingredientFromLine(E.parseLine('150 ml amaretto'), FOODS['custom:amaretto'], region);
-      else if (/egg white/.test(parts[0])) row = E.ingredientFromLine(E.parseLine('33 g egg white'), AFCD.filter(function (f) { return /^Egg, chicken, white/.test(f.name); })[0], region);
+      else if (/egg white/.test(parts[0])) row = E.ingredientFromLine(E.parseLine(parts[0]), AFCD.filter(function (f) { return /^Egg, chicken, white/.test(f.name); })[0], region);
+      else if (parts[3] === 'asis') { var af = asisFood(parts[1]); row = { foodId: af.id, g: parseFloat(parts[0]) || 0, original: parts[0] }; }
       else row = rowFromText(parts[0]);
       if (row && parts[1]) row.label = parts[1];
       if (row && parts[2]) { row.n = Number(parts[2]); row.u = 'each'; }
       return row;
     }).filter(Boolean);
-    mine.push({ id: sd.id, name: sd.name, sub: sd.sub, cat: sd.cat, tags: sd.tags, mins: sd.mins, servings: sd.servings, rating: 0, fav: false, steps: sd.steps, ingredients: rows, source: 'photo', note: rows.length < sd.lines.length ? 'unmatched' : '' });
+    mine.push({ id: sd.id, name: sd.name, sub: sd.sub, cat: sd.cat, tags: sd.tags, mins: sd.mins, hands: sd.hands || 0, cook: sd.cook || 0, chill: sd.chill || 0, ahead: !!sd.ahead, aheadNote: sd.aheadNote || '', freeze: !!sd.freeze, freezeNote: sd.freezeNote || '', servings: sd.servings, rating: 0, fav: false, steps: sd.steps, ingredients: rows, source: 'photo', note: rows.length < sd.lines.length ? 'unmatched' : '' });
     done.push(sd.id);
+  });
+  mine.forEach(function (m) {
+    if (m.id !== 'seed-xmas-gingerbread') return;
+    m.ingredients = m.ingredients.map(function (i) { var fd = FOODS[i.foodId]; if (i.label === 'Soft butter' && !(fd && /^Butter/i.test(fd.name))) { var nr = rowFromText('125 g butter'); if (nr) { nr.label = 'Soft butter'; return nr; } } return i; });
+    if (m.hands == null && m.chill == null) { m.hands = 30; m.cook = 10; m.chill = 30; m.mins = 70; m.ahead = true; m.aheadNote = 'keeps 2 weeks airtight'; }
   });
   lsSet('rb.seeded', done); lsSet('rb.recipes', mine); RECIPES = SAMPLES.concat(mine);
 })();
@@ -974,6 +1006,13 @@ function cardShell(cls, body) {
 function stage(child, cls) { var el = h('div', { class: 'stage ' + (cls || '') }, child); applyBg(el); return el; }
 function fmtN(n) { return Math.round(n).toLocaleString('en-AU'); }
 function stars(n) { var s = '', i; for (i = 1; i <= 5; i++) s += i <= n ? '★' : '☆'; return s; }
+function timeBits(r) { var o = []; if (r.hands > 0) o.push(['Hands-on', r.hands]); if (r.cook > 0) o.push(['Cook', r.cook]); if (r.chill > 0) o.push(['Chill', r.chill]); return o; }
+function aheadBadges(r, small) {
+  var o = [];
+  if (r.ahead) o.push(h('span', { class: 'abd', title: r.aheadNote || 'Make ahead' }, icon('ahead', small ? 15 : 17), small ? null : h('span', null, r.aheadNote ? 'Make ahead: ' + r.aheadNote : 'Make ahead')));
+  if (r.freeze) o.push(h('span', { class: 'abd', title: r.freezeNote || 'Freezes well' }, icon('snow', small ? 15 : 17), small ? null : h('span', null, r.freezeNote ? 'Freezes: ' + r.freezeNote : 'Freezes well')));
+  return o;
+}
 function timeStr(m) { m = Math.round(m); if (m < 60) return m + ' min'; var hh = Math.floor(m / 60), mm = m % 60; return hh + ' hr' + (mm ? ' ' + mm + ' min' : ''); }
 
 /* ---------- shared helpers: dates, state ---------- */
@@ -1383,6 +1422,8 @@ function nvHas(k) { return nv.on && nv.items.indexOf(k) >= 0; }
 var ICONS = {
   cook: 'M2 12h20|M20 12v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-8|M4 8l16-4|M8.9 6.8l-.5-1.8a2 2 0 0 1 1.5-2.4l1.900-.5a2 2 0 0 1 2.400 1.500l.5 1.800',
   cart: 'M15 11l-1 9|M19 11l-4-7|M2 11h20|M3.500 11l1.600 7.400a2 2 0 0 0 2 1.600h9.800a2 2 0 0 0 2-1.600l1.700-7.400|M5 11l4-7|M9 11l1 9',
+  snow: 'M12 3v18|M4.200 7.500l15.600 9|M19.800 7.500l-15.600 9|M9.500 4.500L12 7l2.500-2.500|M9.500 19.500L12 17l2.500 2.500',
+  ahead: 'M4 6h16v14H4z|M4 10h16|M8 3v4|M16 3v4|M9 15l2 2 4-4',
   edit: 'M17 3.500a2.100 2.100 0 0 1 3 3L7.500 19l-4.500 1.200L4.200 15.700z|M15 5.500l3 3',
   turn: 'M3 12a9 9 0 1 0 9-9 9.800 9.800 0 0 0-6.700 2.700L3 8|M3 3v5h5',
   trash: 'M3 6h18|M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6|M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2|M10 11v6|M14 11v6',
@@ -1397,7 +1438,7 @@ function rnd(name, label, onclick) { return h('button', { class: 'rnd', type: 'b
 function icb(name, label, onclick, pressed) { return h('button', { class: 'icb', type: 'button', 'aria-label': label, 'aria-pressed': pressed == null ? null : String(pressed), onclick: onclick }, icon(name), h('span', { class: 'icl' }, label)); }
 function miniCard(r) {
   var n = nut(r), per = n.perServing.kcal;
-  var top = h('div', { class: 'row' }, T('eb', 'mini', r.cat + ' · ' + timeStr(r.mins)), T('nm', 'mini', stars(ratingOf(r))));
+  var top = h('div', { class: 'row' }, T('eb', 'mini', r.cat + ' · ' + timeStr(r.mins)), h('span', { class: 'abds' }, aheadBadges(r, true)));
   var title = T('h1', 'mini', r.name, { tag: 'div' }); title.className = 'tt';
   var meta = h('div', { class: 'row' }, T('bd', 'mini', 'Serves ' + r.servings + (nvHas('kcal') ? ' · ' + fmtN(per) + ' kcal' : '')), favOf(r) ? T('eb', 'mini', 'Favourite') : null);
   return cardShell('mini wi', [top, title, meta]);
@@ -1421,13 +1462,8 @@ function fullCard(r, redraw) {
     h('div', { style: 'text-align:left;margin-top:10px;display:flex;flex-direction:column;gap:26px;align-items:flex-start' },
       T('eb', 'full', r.cat + ' \u00B7 ' + timeStr(r.mins), { tag: 'div' }),
       T('h1', 'full', r.name, { tag: 'div', style: 'margin-top:6px;text-align:left' })));
-  var starRow = h('div', { style: 'display:flex;margin:6px 0 0 -3px', role: 'group', 'aria-label': 'Rating' });
-  for (i = 1; i <= 5; i++) (function (v) {
-    var sb = h('button', { class: 'star', type: 'button', 'aria-label': 'Rate ' + v + (v === 1 ? ' star' : ' stars'), 'aria-pressed': String(ratingOf(r) >= v),
-      onclick: function () { user.rating[r.id] = (ratingOf(r) === v) ? 0 : v; lsSet('rb.user', user); redraw(true); } });
-    sb.innerHTML = '<svg width="17" height="17" viewBox="0 0 24 24" fill="' + (ratingOf(r) >= v ? 'var(--gold,#B58A2E)' : 'none') + '" stroke="var(--gold,#B58A2E)" stroke-width="1.1" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.800l2.800 5.900 6.400.8-4.700 4.400 1.200 6.400L12 17.200 6.300 20.300l1.200-6.400L2.800 9.500l6.400-.8z"/></svg>';
-    starRow.appendChild(sb);
-  })(i);
+  var tb = timeBits(r), ab = aheadBadges(r, false);
+  var starRow = tb.length || ab.length ? h('div', { class: 'tinfo' }, tb.length ? h('div', { class: 'tbits' }, tb.map(function (x) { return h('span', null, h('em', null, x[0]), ' ', timeStr(x[1])); })) : null, ab.length ? h('div', { class: 'abds' }, ab) : null) : null;
 
   var lab = {}; E.NUTRIENTS.forEach(function (x) { lab[x[0]] = x; });
   var cover = Math.round(Math.min.apply(null, ['kcal', 'protein', 'fat', 'carb'].map(function (k) { return n.share[k]; })) * 100);
@@ -1575,12 +1611,13 @@ function wheelView(list, sel, pick, opts) {
 function listFor() {
   var q = S.q.trim().toLowerCase(), out = RECIPES.filter(function (r) {
     if (S.tag && tagsOf(r).indexOf(S.tag) < 0) return false;
+    if (S.flt === 'ahead' && !r.ahead) return false;
+    if (S.flt === 'freeze' && !r.freeze) return false;
     if (!q) return true;
     if (r.name.toLowerCase().indexOf(q) >= 0 || r.cat.toLowerCase().indexOf(q) >= 0) return true;
     return r.ingredients.some(function (i) { return ((i.label || '') + ' ' + (FOODS[i.foodId] ? FOODS[i.foodId].name : '')).toLowerCase().indexOf(q) >= 0; });
   });
   out.sort(function (a, b) {
-    if (S.sort === 'top') return (ratingOf(b) - ratingOf(a)) || a.name.localeCompare(b.name);
     if (S.sort === 'quick') return (a.mins - b.mins) || a.name.localeCompare(b.name);
     return a.name.localeCompare(b.name);
   });
@@ -1613,17 +1650,18 @@ function recipesView() {
   }
   var search = h('input', { class: 'search', type: 'search', placeholder: 'Search recipes or ingredients', 'aria-label': 'Search recipes', value: S.q,
     oninput: function (e) { S.q = e.target.value; drawList(); if (desk) drawPane(); } });
-  var sort = h('select', { class: 'sortsel', 'aria-label': 'Order recipes', onchange: function (e) { S.sort = e.target.value; render(); } }, [['az', 'A\u2013Z'], ['top', 'Top rated'], ['quick', 'Quickest']].map(function (x) { return h('option', { value: x[0], selected: S.sort === x[0] }, x[1]); }));
+  var sort = h('select', { class: 'sortsel', 'aria-label': 'Order recipes', onchange: function (e) { S.sort = e.target.value; render(); } }, [['az', 'A\u2013Z'], ['quick', 'Quickest']].map(function (x) { return h('option', { value: x[0], selected: S.sort === x[0] }, x[1]); }));
   var tg = allTags(), tagBar = h('div', { class: 'tagstrip', role: 'group', 'aria-label': 'Filter by tag' }, [['', 0]].concat(tg).map(function (x) { return h('button', { type: 'button', class: 'tagt', 'aria-pressed': String((S.tag || '') === x[0]), onclick: function () { S.tag = x[0]; render(); } }, x[0] || 'All'); }));
   var nvBtn = h('button', { class: 'nvtog', type: 'button', role: 'switch', 'aria-checked': String(nv.on), title: 'Show or hide nutrition on every card', onclick: function () { nv.on = !nv.on; saveNv(); render(); } }, h('span', { class: 'nvdot', 'aria-hidden': 'true' }), h('span', null, 'Nutrition'));
+  var flt = h('div', { class: 'fltg', role: 'group', 'aria-label': 'Filter' }, [['ahead', 'ahead', 'Make ahead meals'], ['freeze', 'snow', 'Freezer meals']].map(function (f) { return h('button', { type: 'button', class: 'iconb', title: f[2], 'aria-label': f[2], 'aria-pressed': String(S.flt === f[0]), onclick: function () { S.flt = S.flt === f[0] ? '' : f[0]; render(); } }, icon(f[1], 20)); }));
   var shuf = h('button', { class: 'iconb', type: 'button', 'aria-label': 'Surprise me', title: 'Surprise me', onclick: surprise }, icon('shuffle', 20));
-  var tools = h('div', null, h('div', { class: 'slim' }, search, sort, shuf), h('div', { class: 'row2' }, tagBar, nvBtn));
+  var tools = h('div', null, h('div', { class: 'slim' }, search, sort, flt, shuf), h('div', { class: 'row2' }, tagBar, nvBtn));
   if (!desk && S.detail) {
     drawPane();
     return h('div', null, h('button', { class: 'btn back', type: 'button', onclick: function () { S.detail = false; render(); } }, '‹  Back to the box'), paneHolder);
   }
   drawList();
-  if (desk) { drawPane(); return h('div', null, h('div', { class: 'menubar' }, search, tagBar, sort, shuf, nvBtn), h('div', { class: 'desk' }, listHolder, paneHolder)); }
+  if (desk) { drawPane(); return h('div', null, h('div', { class: 'menubar' }, search, tagBar, sort, flt, shuf, nvBtn), h('div', { class: 'desk' }, listHolder, paneHolder)); }
   return h('div', null, tools, listHolder);
 }
 
@@ -1772,7 +1810,7 @@ function fridgeResults() {
     if (!have.length) return;
     var ex7 = expiring().filter(function (e) { return e.foodId && have.some(function (i) { return i.foodId === e.foodId; }); }); out.push({ r: r, have: have, miss: miss, total: need.length, exp: ex7 });
   });
-  out.sort(function (a, b) { return (a.miss.length - b.miss.length) || (b.exp.length - a.exp.length) || (b.have.length - a.have.length) || (ratingOf(b.r) - ratingOf(a.r)); });
+  out.sort(function (a, b) { return (a.miss.length - b.miss.length) || (b.exp.length - a.exp.length) || (b.have.length - a.have.length) || a.r.name.localeCompare(b.r.name); });
   return out;
 }
 function fridgeView() {
@@ -1802,6 +1840,18 @@ function fridgeOld(wrap) {
   return wrap;
 }
 
+function readPhoto(file, ta, go, msg) {
+  msg.textContent = 'Loading the text reader. The first time takes a moment.';
+  var ready = window.Tesseract ? Promise.resolve() : loadScript('https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js');
+  ready.then(function () {
+    return window.Tesseract.recognize(file, 'eng', { logger: function (m) { if (m.status === 'recognizing text') msg.textContent = 'Reading the photo: ' + Math.round((m.progress || 0) * 100) + '%'; } });
+  }).then(function (res) {
+    var t = (res && res.data && res.data.text || '').replace(/[ \t]+\n/g, '\n').trim();
+    if (!t) { msg.textContent = 'I could not find any text in that photo. Try a straighter, brighter shot.'; return; }
+    ta.value = (ta.value ? ta.value + '\n\n' : '') + t; A.text = ta.value; go.disabled = false;
+    msg.textContent = 'Done. Check the text below before reading it: columns can come out mixed up, so move the ingredients and method into order.';
+  }).catch(function (e) { msg.textContent = 'Could not read the photo here (' + (e && e.message || e) + '). Paste the text instead, or send the photo to Claude.'; });
+}
 /* ---------- add a recipe: paste text, or bring recipes over from Centre ---------- */
 var A = { mode: 'paste', text: '', centreText: '', centre: null, picked: {}, draft: null, queue: [], qi: 0, msg: '' };
 
@@ -1829,7 +1879,7 @@ function draftFromText(text) {
     else if (mode === 's') steps.push(cleanStep(l));
     else if (looksIng(l) && !steps.length) ing.push(l); else steps.push(cleanStep(l));
   }
-  return { name: name || 'New recipe', serves: serves || 4, mins: mins || 30, cat: 'Dinner', sub: '', steps: steps, rows: ing.map(function (x) { return rowForLine(x); }) };
+  return { name: name || 'New recipe', serves: serves || 4, mins: mins || 30, minsManual: !!mins, cat: 'Dinner', sub: '', steps: steps, rows: ing.map(function (x) { return rowForLine(x); }) };
 }
 
 function candidatesFor(name, extra) {
@@ -2011,8 +2061,12 @@ function addView() {
     var head = h('div', { class: 'fieldrow' },
       h('label', null, 'Name', h('input', { type: 'text', value: d.name, oninput: function (e) { d.name = e.target.value; refreshSummary(); } })),
       h('label', null, 'Serves', h('input', { type: 'number', min: '1', value: d.serves, inputmode: 'numeric', oninput: function (e) { d.serves = e.target.value; refreshSummary(); } })),
-      h('label', null, 'Minutes', h('input', { type: 'number', min: '1', value: d.mins, inputmode: 'numeric', oninput: function (e) { d.mins = e.target.value; } })),
       h('label', null, 'Category', (function () { var s = h('select', { onchange: function (e) { d.cat = e.target.value; } }); CATS.forEach(function (c) { s.appendChild(h('option', { value: c, selected: c === d.cat }, c)); }); return s; })()));
+    var ovIn = h('input', { type: 'number', min: '1', value: d.mins, inputmode: 'numeric', placeholder: 'auto', oninput: function (e) { d.mins = e.target.value; d.minsManual = !!e.target.value; } });
+    function tIn(label, key) { return h('label', null, label, h('input', { type: 'number', min: '0', value: d[key] || '', inputmode: 'numeric', placeholder: '0', oninput: function (e) { d[key] = e.target.value; if (!d.minsManual) { var sm = (Number(d.hands) || 0) + (Number(d.cook) || 0) + (Number(d.chill) || 0); if (sm) { d.mins = sm; ovIn.value = sm; } } } })); }
+    var timeRow = h('div', { class: 'timerow' }, tIn('Hands-on (min)', 'hands'), tIn('Cook / bake (min)', 'cook'), tIn('Chill / rest (min)', 'chill'), h('label', null, 'Overall (min)', ovIn));
+    function aheadRow(flag, noteKey, label, ph) { var note = h('input', { type: 'text', value: d[noteKey] || '', placeholder: ph, 'aria-label': label + ' note', oninput: function (e) { d[noteKey] = e.target.value; } }); note.style.display = d[flag] ? '' : 'none'; return h('div', { class: 'aheadrow' }, h('label', { class: 'chk' }, h('input', { type: 'checkbox', checked: !!d[flag], onchange: function (e) { d[flag] = e.target.checked; note.style.display = e.target.checked ? '' : 'none'; } }), ' ' + label), note); }
+    var aheadBox = h('div', { class: 'aheadbox' }, aheadRow('ahead', 'aheadNote', 'Make ahead', 'e.g. keeps 3 days in the fridge'), aheadRow('freeze', 'freezeNote', 'Freezes well', 'e.g. up to 3 months'));
     var tagRow = h('label', { class: 'tagrow' }, 'Tags (separate with commas)', h('input', { type: 'text', value: d.tags || '', placeholder: 'Dinner, Quick, Vegetarian', oninput: function (e) { d.tags = e.target.value; } }));
     var q = null;
     rowsBox.replaceChildren(); d.rows.forEach(function (r, i) { rowsBox.appendChild(rowEl(r, i)); });
@@ -2023,7 +2077,7 @@ function addView() {
     var steps = h('label', { class: 'stepsbox' }, 'Method (one step per line)', h('textarea', { rows: '6', oninput: function (e) { d.steps = e.target.value.split(/\n+/).map(function (x) { return cleanStep(x); }).filter(Boolean); } }, d.steps.join('\n')));
     var btns = h('div', { class: 'btns', style: 'margin-top:16px' }, saveBtn);
     btns.appendChild(h('button', { class: 'btn quiet', type: 'button', onclick: function () { var was = d.fromId; A.draft = null; A.queue = []; if (was) { S.view = 'recipes'; S.sel = was; S.detail = true; } render(); } }, 'Cancel'));
-    body.appendChild(h('div', { class: 'draftbox' }, q, head, tagRow, d.editId || d.fromId ? h('p', { class: 'hint' }, d.editId ? 'Editing this recipe. Save to keep your changes.' : 'This is a built-in example, so saving makes your own copy.') : null, h('h2', { style: 'font-size:20px;margin:18px 0 4px' }, 'Ingredients'),
+    body.appendChild(h('div', { class: 'draftbox' }, q, head, timeRow, aheadBox, tagRow, d.editId || d.fromId ? h('p', { class: 'hint' }, d.editId ? 'Editing this recipe. Save to keep your changes.' : 'This is a built-in example, so saving makes your own copy.') : null, h('h2', { style: 'font-size:20px;margin:18px 0 4px' }, 'Ingredients'),
       h('p', { class: 'hint' }, 'Each line shows what you wrote, the food it matched, and the grams it works out to. Change the food, type grams yourself, or leave a line out.'),
       rowsBox, addLine, steps, h('div', { style: 'margin-top:16px' }, sumBox), btns));
     refreshSummary();
@@ -2038,7 +2092,7 @@ function addView() {
       var key = E.nameKey(row.parsed.name); if (key) matches[key] = f.id;
     });
     var tg = parseTags(d.tags); if (!tg.length) tg = [d.cat];
-    var out = { id: d.editId || newId(), name: d.name.trim(), sub: d.sub || '', cat: d.cat, tags: tg, mins: Math.max(1, Number(d.mins) || 30), servings: rec.servings, rating: 0, fav: false, steps: d.steps, ingredients: rec.ingredients, source: d.source || 'paste' };
+    var out = { id: d.editId || newId(), name: d.name.trim(), sub: d.sub || '', cat: d.cat, tags: tg, mins: Math.max(1, Number(d.mins) || ((Number(d.hands) || 0) + (Number(d.cook) || 0) + (Number(d.chill) || 0)) || 30), hands: Number(d.hands) || 0, cook: Number(d.cook) || 0, chill: Number(d.chill) || 0, ahead: !!d.ahead, aheadNote: d.ahead ? (d.aheadNote || '') : '', freeze: !!d.freeze, freezeNote: d.freeze ? (d.freezeNote || '') : '', servings: rec.servings, rating: 0, fav: false, steps: d.steps, ingredients: rec.ingredients, source: d.source || 'paste' };
     if (d.editId) { mine = mine.map(function (x) { return x.id === d.editId ? out : x; }); } else mine.push(out); RECIPES = SAMPLES.concat(mine); saveMine();
     toast('Saved “' + out.name + '”.');
     A.draft = null; A.queue = []; A.text = ''; S.view = 'recipes'; S.sel = out.id; S.detail = true; S.q = ''; render();
@@ -2049,7 +2103,10 @@ function addView() {
     var ta = h('textarea', { rows: '12', placeholder: 'Paste a recipe here: the title, the ingredients and the method.\n\nFor example:\nBanana Bread\nServes 10\nIngredients\n1 1/2 cups plain flour\n3 ripe bananas\n100 g butter, melted\nMethod\n1. Mash the bananas...', 'aria-label': 'Recipe text',
       oninput: function (e) { A.text = e.target.value; go.disabled = !A.text.trim(); } }, A.text);
     var go = h('button', { class: 'btn primary', type: 'button', disabled: !A.text.trim(), onclick: function () { A.draft = draftFromText(A.text); if (!A.draft.rows.length) { toast('No ingredient lines found. Put each ingredient on its own line.'); A.draft = null; return; } render(); } }, 'Read this recipe');
-    body.appendChild(h('div', { class: 'stack' }, ta, h('div', { class: 'btns' }, go)));
+    var ocrMsg = h('p', { class: 'hint', 'aria-live': 'polite' });
+    var pic = h('input', { type: 'file', accept: 'image/*', style: 'display:none', onchange: function (e) { var f = e.target.files && e.target.files[0]; if (f) readPhoto(f, ta, go, ocrMsg); e.target.value = ''; } });
+    var picBtn = h('button', { class: 'btn', type: 'button', onclick: function () { pic.click(); } }, icon('edit', 16), ' Read from a photo');
+    body.appendChild(h('div', { class: 'stack' }, ta, h('div', { class: 'btns' }, go, picBtn, pic), ocrMsg));
     body.appendChild(h('p', { class: 'hint' }, 'This version reads the text on this page. Once the back end is connected, Claude will split messy recipes (photos of cards, web pages) into lines before this step.'));
     return wrap;
   }
@@ -2286,6 +2343,12 @@ function savePantry() {
   });
   lsSet('rb.pantry', pantry);
 }
+var psel = {};
+function pantryToCart(items) {
+  var n = 0;
+  items.forEach(function (p) { if (cart.manual.some(function (m) { return m.pid === p.id && !m.got; })) return; cart.manual.push({ id: uid(), name: titleWords(p.name), got: false, pid: p.id }); n++; });
+  if (n) saveCart(); toast(n ? (n === 1 ? 'Added to the cart.' : n + ' items added to the cart.') : 'Already on the cart.');
+}
 var PQ_DEFAULT = [['Milk', 1000, 'ml', 'Fridge'], ['Eggs', 12, 'each', 'Fridge'], ['Butter', 250, 'g', 'Fridge'], ['Plain flour', 1000, 'g', 'Cupboard'], ['Sugar', 1000, 'g', 'Cupboard'], ['Rice', 1000, 'g', 'Cupboard'], ['Olive oil', 500, 'ml', 'Cupboard'], ['Onions', 3, 'each', 'Cupboard'], ['Garlic', 1, 'each', 'Cupboard'], ['Pasta', 500, 'g', 'Cupboard']];
 var PQ = lsGet('rb.pquick', PQ_DEFAULT), editQ = false;
 function savePQ() { lsSet('rb.pquick', PQ); }
@@ -2308,7 +2371,7 @@ function pantryPlan(r, servings) {
   });
   return out;
 }
-function eachW(food) { var u = food && food.unitWeights, w = u ? (u.each || u.whole || 0) : 0; if (!w && food) w = /^Egg, chicken, white/i.test(food.name) ? 33 : /^Egg, chicken, yolk/i.test(food.name) ? 18 : 0; return w; }
+function eachW(food) { var u = food && food.unitWeights, w = u ? (u.each || u.whole || 0) : 0; if (!w && food) w = E.defaultEach(food); return w; }
 function isLiq(fd) { return !!fd && /ml$/.test(E.displayAmount({ g: 1, ml: 1 }, fd)); }
 function pantryLine(plan) { return plan.map(function (x) { var fd = FOODS[x.p.foodId], w = x.p.cnt ? eachW(fd) : 0, lq = isLiq(fd); return (w ? frac(Math.round(x.take / w * 2) / 2 || x.take / w) + ' ' : lq ? Math.round(x.take / (fd.density || 1)) + ' ml ' : Math.round(x.take) + ' g ') + x.label.toLowerCase(); }).join(', '); }
 function doCooked(r, servings) {
@@ -2386,15 +2449,21 @@ function pantryView() {
   (pl === 'Use soon' ? items : items.sort(function (a, b) { return a.name.localeCompare(b.name); })).forEach(function (p) {
     var fd = FOODS[p.foodId], ew = p.cnt ? eachW(fd) : 0, lq = !ew && isLiq(fd), dn = (fd && fd.density) || 1, inp = h('input', { type: 'number', min: '0', step: 'any', inputmode: 'decimal', value: String(ew ? Math.round(p.g / ew * 2) / 2 : lq ? Math.round(p.g / dn) : p.g), 'aria-label': (ew ? 'Number of ' : lq ? 'Millilitres of ' : 'Grams of ') + p.name, onchange: function (e) { var v = Math.max(0, parseFloat(e.target.value) || 0); p.g = ew ? Math.round(v * ew * 10) / 10 : lq ? Math.round(v * dn * 10) / 10 : v; savePantry(); render(); } });
     var expIn2 = h('label', { class: 'plab pexp' }, h('span', { class: 'hint' }, 'Use by'), h('input', { type: 'date', value: p.exp || '', 'aria-label': 'Use by date for ' + p.name, onchange: function (e) { p.exp = e.target.value; savePantry(); render(); } }));
-    list.appendChild(h('div', { class: 'prow ' + expState(p) }, h('div', { style: 'min-width:0' }, h('b', null, titleWords(p.name)), h('div', { class: 'hint' }, fd ? shortFood(fd) : ''), expText(p) ? h('div', { class: 'expb ' + expState(p) }, expText(p)) : null),
+    var cbx = h('input', { type: 'checkbox', class: 'psel', 'aria-label': 'Select ' + p.name, checked: !!psel[p.id], onchange: function (e) { if (e.target.checked) psel[p.id] = 1; else delete psel[p.id]; updBar(); } });
+    list.appendChild(h('div', { class: 'prow ' + expState(p) }, h('div', { style: 'min-width:0;display:flex;gap:12px;align-items:flex-start' }, cbx, h('div', { style: 'min-width:0' }, h('b', null, titleWords(p.name)), h('div', { class: 'hint' }, fd ? shortFood(fd) : ''), expText(p) ? h('div', { class: 'expb ' + expState(p) }, expText(p)) : null)),
       p.nog ? h('span', { class: 'plw' }, h('span', { class: 'hint' }, 'have it'), expIn2) : h('span', { class: 'plw' },
         (p.low > 0 && p.g <= p.low) ? h('span', { class: 'lowb' }, 'Running low') : null,
         h('label', { class: 'plab' }, inp, ew ? ' whole' : lq ? ' ml' : ' g'),
-        h('label', { class: 'plab low' }, h('span', { class: 'hint' }, 'low at'), h('input', { type: 'number', min: '0', step: 'any', inputmode: 'decimal', class: 'lowin', value: p.low > 0 ? String(ew ? Math.round(p.low / ew * 2) / 2 : lq ? Math.round(p.low / dn) : p.low) : '', placeholder: '–', 'aria-label': 'Add to the cart when below this amount', onchange: function (e) { var v = parseFloat(e.target.value); p.low = v > 0 ? Math.round(v * (ew || (lq ? dn : 1)) * 10) / 10 : 0; savePantry(); render(); } })), expIn2), h('button', { class: 'btn quiet', type: 'button', 'aria-label': 'Remove ' + p.name, onclick: function () { pantry = pantry.filter(function (x) { return x !== p; }); savePantry(); render(); } }, 'Remove')));
+        h('label', { class: 'plab low' }, h('span', { class: 'hint' }, 'low at'), h('input', { type: 'number', min: '0', step: 'any', inputmode: 'decimal', class: 'lowin', value: p.low > 0 ? String(ew ? Math.round(p.low / ew * 2) / 2 : lq ? Math.round(p.low / dn) : p.low) : '', placeholder: '–', 'aria-label': 'Add to the cart when below this amount', onchange: function (e) { var v = parseFloat(e.target.value); p.low = v > 0 ? Math.round(v * (ew || (lq ? dn : 1)) * 10) / 10 : 0; savePantry(); render(); } })), expIn2), rnd('cart', 'Add ' + titleWords(p.name) + ' to cart', function () { pantryToCart([p]); }), h('button', { class: 'btn quiet', type: 'button', 'aria-label': 'Remove ' + p.name, onclick: function () { pantry = pantry.filter(function (x) { return x !== p; }); savePantry(); render(); } }, 'Remove')));
   });
   wrap.appendChild(list);
   });
+  var bar = h('div', { class: 'psbar' }), barN = h('span'), barB = h('button', { class: 'btn primary', type: 'button', onclick: function () { pantryToCart(pantry.filter(function (p) { return psel[p.id]; })); psel = {}; render(); } }, 'Add selected to cart'), barC = h('button', { class: 'btn quiet', type: 'button', onclick: function () { psel = {}; render(); } }, 'Clear');
+  bar.appendChild(barN); bar.appendChild(barB); bar.appendChild(barC);
+  function updBar() { var k = Object.keys(psel).length; bar.style.display = k ? '' : 'none'; barN.textContent = k + ' selected'; }
+  updBar();
   fridgeOld(wrap);
+  wrap.appendChild(bar);
   return wrap;
 }
 
@@ -2416,7 +2485,8 @@ function draftFromRecipe(r) {
     var cands = [food].concat(E.matchFoods(nm, allFoods(), 7).filter(function (c) { return !food || c.id !== food.id; })).filter(Boolean);
     return { parsed: { original: it.original || (Math.round(it.g * 10) / 10 + ' g ' + nm), name: nm, qty: null, unit: '', note: '' }, cands: cands, foodId: it.foodId, skip: false, manualG: it.g, shown: nm, keep: { n: it.n, u: it.u, g0: it.g } };
   });
-  return { name: r.name, sub: r.sub || '', serves: r.servings, mins: r.mins, cat: r.cat, tags: tagsOf(r).join(', '), steps: (r.steps || []).slice(), rows: rows, editId: r.sample ? null : r.id, fromId: r.id, source: r.source };
+  var sm0 = (r.hands || 0) + (r.cook || 0) + (r.chill || 0);
+  return { name: r.name, sub: r.sub || '', serves: r.servings, mins: r.mins, hands: r.hands || '', cook: r.cook || '', chill: r.chill || '', minsManual: !sm0 || sm0 !== r.mins, ahead: !!r.ahead, aheadNote: r.aheadNote || '', freeze: !!r.freeze, freezeNote: r.freezeNote || '', cat: r.cat, tags: tagsOf(r).join(', '), steps: (r.steps || []).slice(), rows: rows, editId: r.sample ? null : r.id, fromId: r.id, source: r.source };
 }
 function startEdit(r) { A.draft = draftFromRecipe(r); S.view = 'add'; render(); }
 
