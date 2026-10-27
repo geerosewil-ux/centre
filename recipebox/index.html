@@ -276,7 +276,10 @@ button,input,select{font:inherit;color:inherit}
 .row2{display:flex;align-items:center;gap:8px;margin:0 0 12px;border-bottom:1px solid var(--line)}.row2 .tagstrip{flex:1;min-width:0;margin:0;border:0}.row2 .nvtog{flex:0 0 auto}.tagstrip{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none;margin:0 0 12px;border-bottom:1px solid var(--line)}.tagstrip::-webkit-scrollbar{display:none}.tagt{flex:0 0 auto;min-height:40px;padding:0 14px;border:0;border-bottom:2px solid transparent;background:none;color:var(--ink-2);font-size:13px;cursor:pointer;margin-bottom:-1px}.tagt[aria-pressed="true"]{color:var(--ink);border-bottom-color:var(--accent);font-weight:600}
 .icrow{display:flex;gap:4px;margin:10px 0 4px;border-top:1px solid rgba(17,17,17,.1);border-bottom:1px solid rgba(17,17,17,.1);padding:6px 0}.icb{flex:1;min-width:64px;min-height:56px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border:0;background:none;color:var(--ink);cursor:pointer;border-radius:12px}.icb:hover{background:rgba(0,0,0,.05)}.icb[aria-pressed="true"]{background:rgba(0,0,0,.07)}.icl{font-size:11px;color:var(--ink-2);letter-spacing:.02em}
 @media (max-width:560px){.row2 .nvtog span:last-child{display:none}}
-.corner{display:flex;gap:6px;align-items:center;flex:0 0 auto}.rnd{width:36px;height:36px;border:1px solid var(--line);border-radius:50%;background:var(--card);color:var(--ink-2);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;padding:0}.ico{display:inline-flex;align-items:center;justify-content:center;line-height:0}.ico svg{display:block}.corner .heart,.cc.heart{display:inline-flex;align-items:center;justify-content:center;padding:0;line-height:0}.cc.heart svg{display:block}
+.corner{display:flex;gap:6px;align-items:center;flex:0 0 auto}.rnd{width:36px;height:36px;border:1px solid var(--line);border-radius:50%;background:var(--card);color:var(--ink-2);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;padding:0}.qed{display:flex;flex-direction:column;gap:8px;margin:0 0 14px;padding:14px;border:1px solid var(--line);border-radius:14px;background:var(--card)}.qrow{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.qrow input[type=text]{flex:1 1 140px;min-width:0}.qrow input[type=number]{width:90px}
+.plw{display:inline-flex;align-items:center;gap:14px;flex-wrap:wrap;justify-content:flex-end}.lowb{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--rose);border:1px solid currentColor;border-radius:99px;padding:2px 10px}.plab.low{display:inline-flex;align-items:center;gap:6px}.lowin{width:68px}
+.uadd{font:500 13px var(--font-body);min-height:34px;padding:0 14px;border:1px solid var(--line);border-radius:99px;background:var(--card);color:var(--ink);cursor:pointer}.uadd:hover{border-color:var(--ink-2)}
+.ico{display:inline-flex;align-items:center;justify-content:center;line-height:0}.ico svg{display:block}.corner .heart,.cc.heart{display:inline-flex;align-items:center;justify-content:center;padding:0;line-height:0}.cc.heart svg{display:block}
 .rnd.armed{color:#fff;background:#9C2A3A!important;border-color:#9C2A3A!important}.rnd:hover{color:var(--ink);border-color:var(--ink-2)}.corner .heart{width:36px;height:36px}
 .servs{display:flex;align-items:center;gap:12px;margin:6px 0}.svlab{font-size:13px;color:var(--ink-2);min-width:74px;font-variant-numeric:tabular-nums}.svx{font-size:12px;color:var(--ink-2)}.slider{flex:1;max-width:260px;height:20px;accent-color:var(--accent);background:none}
 .ricebox{display:flex;flex-direction:column;gap:10px}.ricepick{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.rrw{display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:8px 0;border-bottom:1px solid rgba(0,0,0,.1)}
@@ -1378,7 +1381,7 @@ function fullCard(r, redraw) {
   heart.innerHTML = '<svg width="22" height="22" viewBox="0 0 24 24" fill="' + (favOf(r) ? '#9C2A3A' : 'none') + '" stroke="#9C2A3A" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.600-7 10-7 10z"/></svg>';
   var head = h('div', null,
     h('div', { class: 'corner' }, rnd('cook', 'Cook mode', function (e) { e.stopPropagation(); openCook(r, S0); }), rnd('cart', 'Add to cart', function (e) { e.stopPropagation(); addRecipeToCart(r, S0); }), rnd('edit', r.sample ? 'Edit a copy' : 'Edit recipe', function (e) { e.stopPropagation(); startEdit(r); }), heart),
-    h('div', { style: 'text-align:left;margin-top:4px' },
+    h('div', { style: 'text-align:left;margin-top:10px' },
       T('eb', 'full', r.cat + ' \u00B7 ' + timeStr(r.mins), { tag: 'div' }),
       T('h1', 'full', r.name, { tag: 'div', style: 'margin-top:6px;text-align:left' })));
   var starRow = h('div', { style: 'display:flex;margin:6px 0 0 -3px', role: 'group', 'aria-label': 'Rating' });
@@ -2171,7 +2174,18 @@ function settingsView() {
 
 /* ---------- tags, pantry, editing, account sync ---------- */
 var pantry = lsGet('rb.pantry', []);
-function savePantry() { lsSet('rb.pantry', pantry); }
+function savePantry() {
+  pantry.forEach(function (p) {
+    if (!(p.low > 0)) return;
+    var inCart = cart.manual.filter(function (m) { return m.pid === p.id; })[0];
+    if (p.g <= p.low && !inCart) { cart.manual.push({ id: uid(), name: titleCase(p.name), got: false, pid: p.id }); saveCart(); }
+    else if (p.g > p.low && inCart && !inCart.got) { cart.manual = cart.manual.filter(function (m) { return m !== inCart; }); saveCart(); }
+  });
+  lsSet('rb.pantry', pantry);
+}
+var PQ_DEFAULT = [['Milk', 1000, 'ml', 'Fridge'], ['Eggs', 12, 'each', 'Fridge'], ['Butter', 250, 'g', 'Fridge'], ['Plain flour', 1000, 'g', 'Cupboard'], ['Sugar', 1000, 'g', 'Cupboard'], ['Rice', 1000, 'g', 'Cupboard'], ['Olive oil', 500, 'ml', 'Cupboard'], ['Onions', 3, 'each', 'Cupboard'], ['Garlic', 1, 'each', 'Cupboard'], ['Pasta', 500, 'g', 'Cupboard']];
+var PQ = lsGet('rb.pquick', PQ_DEFAULT), editQ = false;
+function savePQ() { lsSet('rb.pquick', PQ); }
 function pantryItem(foodId) { for (var i = 0; i < pantry.length; i++) if (pantry[i].foodId === foodId) return pantry[i]; return null; }
 function pantryPlan(r, servings) {
   var f = servings / r.servings, left = {}, out = [];
@@ -2183,7 +2197,8 @@ function pantryPlan(r, servings) {
   return out;
 }
 function eachW(food) { var u = food && food.unitWeights; return u ? (u.each || u.whole || 0) : 0; }
-function pantryLine(plan) { return plan.map(function (x) { var w = x.p.cnt ? eachW(FOODS[x.p.foodId]) : 0; return (w ? frac(Math.round(x.take / w * 2) / 2 || x.take / w) + ' ' : Math.round(x.take) + ' g ') + x.label.toLowerCase(); }).join(', '); }
+function isLiq(fd) { return !!fd && /ml$/.test(E.displayAmount({ g: 1, ml: 1 }, fd)); }
+function pantryLine(plan) { return plan.map(function (x) { var fd = FOODS[x.p.foodId], w = x.p.cnt ? eachW(fd) : 0, lq = isLiq(fd); return (w ? frac(Math.round(x.take / w * 2) / 2 || x.take / w) + ' ' : lq ? Math.round(x.take / (fd.density || 1)) + ' ml ' : Math.round(x.take) + ' g ') + x.label.toLowerCase(); }).join(', '); }
 function doCooked(r, servings) {
   markCooked(r);
   if (S.pantryUse && S.pantryUse[r.id]) {
@@ -2207,9 +2222,9 @@ function pantryView() {
   selF = h('select', { 'aria-label': 'Food it is', id: 'pan-food' });
   gIn = h('input', { type: 'number', min: '0', step: 'any', inputmode: 'decimal', id: 'pan-g', placeholder: 'Amount', 'aria-label': 'Amount' });
   placeSel = h('select', { id: 'pan-place', 'aria-label': 'Where it is kept' }, ['Cupboard', 'Fridge', 'Freezer'].map(function (x) { return h('option', { value: x }, x); }));
-  unitSel = h('select', { id: 'pan-unit', 'aria-label': 'Unit' }, h('option', { value: '1' }, 'g'), h('option', { value: '1000' }, 'kg'), h('option', { value: 'each' }, 'whole'));
+  unitSel = h('select', { id: 'pan-unit', 'aria-label': 'Unit' }, h('option', { value: '1' }, 'g'), h('option', { value: '1000' }, 'kg'), h('option', { value: 'ml' }, 'ml'), h('option', { value: 'l' }, 'L'), h('option', { value: 'each' }, 'whole'));
   function add() {
-    var n = nameIn.value.trim(), raw = gIn.value.trim(), isEach = unitSel.value === 'each', ew = selF.value ? eachW(FOODS[selF.value]) : 0, g = parseFloat(raw) * (isEach ? ew : parseFloat(unitSel.value)), pl = placeSel.value;
+    var n = nameIn.value.trim(), raw = gIn.value.trim(), isEach = unitSel.value === 'each', ew = selF.value ? eachW(FOODS[selF.value]) : 0, uv = unitSel.value, dens = (selF.value && FOODS[selF.value] && FOODS[selF.value].density) || 1, g = parseFloat(raw) * (isEach ? ew : uv === 'ml' ? dens : uv === 'l' ? 1000 * dens : parseFloat(uv)), pl = placeSel.value;
     if (!n) { toast('Type what you have first.'); return; }
     if (!raw || !(g >= 0)) { if (!pantry.some(function (x) { return x.name.toLowerCase() === n.toLowerCase(); })) pantry.push({ id: uid(), name: n, foodId: '', g: 0, nog: true, place: pl }); savePantry(); render(); return; }
     if (!selF.value) { toast('Pick the food it is.'); return; }
@@ -2219,6 +2234,34 @@ function pantryView() {
     savePantry(); render();
   }
   wrap.appendChild(h('p', { class: 'hint', style: 'max-width:60ch' }, 'List what you keep at home. Add an amount and it comes off when you mark a recipe cooked; leave the amount blank and it just counts as \u201CI have it\u201D.'));
+  var QUICK = PQ;
+  function quickAdd(q) {
+    var f = E.matchFoods(q[0], allFoods(), 1)[0]; if (!f) { toast('Could not find ' + q[0] + '.'); return; }
+    var ew = eachW(f), g = q[2] === 'each' ? (ew ? q[1] * ew : 0) : q[2] === 'ml' ? q[1] * (f.density || 1) : q[1];
+    if (!g) { toast('I do not know the weight of one ' + q[0].toLowerCase() + '.'); return; }
+    var ex = pantryItem(f.id); if (ex) ex.g = Math.round((ex.g + g) * 10) / 10; else pantry.push({ id: uid(), name: q[0], foodId: f.id, g: Math.round(g * 10) / 10, place: q[3], cnt: q[2] === 'each' });
+    savePantry(); toast(q[0] + ' added.'); render();
+  }
+  var qrow = h('div', { class: 'chips', style: 'margin-bottom:10px', role: 'group', 'aria-label': 'Quick add' }, T('eb', 'full', 'Quick add', { tag: 'span', style: 'align-self:center;margin-right:4px' }),
+    QUICK.map(function (q) { return h('button', { class: 'uadd', type: 'button', onclick: function () { quickAdd(q); } }, q[0] + ' ', h('span', { style: 'opacity:.6' }, q[1] + (q[2] === 'each' ? '' : ' ' + q[2]))); }),
+    h('button', { class: 'uadd', type: 'button', 'aria-label': 'Edit quick add', title: 'Edit quick add', onclick: function () { editQ = !editQ; render(); } }, icon('edit', 14)));
+  wrap.appendChild(qrow);
+  if (editQ) {
+    var ed = h('div', { class: 'qed' });
+    PQ.forEach(function (q, i) {
+      ed.appendChild(h('div', { class: 'qrow' },
+        h('input', { type: 'text', value: q[0], 'aria-label': 'Name', onchange: function (e) { q[0] = e.target.value.trim() || q[0]; savePQ(); } }),
+        h('input', { type: 'number', min: '0', step: 'any', value: String(q[1]), 'aria-label': 'Amount', onchange: function (e) { q[1] = parseFloat(e.target.value) || q[1]; savePQ(); } }),
+        h('select', { 'aria-label': 'Unit', onchange: function (e) { q[2] = e.target.value; savePQ(); } }, [['g', 'g'], ['ml', 'ml'], ['each', 'whole']].map(function (u) { return h('option', { value: u[0], selected: q[2] === u[0] }, u[1]); })),
+        h('select', { 'aria-label': 'Where', onchange: function (e) { q[3] = e.target.value; savePQ(); } }, ['Fridge', 'Freezer', 'Cupboard'].map(function (u) { return h('option', { value: u, selected: q[3] === u }, u); })),
+        h('button', { class: 'btn quiet', type: 'button', 'aria-label': 'Remove ' + q[0], onclick: function () { PQ.splice(i, 1); savePQ(); render(); } }, 'Remove')));
+    });
+    ed.appendChild(h('div', { class: 'btns' },
+      h('button', { class: 'btn', type: 'button', onclick: function () { PQ.push(['New item', 1, 'g', 'Cupboard']); savePQ(); render(); } }, 'Add a row'),
+      h('button', { class: 'btn quiet', type: 'button', onclick: function () { PQ.length = 0; PQ_DEFAULT.forEach(function (q) { PQ.push(q.slice()); }); savePQ(); render(); } }, 'Reset'),
+      h('button', { class: 'btn primary', type: 'button', onclick: function () { editQ = false; render(); } }, 'Done')));
+    wrap.appendChild(ed);
+  }
   wrap.appendChild(h('div', { class: 'tools' }, nameIn, selF, gIn, unitSel, placeSel, h('button', { class: 'btn primary', type: 'button', onclick: add }, 'Add')));
   if (!pantry.length) { wrap.appendChild(h('p', { class: 'empty' }, 'Nothing here yet. Try \u201Cplain flour\u201D and 1 kg.')); return wrap; }
   ['Fridge', 'Freezer', 'Cupboard'].forEach(function (pl) {
@@ -2226,9 +2269,12 @@ function pantryView() {
   wrap.appendChild(h('h2', { class: 'mk', style: 'font-size:13px;letter-spacing:.2em;text-transform:uppercase;margin:26px 0 8px;font-weight:500' }, pl));
   var list = h('div', { class: 'plist' });
   items.sort(function (a, b) { return a.name.localeCompare(b.name); }).forEach(function (p) {
-    var fd = FOODS[p.foodId], ew = p.cnt ? eachW(fd) : 0, inp = h('input', { type: 'number', min: '0', step: 'any', inputmode: 'decimal', value: String(ew ? Math.round(p.g / ew * 2) / 2 : p.g), 'aria-label': (ew ? 'Number of ' : 'Grams of ') + p.name, onchange: function (e) { var v = Math.max(0, parseFloat(e.target.value) || 0); p.g = ew ? Math.round(v * ew * 10) / 10 : v; savePantry(); render(); } });
+    var fd = FOODS[p.foodId], ew = p.cnt ? eachW(fd) : 0, lq = !ew && isLiq(fd), dn = (fd && fd.density) || 1, inp = h('input', { type: 'number', min: '0', step: 'any', inputmode: 'decimal', value: String(ew ? Math.round(p.g / ew * 2) / 2 : lq ? Math.round(p.g / dn) : p.g), 'aria-label': (ew ? 'Number of ' : lq ? 'Millilitres of ' : 'Grams of ') + p.name, onchange: function (e) { var v = Math.max(0, parseFloat(e.target.value) || 0); p.g = ew ? Math.round(v * ew * 10) / 10 : lq ? Math.round(v * dn * 10) / 10 : v; savePantry(); render(); } });
     list.appendChild(h('div', { class: 'prow' }, h('div', { style: 'min-width:0' }, h('b', null, titleCase(p.name)), h('div', { class: 'hint' }, fd ? shortFood(fd) : '')),
-      p.nog ? h('span', { class: 'hint' }, 'have it') : h('label', { class: 'plab' }, inp, ew ? ' whole' : ' g'), h('button', { class: 'btn quiet', type: 'button', 'aria-label': 'Remove ' + p.name, onclick: function () { pantry = pantry.filter(function (x) { return x !== p; }); savePantry(); render(); } }, 'Remove')));
+      p.nog ? h('span', { class: 'hint' }, 'have it') : h('span', { class: 'plw' },
+        (p.low > 0 && p.g <= p.low) ? h('span', { class: 'lowb' }, 'Running low') : null,
+        h('label', { class: 'plab' }, inp, ew ? ' whole' : lq ? ' ml' : ' g'),
+        h('label', { class: 'plab low' }, h('span', { class: 'hint' }, 'low at'), h('input', { type: 'number', min: '0', step: 'any', inputmode: 'decimal', class: 'lowin', value: p.low > 0 ? String(ew ? Math.round(p.low / ew * 2) / 2 : lq ? Math.round(p.low / dn) : p.low) : '', placeholder: '–', 'aria-label': 'Add to the cart when below this amount', onchange: function (e) { var v = parseFloat(e.target.value); p.low = v > 0 ? Math.round(v * (ew || (lq ? dn : 1)) * 10) / 10 : 0; savePantry(); render(); } }))), h('button', { class: 'btn quiet', type: 'button', 'aria-label': 'Remove ' + p.name, onclick: function () { pantry = pantry.filter(function (x) { return x !== p; }); savePantry(); render(); } }, 'Remove')));
   });
   wrap.appendChild(list);
   });
@@ -2259,7 +2305,7 @@ function draftFromRecipe(r) {
 function startEdit(r) { A.draft = draftFromRecipe(r); S.view = 'add'; render(); }
 
 /* account and sync (Firebase) */
-var SYNCKEYS = ['rb.recipes', 'rb.foods', 'rb.matches', 'rb.region', 'rb.plan', 'rb.targets', 'rb.cart', 'rb.books', 'rb.user', 'rb.fridge', 'rb.pantry', 'rb.design', 'rb.nutview', 'rb.usuals'];
+var SYNCKEYS = ['rb.recipes', 'rb.foods', 'rb.matches', 'rb.region', 'rb.plan', 'rb.targets', 'rb.cart', 'rb.books', 'rb.user', 'rb.fridge', 'rb.pantry', 'rb.design', 'rb.nutview', 'rb.usuals', 'rb.pquick'];
 var FB_DEFAULT = { apiKey: 'AIzaSyD4G9WZimZMA84PxEJtemdW5Al7TAzyLZY', authDomain: 'centre-dashboard.firebaseapp.com', databaseURL: 'https://centre-dashboard-default-rtdb.asia-southeast1.firebasedatabase.app', projectId: 'centre-dashboard', storageBucket: 'centre-dashboard.firebasestorage.app', messagingSenderId: '286461096007', appId: '1:286461096007:web:e55cdde4907775a1848162' };
 var fb = { cfg: lsGet('rb.fbconfig', null) || FB_DEFAULT, user: null, db: null, msg: '', busy: false }, pushT = 0;
 function syncPush() {
