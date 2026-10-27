@@ -75,7 +75,7 @@ button,input,select{font:inherit;color:inherit}
 .full .ctl{margin:22px 0 4px}.full .turnrow{border-top:0;margin-top:34px;padding-top:0}
 .full .stepsl{gap:18px!important}
 .ir{display:grid;grid-template-columns:minmax(78px,auto) minmax(0,1fr) auto;gap:10px;align-items:baseline;padding:8px 0;border-top:1px solid rgba(17,17,17,.14)}
-.nbars{display:flex;flex-direction:column;gap:9px;max-width:420px}.nbar{display:grid;grid-template-columns:78px 1fr 74px;gap:12px;align-items:center;font-size:12.5px;color:var(--ink-2)}.nbar i{display:block;height:3px;border-radius:3px;background:rgba(120,110,90,.22);position:relative;overflow:hidden}.nbar i:after{content:'';position:absolute;left:0;top:0;bottom:0;width:var(--w,0%);background:var(--sage,#3F4A3C);border-radius:3px;transition:width .6s cubic-bezier(.2,.8,.2,1)}.nbv{text-align:right;color:var(--ink);font-variant-numeric:tabular-nums}
+.nbars{display:flex;flex-direction:column;gap:9px;width:100%}.nbar{display:grid;grid-template-columns:minmax(84px,auto) minmax(0,1fr) auto;gap:6px 18px;align-items:center;font-size:12.5px;color:var(--ink-2)}.nbar i{display:block;height:3px;border-radius:3px;background:rgba(120,110,90,.22);position:relative;overflow:hidden}.nbar i:after{content:'';position:absolute;left:0;top:0;bottom:0;width:var(--w,0%);background:var(--sage,#3F4A3C);border-radius:3px;transition:width .6s cubic-bezier(.2,.8,.2,1)}.nbv{text-align:right;color:var(--ink);font-variant-numeric:tabular-nums}
 .nvline{margin-top:8px}.nvl{font-size:13px;letter-spacing:.02em;color:var(--ink-2);animation:fadeup .4s both}.nvs{opacity:.7;font-size:12px}
 .stat{display:flex;gap:18px;flex-wrap:wrap;margin-top:10px}
 .stat>div{display:flex;flex-direction:column;gap:2px}
@@ -316,6 +316,17 @@ button,input,select{font:inherit;color:inherit}
 .pvseg{margin-bottom:10px}
 .mini .rc-body{position:relative;display:flex;align-items:center;justify-content:center;min-height:116px;padding:30px 18px}.mini .rc-body>.row:first-child{position:absolute;top:10px;left:18px;right:18px}.mini .rc-body>.row:last-child{position:absolute;bottom:9px;left:18px;right:18px;justify-content:center}.mini .tt{width:100%}
 .aisle{margin:16px 0 4px;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-2);display:flex;align-items:center;gap:10px}.aisle::after{content:"";flex:1;height:1px;background:var(--line)}.chip.usual .uadd{width:auto;height:36px;padding:0 12px;font-size:13px;color:var(--ink)}.chip.usual{padding:0 4px 0 2px}.chip.usual.on{opacity:.55}
+.expb{display:inline-block;margin-top:4px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;padding:2px 10px;border-radius:99px;border:1px solid currentColor}.expb.week{color:#8A6A1F}.expb.soon{color:#B4561F}.expb.gone{color:var(--rose)}.prow.gone{border-color:var(--rose)}.prow.soon{border-color:#B4561F}.usesoon{color:#B4561F}.expn{font-size:12px;color:#8A6A1F;margin-top:4px}.pexp{display:inline-flex;align-items:center;gap:6px}.pexp input,.pamt{min-width:0}.pamt{display:flex;gap:8px}
+@media (max-width:640px){
+ .ptools{display:grid;grid-template-columns:1fr 1fr;gap:10px}.ptools>*{min-width:0;width:100%}.ptools #pan-name,.ptools #pan-food,.ptools .pamt,.ptools .btn{grid-column:1/-1}.ptools .pamt input{flex:1;width:auto!important}.ptools input,.ptools select,.prow input{font-size:16px;min-height:44px}.ptools .btn{min-height:48px}
+ .pantryv .chips{flex-wrap:nowrap;overflow-x:auto;margin-inline:-16px;padding:2px 16px 8px;scrollbar-width:none}.pantryv .chips::-webkit-scrollbar{display:none}.pantryv .uadd{flex:0 0 auto;min-height:44px}
+ .prow{flex-direction:column;align-items:stretch;gap:10px;padding:14px}.prow>div:first-child{flex:none}.plw{justify-content:flex-start;gap:10px 14px;display:grid;grid-template-columns:1fr 1fr}.plw .lowb{grid-column:1/-1;justify-self:start}.plw .plab,.plw .pexp{display:flex;flex-direction:column;align-items:stretch;gap:4px}.plab input,.lowin,.pexp input{width:100%!important}.prow .btn.quiet{align-self:flex-end;min-height:40px}.prow .hint{font-size:12px}
+ .qrow{display:grid;grid-template-columns:1fr 1fr;gap:8px}.qrow input,.qrow select{font-size:16px;min-height:44px}.fcard .btns .btn{min-height:44px}
+}
+@media (max-width:640px){
+ .ptools .pamt select{width:96px!important;flex:0 0 96px}.ptools .pamt input{min-width:0}.ptools .pexp{display:flex;flex-direction:column;align-items:stretch;gap:4px}.ptools .pexp input{width:100%}
+ .plw .plab:not(.low):not(.pexp){display:flex;flex-direction:row;align-items:center;gap:8px}.plw .plab:not(.low):not(.pexp) input{width:100%!important}.plw .pexp{grid-column:1/-1}.plw{align-items:end}
+}
 </style>
 
 <div class="app" id="app"></div>
@@ -1465,7 +1476,7 @@ function fullCard(r, redraw) {
   function front() {
     return cardShell('full', [cookedOf(r).n >= 3 ? h('div', { class: 'stain', 'aria-hidden': 'true' }) : null, head, starRow, nutri, h('div', { class: 'ctl' }, servCtl),
       h('div', { class: 'secthd' }, T('h2', 'full', 'Ingredients', { tag: 'div' })), h('div', { class: 'ings' }, rows),
-      h('div', { class: 'turnrow' }, T('bd', 'full', 'Method is on the back', { style: 'opacity:.7' }), turnBtn('Turn over')), del]);
+      h('div', { class: 'turnrow', style: 'justify-content:flex-end' }, turnBtn('Turn over')), del]);
   }
   function back() {
     return cardShell('full back', [T('eb', 'full', r.cat + ' · serves ' + S0, { tag: 'div' }), T('h1', 'full', r.name, { tag: 'div', scale: 0.8, style: 'margin-top:6px' }),
@@ -1759,9 +1770,9 @@ function fridgeResults() {
   RECIPES.forEach(function (r) {
     var need = r.ingredients.filter(function (i) { return !isBasic(i); }), have = need.filter(function (i) { return haveIt(i, keys); }), miss = need.filter(function (i) { return !haveIt(i, keys); });
     if (!have.length) return;
-    out.push({ r: r, have: have, miss: miss, total: need.length });
+    var ex7 = expiring().filter(function (e) { return e.foodId && have.some(function (i) { return i.foodId === e.foodId; }); }); out.push({ r: r, have: have, miss: miss, total: need.length, exp: ex7 });
   });
-  out.sort(function (a, b) { return (a.miss.length - b.miss.length) || (b.have.length - a.have.length) || (ratingOf(b.r) - ratingOf(a.r)); });
+  out.sort(function (a, b) { return (a.miss.length - b.miss.length) || (b.exp.length - a.exp.length) || (b.have.length - a.have.length) || (ratingOf(b.r) - ratingOf(a.r)); });
   return out;
 }
 function fridgeView() {
@@ -1779,6 +1790,7 @@ function fridgeOld(wrap) {
     var ready = !x.miss.length;
     list.appendChild(h('div', { class: 'fcard' + (ready ? ' ready' : '') },
       h('div', { class: 'fhead' }, h('b', null, x.r.name), h('span', { class: 'fbadge' }, ready ? 'You have everything' : 'Have ' + x.have.length + ' of ' + x.total)),
+      x.exp.length ? h('div', { class: 'expn' }, 'Uses up ' + x.exp.map(function (e) { return titleWords(e.name).toLowerCase(); }).join(', ') + ' (expiring)') : null,
       ready ? null : h('div', { class: 'hint' }, 'Missing: ' + x.miss.map(function (i) { return (i.label || shortFood(FOODS[i.foodId])).toLowerCase(); }).join(', ')),
       h('div', { class: 'btns', style: 'margin-top:8px' },
         h('button', { class: 'btn', type: 'button', onclick: function () { S.view = 'recipes'; S.sel = x.r.id; S.detail = true; S.q = ''; render(); } }, 'Open recipe'),
@@ -2277,6 +2289,10 @@ function savePantry() {
 var PQ_DEFAULT = [['Milk', 1000, 'ml', 'Fridge'], ['Eggs', 12, 'each', 'Fridge'], ['Butter', 250, 'g', 'Fridge'], ['Plain flour', 1000, 'g', 'Cupboard'], ['Sugar', 1000, 'g', 'Cupboard'], ['Rice', 1000, 'g', 'Cupboard'], ['Olive oil', 500, 'ml', 'Cupboard'], ['Onions', 3, 'each', 'Cupboard'], ['Garlic', 1, 'each', 'Cupboard'], ['Pasta', 500, 'g', 'Cupboard']];
 var PQ = lsGet('rb.pquick', PQ_DEFAULT), editQ = false;
 function savePQ() { lsSet('rb.pquick', PQ); }
+function daysLeft(p) { if (!p.exp) return null; var d = new Date(p.exp + 'T00:00:00'), t = new Date(); t.setHours(0, 0, 0, 0); return Math.round((d - t) / 86400000); }
+function expState(p) { var n = daysLeft(p); return n == null ? '' : n < 0 ? 'gone' : n <= 3 ? 'soon' : n <= 7 ? 'week' : ''; }
+function expText(p) { var n = daysLeft(p); if (n == null) return ''; return n < 0 ? 'Expired ' + (-n === 1 ? 'yesterday' : -n + ' days ago') : n === 0 ? 'Expires today' : n === 1 ? 'Expires tomorrow' : n <= 7 ? 'Expires in ' + n + ' days' : ''; }
+function expiring() { return pantry.filter(function (p) { var n = daysLeft(p); return n != null && n <= 7; }).sort(function (a, b) { return daysLeft(a) - daysLeft(b); }); }
 function pantryItem(foodId) { for (var i = 0; i < pantry.length; i++) if (pantry[i].foodId === foodId) return pantry[i]; return null; }
 function pantryPlan(r, servings) {
   var f = servings / r.servings, left = {}, out = [];
@@ -2311,23 +2327,24 @@ function pantryToggle(r, servings, after) {
     h('div', { class: 'hint' }, plan.length ? (S.pantryUse[r.id] ? 'Will take ' : 'Could take ') + pantryLine(plan) + '.' : 'None of this recipe is in your pantry list yet.'));
 }
 function pantryView() {
-  var wrap = h('div', { class: 'pantryv' }), cands = [], nameIn, selF, gIn, unitSel, placeSel, offT = 0;
+  var wrap = h('div', { class: 'pantryv' }), cands = [], nameIn, selF, gIn, unitSel, placeSel, expIn, offT = 0;
   function candsFor(q) { return q.trim() ? E.matchFoods(q, allFoods(), 8) : []; }
   nameIn = h('input', { class: 'search', type: 'text', id: 'pan-name', placeholder: 'What you have, e.g. plain flour', 'aria-label': 'Pantry item',
     oninput: function (e) { var q0 = e.target.value; cands = candsFor(q0); selF.replaceChildren(); cands.forEach(function (c) { selF.appendChild(h('option', { value: c.id }, c.name.length > 60 ? c.name.slice(0, 58) + '\u2026' : c.name)); }); clearTimeout(offT); offT = setTimeout(function () { offLookup(q0).then(function (more) { if (nameIn.value !== q0) return; more.forEach(function (f) { if (!cands.some(function (c) { return c.id === f.id; })) { cands.push(f); selF.appendChild(h('option', { value: f.id }, f.name.length > 60 ? f.name.slice(0, 58) + '\u2026' : f.name)); } }); }); }, 450); } });
   selF = h('select', { 'aria-label': 'Food it is', id: 'pan-food' });
   gIn = h('input', { type: 'number', min: '0', step: 'any', inputmode: 'decimal', id: 'pan-g', placeholder: 'Amount', 'aria-label': 'Amount' });
+  expIn = h('input', { type: 'date', id: 'pan-exp', 'aria-label': 'Use by date (optional)', title: 'Use by (optional)' });
   placeSel = h('select', { id: 'pan-place', 'aria-label': 'Where it is kept' }, ['Cupboard', 'Fridge', 'Freezer'].map(function (x) { return h('option', { value: x }, x); }));
   unitSel = h('select', { id: 'pan-unit', 'aria-label': 'Unit' }, h('option', { value: '1' }, 'g'), h('option', { value: '1000' }, 'kg'), h('option', { value: 'ml' }, 'ml'), h('option', { value: 'l' }, 'L'), h('option', { value: 'each' }, 'whole'));
   function add() {
     var n = titleWords(nameIn.value), raw = gIn.value.trim(), isEach = unitSel.value === 'each', ew = selF.value ? eachW(FOODS[selF.value]) : 0, uv = unitSel.value, dens = (selF.value && FOODS[selF.value] && FOODS[selF.value].density) || 1, g = parseFloat(raw) * (isEach ? ew : uv === 'ml' ? dens : uv === 'l' ? 1000 * dens : parseFloat(uv)), pl = placeSel.value;
     if (!n) { toast('Type what you have first.'); return; }
-    if (!raw || !(g >= 0)) { if (!pantry.some(function (x) { return x.name.toLowerCase() === n.toLowerCase(); })) pantry.push({ id: uid(), name: n, foodId: '', g: 0, nog: true, place: pl }); savePantry(); render(); return; }
+    if (!raw || !(g >= 0)) { if (!pantry.some(function (x) { return x.name.toLowerCase() === n.toLowerCase(); })) pantry.push({ id: uid(), name: n, foodId: '', g: 0, nog: true, place: pl, exp: expIn.value || '' }); savePantry(); render(); return; }
     if (!selF.value) { toast('Pick the food it is.'); return; }
     if (isEach && !ew) { toast('I do not know the weight of one of those. Use g or kg.'); return; }
     var sf = FOODS[selF.value]; if (sf && sf.off && !custom.some(function (c) { return c.id === sf.id; })) { custom.push(sf); lsSet('rb.foods', custom); }
     var ex = pantryItem(selF.value);
-    if (ex) { ex.g = Math.round((ex.g + g) * 10) / 10; ex.nog = false; ex.place = pl; if (isEach) ex.cnt = true; } else pantry.push({ id: uid(), name: n, foodId: selF.value, g: Math.round(g * 10) / 10, place: pl, cnt: isEach });
+    if (ex) { ex.g = Math.round((ex.g + g) * 10) / 10; ex.nog = false; ex.place = pl; if (expIn.value) ex.exp = expIn.value; if (isEach) ex.cnt = true; } else pantry.push({ id: uid(), name: n, foodId: selF.value, g: Math.round(g * 10) / 10, place: pl, cnt: isEach, exp: expIn.value || '' });
     savePantry(); render();
   }
   wrap.appendChild(h('p', { class: 'hint', style: 'max-width:60ch' }, 'List what you keep at home. Add an amount and it comes off when you mark a recipe cooked; leave the amount blank and it just counts as \u201CI have it\u201D.'));
@@ -2359,19 +2376,21 @@ function pantryView() {
       h('button', { class: 'btn primary', type: 'button', onclick: function () { editQ = false; render(); } }, 'Done')));
     wrap.appendChild(ed);
   }
-  wrap.appendChild(h('div', { class: 'tools' }, nameIn, selF, gIn, unitSel, placeSel, h('button', { class: 'btn primary', type: 'button', onclick: add }, 'Add')));
+  wrap.appendChild(h('div', { class: 'tools ptools' }, nameIn, selF, h('div', { class: 'pamt' }, gIn, unitSel), placeSel, h('label', { class: 'pexp' }, h('span', { class: 'hint' }, 'Use by'), expIn), h('button', { class: 'btn primary', type: 'button', onclick: add }, 'Add')));
   if (!pantry.length) { wrap.appendChild(h('p', { class: 'empty' }, 'Nothing here yet. Try \u201Cplain flour\u201D and 1 kg.')); return wrap; }
-  ['Fridge', 'Freezer', 'Cupboard'].forEach(function (pl) {
-  var items = pantry.filter(function (p) { return (p.place || 'Cupboard') === pl; }); if (!items.length) return;
-  wrap.appendChild(h('h2', { class: 'mk', style: 'font-size:13px;letter-spacing:.2em;text-transform:uppercase;margin:26px 0 8px;font-weight:500' }, pl));
+  var soonL = expiring();
+  ['Use soon', 'Fridge', 'Freezer', 'Cupboard'].forEach(function (pl) {
+  var items = pl === 'Use soon' ? soonL : pantry.filter(function (p) { return (p.place || 'Cupboard') === pl && soonL.indexOf(p) < 0; }); if (!items.length) return;
+  wrap.appendChild(h('h2', { class: 'mk' + (pl === 'Use soon' ? ' usesoon' : ''), style: 'font-size:13px;letter-spacing:.2em;text-transform:uppercase;margin:26px 0 8px;font-weight:500' }, pl));
   var list = h('div', { class: 'plist' });
-  items.sort(function (a, b) { return a.name.localeCompare(b.name); }).forEach(function (p) {
+  (pl === 'Use soon' ? items : items.sort(function (a, b) { return a.name.localeCompare(b.name); })).forEach(function (p) {
     var fd = FOODS[p.foodId], ew = p.cnt ? eachW(fd) : 0, lq = !ew && isLiq(fd), dn = (fd && fd.density) || 1, inp = h('input', { type: 'number', min: '0', step: 'any', inputmode: 'decimal', value: String(ew ? Math.round(p.g / ew * 2) / 2 : lq ? Math.round(p.g / dn) : p.g), 'aria-label': (ew ? 'Number of ' : lq ? 'Millilitres of ' : 'Grams of ') + p.name, onchange: function (e) { var v = Math.max(0, parseFloat(e.target.value) || 0); p.g = ew ? Math.round(v * ew * 10) / 10 : lq ? Math.round(v * dn * 10) / 10 : v; savePantry(); render(); } });
-    list.appendChild(h('div', { class: 'prow' }, h('div', { style: 'min-width:0' }, h('b', null, titleWords(p.name)), h('div', { class: 'hint' }, fd ? shortFood(fd) : '')),
-      p.nog ? h('span', { class: 'hint' }, 'have it') : h('span', { class: 'plw' },
+    var expIn2 = h('label', { class: 'plab pexp' }, h('span', { class: 'hint' }, 'Use by'), h('input', { type: 'date', value: p.exp || '', 'aria-label': 'Use by date for ' + p.name, onchange: function (e) { p.exp = e.target.value; savePantry(); render(); } }));
+    list.appendChild(h('div', { class: 'prow ' + expState(p) }, h('div', { style: 'min-width:0' }, h('b', null, titleWords(p.name)), h('div', { class: 'hint' }, fd ? shortFood(fd) : ''), expText(p) ? h('div', { class: 'expb ' + expState(p) }, expText(p)) : null),
+      p.nog ? h('span', { class: 'plw' }, h('span', { class: 'hint' }, 'have it'), expIn2) : h('span', { class: 'plw' },
         (p.low > 0 && p.g <= p.low) ? h('span', { class: 'lowb' }, 'Running low') : null,
         h('label', { class: 'plab' }, inp, ew ? ' whole' : lq ? ' ml' : ' g'),
-        h('label', { class: 'plab low' }, h('span', { class: 'hint' }, 'low at'), h('input', { type: 'number', min: '0', step: 'any', inputmode: 'decimal', class: 'lowin', value: p.low > 0 ? String(ew ? Math.round(p.low / ew * 2) / 2 : lq ? Math.round(p.low / dn) : p.low) : '', placeholder: '–', 'aria-label': 'Add to the cart when below this amount', onchange: function (e) { var v = parseFloat(e.target.value); p.low = v > 0 ? Math.round(v * (ew || (lq ? dn : 1)) * 10) / 10 : 0; savePantry(); render(); } }))), h('button', { class: 'btn quiet', type: 'button', 'aria-label': 'Remove ' + p.name, onclick: function () { pantry = pantry.filter(function (x) { return x !== p; }); savePantry(); render(); } }, 'Remove')));
+        h('label', { class: 'plab low' }, h('span', { class: 'hint' }, 'low at'), h('input', { type: 'number', min: '0', step: 'any', inputmode: 'decimal', class: 'lowin', value: p.low > 0 ? String(ew ? Math.round(p.low / ew * 2) / 2 : lq ? Math.round(p.low / dn) : p.low) : '', placeholder: '–', 'aria-label': 'Add to the cart when below this amount', onchange: function (e) { var v = parseFloat(e.target.value); p.low = v > 0 ? Math.round(v * (ew || (lq ? dn : 1)) * 10) / 10 : 0; savePantry(); render(); } })), expIn2), h('button', { class: 'btn quiet', type: 'button', 'aria-label': 'Remove ' + p.name, onclick: function () { pantry = pantry.filter(function (x) { return x !== p; }); savePantry(); render(); } }, 'Remove')));
   });
   wrap.appendChild(list);
   });
@@ -2402,7 +2421,7 @@ function draftFromRecipe(r) {
 function startEdit(r) { A.draft = draftFromRecipe(r); S.view = 'add'; render(); }
 
 /* account and sync (Firebase) */
-var SYNCKEYS = ['rb.recipes', 'rb.foods', 'rb.matches', 'rb.region', 'rb.plan', 'rb.targets', 'rb.cart', 'rb.books', 'rb.user', 'rb.fridge', 'rb.pantry', 'rb.design', 'rb.nutview', 'rb.usuals', 'rb.pquick'];
+var SYNCKEYS = ['rb.recipes', 'rb.foods', 'rb.matches', 'rb.region', 'rb.plan', 'rb.targets', 'rb.cart', 'rb.books', 'rb.user', 'rb.fridge', 'rb.pantry', 'rb.design', 'rb.nutview', 'rb.usuals', 'rb.pquick', 'rb.lib', 'rb.fonts', 'rb.typo2', 'rb.seeded'];
 var FB_DEFAULT = { apiKey: 'AIzaSyD4G9WZimZMA84PxEJtemdW5Al7TAzyLZY', authDomain: 'centre-dashboard.firebaseapp.com', databaseURL: 'https://centre-dashboard-default-rtdb.asia-southeast1.firebasedatabase.app', projectId: 'centre-dashboard', storageBucket: 'centre-dashboard.firebasestorage.app', messagingSenderId: '286461096007', appId: '1:286461096007:web:e55cdde4907775a1848162' };
 var fb = { cfg: lsGet('rb.fbconfig', null) || FB_DEFAULT, user: null, db: null, msg: '', busy: false }, pushT = 0;
 function syncPush() {
@@ -2444,6 +2463,7 @@ function pullThenSync() {
     fb.pulling = false; syncPush();
   }, function (e) { fb.pulling = false; fb.msg = 'Could not read your account: ' + (e && e.message || e); });
 }
+document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'visible' && fb.db && fb.user && !fb.pulling) pullThenSync(); });
 function accountView() {
   var wrap = h('div', { class: 'acct' }), ta = h('textarea', { rows: '9', id: 'fbcfg', 'aria-label': 'Firebase config', placeholder: 'const firebaseConfig = {\n  apiKey: "...",\n  authDomain: "centre-dashboard.firebaseapp.com",\n  projectId: "centre-dashboard",\n  ...\n};' }, fb.cfg ? JSON.stringify(fb.cfg, null, 2) : '');
   wrap.appendChild(h('h2', { style: 'font-size:20px;margin:0 0 6px' }, 'Account and sync'));
