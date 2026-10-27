@@ -20,7 +20,7 @@
 body{margin:0;background:var(--ground);color:var(--ink);font:15px/1.5 var(--font-body);padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 56px}
 .app{max-width:1240px;margin:0 auto}
 h1,h2,h3{font-family:var(--font-serif);font-weight:500;margin:0;text-wrap:balance;letter-spacing:.005em}
-body{font-feature-settings:'kern','liga';-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;font-variant-numeric:lining-nums}
+body{font-synthesis:none;font-feature-settings:'kern','liga';-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;font-variant-numeric:lining-nums}
 .ir b,.nm{font-variant-numeric:tabular-nums lining-nums}
 button,input,select{font:inherit;color:inherit}
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
@@ -670,7 +670,7 @@ var FOIL = {
 };
 function finishCss(kind, paper, px, hasColor, tone) {
   var L = (0.299 * paper[0] + 0.587 * paper[1] + 0.114 * paper[2]) / 255, dark = L < 0.45;
-  var u = Math.min(1.1, Math.max(.45, Math.round(px / 60 * 100) / 100)), out = [], fc, hi, lo, sh;
+  var u = Math.min(.8, Math.max(.35, Math.round(px / 90 * 100) / 100)), out = [], fc, hi, lo, sh;
   if (kind === 'foil') {
     fc = FOIL[tone] || FOIL.gold;
     return [
@@ -774,7 +774,7 @@ function rowFromText(line) {
   if (!f) return null;
   var r = E.ingredientFromLine(p, f, region);
   if (r.needs) return null;
-  r.label = titleCase(p.name);
+  r.label = titleWords(p.name);
   return r;
 }
 function sample(id, name, sub, cat, mins, serves, rating, fav, lines, steps) {
@@ -934,7 +934,7 @@ function T(role, ctx, text, opt) {
   if (role === 'nm') st.fontVariantNumeric = 'tabular-nums';
   if (role === 'h1') st.lineHeight = '1.12';
   if (role === 'h2') st.lineHeight = '1.25';
-  if (e.n) {
+  if (e.n && !/^RBF|cursive/.test(fontStack(e.f)) && !/script|brush|hand|caveat|pinyon|vibes|allura|dancing|parisienne|sacramento|signature|calligraph|lobster|satisfy|pacifico|yellowtail|alex|kaushan/i.test(e.f)) {
     css = finishCss(e.n, paperEff(), px, !!e.c, e.ft);
     for (i = 0; i < css.length; i++) st.setProperty(css[i][0], css[i][1]);
   }
@@ -950,7 +950,7 @@ function cardShell(cls, body) {
 function stage(child, cls) { var el = h('div', { class: 'stage ' + (cls || '') }, child); applyBg(el); return el; }
 function fmtN(n) { return Math.round(n).toLocaleString('en-AU'); }
 function stars(n) { var s = '', i; for (i = 1; i <= 5; i++) s += i <= n ? '★' : '☆'; return s; }
-function timeStr(m) { return m >= 60 ? (m / 60) + ' hr' : m + ' min'; }
+function timeStr(m) { m = Math.round(m); if (m < 60) return m + ' min'; var hh = Math.floor(m / 60), mm = m % 60; return hh + ' hr' + (mm ? ' ' + mm + ' min' : ''); }
 
 /* ---------- shared helpers: dates, state ---------- */
 function isoD(d) { var m = d.getMonth() + 1, dd = d.getDate(); return d.getFullYear() + '-' + (m < 10 ? '0' : '') + m + '-' + (dd < 10 ? '0' : '') + dd; }
@@ -1089,7 +1089,7 @@ function cartItems() {
   var map = recMap(), ents = cartEntries(), list = E.shoppingList(ents, map, FOODS), label = {}, usedIn = {};
   ents.forEach(function (e) { var r = map[e.recipeId]; if (!r) return; r.ingredients.forEach(function (i) { if (!label[i.foodId] && i.label) label[i.foodId] = i.label; (usedIn[i.foodId] = usedIn[i.foodId] || {})[r.name] = 1; }); });
   return list.map(function (it) {
-    var f = FOODS[it.foodId], nm = label[it.foodId] || shortFood(f), amt = E.displayAmount({ g: it.g, ml: it.hasMl ? it.ml : null }, f), hint = '';
+    var f = FOODS[it.foodId], nm = titleWords(label[it.foodId] || shortFood(f)), amt = E.displayAmount({ g: it.g, ml: it.hasMl ? it.ml : null }, f), hint = '';
     var uw = f && f.unitWeights, k = uw && (uw.each ? 'each' : uw.clove ? 'clove' : null);
     if (k) { var c = Math.max(1, Math.round(it.g / uw[k])); hint = ' (about ' + c + (k === 'clove' ? ' clove' + (c > 1 ? 's' : '') : '') + ')'; }
     return { foodId: it.foodId, name: nm, amt: amt, hint: hint, g: it.g, usedIn: Object.keys(usedIn[it.foodId] || {}) };
@@ -1382,7 +1382,7 @@ function miniCard(r) {
 function plU(u, n) { return u && u !== 'each' ? ' ' + u + (n > 1 && !/s$|^(tsp|tbsp|g|ml)$/.test(u) ? 's' : '') : ''; }
 // How an ingredient reads on a card: counted things (1 onion, 2 egg whites) show as counts, everything else as g or ml.
 function ingText(it, f, food) {
-  var g = it.g * f, ml = it.ml != null ? it.ml * f : null, name = it.label || shortFood(food);
+  var g = it.g * f, ml = it.ml != null ? it.ml * f : null, name = titleWords(it.label || shortFood(food));
   if (it.n != null) { var cn = it.n * f, q = Math.round(cn * 2) / 2 || cn; return { amt: frac(q) + plU(it.u, cn), name: name }; }
   return { amt: E.displayAmount({ g: g, ml: ml }, food), name: name };
 }
@@ -1394,7 +1394,7 @@ function fullCard(r, redraw) {
   heart.innerHTML = '<svg width="22" height="22" viewBox="0 0 24 24" fill="' + (favOf(r) ? '#9C2A3A' : 'none') + '" stroke="#9C2A3A" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.600-7 10-7 10z"/></svg>';
   var head = h('div', null,
     h('div', { class: 'corner' }, rnd('cook', 'Cook mode', function (e) { e.stopPropagation(); openCook(r, S0); }), rnd('cart', 'Add to cart', function (e) { e.stopPropagation(); addRecipeToCart(r, S0); }), rnd('edit', r.sample ? 'Edit a copy' : 'Edit recipe', function (e) { e.stopPropagation(); startEdit(r); }), heart),
-    h('div', { style: 'text-align:left;margin-top:10px' },
+    h('div', { style: 'text-align:left;margin-top:10px;display:flex;flex-direction:column;gap:26px;align-items:flex-start' },
       T('eb', 'full', r.cat + ' \u00B7 ' + timeStr(r.mins), { tag: 'div' }),
       T('h1', 'full', r.name, { tag: 'div', style: 'margin-top:6px;text-align:left' })));
   var starRow = h('div', { style: 'display:flex;margin:6px 0 0 -3px', role: 'group', 'aria-label': 'Rating' });
@@ -1820,7 +1820,7 @@ function rowForLine(line, extra, preset) {
     var gm = /\(\s*(\d+(?:\.\d+)?)\s*(?:g|gm|gms|grams?)\s*\)/i.exec(line);
     if (gm && !preset) preset = { g: parseFloat(gm[1]) };
   }
-  var row = { shown: titleCase(p.name), parsed: p, cands: candidatesFor(/unsalted/i.test(p.original || '') && /^butter/i.test(p.name) ? 'unsalted butter' : p.name, extra), skip: false, manualG: null };
+  var row = { shown: titleWords(p.name), parsed: p, cands: candidatesFor(/unsalted/i.test(p.original || '') && /^butter/i.test(p.name) ? 'unsalted butter' : p.name, extra), skip: false, manualG: null };
   row.foodId = row.cands[0] ? row.cands[0].id : '';
   if (p.qty == null && /taste|garnish|serving|optional|as needed|dusting|greasing/i.test(p.original)) row.skip = true;
   if (preset && preset.g != null) row.manualG = preset.g;
@@ -1854,7 +1854,7 @@ function draftRecipe(d) {
     var s = solve(row); if (row.skip || s.g == null) return;
     var base = s.row || { foodId: row.foodId, g: Math.round(s.g * 10) / 10, original: row.parsed.original };
     if (s.ml != null && base.ml == null) base.ml = Math.round(s.ml * 10) / 10;
-    base.foodId = row.asis ? asisFood(row.parsed.name).id : row.foodId; base.g = Math.round(s.g * 10) / 10; base.label = (row.shown != null && String(row.shown).trim()) ? String(row.shown).trim() : titleCase(row.parsed.name || shortFood(FOODS[row.foodId]));
+    base.foodId = row.asis ? asisFood(row.parsed.name).id : row.foodId; base.g = Math.round(s.g * 10) / 10; base.label = (row.shown != null && String(row.shown).trim()) ? titleWords(row.shown) : titleWords(row.parsed.name || shortFood(FOODS[row.foodId]));
     if (row.keep && row.keep.n != null && row.manualG === row.keep.g0) { base.n = row.keep.n; base.u = row.keep.u; }
     if (row.cnt && row.manualG != null) { base.n = row.cnt.n; base.u = row.cnt.u; }
     ings.push(base);
