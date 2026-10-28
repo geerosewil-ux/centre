@@ -348,6 +348,7 @@ button,input,select{font:inherit;color:inherit}
 .rmeta{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;margin-top:10px;padding-top:10px;border-top:1px dashed var(--line)}.secsel{display:inline-flex;align-items:center;gap:8px;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-2)}
 .sechead{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:flex-end;margin:20px 0 8px;padding:12px 14px;border-radius:14px;background:rgba(120,110,90,.1)}.sechead.none{background:none;padding:0;margin:14px 0 4px}.sechead label{display:flex;flex-direction:column;gap:6px;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-2);flex:1 1 200px}
 @media (max-width:640px){.sechead input,.rmeta select{font-size:16px;min-height:44px}.schip{min-height:38px;padding:6px 14px}}
+.urow{display:grid;grid-template-columns:minmax(90px,1fr) minmax(0,1.4fr) auto;gap:10px;align-items:center;padding:6px 0;border-bottom:1px solid var(--line)}.ulist{display:flex;flex-direction:column}.secmv{display:inline-flex;gap:6px}.secmv .rnd{width:34px;height:34px;font-size:16px}.pinl{align-self:center}.rdel{margin-left:auto}.fopt{display:flex;align-items:center;gap:10px;width:100%;border:0;background:none;padding:10px 6px;border-radius:10px;font:inherit;font-size:14px;color:inherit;cursor:pointer;text-align:left}.fopt:hover{background:rgba(0,0,0,.05)}.fopt[aria-checked=true]{font-weight:600;color:#3F4A3C}.fopt .ico{width:16px;display:inline-flex}.fpop{min-width:190px;padding:6px}.fltb1[aria-pressed=true]{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
 </style>
 
 <div class="app" id="app"></div>
@@ -854,10 +855,13 @@ var SAMPLES = [
     ['180 g rolled oats', '2 bananas', '120 g peanut butter', '60 g choc chips', '5 g vanilla extract'],
     ['Mash the bananas and mix with the peanut butter and vanilla.', 'Stir in the oats and chocolate chips.', 'Spoon onto a lined tray and bake at 180 C for 12 to 14 minutes.'])
 ];
+var hiddenS = lsGet('rb.hidden', []);
+SAMPLES = SAMPLES.filter(function (x) { return hiddenS.indexOf(x.id) < 0; });
 var mine = lsGet('rb.recipes', []);
 function effIn(it, secs) { if (it.in != null) return it.in; var sc = it.sec && secs ? secs.filter(function (x) { return x.id === it.sec; })[0] : null; return sc && sc.in != null ? sc.in : null; }
 function inScope(it, secs, scope) { var e = effIn(it, secs); return e == null || e.indexOf(scope) >= 0; }
-function orderBySec(ings, secs) { if (!secs || !secs.length) return ings; var ix = {}; secs.forEach(function (x, i) { ix[x.id] = i; }); return ings.map(function (it, i) { return [it, i]; }).sort(function (a, b) { var x = a[0].sec && ix[a[0].sec] != null ? ix[a[0].sec] : -1, y = b[0].sec && ix[b[0].sec] != null ? ix[b[0].sec] : -1; return (x - y) || (a[1] - b[1]); }).map(function (x) { return x[0]; }); }
+function sortedSecs(secs) { return (secs || []).filter(function (x) { return !x.pin; }).concat((secs || []).filter(function (x) { return x.pin; })); }
+function orderBySec(ings, secs) { secs = sortedSecs(secs); if (!secs || !secs.length) return ings; var ix = {}; secs.forEach(function (x, i) { ix[x.id] = i; }); return ings.map(function (it, i) { return [it, i]; }).sort(function (a, b) { var x = a[0].sec && ix[a[0].sec] != null ? ix[a[0].sec] : -1, y = b[0].sec && ix[b[0].sec] != null ? ix[b[0].sec] : -1; return (x - y) || (a[1] - b[1]); }).map(function (x) { return x[0]; }); }
 function derive(m) { if (m.all) m.ingredients = m.all.filter(function (it) { return inScope(it, m.sections, 'base'); }); }
 function migrateVariants(m) {
   if (!m.variants || !m.variants.some(function (v) { return v.ingredients; })) return false;
@@ -1213,10 +1217,11 @@ function cartItems() {
 }
 function cartText(items) {
   var lines = items.filter(function (i) { return !cart.have[i.foodId] && !cart.staples[i.foodId] && !cart.got[i.foodId]; }).map(function (i) { return i.name + ' – ' + i.amt + i.hint; });
-  cart.manual.filter(function (m) { return !m.got; }).forEach(function (m) { lines.push(m.name); });
+  cart.manual.filter(function (m) { return !m.got; }).forEach(function (m) { lines.push(m.qty ? m.name + ' (' + m.qty + ')' : m.name); });
   return lines.join('\n');
 }
 var usuals = lsGet('rb.usuals', ['Milk', 'Eggs', 'Bread', 'Butter', 'Bananas', 'Coffee', 'Toilet paper', 'Dishwashing liquid']), editUsuals = false;
+usuals = usuals.map(function (u) { return typeof u === 'string' ? { name: u, qty: '' } : u; });
 var AISLES = ['Fruit and veg', 'Bakery', 'Meat and seafood', 'Dairy and eggs', 'Pantry', 'Baking and spices', 'Oils and sauces', 'Frozen', 'Drinks', 'Household', 'Other'];
 var AISLE_KEYS = [
   ['Oils and sauces', /peanut butter|nut butter|almond butter/],
@@ -1266,7 +1271,7 @@ function cartView() {
   var sec = function (title, rows, empty) { var s = h('section', { class: 'csec' }, h('h2', { style: 'font-size:20px' }, title + (rows.length ? ' (' + rows.length + ')' : ''))); if (!rows.length && empty) s.appendChild(h('p', { class: 'hint' }, empty)); rows.forEach(function (x) { s.appendChild(x); }); return s; };
   function manualRow(m) {
     return h('div', { class: 'crow2' + (m.got ? ' done' : '') },
-      h('label', { class: 'cchk' }, h('input', { type: 'checkbox', checked: m.got, 'aria-label': 'Got ' + m.name, onchange: function (e) { m.got = e.target.checked; saveCart(); render(); } }), h('span', { class: 'cn' }, h('b', null, titleCase(m.name)))),
+      h('label', { class: 'cchk' }, h('input', { type: 'checkbox', checked: m.got, 'aria-label': 'Got ' + m.name, onchange: function (e) { m.got = e.target.checked; saveCart(); render(); } }), h('span', { class: 'cn' }, h('b', null, titleCase(m.name)), m.qty ? h('span', { class: 'hint', style: 'margin-left:8px' }, m.qty) : null)),
       h('button', { class: 'btn quiet', type: 'button', 'aria-label': 'Remove ' + m.name, onclick: function () { cart.manual = cart.manual.filter(function (x) { return x !== m; }); saveCart(); render(); } }, 'Remove'));
   }
   var entries = tobuy.map(function (i) { return { aisle: aisleOf(i.name, FOODS[i.foodId]), el: rowFor(i, 'buy') }; });
@@ -1284,14 +1289,20 @@ function cartView() {
   var ext = h('section', { class: 'csec' }, h('h2', { style: 'font-size:20px' }, 'Add to the list'), h('div', { class: 'tools', style: 'margin-top:8px' }, addIn, h('button', { class: 'btn', type: 'button', onclick: addExtra }, 'Add')));
   var qa = h('div', { class: 'chips', 'aria-label': 'Your usual items' });
   usuals.forEach(function (u) {
-    var inList = cart.manual.some(function (m) { return !m.got && m.name.toLowerCase() === u.toLowerCase(); });
-    qa.appendChild(h('span', { class: 'chip usual' + (inList ? ' on' : '') }, h('button', { type: 'button', class: 'uadd', 'aria-pressed': String(inList), onclick: function () { if (inList) return; cart.manual.push({ id: uid(), name: u, got: false }); saveCart(); render(); } }, (inList ? '\u2713 ' : '+ ') + u),
-      editUsuals ? h('button', { type: 'button', 'aria-label': 'Remove ' + u + ' from usuals', onclick: function () { usuals = usuals.filter(function (x) { return x !== u; }); lsSet('rb.usuals', usuals); render(); } }, '\u00D7') : null));
+    var inList = cart.manual.some(function (m) { return !m.got && m.name.toLowerCase() === u.name.toLowerCase(); });
+    if (editUsuals) {
+      qa.appendChild(h('div', { class: 'urow' }, h('b', null, u.name),
+        h('input', { type: 'text', value: u.qty || '', placeholder: 'Amount, e.g. 2 L', 'aria-label': 'Amount for ' + u.name, onchange: function (e) { u.qty = e.target.value.trim(); lsSet('rb.usuals', usuals); } }),
+        h('button', { type: 'button', class: 'btn quiet', 'aria-label': 'Remove ' + u.name + ' from usuals', onclick: function () { usuals = usuals.filter(function (x) { return x !== u; }); lsSet('rb.usuals', usuals); render(); } }, 'Remove')));
+      return;
+    }
+    qa.appendChild(h('span', { class: 'chip usual' + (inList ? ' on' : '') }, h('button', { type: 'button', class: 'uadd', 'aria-pressed': String(inList), onclick: function () { if (inList) return; cart.manual.push({ id: uid(), name: u.name, qty: u.qty || '', got: false }); saveCart(); render(); } }, (inList ? '\u2713 ' : '+ ') + u.name + (u.qty ? ' \u00B7 ' + u.qty : ''))));
   });
+  if (editUsuals) qa.className = 'ulist';
   ext.appendChild(h('div', { class: 'lab2', style: 'margin:14px 0 6px' }, 'Your usuals'));
   ext.appendChild(qa);
   var uIn = h('input', { type: 'text', class: 'search', placeholder: 'Add a usual, e.g. oat milk', 'aria-label': 'New usual item', onkeydown: function (e) { if (e.key === 'Enter') addU(); } });
-  function addU() { var v = uIn.value.trim(); if (!v || usuals.some(function (x) { return x.toLowerCase() === v.toLowerCase(); })) return; usuals.push(titleWords(v)); lsSet('rb.usuals', usuals); render(); }
+  function addU() { var v = uIn.value.trim(); if (!v || usuals.some(function (x) { return x.name.toLowerCase() === v.toLowerCase(); })) return; usuals.push({ name: titleWords(v), qty: '' }); lsSet('rb.usuals', usuals); render(); }
   ext.appendChild(editUsuals ? h('div', { class: 'tools', style: 'margin-top:6px' }, uIn, h('button', { class: 'btn', type: 'button', onclick: addU }, 'Add'), h('button', { class: 'btn quiet', type: 'button', onclick: function () { editUsuals = false; render(); } }, 'Done')) : h('button', { class: 'btn quiet', type: 'button', onclick: function () { editUsuals = true; render(); } }, 'Edit usuals'));
   wrap.appendChild(ext);
   var gotManual = cart.manual.filter(function (m) { return m.got; });
@@ -1456,7 +1467,8 @@ function targetsView() {
 function settingsRoot() {
   var seg = h('div', { class: 'seg', role: 'group', 'aria-label': 'Settings', style: 'margin-bottom:18px' },
     [['design', 'Card design'], ['targets', 'Daily targets'], ['nutrition', 'Nutrition'], ['account', 'Account']].map(function (x) { return h('button', { type: 'button', 'aria-pressed': String(S.setTab === x[0]), onclick: function () { S.setTab = x[0]; render(); } }, x[1]); }));
-  return h('div', null, seg, S.setTab === 'targets' ? targetsView() : S.setTab === 'account' ? accountView() : S.setTab === 'nutrition' ? nutritionSettings() : settingsView());
+  var about = h('p', { class: 'attr', style: 'margin-top:36px' }, 'Nutrition data: Australian Food Composition Database, Food Standards Australia New Zealand, licensed CC BY-SA 3.0 AU. Adapted for this app. Packaged product data: Open Food Facts contributors, ODbL.');
+  return h('div', null, seg, S.setTab === 'targets' ? targetsView() : S.setTab === 'account' ? accountView() : S.setTab === 'nutrition' ? nutritionSettings() : settingsView(), about);
 }
 
 /* ---------- little extras: cooked it, surprise me ---------- */
@@ -1475,6 +1487,8 @@ function nvHas(k) { return nv.on && nv.items.indexOf(k) >= 0; }
 var ICONS = {
   cook: 'M2 12h20|M20 12v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-8|M4 8l16-4|M8.9 6.8l-.5-1.8a2 2 0 0 1 1.5-2.4l1.900-.5a2 2 0 0 1 2.400 1.500l.5 1.800',
   cart: 'M15 11l-1 9|M19 11l-4-7|M2 11h20|M3.500 11l1.600 7.400a2 2 0 0 0 2 1.600h9.800a2 2 0 0 0 2-1.600l1.700-7.400|M5 11l4-7|M9 11l1 9',
+  heart: 'M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.600A4 4 0 0 1 19 10c0 5.600-7 10-7 10z',
+  filter: 'M3 5h18|M6 12h12|M10 19h4',
   snow: 'M12 3v18|M4.200 7.500l15.600 9|M19.800 7.500l-15.600 9|M9.500 4.500L12 7l2.500-2.500|M9.500 19.500L12 17l2.500 2.500',
   ahead: 'M4 6h16v14H4z|M4 10h16|M8 3v4|M16 3v4|M9 15l2 2 4-4',
   edit: 'M17 3.500a2.100 2.100 0 0 1 3 3L7.500 19l-4.500 1.200L4.200 15.700z|M15 5.500l3 3',
@@ -1512,10 +1526,11 @@ function effRecipe(r0) {
   if (v && v.steps && v.steps.length) e.steps = v.steps;
   return e;
 }
+function baseName(r0) { return (r0.baseName || '').trim() || 'Original'; }
 function varTabs(r0, redraw) {
   if (!r0.variants || !r0.variants.length) return null;
   var cur = S.vsel[r0.id] != null ? S.vsel[r0.id] : -1;
-  return h('div', { class: 'vtabs', role: 'tablist', 'aria-label': 'Variations' }, [{ name: 'Original' }].concat(r0.variants).map(function (v, k) { var idx = k - 1; return h('button', { type: 'button', role: 'tab', class: 'vtab', 'aria-selected': String(cur === idx), onclick: function () { S.vsel[r0.id] = idx; redraw(true); } }, v.name || 'Variation'); }));
+  return h('div', { class: 'vtabs', role: 'tablist', 'aria-label': 'Variations' }, [{ name: baseName(r0) }].concat(r0.variants).map(function (v, k) { var idx = k - 1; return h('button', { type: 'button', role: 'tab', class: 'vtab', 'aria-selected': String(cur === idx), onclick: function () { S.vsel[r0.id] = idx; redraw(true); } }, v.name || 'Variation'); }));
 }
 function fullCard(r0, redraw) { return fullCardBase(effRecipe(r0), redraw, r0); }
 function fullCardBase(r, redraw, r0) {
@@ -1568,12 +1583,12 @@ function fullCardBase(r, redraw, r0) {
   var turnBtn = function (label) { return h('button', { class: 'rnd', type: 'button', 'aria-label': label, title: label, onclick: function (e) { e.stopPropagation(); flip(); } }, icon('turn', 18)); };
   var wrapEl = h('div', { class: 'flipw' }), inner = h('div', { class: 'flipi' }), busy = false;
   var del = null;
-  if (!r.sample && redraw && S.view === 'recipes') {
+  if (redraw && S.view === 'recipes') {
     del = h('button', { class: 'rnd delb', type: 'button', 'aria-label': 'Delete this recipe', title: 'Delete this recipe', style: 'margin-top:14px' }, icon('trash', 18));
     del.addEventListener('click', function (e) {
       e.stopPropagation();
       if (del.getAttribute('data-arm') !== '1') { del.setAttribute('data-arm', '1'); del.classList.add('armed'); del.title = 'Tap again to delete'; del.setAttribute('aria-label', 'Tap again to delete'); return; }
-      mine = mine.filter(function (x) { return x.id !== r.id; }); RECIPES = SAMPLES.concat(mine); saveMine(); S.sel = null; S.detail = false; render();
+      if (r.sample) { hiddenS.push(r.id); lsSet('rb.hidden', hiddenS); SAMPLES = SAMPLES.filter(function (x) { return x.id !== r.id; }); } else mine = mine.filter(function (x) { return x.id !== r.id; }); RECIPES = SAMPLES.concat(mine); saveMine(); S.sel = null; S.detail = false; render();
     });
   }
   function front() {
@@ -1680,6 +1695,7 @@ function listFor() {
     if (S.tag && tagsOf(r).indexOf(S.tag) < 0) return false;
     if (S.flt === 'ahead' && !r.ahead) return false;
     if (S.flt === 'freeze' && !r.freeze) return false;
+    if (S.flt === 'fav' && !favOf(r)) return false;
     if (!q) return true;
     if (r.name.toLowerCase().indexOf(q) >= 0 || r.cat.toLowerCase().indexOf(q) >= 0) return true;
     return r.ingredients.some(function (i) { return ((i.label || '') + ' ' + (FOODS[i.foodId] ? FOODS[i.foodId].name : '')).toLowerCase().indexOf(q) >= 0; });
@@ -1720,7 +1736,12 @@ function recipesView() {
   var sort = h('select', { class: 'sortsel', 'aria-label': 'Order recipes', onchange: function (e) { S.sort = e.target.value; render(); } }, [['az', 'A\u2013Z'], ['quick', 'Quickest']].map(function (x) { return h('option', { value: x[0], selected: S.sort === x[0] }, x[1]); }));
   var tg = allTags(), tagBar = h('div', { class: 'tagstrip', role: 'group', 'aria-label': 'Filter by tag' }, [['', 0]].concat(tg).map(function (x) { return h('button', { type: 'button', class: 'tagt', 'aria-pressed': String((S.tag || '') === x[0]), onclick: function () { S.tag = x[0]; render(); } }, x[0] || 'All'); }));
   var nvBtn = h('button', { class: 'nvtog', type: 'button', role: 'switch', 'aria-checked': String(nv.on), title: 'Show or hide nutrition on every card', onclick: function () { nv.on = !nv.on; saveNv(); render(); } }, h('span', { class: 'nvdot', 'aria-hidden': 'true' }), h('span', null, 'Nutrition'));
-  var flt = h('div', { class: 'fltg', role: 'group', 'aria-label': 'Filter' }, [['ahead', 'ahead', 'Make ahead meals'], ['freeze', 'snow', 'Freezer meals']].map(function (f) { return h('button', { type: 'button', class: 'iconb', title: f[2], 'aria-label': f[2], 'aria-pressed': String(S.flt === f[0]), onclick: function () { S.flt = S.flt === f[0] ? '' : f[0]; render(); } }, icon(f[1], 20)); }));
+  var flt = h('button', { class: 'iconb fltb1', type: 'button', title: 'Filter', 'aria-label': 'Filter recipes', 'aria-haspopup': 'true', 'aria-pressed': String(!!S.flt), onclick: function (e) {
+    e.stopPropagation(); if (dotPop && dotPop.btn === flt) { closeDot(); return; } closeDot();
+    var opts = [['', 'all', 'All recipes'], ['ahead', 'ahead', 'Make ahead'], ['freeze', 'snow', 'Freezer meals'], ['fav', 'heart', 'Favourites']];
+    var pop = h('div', { class: 'dotpop fpop', role: 'menu' }, opts.map(function (o) { return h('button', { type: 'button', role: 'menuitemradio', class: 'fopt', 'aria-checked': String((S.flt || '') === o[0]), onclick: function (ev) { ev.stopPropagation(); S.flt = o[0]; closeDot(); render(); } }, o[1] === 'all' ? h('span', { class: 'ico' }) : icon(o[1], 16), h('span', null, o[2])); }));
+    document.body.appendChild(pop); var rc = flt.getBoundingClientRect(), w = pop.offsetWidth; pop.style.top = (rc.bottom + 8) + 'px'; pop.style.left = Math.max(10, Math.min(innerWidth - w - 10, rc.right - w)) + 'px'; flt.setAttribute('aria-expanded', 'true'); dotPop = { btn: flt, pop: pop };
+  } }, icon('filter', 20));
   var shuf = h('button', { class: 'iconb', type: 'button', 'aria-label': 'Surprise me', title: 'Surprise me', onclick: surprise }, icon('shuffle', 20));
   var tools = h('div', null, h('div', { class: 'slim' }, search, sort, flt, shuf), h('div', { class: 'row2' }, tagBar, nvBtn));
   if (!desk && S.detail) {
@@ -2120,7 +2141,7 @@ function addView() {
     var offHolder = h('div');
     el.appendChild(h('button', { class: 'btn quiet', type: 'button', onclick: function () { if (offHolder.firstChild) { offHolder.replaceChildren(); return; } offHolder.appendChild(offPicker(function (f) { row.cands = [f].concat(row.cands.filter(function (c) { return c.id !== f.id; })); row.foodId = f.id; row.manualG = row.manualG; redraw(); refreshSummary(); })); } }, 'Search packaged products'));
     el.appendChild(offHolder);
-    el.appendChild(h('div', { class: 'rctl2' }, h('label', { class: 'amt' }, 'Amount ', gIn, uSel), h('label', { class: 'chk' }, skip, ' Leave out'), h('label', { class: 'chk' }, h('input', { type: 'checkbox', checked: !!row.asis, onchange: function (e) { row.asis = e.target.checked; redraw(); refreshSummary(); } }), ' Add as written, no nutrition'), stat));
+    el.appendChild(h('div', { class: 'rctl2' }, h('label', { class: 'amt' }, 'Amount ', gIn, uSel), h('label', { class: 'chk' }, skip, ' Leave out'), h('button', { class: 'btn quiet rdel', type: 'button', 'aria-label': 'Delete ' + (row.shown || row.parsed.original), onclick: function () { var i = d.rows.indexOf(row); if (i >= 0) d.rows.splice(i, 1); drawDraft(); } }, 'Delete'), h('label', { class: 'chk' }, h('input', { type: 'checkbox', checked: !!row.asis, onchange: function (e) { row.asis = e.target.checked; redraw(); refreshSummary(); } }), ' Add as written, no nutrition'), stat));
     el.appendChild(why);
     return el;
   }
@@ -2143,14 +2164,15 @@ function addView() {
     function goVar(i) { stash(); d.cur = i; d.steps = i < 0 ? d.baseSteps : d.vars[i].steps; drawDraft(); }
     function newVar() { stash(); d.vars.push({ id: newId(), name: 'Variation ' + (d.vars.length + 1), steps: (d.cur < 0 ? d.steps : d.baseSteps).slice() }); goVar(d.vars.length - 1); }
     function delVar() { var v = d.vars[d.cur]; d.cur = -1; d.steps = d.baseSteps; d.vars.splice(d.vars.indexOf(v), 1); function fix(o) { if (o.in != null) { o.in = o.in.filter(function (x) { return x !== v.id; }); if (!o.in.length) o.in = null; } } d.rows.forEach(fix); d.sections.forEach(fix); drawDraft(); }
-    var vbar = h('div', { class: 'vtabs ved' }, h('button', { type: 'button', class: 'vtab', 'aria-selected': String(d.cur < 0), onclick: function () { goVar(-1); } }, 'Original'),
+    var vbar = h('div', { class: 'vtabs ved' }, h('button', { type: 'button', class: 'vtab', 'aria-selected': String(d.cur < 0), onclick: function () { goVar(-1); } }, (d.baseName || '').trim() || 'Original'),
       d.vars.map(function (v, i) { return h('button', { type: 'button', class: 'vtab', 'aria-selected': String(d.cur === i), onclick: function () { goVar(i); } }, v.name || 'Variation'); }),
       h('button', { type: 'button', class: 'vtab add', onclick: newVar }, '+ Variation'));
+    var bedit = d.cur < 0 && d.vars.length ? h('div', { class: 'vedit' }, h('label', null, 'Name of this version', h('input', { type: 'text', value: d.baseName || '', placeholder: 'Original', oninput: function (e) { d.baseName = e.target.value; var tb = vbar.querySelectorAll('.vtab')[0]; if (tb) tb.textContent = e.target.value.trim() || 'Original'; } }))) : null;
     var vedit = d.cur >= 0 ? h('div', { class: 'vedit' }, h('label', null, 'Variation name', h('input', { type: 'text', value: d.vars[d.cur].name, placeholder: 'e.g. Gluten free', oninput: function (e) { d.vars[d.cur].name = e.target.value; var tb = vbar.querySelectorAll('.vtab')[d.cur + 1]; if (tb) tb.textContent = e.target.value || 'Variation'; } })),
       h('button', { class: 'btn quiet', type: 'button', onclick: delVar }, 'Delete this variation')) : null;
     var vhint = h('p', { class: 'hint' }, d.vars.length ? 'The tabs switch which method you are editing. Use the chips on each ingredient or section to say which versions it belongs to.' : 'Make a variation (like gluten free or a different filling) and each ingredient gets chips to say where it belongs.');
     // chips: which versions an ingredient or section belongs to
-    function scopeList() { return [{ id: 'base', name: 'Original' }].concat(d.vars.map(function (v) { return { id: v.id, name: v.name || 'Variation' }; })); }
+    function scopeList() { return [{ id: 'base', name: (d.baseName || '').trim() || 'Original' }].concat(d.vars.map(function (v) { return { id: v.id, name: v.name || 'Variation' }; })); }
     function scopeChips(obj, inherited) {
       var sc = scopeList(), eff = obj.in != null ? obj.in : inherited != null ? inherited : null;
       function pick(id) {
@@ -2163,12 +2185,17 @@ function addView() {
       if (obj.in != null && obj.sec) out.appendChild(h('button', { type: 'button', class: 'schip rst', title: 'Use the section setting', onclick: function () { obj.in = null; drawDraft(); } }, '\u21BA'));
       return out;
     }
+    function moveSec(sec, dir) { var arr = sortedSecs(d.sections), i = arr.indexOf(sec), j = i + dir; if (j < 0 || j >= arr.length) return; arr.splice(i, 1); arr.splice(j, 0, sec); d.sections = arr; drawDraft(); }
     function secOf(id) { return d.sections.filter(function (x) { return x.id === id; })[0]; }
     function moveRow(row) { if (!d.sections.length) return null; return h('label', { class: 'secsel' }, 'Section', h('select', { 'aria-label': 'Section for ' + (row.shown || row.parsed.original), onchange: function (e) { row.sec = e.target.value; drawDraft(); } }, h('option', { value: '' }, 'None'), d.sections.map(function (x) { return h('option', { value: x.id, selected: row.sec === x.id }, x.name || 'Section'); }))); }
     rowsBox.replaceChildren();
-    [null].concat(d.sections).forEach(function (sec) {
+    [null].concat(sortedSecs(d.sections)).forEach(function (sec) {
       var rs = d.rows.filter(function (r) { return (r.sec || '') === (sec ? sec.id : '') || (!sec && r.sec && !secOf(r.sec)); });
       if (sec) rowsBox.appendChild(h('div', { class: 'sechead' }, h('label', null, 'Section', h('input', { type: 'text', value: sec.name, placeholder: 'e.g. Pie crust', oninput: function (e) { sec.name = e.target.value; } })), d.vars.length ? scopeChips(sec) : null,
+        h('span', { class: 'secmv' },
+          h('button', { class: 'rnd', type: 'button', 'aria-label': 'Move section up', title: 'Move up', onclick: function () { moveSec(sec, -1); } }, '\u2191'),
+          h('button', { class: 'rnd', type: 'button', 'aria-label': 'Move section down', title: 'Move down', onclick: function () { moveSec(sec, 1); } }, '\u2193')),
+        h('label', { class: 'chk pinl' }, h('input', { type: 'checkbox', checked: !!sec.pin, onchange: function (e) { sec.pin = e.target.checked; drawDraft(); } }), ' Keep at the bottom'),
         h('button', { class: 'btn quiet', type: 'button', onclick: function () { d.rows.forEach(function (r) { if (r.sec === sec.id) r.sec = ''; }); d.sections.splice(d.sections.indexOf(sec), 1); drawDraft(); } }, 'Remove section')));
       else if (d.sections.length && rs.length) rowsBox.appendChild(h('div', { class: 'sechead none' }, h('span', { class: 'hint' }, 'No section')));
       rs.forEach(function (r) { var el = rowEl(r, d.rows.indexOf(r)); if (d.vars.length || d.sections.length) el.appendChild(h('div', { class: 'rmeta' }, moveRow(r), d.vars.length ? scopeChips(r, sec ? sec.in : null) : null)); rowsBox.appendChild(el); });
@@ -2176,7 +2203,7 @@ function addView() {
     var secIn = h('input', { type: 'text', placeholder: 'New section, e.g. Pie crust', 'aria-label': 'New section name' });
     function addSec() { var nm = secIn.value.trim(); if (!nm) return; d.sections.push({ id: newId(), name: nm, in: null }); drawDraft(); }
     secIn.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); addSec(); } });
-    var secBar = h('div', { class: 'tools', style: 'margin-top:6px' }, secIn, h('button', { class: 'btn', type: 'button', onclick: addSec }, 'Add section'));
+    var secBar = h('div', { class: 'tools', style: 'margin-top:6px' }, secIn, h('button', { class: 'btn', type: 'button', onclick: addSec }, 'Add section'), h('button', { class: 'btn quiet', type: 'button', onclick: function () { if (!d.sections.some(function (x) { return /^sauce$/i.test(x.name); })) d.sections.push({ id: newId(), name: 'Sauce', pin: true, in: null }); drawDraft(); } }, '+ Sauce at the bottom'));
     var addSecSel = d.sections.length ? h('select', { 'aria-label': 'Section for the new ingredient', onchange: function (e) { d.addSec = e.target.value; } }, h('option', { value: '' }, 'No section'), d.sections.map(function (x) { return h('option', { value: x.id, selected: d.addSec === x.id }, x.name || 'Section'); })) : null;
     var addIn = h('input', { type: 'text', id: 'add-line', placeholder: 'Add an ingredient, e.g. 2 cups rice', 'aria-label': 'Add an ingredient line' });
     function addOne() { if (!addIn.value.trim()) return; var nr = rowForLine(addIn.value.trim()); if (d.addSec && secOf(d.addSec)) nr.sec = d.addSec; d.rows.push(nr); drawDraft(); }
@@ -2185,7 +2212,7 @@ function addView() {
     var steps = h('label', { class: 'stepsbox' }, 'Method (one step per line)', h('textarea', { rows: '6', oninput: function (e) { d.steps = e.target.value.split(/\n+/).map(function (x) { return cleanStep(x); }).filter(Boolean); } }, d.steps.join('\n')));
     var btns = h('div', { class: 'btns', style: 'margin-top:16px' }, saveBtn);
     btns.appendChild(h('button', { class: 'btn quiet', type: 'button', onclick: function () { var was = d.fromId; A.draft = null; A.queue = []; if (was) { S.view = 'recipes'; S.sel = was; S.detail = true; } render(); } }, 'Cancel'));
-    body.appendChild(h('div', { class: 'draftbox' }, q, head, timeRow, aheadBox, tagRow, d.editId || d.fromId ? h('p', { class: 'hint' }, d.editId ? 'Editing this recipe. Save to keep your changes.' : 'This is a built-in example, so saving makes your own copy.') : null, vbar, vedit, vhint, h('h2', { style: 'font-size:20px;margin:18px 0 4px' }, 'Ingredients'),
+    body.appendChild(h('div', { class: 'draftbox' }, q, head, timeRow, aheadBox, tagRow, d.editId || d.fromId ? h('p', { class: 'hint' }, d.editId ? 'Editing this recipe. Save to keep your changes.' : 'This is a built-in example, so saving makes your own copy.') : null, vbar, vedit || bedit, vhint, h('h2', { style: 'font-size:20px;margin:18px 0 4px' }, 'Ingredients'),
       h('p', { class: 'hint' }, 'Each line shows what you wrote, the food it matched, and the grams it works out to. Change the food, type grams yourself, or leave a line out.'),
       rowsBox, addLine, secBar, steps, h('div', { style: 'margin-top:16px' }, sumBox), btns));
     refreshSummary();
@@ -2202,10 +2229,10 @@ function addView() {
       var key = E.nameKey(row.parsed.name); if (key) matches[key] = f.id;
     });
     var vout = (d.vars || []).map(function (v) { var same = JSON.stringify(v.steps) === JSON.stringify(d.steps); return { id: v.id || newId(), name: (v.name || '').trim() || 'Variation', steps: same ? [] : v.steps }; });
-    var secOut = (d.sections || []).filter(function (x) { return x.name.trim(); }).map(function (x) { return { id: x.id, name: x.name.trim(), in: x.in }; });
+    var secOut = (d.sections || []).filter(function (x) { return x.name.trim(); }).map(function (x) { return { id: x.id, name: x.name.trim(), pin: !!x.pin, in: x.in }; });
     var needAll = secOut.length || vout.length || recAll.ingredients.some(function (i) { return i.sec || i.in; });
     var tg = parseTags(d.tags); if (!tg.length) tg = [d.cat];
-    var out = { id: d.editId || newId(), name: d.name.trim(), sub: d.sub || '', cat: d.cat, tags: tg, mins: Math.max(1, Number(d.mins) || ((Number(d.hands) || 0) + (Number(d.cook) || 0) + (Number(d.chill) || 0)) || 30), hands: Number(d.hands) || 0, cook: Number(d.cook) || 0, chill: Number(d.chill) || 0, ahead: !!d.ahead, aheadNote: d.ahead ? (d.aheadNote || '') : '', freeze: !!d.freeze, freezeNote: d.freeze ? (d.freezeNote || '') : '', servings: rec.servings, variants: vout, sections: secOut, all: needAll ? orderBySec(recAll.ingredients, secOut) : undefined, rating: 0, fav: false, steps: d.steps, ingredients: needAll ? orderBySec(recAll.ingredients, secOut).filter(function (i) { return inScope(i, secOut, 'base'); }) : rec.ingredients, source: d.source || 'paste' };
+    var out = { id: d.editId || newId(), name: d.name.trim(), sub: d.sub || '', cat: d.cat, tags: tg, mins: Math.max(1, Number(d.mins) || ((Number(d.hands) || 0) + (Number(d.cook) || 0) + (Number(d.chill) || 0)) || 30), hands: Number(d.hands) || 0, cook: Number(d.cook) || 0, chill: Number(d.chill) || 0, ahead: !!d.ahead, aheadNote: d.ahead ? (d.aheadNote || '') : '', freeze: !!d.freeze, freezeNote: d.freeze ? (d.freezeNote || '') : '', servings: rec.servings, variants: vout, baseName: (d.baseName || '').trim() === 'Original' ? '' : (d.baseName || '').trim(), sections: secOut, all: needAll ? orderBySec(recAll.ingredients, secOut) : undefined, rating: 0, fav: false, steps: d.steps, ingredients: needAll ? orderBySec(recAll.ingredients, secOut).filter(function (i) { return inScope(i, secOut, 'base'); }) : rec.ingredients, source: d.source || 'paste' };
     if (d.editId) { mine = mine.map(function (x) { return x.id === d.editId ? out : x; }); } else mine.push(out); RECIPES = SAMPLES.concat(mine); saveMine();
     toast('Saved “' + out.name + '”.');
     A.draft = null; A.queue = []; A.text = ''; S.view = 'recipes'; S.sel = out.id; S.detail = true; S.q = ''; render();
@@ -2626,12 +2653,12 @@ function rowsFromIngs(ings) {
 function draftFromRecipe(r) {
   var rows = rowsFromIngs(r.all || r.ingredients);
   var sm0 = (r.hands || 0) + (r.cook || 0) + (r.chill || 0);
-  return { name: r.name, sub: r.sub || '', serves: r.servings, mins: r.mins, hands: r.hands || '', cook: r.cook || '', chill: r.chill || '', minsManual: !sm0 || sm0 !== r.mins, ahead: !!r.ahead, aheadNote: r.aheadNote || '', freeze: !!r.freeze, freezeNote: r.freezeNote || '', cat: r.cat, tags: tagsOf(r).join(', '), steps: (r.steps || []).slice(), rows: rows, vars: (r.variants || []).map(function (v) { return { id: v.id, name: v.name, steps: (v.steps && v.steps.length ? v.steps : r.steps || []).slice() }; }), sections: (r.sections || []).map(function (x) { return { id: x.id, name: x.name, in: x.in != null ? x.in.slice() : null }; }), cur: -1, editId: r.sample ? null : r.id, fromId: r.id, source: r.source };
+  return { name: r.name, sub: r.sub || '', serves: r.servings, mins: r.mins, hands: r.hands || '', cook: r.cook || '', chill: r.chill || '', minsManual: !sm0 || sm0 !== r.mins, ahead: !!r.ahead, aheadNote: r.aheadNote || '', freeze: !!r.freeze, freezeNote: r.freezeNote || '', cat: r.cat, tags: tagsOf(r).join(', '), steps: (r.steps || []).slice(), rows: rows, vars: (r.variants || []).map(function (v) { return { id: v.id, name: v.name, steps: (v.steps && v.steps.length ? v.steps : r.steps || []).slice() }; }), sections: (r.sections || []).map(function (x) { return { id: x.id, name: x.name, pin: !!x.pin, in: x.in != null ? x.in.slice() : null }; }), baseName: r.baseName || '', cur: -1, editId: r.sample ? null : r.id, fromId: r.id, source: r.source };
 }
 function startEdit(r) { A.draft = draftFromRecipe(r); S.view = 'add'; render(); }
 
 /* account and sync (Firebase) */
-var SYNCKEYS = ['rb.recipes', 'rb.foods', 'rb.matches', 'rb.region', 'rb.plan', 'rb.targets', 'rb.cart', 'rb.books', 'rb.user', 'rb.fridge', 'rb.pantry', 'rb.design', 'rb.nutview', 'rb.usuals', 'rb.pquick', 'rb.lib', 'rb.fonts', 'rb.typo2', 'rb.seeded'];
+var SYNCKEYS = ['rb.recipes', 'rb.foods', 'rb.matches', 'rb.region', 'rb.plan', 'rb.targets', 'rb.cart', 'rb.books', 'rb.user', 'rb.fridge', 'rb.pantry', 'rb.design', 'rb.nutview', 'rb.usuals', 'rb.pquick', 'rb.lib', 'rb.fonts', 'rb.typo2', 'rb.seeded', 'rb.hidden'];
 var BOOT_DONE = false, syncMeta = lsGet('rb.syncmeta', {}), dirty = {};
 var FB_DEFAULT = { apiKey: 'AIzaSyD4G9WZimZMA84PxEJtemdW5Al7TAzyLZY', authDomain: 'centre-dashboard.firebaseapp.com', databaseURL: 'https://centre-dashboard-default-rtdb.asia-southeast1.firebasedatabase.app', projectId: 'centre-dashboard', storageBucket: 'centre-dashboard.firebasestorage.app', messagingSenderId: '286461096007', appId: '1:286461096007:web:e55cdde4907775a1848162' };
 var fb = { cfg: lsGet('rb.fbconfig', null) || FB_DEFAULT, user: null, db: null, msg: '', busy: false }, pushT = 0;
@@ -2716,7 +2743,6 @@ function render() {
   if (S.view === 'add') { try { window.scrollTo(0, 0); } catch (e) {} }
   var v = S.view;
   app.appendChild(v === 'settings' ? settingsRoot() : v === 'add' ? addView() : v === 'plan' ? planView() : v === 'cart' ? cartView() : v === 'books' ? booksView() : v === 'fridge' ? pantryView() : v === 'pantry' ? pantryView() : recipesView());
-  app.appendChild(h('p', { class: 'attr' }, 'Nutrition data: Australian Food Composition Database, Food Standards Australia New Zealand, licensed CC BY-SA 3.0 AU. Adapted for this app. Packaged product data: Open Food Facts contributors, ODbL.'));
 }
 try { var mq = window.matchMedia('(min-width:1000px)'); var onmq = function () { render(); }; if (mq.addEventListener) mq.addEventListener('change', onmq); else if (mq.addListener) mq.addListener(onmq); } catch (e) {}
 BOOT_DONE = true;
