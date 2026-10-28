@@ -339,6 +339,10 @@ button,input,select{font:inherit;color:inherit}
 .pedit{grid-column:1/-1;display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;padding-top:10px;margin-top:6px;border-top:1px dashed var(--line)}.pedit label{display:flex;flex-direction:column;gap:4px;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-2)}.pedit .btns{grid-column:1/-1;display:flex;gap:10px;justify-content:space-between}
 .stp{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 10px}.stc{display:inline-flex;align-items:center;gap:4px;padding:4px 4px 4px 14px;border:1px solid var(--line);border-radius:99px;background:var(--card);font-size:13px}.stc button{border:0;background:none;cursor:pointer;color:var(--ink-2);width:26px;height:26px;border-radius:50%;font-size:15px;line-height:1}.stc button:hover{background:rgba(0,0,0,.06)}.stadd{display:flex;gap:8px;max-width:420px}.stadd input{flex:1;min-width:0}
 @media (max-width:640px){.pcomp{padding:10px}.stadd input{font-size:16px;min-height:44px}.pedit input,.pedit select{font-size:16px;min-height:44px}}
+.pline{display:grid;grid-template-columns:22px minmax(0,1fr) auto auto auto;gap:10px;align-items:center;padding:6px 10px;min-height:44px;border:1px solid var(--line);border-radius:12px;background:var(--card)}.pline.gone{border-color:var(--rose)}.pline.soon{border-color:#B4561F}.pline .pt{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.pline .pa{color:var(--ink-2);font-size:13px;font-variant-numeric:tabular-nums;white-space:nowrap}.pline .pinf{min-width:62px;text-align:right}.pi{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-2);white-space:nowrap}.pi.week{color:#8A6A1F}.pi.soon{color:#B4561F;font-weight:600}.pi.gone{color:var(--rose);font-weight:600}.pline .pact{display:inline-flex;gap:4px;align-items:center}.pline .rnd{width:30px;height:30px}.pline .rnd .ico svg{width:15px;height:15px}.pline .psp{width:22px}.pline.st{grid-template-columns:22px minmax(0,1fr) auto auto auto}.pedit2{margin:-2px 0 4px;padding:12px;border:1px solid var(--line);border-radius:12px;background:var(--card)}
+@media (max-width:640px){.pline{gap:6px;padding:6px 8px}.pline .pdel{display:none}.pline .pinf{min-width:0}.pline .pa{font-size:12px}.pline .rnd{width:32px;height:32px}.pline .psel{width:22px;height:22px}}
+.vtabs{display:flex;flex-wrap:wrap;gap:6px;margin:18px 0 4px;padding:4px;border-radius:99px;background:rgba(120,110,90,.12);width:fit-content;max-width:100%}.vtab{border:0;background:none;padding:8px 16px;min-height:36px;border-radius:99px;font:inherit;font-size:13px;color:var(--ink-2);cursor:pointer;transition:background .2s,color .2s}.vtab[aria-selected=true]{background:var(--card);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.15)}.vtab.add{color:var(--accent)}.ved{margin:16px 0 8px}.vedit{display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;margin:8px 0 6px}.vedit label{display:flex;flex-direction:column;gap:6px;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-2);flex:1 1 220px}.ir.vnew{position:relative}.ir.vnew::before{content:'';position:absolute;left:-12px;top:50%;width:5px;height:5px;margin-top:-2.5px;border-radius:50%;background:var(--accent)}
+@media (max-width:640px){.vtab{padding:8px 13px}.vedit input{font-size:16px;min-height:44px}}
 </style>
 
 <div class="app" id="app"></div>
@@ -1479,14 +1483,26 @@ function ingText(it, f, food) {
   if (it.n != null) { var cn = it.n * f, q = Math.round(cn * 2) / 2 || cn; return { amt: frac(q) + plU(it.u, cn), name: name }; }
   return { amt: E.displayAmount({ g: g, ml: ml }, food), name: name };
 }
-function fullCard(r, redraw) {
+S.vsel = {};
+function effRecipe(r0) {
+  var i = S.vsel[r0.id], v = r0.variants && i != null && i >= 0 ? r0.variants[i] : null;
+  if (!v) return r0;
+  var e = Object.assign({}, r0); e.ingredients = v.ingredients; if (v.steps && v.steps.length) e.steps = v.steps; e.vname = v.name; e.vbase = r0.ingredients; return e;
+}
+function varTabs(r0, redraw) {
+  if (!r0.variants || !r0.variants.length) return null;
+  var cur = S.vsel[r0.id] != null ? S.vsel[r0.id] : -1;
+  return h('div', { class: 'vtabs', role: 'tablist', 'aria-label': 'Variations' }, [{ name: 'Original' }].concat(r0.variants).map(function (v, k) { var idx = k - 1; return h('button', { type: 'button', role: 'tab', class: 'vtab', 'aria-selected': String(cur === idx), onclick: function () { S.vsel[r0.id] = idx; redraw(true); } }, v.name || 'Variation'); }));
+}
+function fullCard(r0, redraw) { return fullCardBase(effRecipe(r0), redraw, r0); }
+function fullCardBase(r, redraw, r0) {
   var S0 = servOf(r), f = S0 / r.servings, n = nut(r, S0), per = n.perServing, i;
   function setServ(v) { S.serv[r.id] = Math.max(1, Math.min(48, v)); redraw(); }
   var heart = h('button', { class: 'cc heart', type: 'button', 'aria-label': favOf(r) ? 'Remove from favourites' : 'Add to favourites', 'aria-pressed': String(!!favOf(r)),
     onclick: function () { user.fav[r.id] = !favOf(r); lsSet('rb.user', user); redraw(true); } });
   heart.innerHTML = '<svg width="22" height="22" viewBox="0 0 24 24" fill="' + (favOf(r) ? '#9C2A3A' : 'none') + '" stroke="#9C2A3A" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.600-7 10-7 10z"/></svg>';
   var head = h('div', null,
-    h('div', { class: 'corner' }, rnd('cook', 'Cook mode', function (e) { e.stopPropagation(); openCook(r, S0); }), rnd('cart', 'Add to cart', function (e) { e.stopPropagation(); addRecipeToCart(r, S0); }), rnd('edit', r.sample ? 'Edit a copy' : 'Edit recipe', function (e) { e.stopPropagation(); startEdit(r); }), heart),
+    h('div', { class: 'corner' }, rnd('cook', 'Cook mode', function (e) { e.stopPropagation(); openCook(r, S0); }), rnd('cart', 'Add to cart', function (e) { e.stopPropagation(); addRecipeToCart(r, S0); }), rnd('edit', r.sample ? 'Edit a copy' : 'Edit recipe', function (e) { e.stopPropagation(); startEdit(r0 || r); }), heart),
     h('div', { style: 'text-align:left;margin-top:10px;display:flex;flex-direction:column;gap:26px;align-items:flex-start' },
       T('eb', 'full', r.cat + ' \u00B7 ' + timeStr(r.mins), { tag: 'div' }),
       T('h1', 'full', r.name, { tag: 'div', style: 'margin-top:6px;text-align:left' })));
@@ -1523,7 +1539,7 @@ function fullCard(r, redraw) {
   var rows = r.ingredients.map(function (it) {
     var food = FOODS[it.foodId], g = it.g * f, tx = ingText(it, f, food), amt = tx.amt, name = tx.name;
     var kc = nvHas('kcal') && food && food.per100 && food.per100.kcal != null ? fmtN(food.per100.kcal * g / 100) + ' kcal' : '';
-    return h('div', { class: 'ir' + (pkeys && !isBasic(it) && !haveIt(it, pkeys) ? ' nohave' : '') }, T('nm', 'full', amt), T('bd', 'full', name), T('nm', 'full', kc, { style: 'opacity:.8' }));
+    return h('div', { class: 'ir' + (pkeys && !isBasic(it) && !haveIt(it, pkeys) ? ' nohave' : '') + (r.vbase && !r.vbase.some(function (b) { return b.foodId === it.foodId && Math.abs(b.g - it.g) < 0.5 && (b.label || '') === (it.label || ''); }) ? ' vnew' : '') }, T('nm', 'full', amt), T('bd', 'full', name), T('nm', 'full', kc, { style: 'opacity:.8' }));
   });
   function steps() { return h('ol', { class: 'stepsl', style: 'margin:10px 0 0;padding-left:26px;display:flex;flex-direction:column;gap:18px;line-height:1.55' }, r.steps.map(function (s) { return h('li', null, T('bd', 'full', s, { scale: 1.08 })); })); }
   var turnBtn = function (label) { return h('button', { class: 'rnd', type: 'button', 'aria-label': label, title: label, onclick: function (e) { e.stopPropagation(); flip(); } }, icon('turn', 18)); };
@@ -1538,7 +1554,7 @@ function fullCard(r, redraw) {
     });
   }
   function front() {
-    return cardShell('full', [cookedOf(r).n >= 3 ? h('div', { class: 'stain', 'aria-hidden': 'true' }) : null, head, starRow, nutri, h('div', { class: 'ctl' }, servCtl),
+    return cardShell('full', [cookedOf(r).n >= 3 ? h('div', { class: 'stain', 'aria-hidden': 'true' }) : null, head, varTabs(r0 || r, redraw), starRow, nutri, h('div', { class: 'ctl' }, servCtl),
       h('div', { class: 'secthd' }, T('h2', 'full', 'Ingredients', { tag: 'div' })), h('div', { class: 'ings' }, rows),
       h('div', { class: 'turnrow', style: 'justify-content:flex-end' }, turnBtn('Turn over')), del]);
   }
@@ -2097,6 +2113,15 @@ function addView() {
     var aheadBox = h('div', { class: 'aheadbox' }, aheadRow('ahead', 'aheadNote', 'Make ahead', 'e.g. keeps 3 days in the fridge'), aheadRow('freeze', 'freezeNote', 'Freezes well', 'e.g. up to 3 months'));
     var tagRow = h('label', { class: 'tagrow' }, 'Tags (separate with commas)', h('input', { type: 'text', value: d.tags || '', placeholder: 'Dinner, Quick, Vegetarian', oninput: function (e) { d.tags = e.target.value; } }));
     var q = null;
+    d.vars = d.vars || []; if (d.cur == null) d.cur = -1;
+    function stash() { if (d.cur < 0) { d.baseRows = d.rows; d.baseSteps = d.steps; } else { d.vars[d.cur].rows = d.rows; d.vars[d.cur].steps = d.steps; } }
+    function goVar(i) { stash(); d.cur = i; var t = i < 0 ? { rows: d.baseRows, steps: d.baseSteps } : d.vars[i]; d.rows = t.rows; d.steps = t.steps; drawDraft(); }
+    function newVar() { stash(); var rec = draftRecipe({ name: d.name, serves: d.serves, rows: d.cur < 0 ? d.rows : d.baseRows }); d.vars.push({ id: newId(), name: 'Variation ' + (d.vars.length + 1), rows: rowsFromIngs(rec.ingredients), steps: (d.cur < 0 ? d.steps : d.baseSteps).slice() }); goVar(d.vars.length - 1); }
+    var vbar = h('div', { class: 'vtabs ved' }, h('button', { type: 'button', class: 'vtab', 'aria-selected': String(d.cur < 0), onclick: function () { goVar(-1); } }, 'Original'),
+      d.vars.map(function (v, i) { return h('button', { type: 'button', class: 'vtab', 'aria-selected': String(d.cur === i), onclick: function () { goVar(i); } }, v.name || 'Variation'); }),
+      h('button', { type: 'button', class: 'vtab add', onclick: newVar }, '+ Variation'));
+    var vedit = d.cur >= 0 ? h('div', { class: 'vedit' }, h('label', null, 'Variation name', h('input', { type: 'text', value: d.vars[d.cur].name, placeholder: 'e.g. Gluten free', oninput: function (e) { d.vars[d.cur].name = e.target.value; var tb = vbar.querySelectorAll('.vtab')[d.cur + 1]; if (tb) tb.textContent = e.target.value || 'Variation'; } })),
+      h('button', { class: 'btn quiet', type: 'button', onclick: function () { var i = d.cur; d.cur = -1; d.rows = d.baseRows; d.steps = d.baseSteps; d.vars.splice(i, 1); drawDraft(); } }, 'Delete this variation')) : null;
     rowsBox.replaceChildren(); d.rows.forEach(function (r, i) { rowsBox.appendChild(rowEl(r, i)); });
     var addIn = h('input', { type: 'text', id: 'add-line', placeholder: 'Add an ingredient, e.g. 2 cups rice', 'aria-label': 'Add an ingredient line' });
     function addOne() { if (!addIn.value.trim()) return; d.rows.push(rowForLine(addIn.value.trim())); drawDraft(); }
@@ -2105,22 +2130,29 @@ function addView() {
     var steps = h('label', { class: 'stepsbox' }, 'Method (one step per line)', h('textarea', { rows: '6', oninput: function (e) { d.steps = e.target.value.split(/\n+/).map(function (x) { return cleanStep(x); }).filter(Boolean); } }, d.steps.join('\n')));
     var btns = h('div', { class: 'btns', style: 'margin-top:16px' }, saveBtn);
     btns.appendChild(h('button', { class: 'btn quiet', type: 'button', onclick: function () { var was = d.fromId; A.draft = null; A.queue = []; if (was) { S.view = 'recipes'; S.sel = was; S.detail = true; } render(); } }, 'Cancel'));
-    body.appendChild(h('div', { class: 'draftbox' }, q, head, timeRow, aheadBox, tagRow, d.editId || d.fromId ? h('p', { class: 'hint' }, d.editId ? 'Editing this recipe. Save to keep your changes.' : 'This is a built-in example, so saving makes your own copy.') : null, h('h2', { style: 'font-size:20px;margin:18px 0 4px' }, 'Ingredients'),
+    body.appendChild(h('div', { class: 'draftbox' }, q, head, timeRow, aheadBox, tagRow, d.editId || d.fromId ? h('p', { class: 'hint' }, d.editId ? 'Editing this recipe. Save to keep your changes.' : 'This is a built-in example, so saving makes your own copy.') : null, vbar, vedit, h('h2', { style: 'font-size:20px;margin:18px 0 4px' }, 'Ingredients'),
       h('p', { class: 'hint' }, 'Each line shows what you wrote, the food it matched, and the grams it works out to. Change the food, type grams yourself, or leave a line out.'),
       rowsBox, addLine, steps, h('div', { style: 'margin-top:16px' }, sumBox), btns));
     refreshSummary();
   }
 
   function saveDraft() {
-    var d = A.draft, rec = draftRecipe(d);
+    var d = A.draft;
+    if (d.cur != null && d.cur >= 0) { d.vars[d.cur].rows = d.rows; d.vars[d.cur].steps = d.steps; d.rows = d.baseRows; d.steps = d.baseSteps; d.cur = -1; }
+    var rec = draftRecipe(d);
     if (!rec.ingredients.length) return;
     d.rows.forEach(function (row) {
       var f = FOODS[row.foodId]; if (!f || row.skip) return;
       if (f.source === 'custom' && !custom.some(function (c) { return c.id === f.id; })) custom.push(f);
       var key = E.nameKey(row.parsed.name); if (key) matches[key] = f.id;
     });
+    var vout = (d.vars || []).map(function (v) {
+      v.rows.forEach(function (row) { var f = FOODS[row.foodId]; if (!f || row.skip) return; if (f.source === 'custom' && !custom.some(function (c) { return c.id === f.id; })) custom.push(f); });
+      var vr = draftRecipe({ name: d.name, serves: d.serves, rows: v.rows }), same = JSON.stringify(v.steps) === JSON.stringify(d.steps);
+      return { id: v.id || newId(), name: (v.name || '').trim() || 'Variation', ingredients: vr.ingredients, steps: same ? [] : v.steps };
+    });
     var tg = parseTags(d.tags); if (!tg.length) tg = [d.cat];
-    var out = { id: d.editId || newId(), name: d.name.trim(), sub: d.sub || '', cat: d.cat, tags: tg, mins: Math.max(1, Number(d.mins) || ((Number(d.hands) || 0) + (Number(d.cook) || 0) + (Number(d.chill) || 0)) || 30), hands: Number(d.hands) || 0, cook: Number(d.cook) || 0, chill: Number(d.chill) || 0, ahead: !!d.ahead, aheadNote: d.ahead ? (d.aheadNote || '') : '', freeze: !!d.freeze, freezeNote: d.freeze ? (d.freezeNote || '') : '', servings: rec.servings, rating: 0, fav: false, steps: d.steps, ingredients: rec.ingredients, source: d.source || 'paste' };
+    var out = { id: d.editId || newId(), name: d.name.trim(), sub: d.sub || '', cat: d.cat, tags: tg, mins: Math.max(1, Number(d.mins) || ((Number(d.hands) || 0) + (Number(d.cook) || 0) + (Number(d.chill) || 0)) || 30), hands: Number(d.hands) || 0, cook: Number(d.cook) || 0, chill: Number(d.chill) || 0, ahead: !!d.ahead, aheadNote: d.ahead ? (d.aheadNote || '') : '', freeze: !!d.freeze, freezeNote: d.freeze ? (d.freezeNote || '') : '', servings: rec.servings, variants: vout, rating: 0, fav: false, steps: d.steps, ingredients: rec.ingredients, source: d.source || 'paste' };
     if (d.editId) { mine = mine.map(function (x) { return x.id === d.editId ? out : x; }); } else mine.push(out); RECIPES = SAMPLES.concat(mine); saveMine();
     toast('Saved “' + out.name + '”.');
     A.draft = null; A.queue = []; A.text = ''; S.view = 'recipes'; S.sel = out.id; S.detail = true; S.q = ''; render();
@@ -2425,12 +2457,20 @@ function pantryView() {
   selF = h('select', { 'aria-label': 'Food it is', id: 'pan-food' });
   gIn = h('input', { type: 'number', min: '0', step: 'any', inputmode: 'decimal', id: 'pan-g', placeholder: 'Amount', 'aria-label': 'Amount' });
   expIn = h('input', { type: 'date', id: 'pan-exp', 'aria-label': 'Use by date (optional)', title: 'Use by (optional)' });
-  placeSel = h('select', { id: 'pan-place', 'aria-label': 'Where it is kept' }, ['Cupboard', 'Fridge', 'Freezer'].map(function (x) { return h('option', { value: x }, x); }));
+  placeSel = h('select', { id: 'pan-place', 'aria-label': 'Where it is kept' }, ['Cupboard', 'Fridge', 'Freezer', 'Always on hand'].map(function (x) { return h('option', { value: x }, x); }));
   unitSel = h('select', { id: 'pan-unit', 'aria-label': 'Unit' }, h('option', { value: '1' }, 'g'), h('option', { value: '1000' }, 'kg'), h('option', { value: 'ml' }, 'ml'), h('option', { value: 'l' }, 'L'), h('option', { value: 'each' }, 'whole'));
   function add() {
     var n = titleWords(nameIn.value), raw = gIn.value.trim(), isEach = unitSel.value === 'each', ew = selF.value ? eachW(FOODS[selF.value]) : 0, uv = unitSel.value, dens = (selF.value && FOODS[selF.value] && FOODS[selF.value].density) || 1, g = parseFloat(raw) * (isEach ? ew : uv === 'ml' ? dens : uv === 'l' ? 1000 * dens : parseFloat(uv)), pl = placeSel.value;
     if (!n) { toast('Type what you have first.'); return; }
-    if (!raw || !(g >= 0)) { if (!pantry.some(function (x) { return x.name.toLowerCase() === n.toLowerCase(); })) pantry.push({ id: uid(), name: n, foodId: '', g: 0, nog: true, place: pl, exp: expIn.value || '' }); savePantry(); render(); return; }
+    var stap = pl === 'Always on hand';
+    if (stap || !raw || !(g >= 0)) {
+      var ex0 = pantry.filter(function (x) { return x.name.toLowerCase() === n.toLowerCase(); })[0], sf0 = selF.value && FOODS[selF.value];
+      if (sf0 && sf0.off && !custom.some(function (c) { return c.id === sf0.id; })) { custom.push(sf0); lsSet('rb.foods', custom); }
+      if (ex0) { if (stap) { ex0.staple = true; ex0.nog = true; ex0.place = 'Cupboard'; if (!ex0.foodId && selF.value) ex0.foodId = selF.value; } }
+      else pantry.push({ id: uid(), name: n, foodId: selF.value || '', g: 0, nog: true, staple: stap, place: stap ? 'Cupboard' : pl, exp: stap ? '' : (expIn.value || '') });
+      var fid = (ex0 && ex0.foodId) || selF.value; if (stap && fid && !cart.staples[fid]) { cart.staples[fid] = true; saveCart(); }
+      savePantry(); render(); return;
+    }
     if (!selF.value) { toast('Pick the food it is.'); return; }
     if (isEach && !ew) { toast('I do not know the weight of one of those. Use g or kg.'); return; }
     var sf = FOODS[selF.value]; if (sf && sf.off && !custom.some(function (c) { return c.id === sf.id; })) { custom.push(sf); lsSet('rb.foods', custom); }
@@ -2470,52 +2510,35 @@ function pantryView() {
   }
   wrap.appendChild(h('div', { class: 'tools ptools' }, nameIn, selF, h('div', { class: 'pamt' }, gIn, unitSel), placeSel, h('label', { class: 'pexp' }, h('span', { class: 'hint' }, 'Use by'), expIn), h('button', { class: 'btn primary', type: 'button', onclick: add }, 'Add')));
   
-  var soonL = expiring().filter(function (p) { return !p.staple; });
-  // Always on hand: counted as in stock, never lands on the cart as missing.
-  var stapleL = pantry.filter(function (p) { return p.staple; });
-  wrap.appendChild(h('h2', { class: 'mk', style: 'font-size:13px;letter-spacing:.2em;text-transform:uppercase;margin:26px 0 8px;font-weight:500' }, 'Always on hand'));
-  var stp = h('div', { class: 'stp' });
-  stapleL.sort(function (a, b) { return a.name.localeCompare(b.name); }).forEach(function (p) {
-    stp.appendChild(h('span', { class: 'stc' }, titleWords(p.name), h('button', { type: 'button', 'aria-label': 'Remove ' + p.name + ' from always on hand', title: 'Remove', onclick: function () { if (p.hid && p.foodId) delete cart.staples[p.foodId]; saveCart(); pantry = pantry.filter(function (x) { return x !== p; }); savePantry(); render(); } }, '\u00D7')));
-  });
-  var stIn = h('input', { class: 'search', type: 'text', placeholder: 'Salt, olive oil, soy sauce\u2026', 'aria-label': 'Add something you always have' });
-  function addStaple() {
-    var n = titleWords(stIn.value); if (!n) return;
-    var ex = pantry.filter(function (x) { return x.name.toLowerCase() === n.toLowerCase(); })[0], f = E.matchFoods(n, allFoods(), 1)[0], toks = E.nameKey(n).split('_').filter(Boolean), ok = f && toks.length && toks.every(function (t) { return E.nameKey(f.name).split('_').indexOf(t) >= 0; });
-    if (ex) { ex.staple = true; ex.nog = true; } else { ex = { id: uid(), name: n, foodId: ok ? f.id : '', g: 0, nog: true, staple: true, place: 'Cupboard' }; pantry.push(ex); }
-    if (ok && ex.foodId && !cart.staples[ex.foodId]) { cart.staples[ex.foodId] = true; ex.hid = true; saveCart(); }
-    savePantry(); render();
-  }
-  stIn.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); addStaple(); } });
-  wrap.appendChild(stp);
-  wrap.appendChild(h('div', { class: 'stadd' }, stIn, h('button', { class: 'btn', type: 'button', onclick: addStaple }, 'Add')));
-  wrap.appendChild(h('p', { class: 'hint', style: 'max-width:60ch;margin-top:6px' }, 'These always count as in your pantry, so they are never flagged as missing or added to your shopping.'));
-  function amtText(p, ew, lq, dn) { if (p.nog) return 'have it'; if (ew) return frac(Math.round(p.g / ew * 2) / 2) + (p.g / ew === 1 ? ' whole' : ' whole'); if (lq) { var ml = p.g / dn; return ml >= 1000 ? (Math.round(ml / 100) / 10) + ' L' : Math.round(ml) + ' ml'; } return p.g >= 1000 ? (Math.round(p.g / 100) / 10) + ' kg' : Math.round(p.g) + ' g'; }
-  ['Use soon', 'Fridge', 'Freezer', 'Cupboard'].forEach(function (pl) {
-  var items = pl === 'Use soon' ? soonL : pantry.filter(function (p) { return !p.staple && (p.place || 'Cupboard') === pl && soonL.indexOf(p) < 0; }); if (!items.length) return;
-  wrap.appendChild(h('h2', { class: 'mk' + (pl === 'Use soon' ? ' usesoon' : ''), style: 'font-size:13px;letter-spacing:.2em;text-transform:uppercase;margin:26px 0 8px;font-weight:500' }, pl));
-  var list = h('div', { class: 'plist', style: 'margin-top:0;gap:6px' });
-  (pl === 'Use soon' ? items : items.sort(function (a, b) { return a.name.localeCompare(b.name); })).forEach(function (p) {
-    var fd = FOODS[p.foodId], ew = p.cnt ? eachW(fd) : 0, lq = !ew && isLiq(fd), dn = (fd && fd.density) || 1, open = S.pedit === p.id;
-    var cbx = h('input', { type: 'checkbox', class: 'psel', 'aria-label': 'Select ' + p.name, checked: !!psel[p.id], onchange: function (e) { if (e.target.checked) psel[p.id] = 1; else delete psel[p.id]; updBar(); } });
+  function expShort(p) { var n = daysLeft(p); if (n == null) return ''; if (n < 0) return 'Expired'; if (n === 0) return 'Today'; if (n === 1) return 'Tomorrow'; if (n <= 7) return n + ' days'; var d = new Date(p.exp + 'T00:00:00'); return d.getDate() + ' ' + ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][d.getMonth()]; }
+  function amtText(p, ew, lq, dn) { if (p.nog) return ''; if (ew) return frac(Math.round(p.g / ew * 2) / 2) + ' whole'; if (lq) { var ml = p.g / dn; return ml >= 1000 ? (Math.round(ml / 100) / 10) + ' L' : Math.round(ml) + ' ml'; } return p.g >= 1000 ? (Math.round(p.g / 100) / 10) + ' kg' : Math.round(p.g) + ' g'; }
+  function byExp(a, b) { var x = daysLeft(a), y = daysLeft(b); if (x == null && y == null) return a.name.localeCompare(b.name); if (x == null) return 1; if (y == null) return -1; return (x - y) || a.name.localeCompare(b.name); }
+  ['Fridge', 'Freezer', 'Cupboard', 'Always on hand'].forEach(function (pl) {
+  var items = pl === 'Always on hand' ? pantry.filter(function (p) { return p.staple; }) : pantry.filter(function (p) { return !p.staple && (p.place || 'Cupboard') === pl; }); if (!items.length) return;
+  wrap.appendChild(h('h2', { class: 'mk', style: 'font-size:13px;letter-spacing:.2em;text-transform:uppercase;margin:26px 0 8px;font-weight:500' }, pl));
+  var list = h('div', { class: 'plist', style: 'margin-top:0;gap:5px' });
+  items.sort(byExp).forEach(function (p) {
+    var fd = FOODS[p.foodId], ew = p.cnt ? eachW(fd) : 0, lq = !ew && isLiq(fd), dn = (fd && fd.density) || 1, open = S.pedit === p.id, st = p.staple;
+    var cbx = st ? null : h('input', { type: 'checkbox', class: 'psel', 'aria-label': 'Select ' + p.name, checked: !!psel[p.id], onchange: function (e) { if (e.target.checked) psel[p.id] = 1; else delete psel[p.id]; updBar(); } });
     var low = p.low > 0 && p.g <= p.low && !p.nog;
-    var row = h('div', { class: 'pcomp ' + expState(p) }, cbx,
-      h('div', { class: 'pn' }, h('b', null, titleWords(p.name)), h('span', { class: 'pa' }, amtText(p, ew, lq, dn))),
-      h('div', { class: 'pact' }, rnd('cart', 'Add ' + titleWords(p.name) + ' to cart', function () { pantryToCart([p]); }), rnd('edit', (open ? 'Close ' : 'Edit ') + titleWords(p.name), function () { S.pedit = open ? null : p.id; render(); })),
-      h('div', { class: 'pm' }, pl === 'Use soon' ? h('span', null, p.place || 'Cupboard') : null, expText(p) ? h('span', { class: 'expb ' + expState(p), style: 'margin:0' }, expText(p)) : (p.exp ? h('span', null, 'Use by ' + p.exp.split('-').reverse().join('/')) : null), low ? h('span', { class: 'lowb' }, 'Running low') : null));
+    function del() { if (p.staple && p.foodId && cart.staples[p.foodId]) { delete cart.staples[p.foodId]; saveCart(); } pantry = pantry.filter(function (x) { return x !== p; }); S.pedit = null; savePantry(); render(); }
+    var info = low ? h('span', { class: 'lowb' }, 'Low') : (p.exp ? h('span', { class: 'pi ' + expState(p) }, expShort(p)) : null);
+    var row = h('div', { class: 'pline ' + expState(p) + (st ? ' st' : '') }, cbx || h('span', { class: 'psp' }),
+      h('b', { class: 'pt' }, titleWords(p.name)), h('span', { class: 'pa' }, amtText(p, ew, lq, dn)), h('span', { class: 'pinf' }, info),
+      h('span', { class: 'pact' }, st ? null : rnd('cart', 'Add ' + titleWords(p.name) + ' to cart', function () { pantryToCart([p]); }), rnd('edit', (open ? 'Close ' : 'Edit ') + titleWords(p.name), function () { S.pedit = open ? null : p.id; render(); }), h('span', { class: 'pdel' }, rnd('trash', 'Delete ' + titleWords(p.name), del))));
+    list.appendChild(row);
     if (open) {
       var inp = p.nog ? null : h('input', { type: 'number', min: '0', step: 'any', inputmode: 'decimal', value: String(ew ? Math.round(p.g / ew * 2) / 2 : lq ? Math.round(p.g / dn) : p.g), onchange: function (e) { var v = Math.max(0, parseFloat(e.target.value) || 0); p.g = ew ? Math.round(v * ew * 10) / 10 : lq ? Math.round(v * dn * 10) / 10 : v; savePantry(); render(); } });
       var lowIn = p.nog ? null : h('input', { type: 'number', min: '0', step: 'any', inputmode: 'decimal', value: p.low > 0 ? String(ew ? Math.round(p.low / ew * 2) / 2 : lq ? Math.round(p.low / dn) : p.low) : '', placeholder: 'none', onchange: function (e) { var v = parseFloat(e.target.value); p.low = v > 0 ? Math.round(v * (ew || (lq ? dn : 1)) * 10) / 10 : 0; savePantry(); render(); } });
-      row.appendChild(h('div', { class: 'pedit' },
+      list.appendChild(h('div', { class: 'pedit pedit2' },
         inp ? h('label', null, ew ? 'How many' : lq ? 'Millilitres' : 'Grams', inp) : null,
         lowIn ? h('label', null, 'Low at', lowIn) : null,
-        h('label', null, 'Use by', h('input', { type: 'date', value: p.exp || '', onchange: function (e) { p.exp = e.target.value; savePantry(); render(); } })),
-        h('label', null, 'Kept in', h('select', { onchange: function (e) { p.place = e.target.value; savePantry(); render(); } }, ['Fridge', 'Freezer', 'Cupboard'].map(function (x) { return h('option', { value: x, selected: (p.place || 'Cupboard') === x }, x); }))),
+        st ? null : h('label', null, 'Use by', h('input', { type: 'date', value: p.exp || '', onchange: function (e) { p.exp = e.target.value; savePantry(); render(); } })),
+        st ? null : h('label', null, 'Kept in', h('select', { onchange: function (e) { p.place = e.target.value; savePantry(); render(); } }, ['Fridge', 'Freezer', 'Cupboard'].map(function (x) { return h('option', { value: x, selected: (p.place || 'Cupboard') === x }, x); }))),
         h('div', { class: 'btns' },
-          h('button', { class: 'btn quiet', type: 'button', onclick: function () { pantry = pantry.filter(function (x) { return x !== p; }); S.pedit = null; savePantry(); render(); } }, 'Remove'),
+          h('button', { class: 'btn quiet', type: 'button', onclick: del }, 'Delete'),
           h('button', { class: 'btn primary', type: 'button', onclick: function () { S.pedit = null; render(); } }, 'Done'))));
     }
-    list.appendChild(row);
   });
   wrap.appendChild(list);
   });
@@ -2540,14 +2563,17 @@ function allTags() {
 function parseTags(s) { var seen = {}, out = []; String(s || '').split(',').forEach(function (t) { t = titleWords(t); if (t && !seen[t.toLowerCase()]) { seen[t.toLowerCase()] = 1; out.push(t); } }); return out; }
 
 /* editing a saved recipe */
-function draftFromRecipe(r) {
-  var rows = r.ingredients.map(function (it) {
+function rowsFromIngs(ings) {
+  return ings.map(function (it) {
     var food = FOODS[it.foodId], nm = it.label || shortFood(food);
     var cands = [food].concat(E.matchFoods(nm, allFoods(), 7).filter(function (c) { return !food || c.id !== food.id; })).filter(Boolean);
     return { parsed: { original: it.original || (Math.round(it.g * 10) / 10 + ' g ' + nm), name: nm, qty: null, unit: '', note: '' }, cands: cands, foodId: it.foodId, skip: false, manualG: it.g, shown: nm, keep: { n: it.n, u: it.u, g0: it.g } };
   });
+}
+function draftFromRecipe(r) {
+  var rows = rowsFromIngs(r.ingredients);
   var sm0 = (r.hands || 0) + (r.cook || 0) + (r.chill || 0);
-  return { name: r.name, sub: r.sub || '', serves: r.servings, mins: r.mins, hands: r.hands || '', cook: r.cook || '', chill: r.chill || '', minsManual: !sm0 || sm0 !== r.mins, ahead: !!r.ahead, aheadNote: r.aheadNote || '', freeze: !!r.freeze, freezeNote: r.freezeNote || '', cat: r.cat, tags: tagsOf(r).join(', '), steps: (r.steps || []).slice(), rows: rows, editId: r.sample ? null : r.id, fromId: r.id, source: r.source };
+  return { name: r.name, sub: r.sub || '', serves: r.servings, mins: r.mins, hands: r.hands || '', cook: r.cook || '', chill: r.chill || '', minsManual: !sm0 || sm0 !== r.mins, ahead: !!r.ahead, aheadNote: r.aheadNote || '', freeze: !!r.freeze, freezeNote: r.freezeNote || '', cat: r.cat, tags: tagsOf(r).join(', '), steps: (r.steps || []).slice(), rows: rows, vars: (r.variants || []).map(function (v) { return { id: v.id, name: v.name, rows: rowsFromIngs(v.ingredients), steps: (v.steps && v.steps.length ? v.steps : r.steps || []).slice() }; }), cur: -1, editId: r.sample ? null : r.id, fromId: r.id, source: r.source };
 }
 function startEdit(r) { A.draft = draftFromRecipe(r); S.view = 'add'; render(); }
 
@@ -2606,6 +2632,7 @@ function pullThenSync() {
     lsSetRaw('rb.syncmeta', syncMeta);
     if (changed) { fb.msg = 'Loaded the latest from your account.'; location.reload(); return; }
     fb.pulling = false; fb.msg = fb.msg || 'Up to date.'; syncPush();
+    if (!fb.live) { fb.live = true; var lt0 = 0; fb.db.ref('recipebox/' + fb.user.uid + '/keys').on('value', function () { clearTimeout(lt0); lt0 = setTimeout(function () { if (!fb.pulling && Object.keys(dirty).length === 0) pullThenSync(); }, 600); }); }
   }, function (e) { fb.pulling = false; fb.msg = 'Could not read your account: ' + (e && e.message || e); });
 }
 function forcePushAll() { SYNCKEYS.forEach(function (k) { var v = null; try { v = localStorage.getItem(k); } catch (e) {} if (v != null) { syncMeta[k] = Date.now(); dirty[k] = 1; } }); lsSetRaw('rb.syncmeta', syncMeta); fb.pulling = false; syncPush(); }
