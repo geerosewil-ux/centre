@@ -343,6 +343,11 @@ button,input,select{font:inherit;color:inherit}
 @media (max-width:640px){.pline{gap:6px;padding:6px 8px}.pline .pdel{display:none}.pline .pinf{min-width:0}.pline .pa{font-size:12px}.pline .rnd{width:32px;height:32px}.pline .psel{width:22px;height:22px}}
 .vtabs{display:flex;flex-wrap:wrap;gap:6px;margin:18px 0 4px;padding:4px;border-radius:99px;background:rgba(120,110,90,.12);width:fit-content;max-width:100%}.vtab{border:0;background:none;padding:8px 16px;min-height:36px;border-radius:99px;font:inherit;font-size:13px;color:var(--ink-2);cursor:pointer;transition:background .2s,color .2s}.vtab[aria-selected=true]{background:var(--card);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.15)}.vtab.add{color:var(--accent)}.ved{margin:16px 0 8px}.vedit{display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;margin:8px 0 6px}.vedit label{display:flex;flex-direction:column;gap:6px;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-2);flex:1 1 220px}.ir.vnew{position:relative}.ir.vnew::before{content:'';position:absolute;left:-12px;top:50%;width:5px;height:5px;margin-top:-2.5px;border-radius:50%;background:var(--accent)}
 @media (max-width:640px){.vtab{padding:8px 13px}.vedit input{font-size:16px;min-height:44px}}
+.ish{margin:22px 0 4px;font-size:11px;letter-spacing:.2em;text-transform:uppercase;opacity:.65;text-align:left}.ish:first-child{margin-top:4px}
+.schips{display:flex;flex-wrap:wrap;gap:6px;align-items:center}.schip{border:1px solid var(--line);background:var(--card);color:var(--ink-2);border-radius:99px;padding:5px 12px;min-height:32px;font:inherit;font-size:12px;cursor:pointer}.schip[aria-pressed=true]{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}.schip.rst{padding:5px 10px}
+.rmeta{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;margin-top:10px;padding-top:10px;border-top:1px dashed var(--line)}.secsel{display:inline-flex;align-items:center;gap:8px;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-2)}
+.sechead{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:flex-end;margin:20px 0 8px;padding:12px 14px;border-radius:14px;background:rgba(120,110,90,.1)}.sechead.none{background:none;padding:0;margin:14px 0 4px}.sechead label{display:flex;flex-direction:column;gap:6px;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-2);flex:1 1 200px}
+@media (max-width:640px){.sechead input,.rmeta select{font-size:16px;min-height:44px}.schip{min-height:38px;padding:6px 14px}}
 </style>
 
 <div class="app" id="app"></div>
@@ -850,6 +855,22 @@ var SAMPLES = [
     ['Mash the bananas and mix with the peanut butter and vanilla.', 'Stir in the oats and chocolate chips.', 'Spoon onto a lined tray and bake at 180 C for 12 to 14 minutes.'])
 ];
 var mine = lsGet('rb.recipes', []);
+function effIn(it, secs) { if (it.in != null) return it.in; var sc = it.sec && secs ? secs.filter(function (x) { return x.id === it.sec; })[0] : null; return sc && sc.in != null ? sc.in : null; }
+function inScope(it, secs, scope) { var e = effIn(it, secs); return e == null || e.indexOf(scope) >= 0; }
+function orderBySec(ings, secs) { if (!secs || !secs.length) return ings; var ix = {}; secs.forEach(function (x, i) { ix[x.id] = i; }); return ings.map(function (it, i) { return [it, i]; }).sort(function (a, b) { var x = a[0].sec && ix[a[0].sec] != null ? ix[a[0].sec] : -1, y = b[0].sec && ix[b[0].sec] != null ? ix[b[0].sec] : -1; return (x - y) || (a[1] - b[1]); }).map(function (x) { return x[0]; }); }
+function derive(m) { if (m.all) m.ingredients = m.all.filter(function (it) { return inScope(it, m.sections, 'base'); }); }
+function migrateVariants(m) {
+  if (!m.variants || !m.variants.some(function (v) { return v.ingredients; })) return false;
+  var all = m.ingredients.map(function (it) { return Object.assign({}, it, { in: ['base'] }); }), nv = m.variants.length;
+  function key(it) { return it.foodId + '|' + Math.round(it.g * 10) + '|' + (it.label || ''); }
+  m.variants.forEach(function (v) {
+    (v.ingredients || []).forEach(function (it) { var f = all.filter(function (a) { return key(a) === key(it); })[0]; if (f) { if (f.in.indexOf(v.id) < 0) f.in.push(v.id); } else all.push(Object.assign({}, it, { in: [v.id] })); });
+    delete v.ingredients;
+  });
+  all.forEach(function (a) { if (a.in.length === 1 + nv) a.in = null; });
+  m.all = all; derive(m); return true;
+}
+(function () { var ch = false; mine.forEach(function (m) { if (migrateVariants(m)) ch = true; else derive(m); }); if (ch) { try { localStorage.setItem('rb.recipes', JSON.stringify(mine)); } catch (e) {} } })();
 var RECIPES = SAMPLES.concat(mine);
 // Recipes added by Claude on request: put into your own recipes once, then they are yours to edit.
 (function seedMine() {
@@ -1485,9 +1506,11 @@ function ingText(it, f, food) {
 }
 S.vsel = {};
 function effRecipe(r0) {
-  var i = S.vsel[r0.id], v = r0.variants && i != null && i >= 0 ? r0.variants[i] : null;
-  if (!v) return r0;
-  var e = Object.assign({}, r0); e.ingredients = v.ingredients; if (v.steps && v.steps.length) e.steps = v.steps; e.vname = v.name; e.vbase = r0.ingredients; return e;
+  var i = S.vsel[r0.id], v = r0.variants && i != null && i >= 0 ? r0.variants[i] : null, e = Object.assign({}, r0), src = r0.all || r0.ingredients;
+  e.vscope = v ? v.id : 'base'; e.vsel = !!v;
+  e.ingredients = orderBySec(src.filter(function (it) { return inScope(it, r0.sections, e.vscope); }), r0.sections);
+  if (v && v.steps && v.steps.length) e.steps = v.steps;
+  return e;
 }
 function varTabs(r0, redraw) {
   if (!r0.variants || !r0.variants.length) return null;
@@ -1539,7 +1562,7 @@ function fullCardBase(r, redraw, r0) {
   var rows = r.ingredients.map(function (it) {
     var food = FOODS[it.foodId], g = it.g * f, tx = ingText(it, f, food), amt = tx.amt, name = tx.name;
     var kc = nvHas('kcal') && food && food.per100 && food.per100.kcal != null ? fmtN(food.per100.kcal * g / 100) + ' kcal' : '';
-    return h('div', { class: 'ir' + (pkeys && !isBasic(it) && !haveIt(it, pkeys) ? ' nohave' : '') + (r.vbase && !r.vbase.some(function (b) { return b.foodId === it.foodId && Math.abs(b.g - it.g) < 0.5 && (b.label || '') === (it.label || ''); }) ? ' vnew' : '') }, T('nm', 'full', amt), T('bd', 'full', name), T('nm', 'full', kc, { style: 'opacity:.8' }));
+    return h('div', { class: 'ir' + (pkeys && !isBasic(it) && !haveIt(it, pkeys) ? ' nohave' : '') + (r.vsel && effIn(it, r.sections) != null ? ' vnew' : '') }, T('nm', 'full', amt), T('bd', 'full', name), T('nm', 'full', kc, { style: 'opacity:.8' }));
   });
   function steps() { return h('ol', { class: 'stepsl', style: 'margin:10px 0 0;padding-left:26px;display:flex;flex-direction:column;gap:18px;line-height:1.55' }, r.steps.map(function (s) { return h('li', null, T('bd', 'full', s, { scale: 1.08 })); })); }
   var turnBtn = function (label) { return h('button', { class: 'rnd', type: 'button', 'aria-label': label, title: label, onclick: function (e) { e.stopPropagation(); flip(); } }, icon('turn', 18)); };
@@ -1555,7 +1578,7 @@ function fullCardBase(r, redraw, r0) {
   }
   function front() {
     return cardShell('full', [cookedOf(r).n >= 3 ? h('div', { class: 'stain', 'aria-hidden': 'true' }) : null, head, varTabs(r0 || r, redraw), starRow, nutri, h('div', { class: 'ctl' }, servCtl),
-      h('div', { class: 'secthd' }, T('h2', 'full', 'Ingredients', { tag: 'div' })), h('div', { class: 'ings' }, rows),
+      h('div', { class: 'secthd' }, T('h2', 'full', 'Ingredients', { tag: 'div' })), h('div', { class: 'ings' }, (function () { if (!r.sections || !r.sections.length) return rows; var out = [], last = '#'; r.ingredients.forEach(function (it, k) { var sc = it.sec ? r.sections.filter(function (x) { return x.id === it.sec; })[0] : null, nm = sc ? sc.name : ''; if (nm !== last && (nm || last !== '#')) { if (nm) out.push(h('div', { class: 'ish' }, nm)); } last = nm; out.push(rows[k]); }); return out; })()),
       h('div', { class: 'turnrow', style: 'justify-content:flex-end' }, turnBtn('Turn over')), del]);
   }
   function back() {
@@ -2006,15 +2029,17 @@ function solve(row) {
   if (r.needs) { out.why = ({ 'no quantity': 'No amount in the text. Enter grams.', 'needs density': 'No density for this food. Enter grams.', 'needs unit weight': 'No weight for one of these. Enter grams.' })[r.needs] || 'Enter grams.'; return out; }
   out.g = r.g; out.ml = r.ml != null ? r.ml : null; out.row = r; return out;
 }
-function draftRecipe(d) {
+function draftRecipe(d, scope) {
   var ings = [];
   d.rows.forEach(function (row) {
+    if (scope && !inScope(row, d.sections, scope)) return;
     var s = solve(row); if (row.skip || s.g == null) return;
     var base = s.row || { foodId: row.foodId, g: Math.round(s.g * 10) / 10, original: row.parsed.original };
     if (s.ml != null && base.ml == null) base.ml = Math.round(s.ml * 10) / 10;
     base.foodId = row.asis ? asisFood(row.parsed.name).id : row.foodId; base.g = Math.round(s.g * 10) / 10; base.label = (row.shown != null && String(row.shown).trim()) ? titleWords(row.shown) : titleWords(row.parsed.name || shortFood(FOODS[row.foodId]));
     if (row.keep && row.keep.n != null && row.manualG === row.keep.g0) { base.n = row.keep.n; base.u = row.keep.u; }
     if (row.cnt && row.manualG != null) { base.n = row.cnt.n; base.u = row.cnt.u; }
+    if (row.sec) base.sec = row.sec; if (row.in != null) base.in = row.in.slice();
     ings.push(base);
   });
   return { id: 'draft', name: d.name, servings: Math.max(1, Number(d.serves) || 1), ingredients: ings };
@@ -2034,7 +2059,7 @@ function addView() {
   var sumBox = h('div', { class: 'sumbox', 'aria-live': 'polite' }), rowsBox = h('div', { class: 'rrows' });
   function refreshSummary() {
     var d = A.draft; sumBox.replaceChildren(); if (!d) return;
-    var rec = draftRecipe(d), n = E.nutrition(rec, FOODS, rec.servings), per = n.perServing, skipped = d.rows.filter(function (r) { return !r.skip && solve(r).g == null; }).length;
+    var rec = draftRecipe(d, d.cur != null && d.cur >= 0 && d.vars[d.cur] ? d.vars[d.cur].id : 'base'), n = E.nutrition(rec, FOODS, rec.servings), per = n.perServing, skipped = d.rows.filter(function (r) { return !r.skip && solve(r).g == null; }).length;
     var cov = rec.ingredients.length ? Math.round(Math.min.apply(null, ['kcal', 'protein', 'fat', 'carb'].map(function (k) { return n.share[k]; })) * 100) : 0;
     sumBox.appendChild(h('div', { class: 'big' }, fmtN(per.kcal) + ' kcal per serving'));
     sumBox.appendChild(h('div', { class: 'hint' }, 'Protein ' + Math.round(per.protein) + ' g · Carbs ' + Math.round(per.carb) + ' g · Fat ' + Math.round(per.fat) + ' g · Fibre ' + Math.round(per.fibre) + ' g · ' + rec.ingredients.length + ' ingredients counted, based on ' + cov + '% of the weight.'));
@@ -2113,46 +2138,74 @@ function addView() {
     var aheadBox = h('div', { class: 'aheadbox' }, aheadRow('ahead', 'aheadNote', 'Make ahead', 'e.g. keeps 3 days in the fridge'), aheadRow('freeze', 'freezeNote', 'Freezes well', 'e.g. up to 3 months'));
     var tagRow = h('label', { class: 'tagrow' }, 'Tags (separate with commas)', h('input', { type: 'text', value: d.tags || '', placeholder: 'Dinner, Quick, Vegetarian', oninput: function (e) { d.tags = e.target.value; } }));
     var q = null;
-    d.vars = d.vars || []; if (d.cur == null) d.cur = -1;
-    function stash() { if (d.cur < 0) { d.baseRows = d.rows; d.baseSteps = d.steps; } else { d.vars[d.cur].rows = d.rows; d.vars[d.cur].steps = d.steps; } }
-    function goVar(i) { stash(); d.cur = i; var t = i < 0 ? { rows: d.baseRows, steps: d.baseSteps } : d.vars[i]; d.rows = t.rows; d.steps = t.steps; drawDraft(); }
-    function newVar() { stash(); var rec = draftRecipe({ name: d.name, serves: d.serves, rows: d.cur < 0 ? d.rows : d.baseRows }); d.vars.push({ id: newId(), name: 'Variation ' + (d.vars.length + 1), rows: rowsFromIngs(rec.ingredients), steps: (d.cur < 0 ? d.steps : d.baseSteps).slice() }); goVar(d.vars.length - 1); }
+    d.vars = d.vars || []; d.sections = d.sections || []; if (d.cur == null) d.cur = -1;
+    function stash() { if (d.cur < 0) d.baseSteps = d.steps; else d.vars[d.cur].steps = d.steps; }
+    function goVar(i) { stash(); d.cur = i; d.steps = i < 0 ? d.baseSteps : d.vars[i].steps; drawDraft(); }
+    function newVar() { stash(); d.vars.push({ id: newId(), name: 'Variation ' + (d.vars.length + 1), steps: (d.cur < 0 ? d.steps : d.baseSteps).slice() }); goVar(d.vars.length - 1); }
+    function delVar() { var v = d.vars[d.cur]; d.cur = -1; d.steps = d.baseSteps; d.vars.splice(d.vars.indexOf(v), 1); function fix(o) { if (o.in != null) { o.in = o.in.filter(function (x) { return x !== v.id; }); if (!o.in.length) o.in = null; } } d.rows.forEach(fix); d.sections.forEach(fix); drawDraft(); }
     var vbar = h('div', { class: 'vtabs ved' }, h('button', { type: 'button', class: 'vtab', 'aria-selected': String(d.cur < 0), onclick: function () { goVar(-1); } }, 'Original'),
       d.vars.map(function (v, i) { return h('button', { type: 'button', class: 'vtab', 'aria-selected': String(d.cur === i), onclick: function () { goVar(i); } }, v.name || 'Variation'); }),
       h('button', { type: 'button', class: 'vtab add', onclick: newVar }, '+ Variation'));
     var vedit = d.cur >= 0 ? h('div', { class: 'vedit' }, h('label', null, 'Variation name', h('input', { type: 'text', value: d.vars[d.cur].name, placeholder: 'e.g. Gluten free', oninput: function (e) { d.vars[d.cur].name = e.target.value; var tb = vbar.querySelectorAll('.vtab')[d.cur + 1]; if (tb) tb.textContent = e.target.value || 'Variation'; } })),
-      h('button', { class: 'btn quiet', type: 'button', onclick: function () { var i = d.cur; d.cur = -1; d.rows = d.baseRows; d.steps = d.baseSteps; d.vars.splice(i, 1); drawDraft(); } }, 'Delete this variation')) : null;
-    rowsBox.replaceChildren(); d.rows.forEach(function (r, i) { rowsBox.appendChild(rowEl(r, i)); });
+      h('button', { class: 'btn quiet', type: 'button', onclick: delVar }, 'Delete this variation')) : null;
+    var vhint = h('p', { class: 'hint' }, d.vars.length ? 'The tabs switch which method you are editing. Use the chips on each ingredient or section to say which versions it belongs to.' : 'Make a variation (like gluten free or a different filling) and each ingredient gets chips to say where it belongs.');
+    // chips: which versions an ingredient or section belongs to
+    function scopeList() { return [{ id: 'base', name: 'Original' }].concat(d.vars.map(function (v) { return { id: v.id, name: v.name || 'Variation' }; })); }
+    function scopeChips(obj, inherited) {
+      var sc = scopeList(), eff = obj.in != null ? obj.in : inherited != null ? inherited : null;
+      function pick(id) {
+        var cur;
+        if (eff == null) cur = [id]; else { cur = eff.slice(); var k = cur.indexOf(id); if (k >= 0) cur.splice(k, 1); else cur.push(id); }
+        obj.in = (!cur.length || cur.length === sc.length) ? null : cur; drawDraft();
+      }
+      var out = h('div', { class: 'schips', role: 'group', 'aria-label': 'Which versions' }, h('button', { type: 'button', class: 'schip', 'aria-pressed': String(eff == null), onclick: function () { obj.in = null; drawDraft(); } }, 'All'),
+        sc.map(function (x) { return h('button', { type: 'button', class: 'schip', 'aria-pressed': String(eff != null && eff.indexOf(x.id) >= 0), onclick: function () { pick(x.id); } }, x.name); }));
+      if (obj.in != null && obj.sec) out.appendChild(h('button', { type: 'button', class: 'schip rst', title: 'Use the section setting', onclick: function () { obj.in = null; drawDraft(); } }, '\u21BA'));
+      return out;
+    }
+    function secOf(id) { return d.sections.filter(function (x) { return x.id === id; })[0]; }
+    function moveRow(row) { if (!d.sections.length) return null; return h('label', { class: 'secsel' }, 'Section', h('select', { 'aria-label': 'Section for ' + (row.shown || row.parsed.original), onchange: function (e) { row.sec = e.target.value; drawDraft(); } }, h('option', { value: '' }, 'None'), d.sections.map(function (x) { return h('option', { value: x.id, selected: row.sec === x.id }, x.name || 'Section'); }))); }
+    rowsBox.replaceChildren();
+    [null].concat(d.sections).forEach(function (sec) {
+      var rs = d.rows.filter(function (r) { return (r.sec || '') === (sec ? sec.id : '') || (!sec && r.sec && !secOf(r.sec)); });
+      if (sec) rowsBox.appendChild(h('div', { class: 'sechead' }, h('label', null, 'Section', h('input', { type: 'text', value: sec.name, placeholder: 'e.g. Pie crust', oninput: function (e) { sec.name = e.target.value; } })), d.vars.length ? scopeChips(sec) : null,
+        h('button', { class: 'btn quiet', type: 'button', onclick: function () { d.rows.forEach(function (r) { if (r.sec === sec.id) r.sec = ''; }); d.sections.splice(d.sections.indexOf(sec), 1); drawDraft(); } }, 'Remove section')));
+      else if (d.sections.length && rs.length) rowsBox.appendChild(h('div', { class: 'sechead none' }, h('span', { class: 'hint' }, 'No section')));
+      rs.forEach(function (r) { var el = rowEl(r, d.rows.indexOf(r)); if (d.vars.length || d.sections.length) el.appendChild(h('div', { class: 'rmeta' }, moveRow(r), d.vars.length ? scopeChips(r, sec ? sec.in : null) : null)); rowsBox.appendChild(el); });
+    });
+    var secIn = h('input', { type: 'text', placeholder: 'New section, e.g. Pie crust', 'aria-label': 'New section name' });
+    function addSec() { var nm = secIn.value.trim(); if (!nm) return; d.sections.push({ id: newId(), name: nm, in: null }); drawDraft(); }
+    secIn.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); addSec(); } });
+    var secBar = h('div', { class: 'tools', style: 'margin-top:6px' }, secIn, h('button', { class: 'btn', type: 'button', onclick: addSec }, 'Add section'));
+    var addSecSel = d.sections.length ? h('select', { 'aria-label': 'Section for the new ingredient', onchange: function (e) { d.addSec = e.target.value; } }, h('option', { value: '' }, 'No section'), d.sections.map(function (x) { return h('option', { value: x.id, selected: d.addSec === x.id }, x.name || 'Section'); })) : null;
     var addIn = h('input', { type: 'text', id: 'add-line', placeholder: 'Add an ingredient, e.g. 2 cups rice', 'aria-label': 'Add an ingredient line' });
-    function addOne() { if (!addIn.value.trim()) return; d.rows.push(rowForLine(addIn.value.trim())); drawDraft(); }
+    function addOne() { if (!addIn.value.trim()) return; var nr = rowForLine(addIn.value.trim()); if (d.addSec && secOf(d.addSec)) nr.sec = d.addSec; d.rows.push(nr); drawDraft(); }
     addIn.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); addOne(); } });
-    var addLine = h('div', { class: 'tools', style: 'margin-top:10px' }, addIn, h('button', { class: 'btn', type: 'button', onclick: addOne }, 'Add ingredient'));
+    var addLine = h('div', { class: 'tools', style: 'margin-top:10px' }, addIn, addSecSel, h('button', { class: 'btn', type: 'button', onclick: addOne }, 'Add ingredient'));
     var steps = h('label', { class: 'stepsbox' }, 'Method (one step per line)', h('textarea', { rows: '6', oninput: function (e) { d.steps = e.target.value.split(/\n+/).map(function (x) { return cleanStep(x); }).filter(Boolean); } }, d.steps.join('\n')));
     var btns = h('div', { class: 'btns', style: 'margin-top:16px' }, saveBtn);
     btns.appendChild(h('button', { class: 'btn quiet', type: 'button', onclick: function () { var was = d.fromId; A.draft = null; A.queue = []; if (was) { S.view = 'recipes'; S.sel = was; S.detail = true; } render(); } }, 'Cancel'));
-    body.appendChild(h('div', { class: 'draftbox' }, q, head, timeRow, aheadBox, tagRow, d.editId || d.fromId ? h('p', { class: 'hint' }, d.editId ? 'Editing this recipe. Save to keep your changes.' : 'This is a built-in example, so saving makes your own copy.') : null, vbar, vedit, h('h2', { style: 'font-size:20px;margin:18px 0 4px' }, 'Ingredients'),
+    body.appendChild(h('div', { class: 'draftbox' }, q, head, timeRow, aheadBox, tagRow, d.editId || d.fromId ? h('p', { class: 'hint' }, d.editId ? 'Editing this recipe. Save to keep your changes.' : 'This is a built-in example, so saving makes your own copy.') : null, vbar, vedit, vhint, h('h2', { style: 'font-size:20px;margin:18px 0 4px' }, 'Ingredients'),
       h('p', { class: 'hint' }, 'Each line shows what you wrote, the food it matched, and the grams it works out to. Change the food, type grams yourself, or leave a line out.'),
-      rowsBox, addLine, steps, h('div', { style: 'margin-top:16px' }, sumBox), btns));
+      rowsBox, addLine, secBar, steps, h('div', { style: 'margin-top:16px' }, sumBox), btns));
     refreshSummary();
   }
 
   function saveDraft() {
     var d = A.draft;
-    if (d.cur != null && d.cur >= 0) { d.vars[d.cur].rows = d.rows; d.vars[d.cur].steps = d.steps; d.rows = d.baseRows; d.steps = d.baseSteps; d.cur = -1; }
-    var rec = draftRecipe(d);
+    if (d.cur != null && d.cur >= 0) { d.vars[d.cur].steps = d.steps; d.steps = d.baseSteps; d.cur = -1; }
+    var rec = draftRecipe(d, 'base'), recAll = draftRecipe(d);
     if (!rec.ingredients.length) return;
     d.rows.forEach(function (row) {
       var f = FOODS[row.foodId]; if (!f || row.skip) return;
       if (f.source === 'custom' && !custom.some(function (c) { return c.id === f.id; })) custom.push(f);
       var key = E.nameKey(row.parsed.name); if (key) matches[key] = f.id;
     });
-    var vout = (d.vars || []).map(function (v) {
-      v.rows.forEach(function (row) { var f = FOODS[row.foodId]; if (!f || row.skip) return; if (f.source === 'custom' && !custom.some(function (c) { return c.id === f.id; })) custom.push(f); });
-      var vr = draftRecipe({ name: d.name, serves: d.serves, rows: v.rows }), same = JSON.stringify(v.steps) === JSON.stringify(d.steps);
-      return { id: v.id || newId(), name: (v.name || '').trim() || 'Variation', ingredients: vr.ingredients, steps: same ? [] : v.steps };
-    });
+    var vout = (d.vars || []).map(function (v) { var same = JSON.stringify(v.steps) === JSON.stringify(d.steps); return { id: v.id || newId(), name: (v.name || '').trim() || 'Variation', steps: same ? [] : v.steps }; });
+    var secOut = (d.sections || []).filter(function (x) { return x.name.trim(); }).map(function (x) { return { id: x.id, name: x.name.trim(), in: x.in }; });
+    var needAll = secOut.length || vout.length || recAll.ingredients.some(function (i) { return i.sec || i.in; });
     var tg = parseTags(d.tags); if (!tg.length) tg = [d.cat];
-    var out = { id: d.editId || newId(), name: d.name.trim(), sub: d.sub || '', cat: d.cat, tags: tg, mins: Math.max(1, Number(d.mins) || ((Number(d.hands) || 0) + (Number(d.cook) || 0) + (Number(d.chill) || 0)) || 30), hands: Number(d.hands) || 0, cook: Number(d.cook) || 0, chill: Number(d.chill) || 0, ahead: !!d.ahead, aheadNote: d.ahead ? (d.aheadNote || '') : '', freeze: !!d.freeze, freezeNote: d.freeze ? (d.freezeNote || '') : '', servings: rec.servings, variants: vout, rating: 0, fav: false, steps: d.steps, ingredients: rec.ingredients, source: d.source || 'paste' };
+    var out = { id: d.editId || newId(), name: d.name.trim(), sub: d.sub || '', cat: d.cat, tags: tg, mins: Math.max(1, Number(d.mins) || ((Number(d.hands) || 0) + (Number(d.cook) || 0) + (Number(d.chill) || 0)) || 30), hands: Number(d.hands) || 0, cook: Number(d.cook) || 0, chill: Number(d.chill) || 0, ahead: !!d.ahead, aheadNote: d.ahead ? (d.aheadNote || '') : '', freeze: !!d.freeze, freezeNote: d.freeze ? (d.freezeNote || '') : '', servings: rec.servings, variants: vout, sections: secOut, all: needAll ? orderBySec(recAll.ingredients, secOut) : undefined, rating: 0, fav: false, steps: d.steps, ingredients: needAll ? orderBySec(recAll.ingredients, secOut).filter(function (i) { return inScope(i, secOut, 'base'); }) : rec.ingredients, source: d.source || 'paste' };
     if (d.editId) { mine = mine.map(function (x) { return x.id === d.editId ? out : x; }); } else mine.push(out); RECIPES = SAMPLES.concat(mine); saveMine();
     toast('Saved “' + out.name + '”.');
     A.draft = null; A.queue = []; A.text = ''; S.view = 'recipes'; S.sel = out.id; S.detail = true; S.q = ''; render();
@@ -2567,13 +2620,13 @@ function rowsFromIngs(ings) {
   return ings.map(function (it) {
     var food = FOODS[it.foodId], nm = it.label || shortFood(food);
     var cands = [food].concat(E.matchFoods(nm, allFoods(), 7).filter(function (c) { return !food || c.id !== food.id; })).filter(Boolean);
-    return { parsed: { original: it.original || (Math.round(it.g * 10) / 10 + ' g ' + nm), name: nm, qty: null, unit: '', note: '' }, cands: cands, foodId: it.foodId, skip: false, manualG: it.g, shown: nm, keep: { n: it.n, u: it.u, g0: it.g } };
+    return { parsed: { original: it.original || (Math.round(it.g * 10) / 10 + ' g ' + nm), name: nm, qty: null, unit: '', note: '' }, cands: cands, foodId: it.foodId, skip: false, manualG: it.g, shown: nm, keep: { n: it.n, u: it.u, g0: it.g }, sec: it.sec || '', in: it.in != null ? it.in.slice() : null };
   });
 }
 function draftFromRecipe(r) {
-  var rows = rowsFromIngs(r.ingredients);
+  var rows = rowsFromIngs(r.all || r.ingredients);
   var sm0 = (r.hands || 0) + (r.cook || 0) + (r.chill || 0);
-  return { name: r.name, sub: r.sub || '', serves: r.servings, mins: r.mins, hands: r.hands || '', cook: r.cook || '', chill: r.chill || '', minsManual: !sm0 || sm0 !== r.mins, ahead: !!r.ahead, aheadNote: r.aheadNote || '', freeze: !!r.freeze, freezeNote: r.freezeNote || '', cat: r.cat, tags: tagsOf(r).join(', '), steps: (r.steps || []).slice(), rows: rows, vars: (r.variants || []).map(function (v) { return { id: v.id, name: v.name, rows: rowsFromIngs(v.ingredients), steps: (v.steps && v.steps.length ? v.steps : r.steps || []).slice() }; }), cur: -1, editId: r.sample ? null : r.id, fromId: r.id, source: r.source };
+  return { name: r.name, sub: r.sub || '', serves: r.servings, mins: r.mins, hands: r.hands || '', cook: r.cook || '', chill: r.chill || '', minsManual: !sm0 || sm0 !== r.mins, ahead: !!r.ahead, aheadNote: r.aheadNote || '', freeze: !!r.freeze, freezeNote: r.freezeNote || '', cat: r.cat, tags: tagsOf(r).join(', '), steps: (r.steps || []).slice(), rows: rows, vars: (r.variants || []).map(function (v) { return { id: v.id, name: v.name, steps: (v.steps && v.steps.length ? v.steps : r.steps || []).slice() }; }), sections: (r.sections || []).map(function (x) { return { id: x.id, name: x.name, in: x.in != null ? x.in.slice() : null }; }), cur: -1, editId: r.sample ? null : r.id, fromId: r.id, source: r.source };
 }
 function startEdit(r) { A.draft = draftFromRecipe(r); S.view = 'add'; render(); }
 
