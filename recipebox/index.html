@@ -378,9 +378,57 @@ body{color:var(--pg-ink,var(--ink))}.top h1{color:var(--pg-ink,var(--ink))}.top 
 .mini .rc-body{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-height:88px;height:auto;padding:12px 44px}
 .mini .rc-body>.row:first-child,.mini .rc-body>.row:last-child{position:static;left:auto;right:auto;top:auto;bottom:auto;width:100%;justify-content:center;gap:8px}
 .mini .tt{padding:0}
-.slot{height:88px;margin-top:-44px;border-radius:999px}
+.slot{left:16px;right:40px;height:88px;margin-top:-44px;border-radius:999px}
 @media (max-width:640px){.top h1{font-size:38px!important}}
 .flag{display:inline-block;margin-left:8px;padding:1px 9px;border:1px solid var(--accent);border-radius:99px;color:var(--accent);font-size:11px;letter-spacing:.06em;text-transform:uppercase;vertical-align:middle}
+/* v51: one component system. Pills for anything you tap or scan in a list, soft panels for groups, round ticks, quiet icons. */
+:root{--r-panel:22px;--r-pill:999px}
+input[type=text],input[type=search],input[type=number],input[type=date],input[type=time],input:not([type]),select{border-radius:var(--r-pill)!important;padding-inline:16px}
+textarea{border-radius:var(--r-panel)!important}
+.dcol,.rrow,.fcard,.trow,.sumbox,.pedit2,.how,.stc,.pcomp,.qed,.offbox{border-radius:var(--r-panel)}
+.psel,.cchk input{appearance:none;-webkit-appearance:none;width:20px!important;height:20px!important;margin:0!important;border:1.5px solid var(--ink-2);border-radius:50%;background:transparent;cursor:pointer;flex:none;display:inline-block;vertical-align:middle}
+.psel:checked,.cchk input:checked{background:var(--accent);border-color:var(--accent);box-shadow:inset 0 0 0 3.5px var(--card)}
+/* pantry */
+.ptools{background:var(--card);border:1px solid var(--line);border-radius:26px;padding:14px;gap:8px!important}
+.ptools input,.ptools select{min-height:42px!important}
+.ptools .btn{min-height:44px!important}
+.plist{gap:6px!important}
+.pline{border-radius:var(--r-pill);min-height:42px;padding:3px 6px 3px 14px;gap:10px;grid-template-columns:20px minmax(0,1fr) auto auto auto;box-shadow:none}
+.pline .pt{font-weight:500}
+.pline .rnd{border:0;background:transparent;width:30px;height:30px;color:var(--ink-2)}
+.pline .rnd:hover{background:var(--rule)}
+.pline .psp{width:20px}
+.pi,.lowb{padding:2px 9px;border:1px solid currentColor;border-radius:99px;line-height:1.4}
+.pline.soon,.pline.gone{border-color:var(--line)}
+.fcard{padding:12px 16px 12px;gap:4px}
+.fcard .btns{margin-top:6px!important;gap:8px}.fcard .btns .btn{min-height:34px;padding:0 14px;font-size:12.5px}
+.fcard .fhead b{font-weight:600}
+.fres{gap:8px}
+/* cart */
+.csec{margin-top:26px}
+.crow2{border:1px solid var(--line);border-radius:30px;background:var(--card);padding:3px 8px 3px 14px;margin-bottom:6px;min-height:46px;flex-wrap:nowrap;gap:8px;background-image:var(--paper-img,none);background-size:var(--paper-size,auto)}
+.crow2.done,.crow2.have{background:transparent;border-style:dashed}
+.cchk{flex:1 1 auto;min-width:0;padding:5px 0;align-items:center;gap:12px}
+.cn{min-width:0}.cn b{font-weight:600}.cn .ca{color:var(--ink-2);font-size:13px}
+.cn .hint{font-size:11.5px;line-height:1.35;margin-top:1px}
+.crow2 .btns{flex:0 0 auto;gap:4px;flex-wrap:nowrap}
+.crow2 .btns .btn,.crow2>.btn{min-height:32px;padding:0 12px;font-size:12px;border-radius:99px;white-space:nowrap}
+.crow2 .btns .btn.quiet,.crow2>.btn.quiet{padding:0 10px}
+@media (max-width:560px){.crow2 .btns .btn.quiet:not(:first-child){display:none}.crow2{padding-left:12px}}
+.aisle{margin:18px 2px 6px}
+.cadd .chips{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;padding-bottom:2px;margin-inline:-2px}.cadd .chips::-webkit-scrollbar{display:none}.cadd .chips .chip{flex:none}
+.cadd .ulist{display:flex}.cadd .chips[aria-label]{flex-wrap:nowrap}
+.lab2{letter-spacing:.14em}
+/* plan and events */
+.dcol .btn{min-height:38px}
+.evrow{border:1px solid var(--line);border-radius:var(--r-pill);background:var(--card);padding:12px 20px;margin-bottom:6px}
+.tlrow{border:0;border-bottom:1px solid var(--rule)}
+.psel,.pantryv input.psel{min-height:0!important;padding:0!important}
+.fcard{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;column-gap:10px;padding:10px 14px 10px 18px;border-radius:30px}
+.fcard>*{grid-column:1;min-width:0}.fcard .btns{grid-column:2;grid-row:1/4;margin:0!important}
+.fcard .hint,.fcard .expn{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:12px}
+.fhead{display:flex;align-items:baseline;gap:10px;justify-content:flex-start}.flink{border:0;background:none;padding:0;font:inherit;font-weight:600;color:var(--ink);cursor:pointer;text-align:left;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.flink:hover{text-decoration:underline;text-underline-offset:3px}
+.fbadge{flex:none;font-size:11px;color:var(--ink-2)}
 </style>
 
 <div class="app" id="app"></div>
@@ -798,20 +846,15 @@ function finishCss(kind, paper, px, hasColor, tone, script) {
       ['-webkit-text-fill-color', 'transparent'], ['color', 'transparent'], ['filter', 'drop-shadow(0 .6px .4px rgba(70,50,10,.28))']
     ];
   }
-  hi = dark ? 'rgba(255,255,255,.38)' : 'rgba(255,255,255,1)';
-  lo = dark ? 'rgba(0,0,0,.9)' : 'rgba(50,38,18,.62)';
-  if (script) {
-    var v = Math.max(1, Math.round(px / 40 * 10) / 10), hiS = dark ? 'rgba(255,255,255,.35)' : 'rgba(255,255,255,1)', loS = dark ? 'rgba(0,0,0,.8)' : 'rgba(50,38,18,.55)';
-    if (kind === 'raise') sh = '0 ' + (-v) + 'px 0 ' + hiS + ', 0 ' + v + 'px ' + (v * 1.2) + 'px ' + loS;
-    else sh = '0 ' + v + 'px 0 ' + hiS + ', 0 ' + (-v * 0.8) + 'px 0 ' + loS;
-    if ((kind === 'raise' || kind === 'press') && !hasColor) out.push(['color', 'rgb(' + paper.join(',') + ')']);
-    out.push(['text-shadow', sh]);
-    return out;
-  }
-  if (kind === 'raise') sh = (-u) + 'px ' + (-u) + 'px ' + (u * 1.5) + 'px ' + hi + ', ' + u + 'px ' + u + 'px ' + (u * 2.5) + 'px ' + lo;
-  else if (kind === 'press') sh = u + 'px ' + u + 'px ' + u + 'px ' + hi + ', ' + (-u) + 'px ' + (-u) + 'px ' + u + 'px ' + lo;
-  else sh = '0 ' + u + 'px 0 ' + (dark ? 'rgba(255,255,255,.16)' : 'rgba(255,255,255,.9)') + ', 0 ' + (-u) + 'px 0 ' + (dark ? 'rgba(0,0,0,.5)' : 'rgba(40,35,25,.2)');
-  if ((kind === 'raise' || kind === 'press') && !hasColor) out.push(['color', 'rgb(' + paper.map(function (v) { return Math.round(v + ((dark ? 255 : 0) - v) * .2); }).join(',') + ')']);
+  var inkC = dark ? [238, 234, 226] : [38, 34, 28], mixc = function (t) { return paper.map(function (v, i) { return Math.round(v + (inkC[i] - v) * t); }).join(','); };
+  hi = dark ? 'rgba(255,255,255,.3)' : 'rgba(255,255,255,.95)';
+  lo = dark ? 'rgba(0,0,0,.75)' : 'rgba(40,30,15,.38)';
+  var small = px < 13, v = script ? Math.max(.6, Math.min(1, px / 50)) : Math.max(.8, Math.min(1.3, px / 40));
+  if (kind === 'raise' || kind === 'press') { if (!hasColor) out.push(['color', 'rgb(' + mixc(script ? .85 : .72) + ')']); }
+  if (small) return out;
+  if (kind === 'raise') sh = (-v) + 'px ' + (-v) + 'px 0 ' + hi + ', ' + v + 'px ' + v + 'px ' + (v * .6) + 'px ' + lo;
+  else if (kind === 'press') sh = v + 'px ' + v + 'px 0 ' + hi + ', ' + (-v * .6) + 'px ' + (-v * .6) + 'px 0 ' + lo;
+  else sh = '0 ' + v + 'px 0 ' + hi;
   out.push(['text-shadow', sh]);
   return out;
 }
@@ -1410,7 +1453,7 @@ function cartView() {
       h('label', { class: 'cchk' }, cb, h('span', { class: 'cn' }, h('b', null, i.name), mode === 'buy' && i.covered ? h('span', { class: 'flag' }, 'At home') : null, h('span', { class: 'ca' }, ' ' + (mode === 'have' || (mode === 'buy' && i.covered) ? i.needAmt : i.amt + i.hint)),
         mode !== 'have' && !i.covered && i.haveG > 0 ? h('span', { class: 'hint', style: 'display:block' }, 'Need ' + i.needAmt + ' \u00B7 have ' + i.haveAmt + ' in your pantry') : null,
         mode === 'buy' && i.covered ? h('span', { class: 'hint', style: 'display:block' }, i.noAmt ? 'In your pantry' : 'You have ' + i.haveAmt + ' in your pantry') : null,
-        i.by.length > 1 ? h('span', { class: 'hint cby', style: 'display:block' }, i.by.map(function (x) { return x.name + ' ' + x.amt; }).join(' \u00B7 ')) : (i.by.length ? h('span', { class: 'hint', style: 'display:block' }, 'For ' + i.by[0].name) : null))));
+        i.by.length > 1 ? h('span', { class: 'hint cby', style: 'display:block' }, i.by.map(function (x) { return x.name + ' ' + x.amt; }).join(' \u00B7 ')) : (i.by.length && cart.sources.length > 1 ? h('span', { class: 'hint', style: 'display:block' }, 'For ' + i.by[0].name) : null))));
     if (mode === 'have') {
       r.appendChild(h('button', { class: 'btn quiet', type: 'button', onclick: function () { setAll(cart.have, i, false); setAll(cart.staples, i, false); delete cart.full[i.foodId]; i.foodIds.forEach(function (id) { delete cart.full[id]; }); cart.full[i.foodId] = true; saveCart(); render(); } }, 'Need it after all'));
     } else {
@@ -1836,7 +1879,7 @@ function wheelView(list, sel, pick, opts) {
       var r = c.getBoundingClientRect(), cm = r.top + r.height / 2, d = (cm - mid) / 104, ad = Math.min(Math.abs(d), 2.6);
       if (Math.abs(cm - mid) < bd) { bd = Math.abs(cm - mid); best = c; }
       var tilt = reduce ? 0 : Math.max(-62, Math.min(62, d * 34)), i = c._in;
-      i.style.transform = 'rotateX(' + (-tilt) + 'deg) translateZ(' + (-ad * 34) + 'px) scale(' + (1 - ad * 0.05) + ')';
+      i.style.transform = ad < 0.12 ? 'none' : 'rotateX(' + (-tilt) + 'deg) translateZ(' + (-ad * 34) + 'px) scale(' + (1 - ad * 0.05) + ')';
       i.style.opacity = String(Math.max(0.12, 1 - ad * 0.34));
       i.style.boxShadow = ad < 0.4 ? '0 14px 30px -14px var(--shadow)' : 'none';
     });
@@ -2079,14 +2122,13 @@ function fridgeOld(wrap) {
   res.forEach(function (x) {
     var ready = !x.miss.length;
     list.appendChild(h('div', { class: 'fcard' + (ready ? ' ready' : '') },
-      h('div', { class: 'fhead' }, h('b', null, x.r.name), h('span', { class: 'fbadge' }, ready ? 'You have everything' : 'Have ' + x.have.length + ' of ' + x.total)),
+      h('div', { class: 'fhead' }, h('button', { type: 'button', class: 'flink', onclick: function () { S.view = 'recipes'; S.sel = x.r.id; S.detail = true; S.q = ''; render(); } }, x.r.name), h('span', { class: 'fbadge' }, ready ? 'You have everything' : 'Have ' + x.have.length + ' of ' + x.total)),
       x.exp.length ? h('div', { class: 'expn' }, 'Uses up ' + x.exp.map(function (e) { return titleWords(e.name).toLowerCase(); }).join(', ') + ' (expiring)') : null,
       ready ? null : h('div', { class: 'hint' }, 'Missing: ' + x.miss.map(function (i) { return (i.label || shortFood(FOODS[i.foodId])).toLowerCase(); }).join(', ')),
       h('div', { class: 'btns', style: 'margin-top:8px' },
-        h('button', { class: 'btn', type: 'button', onclick: function () { S.view = 'recipes'; S.sel = x.r.id; S.detail = true; S.q = ''; render(); } }, 'Open recipe'),
         ready ? null : h('button', { class: 'btn', type: 'button', onclick: function () {
           cart.sources.push({ type: 'extra', id: uid(), name: x.r.name + ' (missing)', rows: x.miss.map(function (i) { return { foodId: i.foodId, g: i.g, ml: i.ml != null ? i.ml : null, label: i.label }; }) }); saveCart(); toast('Missing items added to the cart.');
-        } }, 'Add missing to cart'))));
+        } }, 'Add missing'))));
   });
   wrap.appendChild(list);
   return wrap;
