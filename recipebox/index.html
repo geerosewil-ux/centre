@@ -372,14 +372,14 @@ body{color:var(--pg-ink,var(--ink))}.top h1{color:var(--pg-ink,var(--ink))}.top 
 @media (max-width:640px){.slim,.menubar,.mrow{flex-wrap:wrap}.slim .search,.menubar .search,.mrow .search{flex:1 1 100%;min-width:0}}
 /* v50 */
 .app h2{font-family:var(--sub-font,var(--font-body))!important;font-size:var(--sub-size,14px)!important;font-weight:var(--sub-weight,600)!important;text-transform:var(--sub-case,uppercase)!important;letter-spacing:var(--sub-ls,.14em)!important;color:var(--sub-ink,var(--pg-ink,var(--ink)))}
-.top h1{font-size:44px!important;line-height:1.05}
+.top h1{font-size:44px;line-height:1.05}
 .wcard{min-height:88px;margin-bottom:8px}.rbox .wcard{height:auto;min-height:88px;margin-bottom:8px}
 .rcard.mini,.rbox .wcard .rcard.mini{height:auto;min-height:88px;border-radius:999px;border-top:0;overflow:visible}.rcard.mini .rc-paper{border-radius:999px}
 .mini .rc-body{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-height:88px;height:auto;padding:12px 44px}
 .mini .rc-body>.row:first-child,.mini .rc-body>.row:last-child{position:static;left:auto;right:auto;top:auto;bottom:auto;width:100%;justify-content:center;gap:8px}
 .mini .tt{padding:0}
 .slot{left:16px;right:40px;height:88px;margin-top:-44px;border-radius:999px}
-@media (max-width:640px){.top h1{font-size:38px!important}}
+@media (max-width:640px){.top h1{font-size:38px}}
 .flag{display:inline-block;margin-left:8px;padding:1px 9px;border:1px solid var(--accent);border-radius:99px;color:var(--accent);font-size:11px;letter-spacing:.06em;text-transform:uppercase;vertical-align:middle}
 /* v51: one component system. Pills for anything you tap or scan in a list, soft panels for groups, round ticks, quiet icons. */
 :root{--r-panel:22px;--r-pill:999px}
@@ -749,6 +749,7 @@ input:focus,select:focus,textarea:focus{outline:none!important;border-color:var(
   /* ---------- matching typed ingredient text to foods ---------- */
   var DROP = /^(large|small|medium|fresh|freshly|chopped|diced|sliced|minced|grated|peeled|finely|roughly|softened|melted|optional|extra|good|quality|whole|ripe|boneless|skinless|packed|heaped|level|plus|more|for|serving|to|taste|of|a|the|and|or|about)$/;
   var SYN = {
+    'all spice': 'allspice', 'pimento': 'allspice', 'ground allspice': 'allspice', 'bay leaf': 'bay leaves dried', 'bay leaves': 'bay leaves dried', 'dried bay leaves': 'bay leaves dried', 'five spice': 'five spice', 'chinese five spice': 'five spice', '5 spice': 'five spice', 'chinese 5 spice': 'five spice', 'smoked paprika': 'paprika smoked', 'chilli flakes': 'chilli flakes dried', 'chili flakes': 'chilli flakes dried',
     'flour': 'flour wheat white plain', 'lemon zest': 'lemon peel raw', 'zest': 'lemon peel raw', 'egg yolk': 'egg chicken yolk raw', 'egg yolks': 'egg chicken yolk raw', 'large egg yolk': 'egg chicken yolk raw', 'egg white': 'egg chicken white raw', 'large egg': 'egg chicken whole raw', 'large eggs': 'egg chicken whole raw',
     'plain flour': 'flour wheat white plain', 'self raising flour': 'flour wheat white self-raising', 'sr flour': 'flour wheat white self-raising',
     'all purpose flour': 'flour wheat white plain', 'wholemeal flour': 'flour wheat wholemeal', 'bread flour': 'flour wheat white bread',
@@ -992,7 +993,7 @@ var AFCD = [{"id":"afcd:F002258","name":"Cardamom seed, dried, ground","source":
     ['Panko breadcrumbs', 395, 13, 3.5, 74, 4, 3.5, 450], ['Vermicelli, rice, dry', 360, 3.5, 0.5, 83, 0, 1.6, 20], ['Dashi, instant granules', 190, 25, 0.5, 20, 0, 0, 19000],
     ['Gochujang, chilli paste', 190, 5, 1.5, 40, 20, 4, 2300], ['Pancetta', 393, 14, 37, 0, 0, 0, 1700], ['Cacao powder, raw', 228, 19.6, 13.7, 58, 1.8, 33, 21],
     ['Mustard seeds, whole', 469, 26, 36, 28, 7, 12, 13], ['Fennel seeds, dried', 345, 15.8, 14.9, 52, 0, 39.8, 88], ['Chilli flakes, dried', 318, 12, 17, 57, 10, 28, 30],
-    ['Yeast, dried, active', 325, 40, 7.6, 41, 0, 27, 51], ['Coriander seeds, whole', 298, 12.4, 17.8, 55, 0, 41.9, 35], ['Cinnamon sticks, dried', 247, 4, 1.2, 81, 2, 53, 10]
+    ['Yeast, dried, active', 325, 40, 7.6, 41, 0, 27, 51], ['Coriander seeds, whole', 298, 12.4, 17.8, 55, 0, 41.9, 35], ['Cinnamon sticks, dried', 247, 4, 1.2, 81, 2, 53, 10], ['Five spice, Chinese blend', 300, 11, 10, 52, 3, 25, 40], ['Pimento (allspice), dried, whole', 263, 6.1, 8.7, 72, 0, 21.6, 77]
   ];
   var have = {}; AFCD.forEach(function (f) { have[f.name.toLowerCase()] = 1; });
   X.forEach(function (x, i) { if (have[x[0].toLowerCase()]) return; AFCD.push({ id: 'est:' + (i + 1), name: x[0], source: 'est', per100: { kcal: x[1], kj: Math.round(x[1] * 4.184), protein: x[2], fat: x[3], carb: x[4], sugars: x[5], fibre: x[6], sodium: x[7], satfat: Math.round(x[3] * 0.35 * 10) / 10 } }); });
@@ -3267,9 +3268,11 @@ function render() {
   function tab(v, label) { return h('button', { type: 'button', 'aria-pressed': String(S.view === v), onclick: function () { S.view = v; S.evDel = false; if (v !== 'books') { S.book = null; S.bookEdit = null; } render(); } }, label); }
   var nav = h('div', { class: 'seg', role: 'group', 'aria-label': 'Sections' }, tab('recipes', 'Recipes'), tab('plan', 'Plan'), tab('events', 'Events'), tab('cart', 'Cart'), tab('books', 'Books'), tab('pantry', 'Pantry'), tab('add', 'Add'));
   var cog = h('button', { type: 'button', class: 'cog', 'aria-label': 'Settings', title: 'Settings', 'aria-pressed': String(S.view === 'settings'), onclick: function () { S.view = 'settings'; render(); } }, icon('cog', 20));
-  app.appendChild(h('div', { class: 'top' }, h('div', { class: 'hrow' }, h('h1', null, 'Recipe Box'), cog), nav));
+  var ttl = h('h1', null, 'Recipe Box'), te = eff('h1'), narrow = window.innerWidth <= 640;
+  ttl.style.fontSize = ((narrow ? 38 : 44) * te.z / 100).toFixed(1) + 'px'; if (te.c) ttl.style.color = te.c;
+  app.appendChild(h('div', { class: 'top' }, h('div', { class: 'hrow' }, ttl, cog), nav));
   var HEADS = { plan: ['Meal plan', 'Plan the week, then send it to your list in one tap.'], events: ['Events', 'Menus for dinners and gatherings, with one shopping list and a prep timeline.'], cart: ['Shopping list', 'Everything to buy, by aisle. Tick an item and it lands in your pantry.'], books: ['Recipe books', 'Collect recipes into books you can flip through.'], pantry: ['Pantry', 'What you keep at home, so your list only has what you need.'], add: ['Add a recipe', 'Paste it in, or read it from a photo.'] };
-  if (HEADS[S.view]) app.appendChild(h('div', { class: 'phead' }, h('div', { class: 'pt' }, HEADS[S.view][0]), h('p', { class: 'pl' }, HEADS[S.view][1])));
+  if (HEADS[S.view]) { var pt = h('div', { class: 'pt' }, HEADS[S.view][0]); pt.style.fontSize = (30 * te.z / 100).toFixed(1) + 'px'; if (te.c) pt.style.color = te.c; app.appendChild(h('div', { class: 'phead' }, pt, h('p', { class: 'pl' }, HEADS[S.view][1]))); }
   if (S.view === 'add') { try { window.scrollTo(0, 0); } catch (e) {} }
   var v = S.view;
   app.appendChild(v === 'settings' ? settingsRoot() : v === 'add' ? addView() : v === 'plan' ? planView() : v === 'events' ? eventsView() : v === 'cart' ? cartView() : v === 'books' ? booksView() : v === 'fridge' ? pantryView() : v === 'pantry' ? pantryView() : recipesView());
