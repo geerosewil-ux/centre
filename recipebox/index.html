@@ -75,7 +75,7 @@ button,input,select{font:inherit;color:inherit}
 .ctl{display:flex;flex-wrap:wrap;gap:12px 22px;align-items:center;margin:16px 0 4px}
 .ctl .lab{display:flex;align-items:center;gap:10px}
 
-.full .secthd{margin:34px 0 14px;display:flex;align-items:center;gap:14px}.full .secthd>div{font-size:13px!important;letter-spacing:.2em;text-transform:uppercase;font-weight:500;opacity:.85;white-space:nowrap}.full .secthd:after{content:'';flex:1;height:1px;background:currentColor;opacity:.18}
+.full .secthd{margin:34px 0 14px;display:flex;align-items:center;gap:14px}.full .secthd>div{font-size:calc(13px*var(--h2z,1))!important;letter-spacing:.2em;text-transform:uppercase;font-weight:500;opacity:.85;white-space:nowrap}.full .secthd:after{content:'';flex:1;height:1px;background:currentColor;opacity:.18}
 .full .ings{display:flex;flex-direction:column;gap:2px}.full .ings .ir{border-top:0;padding:9px 0;gap:6px 18px;grid-template-columns:minmax(84px,auto) minmax(0,1fr) auto}
 .full .ctl{margin:22px 0 4px}.full .turnrow{border-top:0;margin-top:34px;padding-top:0}
 .full .stepsl{gap:18px!important}
@@ -1255,7 +1255,7 @@ function applyGlobal() {
   try { if (!design.page.sel) { var fx0 = document.getElementById('bgfx'); if (fx0) fx0.remove(); } } catch (e) {}
   var rs = document.documentElement.style, bs = document.body ? document.body.style : null, b = design.bg, p = design.paper, bx = design.box, D = DEF_DESIGN;
   var props = ['--ground', '--card', '--ink', '--ink-2', '--line', '--rule', '--accent', '--on-accent', '--paper-img', '--paper-size', '--pg-ink', '--pg-ink-2', '--font-serif', '--font-body'];
-  ['--sub-font', '--sub-size', '--sub-weight', '--sub-case', '--sub-ls', '--sub-ink', '--eb-case', '--h1-case', '--ttl-font', '--ttl-z', '--ttl-ink', '--ttl-case', '--hd-font', '--hd-z', '--hd-ink', '--hd-case', '--menu-font', '--menu-z', '--menu-ink', '--menu-case'].forEach(function (k) { rs.removeProperty(k); });
+  ['--sub-font', '--sub-size', '--sub-weight', '--sub-case', '--sub-ls', '--sub-ink', '--eb-case', '--h1-case', '--h2z', '--ttl-font', '--ttl-z', '--ttl-ink', '--ttl-case', '--hd-font', '--hd-z', '--hd-ink', '--hd-case', '--menu-font', '--menu-z', '--menu-ink', '--menu-case'].forEach(function (k) { rs.removeProperty(k); });
   if ((design.tx.eb || {}).tc) rs.setProperty('--eb-case', CASEMAP[design.tx.eb.tc]); if ((design.tx.h1 || {}).tc) rs.setProperty('--h1-case', CASEMAP[design.tx.h1.tc]);
   (function () {
     var ch = design.chrome || {}, ct = ch.title || {}, cm = ch.menu || {}, chd = ch.head || {}, t1 = design.tx.h1 || {};
@@ -1267,6 +1267,7 @@ function applyGlobal() {
     if (cm.f) rs.setProperty('--menu-font', fontStack(cm.f)); if (cm.z) rs.setProperty('--menu-z', String(cm.z / 100)); if (cm.c) rs.setProperty('--menu-ink', cm.c); if (cm.tc || eb0.tc) rs.setProperty('--menu-case', CASEMAP[cm.tc || eb0.tc]);
   })();
   var h2o = design.tx.h2 || {};
+  if (h2o.z) rs.setProperty('--h2z', String(h2o.z / 100));
   if (h2o.f || h2o.z || h2o.c || h2o.tc) { var e2 = eff('h2'); rs.setProperty('--sub-font', fontStack(e2.f)); rs.setProperty('--sub-size', (18 * e2.z / 100).toFixed(1) + 'px'); rs.setProperty('--sub-weight', String(e2.w)); rs.setProperty('--sub-case', h2o.tc ? CASEMAP[h2o.tc] : 'none'); rs.setProperty('--sub-ls', '.005em'); if (e2.c) rs.setProperty('--sub-ink', e2.c); }
   var fontsSet = ['h1', 'h2', 'bd', 'eb', 'nm'].some(function (r) { return design.tx[r] && (design.tx[r].f || design.tx[r].tc); });
   var chromeSet = ['title', 'menu', 'head'].some(function (k) { var c = (design.chrome || {})[k] || {}; return !!(c.f || c.tc); });
@@ -1460,7 +1461,7 @@ function addWeekToCart(week) {
 function cartMenu(btn, r, servings) {
   if (dotPop && dotPop.btn === btn) { closeDot(); return; } closeDot();
   var keys = pantry.some(function (p) { return p.g > 0 || p.nog; }) ? fridgeKeys() : null, f = servings / r.servings;
-  var miss = keys ? r.ingredients.filter(function (i) { return !i.opt && !isBasic(i) && !haveIt(i, keys); }).length : r.ingredients.filter(function (i) { return !i.opt; }).length;
+  var miss = keys ? r.ingredients.filter(function (i) { return !i.opt && !isBasic(i) && !haveIt(i, keys, i.g * f); }).length : r.ingredients.filter(function (i) { return !i.opt; }).length;
   var pop = h('div', { class: 'dotpop fpop', role: 'menu' },
     h('button', { type: 'button', role: 'menuitem', class: 'fopt', onclick: function (ev) { ev.stopPropagation(); closeDot(); addRecipeToCart(r, servings); } }, icon('cart', 16), h('span', null, h('b', null, 'Add everything'), h('small', { style: 'display:block;opacity:.65;font-size:12px' }, 'Amounts you already have are taken off in the cart'))),
     h('button', { type: 'button', role: 'menuitem', class: 'fopt', onclick: function (ev) { ev.stopPropagation(); closeDot(); addRecipeToCart(r, servings, true); } }, icon('ahead', 16), h('span', null, h('b', null, 'Just what I\u2019m missing'), h('small', { style: 'display:block;opacity:.65;font-size:12px' }, miss + (miss === 1 ? ' ingredient' : ' ingredients') + ' not in your pantry'))));
@@ -1468,7 +1469,7 @@ function cartMenu(btn, r, servings) {
 }
 function addRecipeToCart(r, servings, onlyMissing) {
   if (onlyMissing) {
-    var keys = fridgeKeys(), f = servings / r.servings, miss = r.ingredients.filter(function (i) { return !i.opt && !isBasic(i) && !haveIt(i, keys); });
+    var keys = fridgeKeys(), f = servings / r.servings, miss = r.ingredients.filter(function (i) { return !i.opt && !isBasic(i) && !haveIt(i, keys, i.g * f); });
     if (!miss.length) { toast('You already have everything for \u201C' + r.name + '\u201D.'); return; }
     cart.sources.push({ type: 'extra', id: uid(), name: r.name + ' (missing)', rows: miss.map(function (i) { return { foodId: i.foodId, g: i.g * f, ml: i.ml != null ? i.ml * f : null, label: i.label }; }) });
     saveCart(); toast('Added the ' + miss.length + ' missing items for \u201C' + r.name + '\u201D.'); return;
@@ -1998,7 +1999,7 @@ function fullCardBase(r, redraw, r0) {
   var rows = r.ingredients.map(function (it) {
     var food = FOODS[it.foodId], g = it.g * f, tx = ingText(it, f, food), amt = tx.amt, name = tx.name;
     var kc = nvHas('kcal') && food && food.per100 && food.per100.kcal != null ? fmtN(food.per100.kcal * g / 100) + ' kcal' : '';
-    return h('div', { class: 'ir' + (it.opt ? ' opt' : '') + (pkeys && !isBasic(it) && !haveIt(it, pkeys) ? ' nohave' : '') }, T('nm', 'full', amt), T('bd', 'full', name), T('nm', 'full', kc, { style: 'opacity:.8' }));
+    return h('div', { class: 'ir' + (it.opt ? ' opt' : '') + (pkeys && !isBasic(it) && !haveIt(it, pkeys, g) ? ' nohave' : '') }, T('nm', 'full', amt), T('bd', 'full', name), T('nm', 'full', kc, { style: 'opacity:.8' }));
   });
   function steps() { return h('ol', { class: 'stepsl', style: 'margin:10px 0 0;padding-left:26px;display:flex;flex-direction:column;gap:18px;line-height:1.55' }, r.steps.map(function (s) { return h('li', null, T('bd', 'full', s)); })); }
   var turnBtn = function (label) { return h('button', { class: 'rnd', type: 'button', 'aria-label': label, title: label, onclick: function (e) { e.stopPropagation(); flip(); } }, icon('turn', 18)); };
@@ -2307,20 +2308,25 @@ S.basics = false;
 var BASICS = ['salt', 'water', 'pepper', 'oil', 'olive oil'];
 function famOf(food) { return food ? E.nameKey(food.name.split(',')[0]) : ''; }
 function fridgeKeys() {
-  return fridge.concat(pantry.filter(function (p) { return p.g > 0 || p.nog; }).map(function (p) { return p.name; })).map(function (t) { var f = E.matchFoods(t, allFoods(), 1)[0]; return { toks: E.nameKey(t).split('_').filter(Boolean), fam: famOf(f), text: t }; });
+  var items = fridge.map(function (t) { return { name: t, any: true }; }).concat(pantry.filter(function (p) { return p.g > 0 || p.nog; }).map(function (p) { return { name: p.name, any: !!(p.nog || p.staple || !(p.g > 0)), g: p.g > 0 ? p.g : 0 }; }));
+  return items.map(function (it) { var t = it.name, f = E.matchFoods(t, allFoods(), 1)[0]; return { toks: E.nameKey(t).split('_').filter(Boolean), fam: famOf(f), text: t, any: it.any, g: it.g || 0 }; });
 }
 function isBasic(ing) {
   var food = FOODS[ing.foodId], k = E.nameKey(ing.label || shortFood(food)), fam = famOf(food);
   return !!cart.staples[ing.foodId] || (S.basics && (BASICS.indexOf(fam) >= 0 || BASICS.some(function (b) { return k === E.nameKey(b); })));
 }
-function haveIt(ing, keys) {
+function haveIt(ing, keys, needG) {
   var food = FOODS[ing.foodId], lt = E.nameKey(ing.label || '').split('_'), fam = famOf(food);
-  return keys.some(function (k) { return (k.fam && k.fam === fam) || (k.toks.length && k.toks.every(function (t) { return lt.indexOf(t) >= 0; })); });
+  var hits = keys.filter(function (k) { return (k.fam && k.fam === fam) || (k.toks.length && k.toks.every(function (t) { return lt.indexOf(t) >= 0; })); });
+  if (!hits.length) return false;
+  if (!(needG > 0)) return true;
+  if (hits.some(function (k) { return k.any; })) return true;
+  return hits.reduce(function (a, k) { return a + k.g; }, 0) >= needG - 0.5;
 }
 function fridgeResults() {
   var keys = fridgeKeys(), out = [];
   RECIPES.forEach(function (r) {
-    var need = r.ingredients.filter(function (i) { return !isBasic(i); }), have = need.filter(function (i) { return haveIt(i, keys); }), miss = need.filter(function (i) { return !haveIt(i, keys); });
+    var need = r.ingredients.filter(function (i) { return !isBasic(i); }), have = need.filter(function (i) { return haveIt(i, keys, i.g); }), miss = need.filter(function (i) { return !haveIt(i, keys, i.g); });
     if (!have.length) return;
     var ex7 = expiring().filter(function (e) { return e.foodId && have.some(function (i) { return i.foodId === e.foodId; }); }); out.push({ r: r, have: have, miss: miss, total: need.length, exp: ex7 });
   });
