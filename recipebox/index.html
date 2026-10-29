@@ -429,6 +429,27 @@ textarea{border-radius:var(--r-panel)!important}
 .fcard .hint,.fcard .expn{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:12px}
 .fhead{display:flex;align-items:baseline;gap:10px;justify-content:flex-start}.flink{border:0;background:none;padding:0;font:inherit;font-weight:600;color:var(--ink);cursor:pointer;text-align:left;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.flink:hover{text-decoration:underline;text-underline-offset:3px}
 .fbadge{flex:none;font-size:11px;color:var(--ink-2)}
+
+/* v52 */
+.lkb{display:flex;flex-direction:column;gap:8px;align-items:stretch}.lkb .btn{align-self:flex-start}
+.nip{display:flex;flex-direction:column;gap:8px;max-width:520px}.nipr{display:flex;gap:8px}.nipr input{flex:1 1 auto;min-width:0}.nipr select{flex:0 0 auto}
+.nip>.btn{align-self:flex-start}
+.sheetbg{position:fixed;inset:0;z-index:60;background:rgba(0,0,0,.4);display:flex;align-items:flex-end;justify-content:center}
+.sheet{width:min(480px,100%);background:var(--ground);color:var(--ink);border-radius:26px 26px 0 0;padding:22px 20px calc(22px + env(safe-area-inset-bottom,0px));box-shadow:0 -10px 40px rgba(0,0,0,.25)}
+@media(min-width:700px){.sheetbg{align-items:center}.sheet{border-radius:26px}}
+.sheet h2{margin:0 0 4px}.sheetn{margin:0 0 14px;font-size:18px}.sheetg{display:grid;gap:12px}.sheetg label{display:flex;flex-direction:column;gap:5px;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-2)}.sheetg input,.sheetg select{width:100%}
+.ulist{display:flex;flex-direction:column;gap:8px}.urow{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.urow b{flex:1 1 100px}.urow input{flex:1 1 110px;min-width:0}
+/* real tabs on the recipe categories, painted with the chosen background */
+.tagstrip,.row2,.menubar .tagstrip{border-bottom:1px solid var(--line)!important;gap:4px!important;padding:0 6px;align-items:flex-end}
+.tagt{min-height:38px!important;padding:0 18px!important;border:1px solid var(--line)!important;border-bottom:0!important;border-radius:14px 14px 0 0!important;background:color-mix(in srgb,var(--ink) 6%,var(--ground))!important;color:var(--ink-2)!important;margin-bottom:0!important;position:relative;top:0}
+.tagt[aria-pressed="true"]{background-color:var(--tabbg,var(--ground))!important;background-image:var(--tabimg,none)!important;background-size:var(--tabsz,auto)!important;color:var(--ink)!important;font-weight:600;min-height:44px!important;margin-bottom:-1px!important;border-bottom:1px solid var(--tabbg,var(--ground))!important;box-shadow:0 -2px 8px -4px var(--shadow)}
+.tagt[aria-pressed="true"]::after{content:none}
+/* wheel card type */
+.rcard.mini,.rbox .wcard .rcard.mini{min-height:104px}.wcard,.rbox .wcard{min-height:104px;margin-bottom:10px}
+.mini .rc-body{min-height:104px;gap:7px;padding:14px 44px}
+.mini .tt{line-height:1.12;padding:0;text-align:center}.mini .rc-body>.row:last-child{margin-top:1px}
+.slot{height:104px;margin-top:-52px}
+.lkin{width:100%;height:auto!important;min-height:44px}.lkb select{width:100%}.sheetg .nipr{width:100%}.sheetg .nipr input{width:auto!important;flex:1 1 auto}.sheetg .nipr select{width:auto!important;flex:0 0 96px}.nipr input{min-height:44px}
 </style>
 
 <div class="app" id="app"></div>
@@ -870,7 +891,7 @@ var DEFT = {
   bd: { f: 'Figtree', c: '#2A2A27', w: 400 }, nm: { f: 'Figtree', c: '#111111', w: 500 },
   eb: { f: 'Figtree', c: '#6B6B63', w: 600 }
 };
-var SZ = { h1: { full: 38, mini: 19 }, h2: { full: 21, mini: 15 }, bd: { full: 15, mini: 13 }, nm: { full: 15, mini: 13 }, eb: { full: 11, mini: 10 } };
+var SZ = { h1: { full: 38, mini: 24 }, h2: { full: 21, mini: 15 }, bd: { full: 15, mini: 12 }, nm: { full: 15, mini: 13 }, eb: { full: 11, mini: 10 } };
 var BFONTS = [
   ['Bodoni Moda', '"Bodoni Moda",Georgia,serif'], ['Cormorant Garamond', '"Cormorant Garamond",Georgia,serif'],
   ['Fraunces', 'Fraunces,Georgia,serif'], ['Playfair Display', '"Playfair Display",Georgia,serif'],
@@ -1184,6 +1205,7 @@ function applyGlobal() {
   var ps = {}; paintPick(ps, resolvePick(p.tex), 0);
   if (ps.backgroundImage) { rs.setProperty('--paper-img', ps.backgroundImage); rs.setProperty('--paper-size', ps.backgroundSize || 'auto'); } else { rs.removeProperty('--paper-img'); rs.removeProperty('--paper-size'); }
   var h1 = eff0('h1'), bd0 = eff0('bd'); rs.setProperty('--font-serif', fontStack(h1)); rs.setProperty('--font-body', fontStack(bd0));
+  rs.setProperty('--tabbg', rgbHex(bg)); (function () { var pk0 = resolvePick(b.sel), t0 = {}; if (pk0 && (pk0.kind === 'tex' || pk0.kind === 'btex')) { paintPick(t0, pk0, 0); rs.setProperty('--tabimg', t0.backgroundImage || 'none'); rs.setProperty('--tabsz', t0.backgroundSize || 'auto'); } else { rs.setProperty('--tabimg', 'none'); rs.setProperty('--tabsz', 'auto'); } })();
   if (bs) { bs.backgroundColor = rgbHex(bg); var pk = resolvePick(b.sel), bgs = {}; if (pk && (pk.kind === 'tex' || pk.kind === 'btex')) { paintPick(bgs, pk, 0); bs.backgroundImage = bgs.backgroundImage; bs.backgroundSize = bgs.backgroundSize; bs.backgroundRepeat = 'repeat'; } else bs.backgroundImage = ''; }
 }
 function eff0(role) { try { return eff(role).f; } catch (e) { return 'Figtree'; } }
@@ -1434,6 +1456,97 @@ function aisleOf(name, food) {
   for (i = 0; i < AISLE_KEYS.length; i++) if (AISLE_KEYS[i][1].test(t)) return AISLE_KEYS[i][0];
   return 'Other';
 }
+/* shared food lookup (same engine as adding a recipe): type to match, or search packaged products */
+function persistFood(id) { var f = FOODS[id]; if (f && f.off && !custom.some(function (c) { return c.id === f.id; })) { custom.push(f); lsSet('rb.foods', custom); } }
+function lookupBlock(onchange) {
+  var cands = [], offT = 0, nameIn, selF, holder = h('div'), offBtn;
+  function refill(keep) {
+    var cur = selF.value; selF.replaceChildren();
+    cands.forEach(function (c) { selF.appendChild(h('option', { value: c.id }, c.name.length > 60 ? c.name.slice(0, 58) + '…' : c.name)); });
+    if (keep && cur && cands.some(function (c) { return c.id === cur; })) selF.value = cur;
+    selF.hidden = !cands.length;
+  }
+  nameIn = h('input', { class: 'lkin', type: 'text', placeholder: 'Item, e.g. plain flour or Vegemite', 'aria-label': 'Item', autocomplete: 'off',
+    oninput: function (e) {
+      var q0 = e.target.value; cands = q0.trim() ? E.matchFoods(q0, allFoods(), 8) : []; refill(); clearTimeout(offT);
+      if (q0.trim().length > 2) offT = setTimeout(function () { offLookup(q0).then(function (more) { if (nameIn.value !== q0) return; more.forEach(function (f) { if (!cands.some(function (c) { return c.id === f.id; })) cands.push(f); }); refill(true); }); }, 450);
+      if (onchange) onchange();
+    } });
+  selF = h('select', { 'aria-label': 'Food it is', hidden: true, onchange: function () { if (onchange) onchange(); } });
+  offBtn = h('button', { class: 'btn quiet', type: 'button', onclick: function () {
+    if (holder.firstChild) { holder.replaceChildren(); return; }
+    holder.appendChild(offPicker(function (f) { cands = [f].concat(cands.filter(function (c) { return c.id !== f.id; })); refill(); selF.value = f.id; if (!nameIn.value.trim()) nameIn.value = f.name.split(',')[0]; holder.replaceChildren(); if (onchange) onchange(); }));
+  } }, 'Search packaged products');
+  refill();
+  return { nameIn: nameIn, selF: selF, el: h('div', { class: 'lkb' }, nameIn, selF, offBtn, holder),
+    food: function () { return selF.value && FOODS[selF.value] ? selF.value : ''; }, name: function () { return titleWords(nameIn.value); },
+    reset: function () { nameIn.value = ''; cands = []; refill(); holder.replaceChildren(); } };
+}
+function toGrams(a, unit, fid) {
+  var fd = fid ? FOODS[fid] : null, dens = (fd && fd.density) || 1;
+  if (unit === 'whole') { var w = eachW(fd); return w ? a * w : null; }
+  return a * (unit === 'kg' ? 1000 : unit === 'ml' ? dens : unit === 'L' ? 1000 * dens : 1);
+}
+function qtyText(a, unit) { return a + (unit === 'whole' ? '' : ' ' + unit); }
+// name + lookup + amount + (optional) where it is kept; onAdd gets everything a pantry entry needs
+function newItemPanel(opt, onAdd) {
+  var lk = lookupBlock(), amt = h('input', { type: 'number', min: '0', step: 'any', inputmode: 'decimal', placeholder: 'Amount (optional)', 'aria-label': 'Amount' }),
+      unit = h('select', { 'aria-label': 'Unit' }, [['g', 'g'], ['kg', 'kg'], ['ml', 'ml'], ['L', 'L'], ['whole', 'whole']].map(function (u) { return h('option', { value: u[0] }, u[1]); })),
+      place = opt.place ? h('select', { 'aria-label': 'Where it is kept' }, ['Fridge', 'Freezer', 'Cupboard'].map(function (x) { return h('option', { value: x }, x); })) : null;
+  function go() {
+    var name = lk.name(); if (!name) { toast('Type the item first.'); return; }
+    var a = parseFloat(amt.value), fid = lk.food(), g = null, q = '';
+    if (a > 0) { g = toGrams(a, unit.value, fid); if (g == null) { toast('I do not know the weight of one of those. Use g or kg.'); return; } q = qtyText(a, unit.value); }
+    if (fid) persistFood(fid);
+    onAdd({ name: name, foodId: fid, g: g, qty: q, amt: a > 0 ? a : 0, unit: unit.value, place: place ? place.value : '' });
+    lk.reset(); amt.value = '';
+  }
+  lk.nameIn.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); go(); } });
+  return h('div', { class: 'nip' }, lk.el, h('div', { class: 'nipr' }, amt, unit, place), h('button', { class: 'btn primary', type: 'button', onclick: go }, opt.label || 'Add'));
+}
+/* buying something puts it in the pantry */
+function placeGuess(name, fd) {
+  var t = (name + ' ' + (fd ? fd.name : '')).toLowerCase(), a = aisleOf(name, fd);
+  if (/potato|onion|pumpkin|squash|garlic|banana|shallot|butternut/.test(t)) return 'Cupboard';
+  if (a === 'Frozen') return 'Freezer';
+  if (a === 'Fruit and veg' || a === 'Dairy and eggs' || a === 'Meat and seafood') return 'Fridge';
+  return 'Cupboard';
+}
+function addPantry(info) {
+  var ex = info.foodId ? pantryItem(info.foodId) : pantry.filter(function (x) { return x.name.toLowerCase() === info.name.toLowerCase(); })[0];
+  if (ex && ex.staple) return 'staple';
+  var has = info.g > 0;
+  if (ex) { if (has) { ex.g = Math.round((ex.g + info.g) * 10) / 10; ex.nog = false; if (info.cnt) ex.cnt = true; } if (info.exp) ex.exp = info.exp; }
+  else pantry.push({ id: uid(), name: info.name, foodId: info.foodId || '', g: has ? Math.round(info.g * 10) / 10 : 0, nog: !has, place: info.place || 'Cupboard', cnt: !!info.cnt && has, exp: info.exp || '' });
+  savePantry(); return 'ok';
+}
+function afterBought(item) {
+  var fid = item.foodId || '', fd = fid ? FOODS[fid] : null;
+  if (!fd) { var m = E.matchFoods(item.name, allFoods(), 1)[0]; if (m) { fid = m.id; fd = m; } }
+  var place = item.place || placeGuess(item.name, fd), exp = produceExp(item.name + ' ' + (fd ? fd.name : ''), place), ew = fd ? eachW(fd) : 0;
+  var info = { name: item.name, foodId: fid, g: item.g > 0 ? item.g : 0, place: place, exp: exp, cnt: !!exp && ew > 0 };
+  if (exp) { if (addPantry(info) === 'ok') toast('“' + item.name + '” is in your pantry, use by ' + dm(fromIso(exp)) + '.'); return; }
+  openBuySheet(info, fd);
+}
+function openBuySheet(info, fd) {
+  var old = document.getElementById('buysheet'); if (old) old.remove();
+  var ew = fd ? eachW(fd) : 0, lq = fd && isLiq(fd), dn = (fd && fd.density) || 1;
+  var uSel = h('select', { 'aria-label': 'Unit' }, [['g', 'g'], ['kg', 'kg'], ['ml', 'ml'], ['L', 'L'], ['whole', 'whole']].map(function (u) { return h('option', { value: u[0], selected: u[0] === (lq ? 'ml' : 'g') }, u[1]); }));
+  var a = h('input', { type: 'number', min: '0', step: 'any', inputmode: 'decimal', 'aria-label': 'Amount', value: info.g > 0 ? String(Math.round(lq ? info.g / dn : info.g)) : '', placeholder: 'Amount' });
+  var pl = h('select', { 'aria-label': 'Kept in' }, ['Fridge', 'Freezer', 'Cupboard'].map(function (x) { return h('option', { value: x, selected: x === info.place }, x); }));
+  var ex = h('input', { type: 'date', 'aria-label': 'Use by date', id: 'bs-exp' });
+  function close() { var e = document.getElementById('buysheet'); if (e) e.remove(); }
+  function save() {
+    var v = parseFloat(a.value), g = 0; if (v > 0) { g = toGrams(v, uSel.value, info.foodId); if (g == null) { toast('I do not know the weight of one of those. Use g or kg.'); return; } }
+    addPantry({ name: info.name, foodId: info.foodId, g: g, place: pl.value, exp: ex.value, cnt: uSel.value === 'whole' }); close(); toast('“' + info.name + '” added to your pantry.'); render();
+  }
+  var sheet = h('div', { class: 'sheetbg', id: 'buysheet', onclick: function (e) { if (e.target === e.currentTarget) close(); } },
+    h('div', { class: 'sheet', role: 'dialog', 'aria-label': 'Add to pantry' },
+      h('h2', null, 'Add to pantry'), h('p', { class: 'sheetn' }, info.name),
+      h('div', { class: 'sheetg' }, h('label', null, 'Amount', h('span', { class: 'nipr' }, a, uSel)), h('label', null, 'Kept in', pl), h('label', null, 'Use by', ex)),
+      h('div', { class: 'btns', style: 'margin-top:16px' }, h('button', { class: 'btn primary', type: 'button', onclick: save }, 'Add to pantry'), h('button', { class: 'btn quiet', type: 'button', onclick: close }, 'Skip'))));
+  document.body.appendChild(sheet);
+}
 function cartView() {
   var wrap = h('div', { class: 'cartv' }), items = cartItems(), map = recMap();
   // sources
@@ -1448,7 +1561,7 @@ function cartView() {
       done = items.filter(function (i) { return anyKey(cart.got, i) && !anyKey(cart.have, i) && !anyKey(cart.staples, i); }),
       have = items.filter(function (i) { return anyKey(cart.have, i) && !anyKey(cart.got, i); });
   function rowFor(i, mode) {
-    var cb = h('input', { type: 'checkbox', checked: anyKey(cart.got, i), 'aria-label': 'Got ' + i.name, onchange: function (e) { setAll(cart.got, i, e.target.checked); saveCart(); render(); } });
+    var cb = h('input', { type: 'checkbox', checked: anyKey(cart.got, i), 'aria-label': 'Got ' + i.name, onchange: function (e) { var on = e.target.checked; setAll(cart.got, i, on); saveCart(); render(); if (on && !i.covered) afterBought({ name: i.name, foodId: i.foodIds.filter(function (id) { return FOODS[id]; })[0] || '', g: i.g }); } });
     var r = h('div', { class: 'crow2' + (mode === 'done' ? ' done' : '') + (mode === 'have' ? ' have' : '') },
       h('label', { class: 'cchk' }, cb, h('span', { class: 'cn' }, h('b', null, i.name), mode === 'buy' && i.covered ? h('span', { class: 'flag' }, 'At home') : null, h('span', { class: 'ca' }, ' ' + (mode === 'have' || (mode === 'buy' && i.covered) ? i.needAmt : i.amt + i.hint)),
         mode !== 'have' && !i.covered && i.haveG > 0 ? h('span', { class: 'hint', style: 'display:block' }, 'Need ' + i.needAmt + ' \u00B7 have ' + i.haveAmt + ' in your pantry') : null,
@@ -1466,7 +1579,7 @@ function cartView() {
   var sec = function (title, rows, empty) { var s = h('section', { class: 'csec' }, h('h2', { style: 'font-size:20px' }, title + (rows.length ? ' (' + rows.length + ')' : ''))); if (!rows.length && empty) s.appendChild(h('p', { class: 'hint' }, empty)); rows.forEach(function (x) { s.appendChild(x); }); return s; };
   function manualRow(m) {
     return h('div', { class: 'crow2' + (m.got ? ' done' : '') },
-      h('label', { class: 'cchk' }, h('input', { type: 'checkbox', checked: m.got, 'aria-label': 'Got ' + m.name, onchange: function (e) { m.got = e.target.checked; saveCart(); render(); } }), h('span', { class: 'cn' }, h('b', null, titleCase(m.name)), m.qty ? h('span', { class: 'hint', style: 'margin-left:8px' }, m.qty) : null)),
+      h('label', { class: 'cchk' }, h('input', { type: 'checkbox', checked: m.got, 'aria-label': 'Got ' + m.name, onchange: function (e) { m.got = e.target.checked; saveCart(); render(); if (m.got) afterBought(m); } }), h('span', { class: 'cn' }, h('b', null, titleCase(m.name)), m.qty ? h('span', { class: 'hint', style: 'margin-left:8px' }, m.qty) : null)),
       h('button', { class: 'btn quiet', type: 'button', 'aria-label': 'Remove ' + m.name, onclick: function () { cart.manual = cart.manual.filter(function (x) { return x !== m; }); saveCart(); render(); } }, 'Remove'));
   }
   var entries = tobuy.map(function (i) { return { aisle: aisleOf(i.name, FOODS[i.foodId]), el: rowFor(i, 'buy') }; });
@@ -1487,26 +1600,25 @@ function cartView() {
     });
     wrap.appendChild(os);
   }
-  var addIn = h('input', { type: 'text', placeholder: 'Add something else: milk, bin bags, flowers', 'aria-label': 'Add an extra item', class: 'search', onkeydown: function (e) { if (e.key === 'Enter') addExtra(); } });
-  function addExtra() { var v = addIn.value.trim(); if (!v) return; cart.manual.push({ id: uid(), name: titleWords(v), got: false }); saveCart(); render(); }
-  var ext = h('div', { class: 'cadd' }, h('div', { class: 'tools', style: 'margin-top:8px' }, addIn, h('button', { class: 'btn', type: 'button', onclick: addExtra }, 'Add')));
+  var ext = h('div', { class: 'cadd' }, h('div', { class: 'lab2', style: 'margin:8px 0 6px' }, 'Add to the list'),
+    newItemPanel({ label: 'Add' }, function (it) { cart.manual.push({ id: uid(), name: it.name, got: false, qty: it.qty, foodId: it.foodId, g: it.g }); saveCart(); render(); }));
   var qa = h('div', { class: 'chips', 'aria-label': 'Your usual items' });
   usuals.forEach(function (u) {
     var inList = cart.manual.some(function (m) { return !m.got && m.name.toLowerCase() === u.name.toLowerCase(); });
     if (editUsuals) {
       qa.appendChild(h('div', { class: 'urow' }, h('b', null, u.name),
-        h('input', { type: 'text', value: u.qty || '', placeholder: 'Amount, e.g. 2 L', 'aria-label': 'Amount for ' + u.name, onchange: function (e) { u.qty = e.target.value.trim(); lsSet('rb.usuals', usuals); } }),
+        h('input', { type: 'text', value: u.qty || '', placeholder: 'Amount, e.g. 2 L', 'aria-label': 'Amount for ' + u.name, onchange: function (e) { u.qty = e.target.value.trim(); var m = /^([\d.]+)\s*(g|kg|ml|l|whole)?$/i.exec(u.qty); if (m && u.foodId) { var un = (m[2] || 'whole'); un = un.toLowerCase() === 'l' ? 'L' : un.toLowerCase(); var gg = toGrams(parseFloat(m[1]), un, u.foodId); u.g = gg != null ? gg : u.g; } lsSet('rb.usuals', usuals); } }),
+        h('select', { 'aria-label': 'Kept in', onchange: function (e) { u.place = e.target.value; lsSet('rb.usuals', usuals); } }, ['Fridge', 'Freezer', 'Cupboard'].map(function (x) { return h('option', { value: x, selected: (u.place || placeGuess(u.name, FOODS[u.foodId])) === x }, x); })),
         h('button', { type: 'button', class: 'btn quiet', 'aria-label': 'Remove ' + u.name + ' from usuals', onclick: function () { usuals = usuals.filter(function (x) { return x !== u; }); lsSet('rb.usuals', usuals); render(); } }, 'Remove')));
       return;
     }
-    qa.appendChild(h('span', { class: 'chip usual' + (inList ? ' on' : '') }, h('button', { type: 'button', class: 'uadd', 'aria-pressed': String(inList), onclick: function () { if (inList) return; cart.manual.push({ id: uid(), name: u.name, qty: u.qty || '', got: false }); saveCart(); render(); } }, (inList ? '\u2713 ' : '+ ') + u.name + (u.qty ? ' \u00B7 ' + u.qty : ''))));
+    qa.appendChild(h('span', { class: 'chip usual' + (inList ? ' on' : '') }, h('button', { type: 'button', class: 'uadd', 'aria-pressed': String(inList), onclick: function () { if (inList) return; cart.manual.push({ id: uid(), name: u.name, qty: u.qty || '', foodId: u.foodId || '', g: u.g || 0, place: u.place || '', got: false }); saveCart(); render(); } }, (inList ? '\u2713 ' : '+ ') + u.name + (u.qty ? ' \u00B7 ' + u.qty : ''))));
   });
   if (editUsuals) qa.className = 'ulist';
   ext.appendChild(h('div', { class: 'lab2', style: 'margin:14px 0 6px' }, 'Your usuals'));
   ext.appendChild(qa);
-  var uIn = h('input', { type: 'text', class: 'search', placeholder: 'Add a usual, e.g. oat milk', 'aria-label': 'New usual item', onkeydown: function (e) { if (e.key === 'Enter') addU(); } });
-  function addU() { var v = uIn.value.trim(); if (!v || usuals.some(function (x) { return x.name.toLowerCase() === v.toLowerCase(); })) return; usuals.push({ name: titleWords(v), qty: '' }); lsSet('rb.usuals', usuals); render(); }
-  ext.appendChild(editUsuals ? h('div', { class: 'tools', style: 'margin-top:6px' }, uIn, h('button', { class: 'btn', type: 'button', onclick: addU }, 'Add'), h('button', { class: 'btn quiet', type: 'button', onclick: function () { editUsuals = false; render(); } }, 'Done')) : h('button', { class: 'btn quiet', type: 'button', onclick: function () { editUsuals = true; render(); } }, 'Edit usuals'));
+  if (editUsuals) ext.appendChild(h('div', { style: 'margin-top:10px' }, newItemPanel({ place: true, label: 'Add a usual' }, function (it) { if (usuals.some(function (x) { return x.name.toLowerCase() === it.name.toLowerCase(); })) { toast('That one is already a usual.'); return; } usuals.push({ name: it.name, qty: it.qty, foodId: it.foodId, g: it.g || 0, place: it.place }); lsSet('rb.usuals', usuals); render(); })));
+  ext.appendChild(editUsuals ? h('button', { class: 'btn quiet', type: 'button', onclick: function () { editUsuals = false; render(); } }, 'Done') : h('button', { class: 'btn quiet', type: 'button', onclick: function () { editUsuals = true; render(); } }, 'Edit usuals'));
   tb.insertBefore(ext, tb.firstChild.nextSibling);
   var gotManual = cart.manual.filter(function (m) { return m.got; });
   if (done.length || gotManual.length) wrap.appendChild(sec('Got it', done.map(function (i) { return rowFor(i, 'done'); }).concat(gotManual.map(manualRow))));
@@ -1708,7 +1820,7 @@ function rnd(name, label, onclick) { return h('button', { class: 'rnd', type: 'b
 function icb(name, label, onclick, pressed) { return h('button', { class: 'icb', type: 'button', 'aria-label': label, 'aria-pressed': pressed == null ? null : String(pressed), onclick: onclick }, icon(name), h('span', { class: 'icl' }, label)); }
 function miniCard(r) {
   var n = nut(r), per = n.perServing.kcal;
-  var top = h('div', { class: 'row' }, T('eb', 'mini', r.cat + ' · ' + timeStr(r.mins)), markDot(r));
+  var top = h('div', { class: 'row' }, T('eb', 'mini', r.cat + ' · ' + timeStr(r.mins)));
   var title = T('h1', 'mini', r.name, { tag: 'div' }); title.className = 'tt';
   var meta = h('div', { class: 'row' }, T('bd', 'mini', 'Serves ' + r.servings + (nvHas('kcal') ? ' · ' + fmtN(per) + ' kcal' : '')), favOf(r) ? T('eb', 'mini', 'Favourite') : null);
   return cardShell('mini wi', [top, title, meta]);
@@ -1872,11 +1984,11 @@ function wheelView(list, sel, pick, opts) {
   if (opts.az) Object.keys(first).forEach(function (L) { az.appendChild(h('button', { type: 'button', 'aria-label': 'Jump to ' + L, onclick: function () { goTo(first[L]); } }, L)); });
   function paint() {
     tk = false; if (!wheel.isConnected) return;
-    var padv = Math.max(0, wheel.clientHeight / 2 - 46) + 'px';
+    var padv = Math.max(0, wheel.clientHeight / 2 - 54) + 'px';
     if (wheel.style.paddingTop !== padv) { wheel.style.paddingTop = padv; wheel.style.paddingBottom = padv; }
     var wr = wheel.getBoundingClientRect(), mid = wr.top + wr.height / 2, best = null, bd = 1e9;
     cards.forEach(function (c) {
-      var r = c.getBoundingClientRect(), cm = r.top + r.height / 2, d = (cm - mid) / 104, ad = Math.min(Math.abs(d), 2.6);
+      var r = c.getBoundingClientRect(), cm = r.top + r.height / 2, d = (cm - mid) / 116, ad = Math.min(Math.abs(d), 2.6);
       if (Math.abs(cm - mid) < bd) { bd = Math.abs(cm - mid); best = c; }
       var tilt = reduce ? 0 : Math.max(-62, Math.min(62, d * 34)), i = c._in;
       i.style.transform = ad < 0.12 ? 'none' : 'rotateX(' + (-tilt) + 'deg) translateZ(' + (-ad * 34) + 'px) scale(' + (1 - ad * 0.05) + ')';
@@ -2782,7 +2894,7 @@ function pantryView() {
   wrap.appendChild(h('p', { class: 'hint', style: 'max-width:60ch' }, 'List what you keep at home. Add an amount and it comes off when you mark a recipe cooked; leave the amount blank and it just counts as \u201CI have it\u201D.'));
   var QUICK = PQ;
   function quickAdd(q) {
-    var f = E.matchFoods(q[0], allFoods(), 1)[0]; if (!f) { toast('Could not find ' + q[0] + '.'); return; }
+    var f = (q[4] && FOODS[q[4]]) || E.matchFoods(q[0], allFoods(), 1)[0]; if (!f) { toast('Could not find ' + q[0] + '.'); return; }
     var ew = eachW(f), g = q[2] === 'each' ? (ew ? q[1] * ew : 0) : q[2] === 'ml' ? q[1] * (f.density || 1) : q[1];
     if (!g) { toast('I do not know the weight of one ' + q[0].toLowerCase() + '.'); return; }
     var ex = pantryItem(f.id); if (ex && ex.staple) { toast(q[0] + ' is already in Always on hand.'); return; } if (ex) ex.g = Math.round((ex.g + g) * 10) / 10; else pantry.push({ id: uid(), name: q[0], foodId: f.id, g: Math.round(g * 10) / 10, place: q[3], cnt: q[2] === 'each', exp: produceExp(q[0], q[3]) });
@@ -2803,12 +2915,13 @@ function pantryView() {
         h('button', { class: 'btn quiet', type: 'button', 'aria-label': 'Remove ' + q[0], onclick: function () { PQ.splice(i, 1); savePQ(); render(); } }, 'Remove')));
     });
     ed.appendChild(h('div', { class: 'btns' },
-      h('button', { class: 'btn', type: 'button', onclick: function () { PQ.push(['New item', 1, 'g', 'Cupboard']); savePQ(); render(); } }, 'Add a row'),
+      newItemPanel({ place: true, label: 'Add quick item' }, function (it) { if (!(it.amt > 0)) { toast('Add an amount so one tap is enough.'); return; } var u = it.unit, a = it.amt; if (u === 'kg') { a *= 1000; u = 'g'; } else if (u === 'L') { a *= 1000; u = 'ml'; } else if (u === 'whole') u = 'each'; PQ.push([it.name, a, u, it.place, it.foodId]); savePQ(); render(); }),
       h('button', { class: 'btn quiet', type: 'button', onclick: function () { PQ.length = 0; PQ_DEFAULT.forEach(function (q) { PQ.push(q.slice()); }); savePQ(); render(); } }, 'Reset'),
       h('button', { class: 'btn primary', type: 'button', onclick: function () { editQ = false; render(); } }, 'Done')));
     wrap.appendChild(ed);
   }
-  wrap.appendChild(h('div', { class: 'tools ptools' }, nameIn, selF, h('div', { class: 'pamt' }, gIn, unitSel), placeSel, h('label', { class: 'pexp' }, h('span', { class: 'hint' }, 'Use by'), expIn), h('button', { class: 'btn primary', type: 'button', onclick: add }, 'Add')));
+  var pOff = h('div'), pOffBtn = h('button', { class: 'btn quiet', type: 'button', onclick: function () { if (pOff.firstChild) { pOff.replaceChildren(); return; } pOff.appendChild(offPicker(function (f) { if (!cands.some(function (c) { return c.id === f.id; })) cands.unshift(f); selF.replaceChildren(); cands.forEach(function (c) { selF.appendChild(h('option', { value: c.id }, c.name.length > 60 ? c.name.slice(0, 58) + '\u2026' : c.name)); }); selF.value = f.id; if (!nameIn.value.trim()) nameIn.value = f.name.split(',')[0]; pOff.replaceChildren(); syncExp(); })); } }, 'Search packaged products');
+  wrap.appendChild(h('div', { class: 'tools ptools' }, nameIn, selF, pOffBtn, pOff, h('div', { class: 'pamt' }, gIn, unitSel), placeSel, h('label', { class: 'pexp' }, h('span', { class: 'hint' }, 'Use by'), expIn), h('button', { class: 'btn primary', type: 'button', onclick: add }, 'Add')));
   
   function expShort(p) { var n = daysLeft(p); if (n == null) return ''; if (n < 0) return 'Expired'; if (n === 0) return 'Today'; if (n === 1) return 'Tomorrow'; if (n <= 7) return n + ' days'; var d = new Date(p.exp + 'T00:00:00'); return d.getDate() + ' ' + ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][d.getMonth()]; }
   function amtText(p, ew, lq, dn) { if (p.nog) return ''; if (ew) return frac(Math.round(p.g / ew * 2) / 2) + ' whole'; if (lq) { var ml = p.g / dn; return ml >= 1000 ? (Math.round(ml / 100) / 10) + ' L' : Math.round(ml) + ' ml'; } return p.g >= 1000 ? (Math.round(p.g / 100) / 10) + ' kg' : Math.round(p.g) + ' g'; }
