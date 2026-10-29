@@ -457,18 +457,18 @@ textarea{border-radius:var(--r-panel)!important}
 .rcard.mini,.rbox .wcard .rcard.mini{height:104px!important;min-height:104px!important}
 .mini .rc-body{height:104px!important;min-height:104px!important;padding:0 40px!important;gap:6px!important;justify-content:center}
 .mini .rc-body>.row:first-child{margin-bottom:5px}.mini .rc-body>.row:last-child{margin-top:-1px}
-.mini .tt{white-space:nowrap!important;overflow:hidden;text-overflow:ellipsis;max-width:100%}.mini .tt.tl{font-size:19px!important}
 .slot{height:104px!important;margin-top:-52px!important;box-sizing:border-box}
 .az{right:4px}
-/* tabs wear the card paper */
-.tagt[aria-pressed="true"]{background-color:var(--ground)!important;background-image:var(--paper-img,none),linear-gradient(var(--card),var(--card))!important;background-size:var(--paper-size,auto),auto!important;border-bottom-color:var(--ground)!important}
-.tagt:not([aria-pressed="true"]){background-color:var(--ground)!important;background-image:linear-gradient(color-mix(in srgb,var(--ink) 7%,transparent),color-mix(in srgb,var(--ink) 7%,transparent)),var(--paper-img,none),linear-gradient(var(--card),var(--card))!important;background-size:auto,var(--paper-size,auto),auto!important}
 .lkb{gap:6px;position:relative}.lkin{width:100%}
 .lkm{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;min-height:0!important;padding:2px 14px!important;border:0;background:none;color:var(--ink-2);font-size:13px;text-align:left;cursor:pointer;border-radius:var(--r-pill)}.lkm i{font-style:normal;text-decoration:underline;font-size:12px;flex:0 0 auto}
 .lkl{display:flex;flex-direction:column;max-height:196px;overflow:auto;border:1px solid var(--line);border-radius:18px;background:var(--ground);box-shadow:0 10px 24px -14px var(--shadow)}
 .lko{display:flex;justify-content:space-between;gap:10px;align-items:center;min-height:0!important;padding:8px 14px!important;border:0;border-bottom:1px solid var(--rule);background:none;color:var(--ink);font-size:14px;text-align:left;cursor:pointer;border-radius:0}.lko:last-child{border-bottom:0}.lko.on{background:color-mix(in srgb,var(--accent) 12%,transparent)}.lko i{font-style:normal;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-2);flex:0 0 auto}
 .lkn{font-size:12px;color:var(--ink-2);padding:0 14px;cursor:default}
 .nip{gap:6px}.nipr{flex-wrap:wrap}.nipr input{flex:1 1 90px}.nipr .btn{flex:0 0 auto}
+/* v54 */
+.tagt{box-shadow:inset 0 0 0 999px rgba(0,0,0,.055)!important;position:relative}
+.tagt[aria-pressed="true"]{box-shadow:0 -2px 8px -4px var(--shadow)!important;z-index:1;border-bottom:0!important;margin-bottom:-1px!important}
+.mini .tt{white-space:normal!important;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;line-height:1.14!important;max-height:2.35em}
 </style>
 
 <div class="app" id="app"></div>
@@ -1175,14 +1175,15 @@ function eff(role) {
 function T(role, ctx, text, opt) {
   opt = opt || {};
   var e = eff(role), el = h(opt.tag || 'span'), st = el.style, px = SZ[role][ctx] * e.z / 100 * (opt.scale || 1), i, css;
+  var isScript = /^RBF|cursive/.test(fontStack(e.f)) || /script|brush|hand|caveat|pinyon|vibes|allura|dancing|parisienne|sacramento|signature|calligraph|lobster|satisfy|pacifico|yellowtail|alex|kaushan/i.test(e.f);
+  if (isScript && ctx === 'mini' && role === 'h1') px *= 1.2;
   el.textContent = text;
   st.fontFamily = fontStack(e.f); st.fontSize = px.toFixed(1) + 'px'; st.fontWeight = e.w; st.color = e.c || (relLum(paperEff()) < .3 ? (role === 'eb' ? '#B9B6AC' : '#F3F0E9') : e.cd);
   if (role === 'eb') { st.textTransform = 'uppercase'; st.letterSpacing = '.14em'; }
   if (role === 'nm') st.fontVariantNumeric = 'tabular-nums';
   if (role === 'h1') st.lineHeight = '1.12';
   if (role === 'h2') st.lineHeight = '1.25';
-  if (e.n) {
-    var isScript = /^RBF|cursive/.test(fontStack(e.f)) || /script|brush|hand|caveat|pinyon|vibes|allura|dancing|parisienne|sacramento|signature|calligraph|lobster|satisfy|pacifico|yellowtail|alex|kaushan/i.test(e.f);
+  if (e.n && !(isScript && ctx === 'mini')) {
     css = finishCss(e.n, paperEff(), px, !!e.c, e.ft, isScript);
     for (i = 0; i < css.length; i++) st.setProperty(css[i][0], css[i][1]);
   }
@@ -1492,12 +1493,12 @@ function lookupBlock(onchange, ph) {
   nameIn = h('input', { class: 'lkin', type: 'text', placeholder: ph || 'Item, e.g. plain flour or Vegemite', 'aria-label': 'Item', autocomplete: 'off',
     oninput: function (e) {
       var q0 = e.target.value; chosen = ''; cands = q0.trim() ? E.matchFoods(q0, allFoods(), 6) : []; open = true; status = ''; clearTimeout(offT); var my = ++seq; paint();
-      if (q0.trim().length > 2) offT = setTimeout(function () {
+      if (q0.trim().length > 2) offT = setTimeout(function search(retry) {
         status = 'Searching packaged products\u2026'; paint();
         offLookupE(q0).then(function (more) {
           if (my !== seq) return; status = ''; more.slice(0, 6).forEach(function (f) { if (!cands.some(function (c) { return c.id === f.id; })) cands.push(f); }); paint(); if (onchange) onchange();
-        }, function () { if (my !== seq) return; status = 'Packaged products unavailable. Tap to retry.'; paint(); });
-      }, 400);
+        }, function () { if (my !== seq) return; if (retry !== 2) { status = 'Packaged search is busy, trying again\u2026'; paint(); offT = setTimeout(function () { search(2); }, 6000); return; } status = 'Packaged products unavailable. Tap to retry.'; paint(); });
+      }, 900);
       if (onchange) onchange();
     } });
   note.addEventListener('click', function () { if (/retry/.test(status)) { var v = nameIn.value; nameIn.value = v; nameIn.dispatchEvent(new Event('input')); } });
@@ -1848,7 +1849,7 @@ function icb(name, label, onclick, pressed) { return h('button', { class: 'icb',
 function miniCard(r) {
   var n = nut(r), per = n.perServing.kcal;
   var top = h('div', { class: 'row' }, T('eb', 'mini', r.cat + ' · ' + timeStr(r.mins)));
-  var title = T('h1', 'mini', r.name, { tag: 'div' }); title.className = 'tt' + (r.name.length > 24 ? ' tl' : '');
+  var title = T('h1', 'mini', r.name, { tag: 'div', scale: r.name.length > 24 ? .8 : 1 }); title.className = 'tt';
   var meta = h('div', { class: 'row' }, T('bd', 'mini', 'Serves ' + r.servings + (nvHas('kcal') ? ' · ' + fmtN(per) + ' kcal' : '')), favOf(r) ? T('eb', 'mini', 'Favourite') : null);
   return cardShell('mini wi', [top, title, meta]);
 }
@@ -2019,7 +2020,7 @@ function wheelView(list, sel, pick, opts) {
       if (Math.abs(cm - mid) < bd) { bd = Math.abs(cm - mid); best = c; }
       var tilt = reduce ? 0 : Math.max(-62, Math.min(62, d * 34)), i = c._in;
       i.style.transform = ad < 0.12 ? 'none' : 'rotateX(' + (-tilt) + 'deg) translateZ(' + (-ad * 34) + 'px) scale(' + (1 - ad * 0.05) + ')';
-      i.style.opacity = String(Math.max(0.12, 1 - ad * 0.34));
+      i.style.opacity = String(Math.max(0.32, 1 - ad * 0.24));
       i.style.boxShadow = ad < 0.4 ? '0 14px 30px -14px var(--shadow)' : 'none';
     });
     var sl0 = wrap.querySelector('.slot'); if (sl0 && best) { var br = best.getBoundingClientRect(), wp = wrap.getBoundingClientRect(); sl0.style.left = Math.round(br.left - wp.left) + 'px'; sl0.style.right = Math.round(wp.right - br.right) + 'px'; }
@@ -2084,6 +2085,7 @@ function recipesView() {
     oninput: function (e) { S.q = e.target.value; drawList(); if (desk) drawPane(); } });
   var sort = h('select', { class: 'sortsel', 'aria-label': 'Order recipes', onchange: function (e) { S.sort = e.target.value; render(); } }, [['az', 'A\u2013Z'], ['quick', 'Quickest']].map(function (x) { return h('option', { value: x[0], selected: S.sort === x[0] }, x[1]); }));
   var tg = allTags(), tagBar = h('div', { class: 'tagstrip', role: 'group', 'aria-label': 'Filter by tag' }, [['', 0]].concat(tg).map(function (x) { return h('button', { type: 'button', class: 'tagt', 'aria-pressed': String((S.tag || '') === x[0]), onclick: function () { S.tag = x[0]; render(); } }, x[0] || 'All'); }));
+  [].forEach.call(tagBar.children, function (bt) { applyBg(bt); });
   var nvBtn = h('button', { class: 'nvtog', type: 'button', role: 'switch', 'aria-checked': String(nv.on), title: 'Show or hide nutrition on every card', onclick: function () { nv.on = !nv.on; saveNv(); render(); } }, h('span', { class: 'nvdot', 'aria-hidden': 'true' }), h('span', null, 'Nutrition'));
   var flt = h('button', { class: 'iconb fltb1', type: 'button', title: 'Filter', 'aria-label': 'Filter recipes', 'aria-haspopup': 'true', 'aria-pressed': String(!!S.flt), onclick: function (e) {
     e.stopPropagation(); if (dotPop && dotPop.btn === flt) { closeDot(); return; } closeDot();
@@ -2337,23 +2339,24 @@ function offFood(p) {
   var f = { id: 'off:' + p.code, name: nm + (p.quantity ? ' (' + p.quantity + ')' : ''), source: 'custom', per100: per, density: null, off: true };
   return f;
 }
+var offLast = 0, offBusy = Promise.resolve();
 function offSearch(q) {
-  var F = 'code,product_name,brands,quantity,nutriments', e = encodeURIComponent(q);
-  function get(url, pick) {
-    var ac = typeof AbortController !== 'undefined' ? new AbortController() : null, t = setTimeout(function () { if (ac) ac.abort(); }, 9000);
-    return fetch(url, ac ? { signal: ac.signal } : undefined).then(function (r) { clearTimeout(t); if (!r.ok) throw new Error('bad'); return r.json(); }).then(function (j) { var l = pick(j).map(offFood).filter(Boolean); if (!l.length) throw new Error('none'); return l; }, function (er) { clearTimeout(t); throw er; });
-  }
-  var legacy = function (j) { return j.products || []; };
-  var tries = [
-    get('https://au.openfoodfacts.org/cgi/search.pl?search_simple=1&action=process&json=1&page_size=10&fields=' + F + '&search_terms=' + e, legacy),
-    get('https://world.openfoodfacts.org/cgi/search.pl?search_simple=1&action=process&json=1&page_size=10&fields=' + F + '&search_terms=' + e, legacy),
-    get('https://search.openfoodfacts.org/search?page_size=10&fields=' + F + '&q=' + e, function (j) { return j.hits || []; })
+  var F = 'code,product_name,brands,quantity,nutriments', e = encodeURIComponent(q), legacy = function (j) { return j.products || []; };
+  var eps = [
+    ['https://world.openfoodfacts.org/cgi/search.pl?search_simple=1&action=process&json=1&page_size=10&fields=' + F + '&search_terms=' + e, legacy],
+    ['https://search.openfoodfacts.org/search?page_size=10&fields=' + F + '&q=' + e, function (j) { return j.hits || []; }],
+    ['https://au.openfoodfacts.org/cgi/search.pl?search_simple=1&action=process&json=1&page_size=10&fields=' + F + '&search_terms=' + e, legacy]
   ];
-  // first one to come back with results wins; fail only if all three fail
-  return new Promise(function (res, rej) {
-    var left = tries.length, empty = false;
-    tries.forEach(function (p) { p.then(res, function (er) { if (er && er.message === 'none') empty = true; if (--left === 0) { if (empty) res([]); else rej(er); } }); });
-  });
+  function one(i) {
+    var ep = eps[i], ac = typeof AbortController !== 'undefined' ? new AbortController() : null, t = setTimeout(function () { if (ac) ac.abort(); }, 10000);
+    return fetch(ep[0], ac ? { signal: ac.signal } : undefined).then(function (r) { clearTimeout(t); if (!r.ok) throw new Error('http ' + r.status); return r.json(); })
+      .then(function (j) { return ep[1](j).map(offFood).filter(Boolean); })
+      .catch(function (er) { clearTimeout(t); if (i + 1 < eps.length) return one(i + 1); throw er; });
+  }
+  // queue them: never two at once, and at least 1.2 s apart, so we stay under Open Food Facts' search rate limit
+  var run = offBusy.then(function () { var wait = Math.max(0, offLast + 1200 - Date.now()); return new Promise(function (r) { setTimeout(r, wait); }); }).then(function () { offLast = Date.now(); return one(0); });
+  offBusy = run.then(function () {}, function () {});
+  return run;
 }
 var offCache = {};
 function offLookup(q) {
