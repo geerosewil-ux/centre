@@ -487,8 +487,13 @@ input:focus,select:focus,textarea:focus{outline:none!important;border-color:var(
 .btn.quiet:first-child{margin-left:-6px}.chips{padding-left:0}.chip.usual,.uadd{margin-left:0}
 .pantryv>.tools{margin-top:0}
 #bgfx{position:fixed;inset:0;z-index:-1;pointer-events:none;background-size:cover;background-position:center;background-repeat:no-repeat}
-.top .seg button,.tagstrip .tagt{text-transform:var(--eb-case,uppercase)!important}
+.top .seg button{text-transform:var(--menu-case,var(--eb-case,uppercase))!important}.tagstrip .tagt{text-transform:var(--eb-case,uppercase)!important}
 .top h1,.phead .pt{text-transform:var(--h1-case,none)}
+.top h1{font-family:var(--ttl-font,var(--font-serif));font-size:calc(44px*var(--ttl-z,1));color:var(--ttl-ink,var(--pg-ink,var(--ink)));text-transform:var(--ttl-case,var(--h1-case,none))}
+.phead .pt{font-family:var(--hd-font,var(--ttl-font,var(--font-serif)));font-size:calc(30px*var(--hd-z,1));color:var(--hd-ink,var(--pg-ink,var(--ink)));text-transform:var(--hd-case,var(--h1-case,none))}
+.top .seg button{font-family:var(--menu-font,inherit)!important;font-size:calc(12px*var(--menu-z,1))!important;color:var(--menu-ink,var(--pg-ink-2,var(--ink-2)))}
+.top .seg button[aria-pressed="true"]{color:var(--menu-ink,var(--pg-ink,var(--ink)))}
+@media (max-width:640px){.top h1{font-size:calc(38px*var(--ttl-z,1))}.top .seg button{font-size:calc(10.5px*var(--menu-z,1))!important}}
 </style>
 
 <div class="app" id="app"></div>
@@ -956,6 +961,7 @@ var DEF_DESIGN = {
   paper: { color: '#FFFFFF', mode: 'opaque', op: 100, frost: 0, tex: '' },
   box: { color: '#EFE8D6', label: 'Recipe Box' },
   page: { sel: '', color: '', fade: 55 },
+  chrome: { title: {}, menu: {}, head: {} },
   tx: { h1: {}, h2: {}, bd: {}, nm: {}, eb: {} }
 };
 function clone(o) { return JSON.parse(JSON.stringify(o)); }
@@ -969,6 +975,7 @@ function loadDesign() {
   for (x in (d.paper || {})) base.paper[x] = d.paper[x];
   for (x in (d.page || {})) base.page[x] = d.page[x];
   for (x in (d.box || {})) base.box[x] = d.box[x];
+  ['title', 'menu', 'head'].forEach(function (k) { base.chrome[k] = (d.chrome && d.chrome[k]) || {}; });
   ROLEKEYS.forEach(function (r) { base.tx[r] = (d.tx && d.tx[r]) || {}; });
   return base;
 }
@@ -1248,24 +1255,34 @@ function applyGlobal() {
   try { if (!design.page.sel) { var fx0 = document.getElementById('bgfx'); if (fx0) fx0.remove(); } } catch (e) {}
   var rs = document.documentElement.style, bs = document.body ? document.body.style : null, b = design.bg, p = design.paper, bx = design.box, D = DEF_DESIGN;
   var props = ['--ground', '--card', '--ink', '--ink-2', '--line', '--rule', '--accent', '--on-accent', '--paper-img', '--paper-size', '--pg-ink', '--pg-ink-2', '--font-serif', '--font-body'];
-  ['--sub-font', '--sub-size', '--sub-weight', '--sub-case', '--sub-ls', '--sub-ink', '--eb-case', '--h1-case'].forEach(function (k) { rs.removeProperty(k); });
+  ['--sub-font', '--sub-size', '--sub-weight', '--sub-case', '--sub-ls', '--sub-ink', '--eb-case', '--h1-case', '--ttl-font', '--ttl-z', '--ttl-ink', '--ttl-case', '--hd-font', '--hd-z', '--hd-ink', '--hd-case', '--menu-font', '--menu-z', '--menu-ink', '--menu-case'].forEach(function (k) { rs.removeProperty(k); });
   if ((design.tx.eb || {}).tc) rs.setProperty('--eb-case', CASEMAP[design.tx.eb.tc]); if ((design.tx.h1 || {}).tc) rs.setProperty('--h1-case', CASEMAP[design.tx.h1.tc]);
+  (function () {
+    var ch = design.chrome || {}, ct = ch.title || {}, cm = ch.menu || {}, chd = ch.head || {}, t1 = design.tx.h1 || {};
+    var tf = ct.f || t1.f, tz = ct.z || t1.z, tc = ct.c || t1.c, tcase = ct.tc || t1.tc;
+    if (tf) rs.setProperty('--ttl-font', fontStack(tf)); if (tz) rs.setProperty('--ttl-z', String(tz / 100)); if (tc) rs.setProperty('--ttl-ink', tc); if (tcase) rs.setProperty('--ttl-case', CASEMAP[tcase]);
+    var hf = chd.f || tf, hz = chd.z || tz, hc = chd.c || tc, hcase = chd.tc || tcase;
+    if (hf) rs.setProperty('--hd-font', fontStack(hf)); if (hz) rs.setProperty('--hd-z', String(hz / 100)); if (hc) rs.setProperty('--hd-ink', hc); if (hcase) rs.setProperty('--hd-case', CASEMAP[hcase]);
+    var eb0 = design.tx.eb || {};
+    if (cm.f) rs.setProperty('--menu-font', fontStack(cm.f)); if (cm.z) rs.setProperty('--menu-z', String(cm.z / 100)); if (cm.c) rs.setProperty('--menu-ink', cm.c); if (cm.tc || eb0.tc) rs.setProperty('--menu-case', CASEMAP[cm.tc || eb0.tc]);
+  })();
   var h2o = design.tx.h2 || {};
   if (h2o.f || h2o.z || h2o.c || h2o.tc) { var e2 = eff('h2'); rs.setProperty('--sub-font', fontStack(e2.f)); rs.setProperty('--sub-size', (18 * e2.z / 100).toFixed(1) + 'px'); rs.setProperty('--sub-weight', String(e2.w)); rs.setProperty('--sub-case', h2o.tc ? CASEMAP[h2o.tc] : 'none'); rs.setProperty('--sub-ls', '.005em'); if (e2.c) rs.setProperty('--sub-ink', e2.c); }
   var fontsSet = ['h1', 'h2', 'bd', 'eb', 'nm'].some(function (r) { return design.tx[r] && (design.tx[r].f || design.tx[r].tc); });
-  var custom = !!b.sel || b.color !== D.bg.color || p.color !== D.paper.color || !!p.tex || p.op !== 100 || bx.color !== D.box.color || fontsSet || !!design.page.sel || !!design.page.color;
+  var chromeSet = ['title', 'menu', 'head'].some(function (k) { var c = (design.chrome || {})[k] || {}; return !!(c.f || c.tc); });
+  var custom = chromeSet || !!b.sel || b.color !== D.bg.color || p.color !== D.paper.color || !!p.tex || p.op !== 100 || bx.color !== D.box.color || fontsSet || !!design.page.sel || !!design.page.color;
   if (!custom) { props.forEach(function (k) { rs.removeProperty(k); }); if (bs) { bs.backgroundImage = ''; bs.backgroundColor = ''; } return; }
-  var bg = hex2rgb(b.color), paper = hex2rgb(p.color), eff = mixC(bg, paper, p.op / 100);
+  var bg = hex2rgb(b.color), paper = hex2rgb(p.color), effc = mixC(bg, paper, p.op / 100);
   var pg = design.page, pbg = pg.color ? hex2rgb(pg.color) : bg;
-  var dark = relLum(eff) < .3, pgDark = relLum(pbg) < .3;
+  var dark = relLum(effc) < .3, pgDark = relLum(pbg) < .3;
   var ink = dark ? [243, 240, 233] : [28, 26, 23], pgInk = pgDark ? [243, 240, 233] : [28, 26, 23];
   var acc = hex2rgb(bx.color);
   if (relLum(acc) > .35 && !dark) acc = mixC(acc, [0, 0, 0], .62);
   if (dark && relLum(acc) < .45) acc = mixC(acc, [255, 255, 255], .6);
-  var n = 0; while (contrastOf(acc, eff) < 3.2 && n++ < 10) acc = mixC(acc, dark ? [255, 255, 255] : [0, 0, 0], .15);
+  var n = 0; while (contrastOf(acc, effc) < 3.2 && n++ < 10) acc = mixC(acc, dark ? [255, 255, 255] : [0, 0, 0], .15);
   rs.setProperty('--ground', rgbHex(pbg)); rs.setProperty('--card', 'rgba(' + paper.join(',') + ',' + (p.op / 100) + ')');
-  rs.setProperty('--ink', rgbHex(ink)); rs.setProperty('--ink-2', rgbHex(mixC(ink, eff, .42)));
-  rs.setProperty('--line', rgbHex(mixC(eff, ink, .16))); rs.setProperty('--rule', rgbHex(mixC(eff, ink, .09)));
+  rs.setProperty('--ink', rgbHex(ink)); rs.setProperty('--ink-2', rgbHex(mixC(ink, effc, .42)));
+  rs.setProperty('--line', rgbHex(mixC(effc, ink, .16))); rs.setProperty('--rule', rgbHex(mixC(effc, ink, .09)));
   rs.setProperty('--accent', rgbHex(acc)); rs.setProperty('--on-accent', relLum(acc) > .4 ? '#141513' : '#FFFFFF');
   rs.setProperty('--pg-ink', rgbHex(pgInk)); rs.setProperty('--pg-ink-2', rgbHex(mixC(pgInk, pbg, .42)));
   var ps = {}; paintPick(ps, resolvePick(p.tex), 0);
@@ -2918,7 +2935,26 @@ function settingsView() {
     kids.push(h('div', { style: 'margin-top:16px' }, rst));
     return h('div', { class: 'sec' }, kids);
   }
-  function drawCtl() { ctl.replaceChildren(secPage(), secBackground(), secPaper(), secText(), secLib(), secMeasuring()); }
+  var CROLES = [['title', 'App title'], ['menu', 'Menu'], ['head', 'Page headings']];
+  function secChrome() {
+    var k = S.crole || 'title'; S.crole = k;
+    var ch = design.chrome = design.chrome || { title: {}, menu: {}, head: {} }, o = ch[k] = ch[k] || {}, t1 = eff('h1'), bd = eff('bd'), e1 = eff('eb');
+    var fall = k === 'menu' ? { f: bd.f, z: 100, c: '', tc: e1.tc } : { f: ch.title && ch.title.f && k === 'head' ? ch.title.f : t1.f, z: k === 'head' && ch.title && ch.title.z ? ch.title.z : t1.z, c: k === 'head' && ch.title && ch.title.c ? ch.title.c : t1.c, tc: t1.tc };
+    var kids = [h('h2', null, 'App title and menu'), h('p', { class: 'hint' }, 'The name at the top, the menu under it and each screen’s heading have their own font, size, colour and letter case. Anything you leave alone follows the Title and Labels styles.')];
+    kids.push(h('div', { class: 'field' }, h('span', { class: 'lab2' }, 'Part'),
+      h('div', { class: 'seg', role: 'group', 'aria-label': 'App part' }, CROLES.map(function (x) {
+        return h('button', { type: 'button', 'aria-pressed': String(k === x[0]), onclick: function () { S.crole = x[0]; drawCtl(); } }, x[1]);
+      }))));
+    kids.push(h('div', { class: 'field' }, h('span', { class: 'lab2' }, 'Font'), fontPicker(o.f || fall.f, function (v) { if (v === fall.f) delete o.f; else o.f = v; changed(); drawCtl(); })));
+    kids.push(slider('ch-size', 'Size', 60, 220, o.z || fall.z, '%', function (v) { if (v === 100 && !fall.z) delete o.z; else o.z = v; }));
+    kids.push(field('Letter case', h('select', { id: 'ch-case', 'aria-label': 'Letter case', onchange: function (ev) { if (ev.target.value) o.tc = ev.target.value; else delete o.tc; changed(); drawCtl(); } },
+      [['', 'Automatic'], ['none', 'As written'], ['upper', 'ALL UPPERCASE'], ['lower', 'all lowercase']].map(function (x) { return h('option', { value: x[0], selected: x[0] === (o.tc || '') }, x[1]); })), null, 'ch-case'));
+    kids.push(h('div', { class: 'field' }, h('span', { class: 'lab2' }, 'Colour'), swatches(TXTPAL, o.c || '', function (c) { o.c = c; }, 'Heading'),
+      h('div', null, h('button', { class: 'btn quiet', type: 'button', onclick: function () { delete o.c; changed(); drawCtl(); } }, 'Use the automatic colour'))));
+    kids.push(h('div', { class: 'btns', style: 'margin-top:16px' }, h('button', { class: 'btn quiet', type: 'button', onclick: function () { ch[k] = {}; changed(); drawCtl(); } }, 'Reset this part')));
+    return h('div', { class: 'sec' }, kids);
+  }
+  function drawCtl() { ctl.replaceChildren(secPage(), secBackground(), secPaper(), secChrome(), secText(), secLib(), secMeasuring()); }
   drawPreview(); drawCtl();
   return h('div', { class: 'set' }, pv, ctl);
 }
@@ -3269,10 +3305,9 @@ function render() {
   var nav = h('div', { class: 'seg', role: 'group', 'aria-label': 'Sections' }, tab('recipes', 'Recipes'), tab('plan', 'Plan'), tab('events', 'Events'), tab('cart', 'Cart'), tab('books', 'Books'), tab('pantry', 'Pantry'), tab('add', 'Add'));
   var cog = h('button', { type: 'button', class: 'cog', 'aria-label': 'Settings', title: 'Settings', 'aria-pressed': String(S.view === 'settings'), onclick: function () { S.view = 'settings'; render(); } }, icon('cog', 20));
   var ttl = h('h1', null, 'Recipe Box'), te = eff('h1'), narrow = window.innerWidth <= 640;
-  ttl.style.fontSize = ((narrow ? 38 : 44) * te.z / 100).toFixed(1) + 'px'; if (te.c) ttl.style.color = te.c;
   app.appendChild(h('div', { class: 'top' }, h('div', { class: 'hrow' }, ttl, cog), nav));
   var HEADS = { plan: ['Meal plan', 'Plan the week, then send it to your list in one tap.'], events: ['Events', 'Menus for dinners and gatherings, with one shopping list and a prep timeline.'], cart: ['Shopping list', 'Everything to buy, by aisle. Tick an item and it lands in your pantry.'], books: ['Recipe books', 'Collect recipes into books you can flip through.'], pantry: ['Pantry', 'What you keep at home, so your list only has what you need.'], add: ['Add a recipe', 'Paste it in, or read it from a photo.'] };
-  if (HEADS[S.view]) { var pt = h('div', { class: 'pt' }, HEADS[S.view][0]); pt.style.fontSize = (30 * te.z / 100).toFixed(1) + 'px'; if (te.c) pt.style.color = te.c; app.appendChild(h('div', { class: 'phead' }, pt, h('p', { class: 'pl' }, HEADS[S.view][1]))); }
+  if (HEADS[S.view]) { var pt = h('div', { class: 'pt' }, HEADS[S.view][0]); app.appendChild(h('div', { class: 'phead' }, pt, h('p', { class: 'pl' }, HEADS[S.view][1]))); }
   if (S.view === 'add') { try { window.scrollTo(0, 0); } catch (e) {} }
   var v = S.view;
   app.appendChild(v === 'settings' ? settingsRoot() : v === 'add' ? addView() : v === 'plan' ? planView() : v === 'events' ? eventsView() : v === 'cart' ? cartView() : v === 'books' ? booksView() : v === 'fridge' ? pantryView() : v === 'pantry' ? pantryView() : recipesView());
