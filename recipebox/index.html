@@ -487,6 +487,8 @@ input:focus,select:focus,textarea:focus{outline:none!important;border-color:var(
 .btn.quiet:first-child{margin-left:-6px}.chips{padding-left:0}.chip.usual,.uadd{margin-left:0}
 .pantryv>.tools{margin-top:0}
 #bgfx{position:fixed;inset:0;z-index:-1;pointer-events:none;background-size:cover;background-position:center;background-repeat:no-repeat}
+.top .seg button,.tagstrip .tagt{text-transform:var(--eb-case,uppercase)!important}
+.top h1,.phead .pt{text-transform:var(--h1-case,none)}
 </style>
 
 <div class="app" id="app"></div>
@@ -1205,10 +1207,11 @@ function applyPaper(el) {
   var f = p.mode === 'frost' ? 'blur(' + p.frost + 'px)' : 'none';
   s.backdropFilter = f; s.webkitBackdropFilter = f;
 }
+var CASEMAP = { upper: 'uppercase', lower: 'lowercase', none: 'none' };
 function eff(role) {
   var o = design.tx[role] || {}, d = DEFT[role], f = o.f || d.f;
   if (f.slice(0, 2) === 'u:' && !fonts.some(function (x) { return 'u:' + x.id === f; })) f = d.f;
-  return { f: f, z: o.z || 100, c: o.c || '', cd: d.c, n: o.n || '', ft: o.ft || 'gold', w: d.w };
+  return { f: f, z: o.z || 100, c: o.c || '', cd: d.c, n: o.n || '', ft: o.ft || 'gold', w: d.w, tc: o.tc || '' };
 }
 function T(role, ctx, text, opt) {
   opt = opt || {};
@@ -1218,6 +1221,7 @@ function T(role, ctx, text, opt) {
   el.textContent = text;
   st.fontFamily = fontStack(e.f); st.fontSize = px.toFixed(1) + 'px'; st.fontWeight = e.w; st.color = e.c || (relLum(paperEff()) < .3 ? (role === 'eb' ? '#B9B6AC' : '#F3F0E9') : e.cd);
   if (role === 'eb') { st.textTransform = 'uppercase'; st.letterSpacing = '.14em'; }
+  if (e.tc) st.textTransform = CASEMAP[e.tc];
   if (role === 'nm') st.fontVariantNumeric = 'tabular-nums';
   if (role === 'h1') st.lineHeight = '1.12';
   if (role === 'h2') st.lineHeight = '1.25';
@@ -1243,10 +1247,11 @@ function applyGlobal() {
   try { if (!design.page.sel) { var fx0 = document.getElementById('bgfx'); if (fx0) fx0.remove(); } } catch (e) {}
   var rs = document.documentElement.style, bs = document.body ? document.body.style : null, b = design.bg, p = design.paper, bx = design.box, D = DEF_DESIGN;
   var props = ['--ground', '--card', '--ink', '--ink-2', '--line', '--rule', '--accent', '--on-accent', '--paper-img', '--paper-size', '--pg-ink', '--pg-ink-2', '--font-serif', '--font-body'];
-  ['--sub-font', '--sub-size', '--sub-weight', '--sub-case', '--sub-ls', '--sub-ink'].forEach(function (k) { rs.removeProperty(k); });
+  ['--sub-font', '--sub-size', '--sub-weight', '--sub-case', '--sub-ls', '--sub-ink', '--eb-case', '--h1-case'].forEach(function (k) { rs.removeProperty(k); });
+  if ((design.tx.eb || {}).tc) rs.setProperty('--eb-case', CASEMAP[design.tx.eb.tc]); if ((design.tx.h1 || {}).tc) rs.setProperty('--h1-case', CASEMAP[design.tx.h1.tc]);
   var h2o = design.tx.h2 || {};
-  if (h2o.f || h2o.z || h2o.c) { var e2 = eff('h2'); rs.setProperty('--sub-font', fontStack(e2.f)); rs.setProperty('--sub-size', (18 * e2.z / 100).toFixed(1) + 'px'); rs.setProperty('--sub-weight', String(e2.w)); rs.setProperty('--sub-case', 'none'); rs.setProperty('--sub-ls', '.005em'); if (e2.c) rs.setProperty('--sub-ink', e2.c); }
-  var fontsSet = ['h1', 'h2', 'bd'].some(function (r) { return design.tx[r] && design.tx[r].f; });
+  if (h2o.f || h2o.z || h2o.c || h2o.tc) { var e2 = eff('h2'); rs.setProperty('--sub-font', fontStack(e2.f)); rs.setProperty('--sub-size', (18 * e2.z / 100).toFixed(1) + 'px'); rs.setProperty('--sub-weight', String(e2.w)); rs.setProperty('--sub-case', h2o.tc ? CASEMAP[h2o.tc] : 'none'); rs.setProperty('--sub-ls', '.005em'); if (e2.c) rs.setProperty('--sub-ink', e2.c); }
+  var fontsSet = ['h1', 'h2', 'bd', 'eb', 'nm'].some(function (r) { return design.tx[r] && (design.tx[r].f || design.tx[r].tc); });
   var custom = !!b.sel || b.color !== D.bg.color || p.color !== D.paper.color || !!p.tex || p.op !== 100 || bx.color !== D.box.color || fontsSet || !!design.page.sel || !!design.page.color;
   if (!custom) { props.forEach(function (k) { rs.removeProperty(k); }); if (bs) { bs.backgroundImage = ''; bs.backgroundColor = ''; } return; }
   var bg = hex2rgb(b.color), paper = hex2rgb(p.color), eff = mixC(bg, paper, p.op / 100);
@@ -2836,6 +2841,9 @@ function settingsView() {
     var fin = pickFontFile(function (item) { o.f = 'u:' + item.id; changed(); drawCtl(); });
     kids.push(h('div', { class: 'btns', style: 'margin-top:10px' }, uploadBtn('Upload a font', fin), fin, h('span', { class: 'hint', style: 'margin:0' }, '.ttf, .otf, .woff or .woff2')));
     kids.push(slider('tx-size', 'Size', 60, 220, e.z, '%', function (v) { if (v === 100) delete o.z; else o.z = v; }));
+    var csel = h('select', { id: 'tx-case', 'aria-label': 'Letter case', onchange: function (ev) { if (ev.target.value) o.tc = ev.target.value; else delete o.tc; changed(); drawCtl(); } },
+      [['', 'Default for this style'], ['none', 'As written'], ['upper', 'ALL UPPERCASE'], ['lower', 'all lowercase']].map(function (x) { return h('option', { value: x[0], selected: x[0] === (e.tc || '') }, x[1]); }));
+    kids.push(field('Letter case', csel, 'Changes how the text shows, never what you typed. Titles also change the page headings, and Labels also change the menu and category tabs.', 'tx-case'));
     var nsel = h('select', { id: 'tx-finish', 'aria-label': 'Finish', onchange: function (ev) { if (ev.target.value) o.n = ev.target.value; else delete o.n; changed(); drawCtl(); } },
       [['', 'Flat'], ['raise', 'Raised'], ['press', 'Pressed in'], ['lp', 'Letterpress'], ['foil', 'Foil']].map(function (x) { return h('option', { value: x[0], selected: x[0] === e.n }, x[1]); }));
     kids.push(field('Finish', nsel, 'Raised and pressed take the paper’s colour, so the lettering looks embossed or engraved. Pick a text colour to tint them.', 'tx-finish'));
