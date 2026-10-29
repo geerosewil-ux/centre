@@ -486,6 +486,12 @@ input:focus,select:focus,textarea:focus{outline:none!important;border-color:var(
 .hint{color:var(--ink-2)}
 .btn.quiet:first-child{margin-left:-6px}.chips{padding-left:0}.chip.usual,.uadd{margin-left:0}
 .pantryv>.tools{margin-top:0}
+/* v59: one backdrop. The picture/texture lives on the page; stage and tabs are transparent so everything matches. */
+#bgfx{position:fixed;inset:0;z-index:-1;pointer-events:none;background-size:cover;background-position:center;background-repeat:no-repeat}
+.app,#app{background:transparent}
+.stage:not(.cookov .stage){background:transparent!important;background-image:none!important}
+.tagt{background:transparent!important}
+.tagt[aria-pressed="true"]{box-shadow:none!important;background:color-mix(in srgb,var(--card) 55%,transparent)!important}
 </style>
 
 <div class="app" id="app"></div>
@@ -1237,6 +1243,7 @@ function relLum(c) { var a = c.map(function (v) { v /= 255; return v <= .03928 ?
 function mixC(a, b, t) { return [0, 1, 2].map(function (i) { return a[i] * (1 - t) + b[i] * t; }); }
 function contrastOf(a, b) { var x = relLum(a), y = relLum(b); return (Math.max(x, y) + .05) / (Math.min(x, y) + .05); }
 function applyGlobal() {
+  try { var fx0 = document.getElementById('bgfx'); if (fx0 && !(resolvePick(design.bg.sel) || {}).item) fx0.remove(); } catch (e) {}
   var rs = document.documentElement.style, bs = document.body ? document.body.style : null, b = design.bg, p = design.paper, bx = design.box, D = DEF_DESIGN;
   var props = ['--ground', '--card', '--ink', '--ink-2', '--line', '--rule', '--accent', '--on-accent', '--paper-img', '--paper-size', '--pg-ink', '--pg-ink-2', '--font-serif', '--font-body'];
   ['--sub-font', '--sub-size', '--sub-weight', '--sub-case', '--sub-ls', '--sub-ink'].forEach(function (k) { rs.removeProperty(k); });
@@ -1261,6 +1268,11 @@ function applyGlobal() {
   if (ps.backgroundImage) { rs.setProperty('--paper-img', ps.backgroundImage); rs.setProperty('--paper-size', ps.backgroundSize || 'auto'); } else { rs.removeProperty('--paper-img'); rs.removeProperty('--paper-size'); }
   var h1 = eff0('h1'), bd0 = eff0('bd'); rs.setProperty('--font-serif', fontStack(h1)); rs.setProperty('--font-body', fontStack(bd0));
   rs.setProperty('--tabbg', rgbHex(bg)); (function () { var pk0 = resolvePick(b.sel), t0 = {}; if (pk0 && (pk0.kind === 'tex' || pk0.kind === 'btex')) { paintPick(t0, pk0, 0); rs.setProperty('--tabimg', t0.backgroundImage || 'none'); rs.setProperty('--tabsz', t0.backgroundSize || 'auto'); } else { rs.setProperty('--tabimg', 'none'); rs.setProperty('--tabsz', 'auto'); } })();
+  (function () { var pk1 = resolvePick(b.sel), fx = document.getElementById('bgfx');
+    if (!(pk1 && pk1.kind === 'bg') || !document.body) { if (fx) fx.remove(); return; }
+    if (!fx) { fx = document.createElement('div'); fx.id = 'bgfx'; document.body.insertBefore(fx, document.body.firstChild); }
+    var d1 = (b.dim || 0) / 100, sc = 'rgba(' + bg.join(',') + ',.58)';
+    fx.style.backgroundImage = 'linear-gradient(' + sc + ',' + sc + '),' + (d1 ? 'linear-gradient(rgba(0,0,0,' + d1 + '),rgba(0,0,0,' + d1 + ')),' : '') + 'url("' + pk1.item.src + '")'; })();
   if (bs) { bs.backgroundColor = rgbHex(bg); var pk = resolvePick(b.sel), bgs = {}; if (pk && (pk.kind === 'tex' || pk.kind === 'btex')) { paintPick(bgs, pk, 0); bs.backgroundImage = bgs.backgroundImage; bs.backgroundSize = bgs.backgroundSize; bs.backgroundRepeat = 'repeat'; } else bs.backgroundImage = ''; }
 }
 function eff0(role) { try { return eff(role).f; } catch (e) { return 'Figtree'; } }
@@ -2120,11 +2132,6 @@ function recipesView() {
     oninput: function (e) { S.q = e.target.value; drawList(); if (desk) drawPane(); } });
   var sort = h('select', { class: 'sortsel', 'aria-label': 'Order recipes', onchange: function (e) { S.sort = e.target.value; render(); } }, [['az', 'A\u2013Z'], ['quick', 'Quickest']].map(function (x) { return h('option', { value: x[0], selected: S.sort === x[0] }, x[1]); }));
   var tg = allTags(), tagBar = h('div', { class: 'tagstrip', role: 'group', 'aria-label': 'Filter by tag' }, [['', 0]].concat(tg).map(function (x) { return h('button', { type: 'button', class: 'tagt', 'aria-pressed': String((S.tag || '') === x[0]), onclick: function () { S.tag = x[0]; render(); } }, x[0] || 'All'); }));
-  (function () {
-    var pk = resolvePick(design.bg.sel), isTex = pk && (pk.kind === 'tex' || pk.kind === 'btex');
-    [].forEach.call(tagBar.children, function (bt) { bt.style.backgroundColor = design.bg.color; if (isTex) { paintPick(bt.style, pk, 0); bt.style.backgroundColor = design.bg.color; } else if (pk && pk.kind === 'bg') { var dd = (design.bg.dim || 0) / 100; bt.style.backgroundImage = (dd ? 'linear-gradient(rgba(0,0,0,' + dd + '),rgba(0,0,0,' + dd + ')),' : '') + 'url("' + pk.item.src + '")'; bt.style.backgroundSize = 'cover'; bt.style.backgroundRepeat = 'no-repeat'; bt.style.backgroundPosition = 'center'; } else bt.style.backgroundImage = 'none'; });
-    if (isTex) requestAnimationFrame(function () { [].forEach.call(tagBar.children, function (bt) { var r = bt.getBoundingClientRect(), b = document.body.getBoundingClientRect(); bt.style.backgroundPosition = Math.round(b.left - r.left) + 'px ' + Math.round(b.top - r.top) + 'px'; }); });
-  })();
   var nvBtn = h('button', { class: 'nvtog', type: 'button', role: 'switch', 'aria-checked': String(nv.on), title: 'Show or hide nutrition on every card', onclick: function () { nv.on = !nv.on; saveNv(); render(); } }, h('span', { class: 'nvdot', 'aria-hidden': 'true' }), h('span', null, 'Nutrition'));
   var flt = h('button', { class: 'iconb fltb1', type: 'button', title: 'Filter', 'aria-label': 'Filter recipes', 'aria-haspopup': 'true', 'aria-pressed': String(!!S.flt), onclick: function (e) {
     e.stopPropagation(); if (dotPop && dotPop.btn === flt) { closeDot(); return; } closeDot();
