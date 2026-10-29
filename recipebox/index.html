@@ -486,12 +486,7 @@ input:focus,select:focus,textarea:focus{outline:none!important;border-color:var(
 .hint{color:var(--ink-2)}
 .btn.quiet:first-child{margin-left:-6px}.chips{padding-left:0}.chip.usual,.uadd{margin-left:0}
 .pantryv>.tools{margin-top:0}
-/* v59: one backdrop. The picture/texture lives on the page; stage and tabs are transparent so everything matches. */
 #bgfx{position:fixed;inset:0;z-index:-1;pointer-events:none;background-size:cover;background-position:center;background-repeat:no-repeat}
-.app,#app{background:transparent}
-.stage:not(.cookov .stage){background:transparent!important;background-image:none!important}
-.tagt{background:transparent!important}
-.tagt[aria-pressed="true"]{box-shadow:none!important;background:color-mix(in srgb,var(--card) 55%,transparent)!important}
 </style>
 
 <div class="app" id="app"></div>
@@ -957,6 +952,7 @@ var DEF_DESIGN = {
   bg: { sel: '', color: '#EFEDE8', dim: 0, fit: 'whole' },
   paper: { color: '#FFFFFF', mode: 'opaque', op: 100, frost: 0, tex: '' },
   box: { color: '#EFE8D6', label: 'Recipe Box' },
+  page: { sel: '', color: '', fade: 55 },
   tx: { h1: {}, h2: {}, bd: {}, nm: {}, eb: {} }
 };
 function clone(o) { return JSON.parse(JSON.stringify(o)); }
@@ -968,6 +964,7 @@ function loadDesign() {
   for (x in (d.bg || {})) base.bg[x] = d.bg[x];
   if (d.bg && !d.bg.sel) base.bg.sel = d.bg.type === 'img' && d.bg.pic ? 'p:' + d.bg.pic : (d.bg.type && d.bg.type !== 'plain' ? 't:' + d.bg.type : '');
   for (x in (d.paper || {})) base.paper[x] = d.paper[x];
+  for (x in (d.page || {})) base.page[x] = d.page[x];
   for (x in (d.box || {})) base.box[x] = d.box[x];
   ROLEKEYS.forEach(function (r) { base.tx[r] = (d.tx && d.tx[r]) || {}; });
   return base;
@@ -1243,37 +1240,42 @@ function relLum(c) { var a = c.map(function (v) { v /= 255; return v <= .03928 ?
 function mixC(a, b, t) { return [0, 1, 2].map(function (i) { return a[i] * (1 - t) + b[i] * t; }); }
 function contrastOf(a, b) { var x = relLum(a), y = relLum(b); return (Math.max(x, y) + .05) / (Math.min(x, y) + .05); }
 function applyGlobal() {
-  try { var fx0 = document.getElementById('bgfx'); if (fx0 && !(resolvePick(design.bg.sel) || {}).item) fx0.remove(); } catch (e) {}
+  try { if (!design.page.sel) { var fx0 = document.getElementById('bgfx'); if (fx0) fx0.remove(); } } catch (e) {}
   var rs = document.documentElement.style, bs = document.body ? document.body.style : null, b = design.bg, p = design.paper, bx = design.box, D = DEF_DESIGN;
   var props = ['--ground', '--card', '--ink', '--ink-2', '--line', '--rule', '--accent', '--on-accent', '--paper-img', '--paper-size', '--pg-ink', '--pg-ink-2', '--font-serif', '--font-body'];
   ['--sub-font', '--sub-size', '--sub-weight', '--sub-case', '--sub-ls', '--sub-ink'].forEach(function (k) { rs.removeProperty(k); });
   var h2o = design.tx.h2 || {};
   if (h2o.f || h2o.z || h2o.c) { var e2 = eff('h2'); rs.setProperty('--sub-font', fontStack(e2.f)); rs.setProperty('--sub-size', (18 * e2.z / 100).toFixed(1) + 'px'); rs.setProperty('--sub-weight', String(e2.w)); rs.setProperty('--sub-case', 'none'); rs.setProperty('--sub-ls', '.005em'); if (e2.c) rs.setProperty('--sub-ink', e2.c); }
   var fontsSet = ['h1', 'h2', 'bd'].some(function (r) { return design.tx[r] && design.tx[r].f; });
-  var custom = !!b.sel || b.color !== D.bg.color || p.color !== D.paper.color || !!p.tex || p.op !== 100 || bx.color !== D.box.color || fontsSet;
+  var custom = !!b.sel || b.color !== D.bg.color || p.color !== D.paper.color || !!p.tex || p.op !== 100 || bx.color !== D.box.color || fontsSet || !!design.page.sel || !!design.page.color;
   if (!custom) { props.forEach(function (k) { rs.removeProperty(k); }); if (bs) { bs.backgroundImage = ''; bs.backgroundColor = ''; } return; }
   var bg = hex2rgb(b.color), paper = hex2rgb(p.color), eff = mixC(bg, paper, p.op / 100);
-  var dark = relLum(eff) < .3, pgDark = relLum(bg) < .3;
+  var pg = design.page, pbg = pg.color ? hex2rgb(pg.color) : bg;
+  var dark = relLum(eff) < .3, pgDark = relLum(pbg) < .3;
   var ink = dark ? [243, 240, 233] : [28, 26, 23], pgInk = pgDark ? [243, 240, 233] : [28, 26, 23];
   var acc = hex2rgb(bx.color);
   if (relLum(acc) > .35 && !dark) acc = mixC(acc, [0, 0, 0], .62);
   if (dark && relLum(acc) < .45) acc = mixC(acc, [255, 255, 255], .6);
   var n = 0; while (contrastOf(acc, eff) < 3.2 && n++ < 10) acc = mixC(acc, dark ? [255, 255, 255] : [0, 0, 0], .15);
-  rs.setProperty('--ground', rgbHex(bg)); rs.setProperty('--card', 'rgba(' + paper.join(',') + ',' + (p.op / 100) + ')');
+  rs.setProperty('--ground', rgbHex(pbg)); rs.setProperty('--card', 'rgba(' + paper.join(',') + ',' + (p.op / 100) + ')');
   rs.setProperty('--ink', rgbHex(ink)); rs.setProperty('--ink-2', rgbHex(mixC(ink, eff, .42)));
   rs.setProperty('--line', rgbHex(mixC(eff, ink, .16))); rs.setProperty('--rule', rgbHex(mixC(eff, ink, .09)));
   rs.setProperty('--accent', rgbHex(acc)); rs.setProperty('--on-accent', relLum(acc) > .4 ? '#141513' : '#FFFFFF');
-  rs.setProperty('--pg-ink', rgbHex(pgInk)); rs.setProperty('--pg-ink-2', rgbHex(mixC(pgInk, bg, .42)));
+  rs.setProperty('--pg-ink', rgbHex(pgInk)); rs.setProperty('--pg-ink-2', rgbHex(mixC(pgInk, pbg, .42)));
   var ps = {}; paintPick(ps, resolvePick(p.tex), 0);
   if (ps.backgroundImage) { rs.setProperty('--paper-img', ps.backgroundImage); rs.setProperty('--paper-size', ps.backgroundSize || 'auto'); } else { rs.removeProperty('--paper-img'); rs.removeProperty('--paper-size'); }
   var h1 = eff0('h1'), bd0 = eff0('bd'); rs.setProperty('--font-serif', fontStack(h1)); rs.setProperty('--font-body', fontStack(bd0));
   rs.setProperty('--tabbg', rgbHex(bg)); (function () { var pk0 = resolvePick(b.sel), t0 = {}; if (pk0 && (pk0.kind === 'tex' || pk0.kind === 'btex')) { paintPick(t0, pk0, 0); rs.setProperty('--tabimg', t0.backgroundImage || 'none'); rs.setProperty('--tabsz', t0.backgroundSize || 'auto'); } else { rs.setProperty('--tabimg', 'none'); rs.setProperty('--tabsz', 'auto'); } })();
-  (function () { var pk1 = resolvePick(b.sel), fx = document.getElementById('bgfx');
-    if (!(pk1 && pk1.kind === 'bg') || !document.body) { if (fx) fx.remove(); return; }
-    if (!fx) { fx = document.createElement('div'); fx.id = 'bgfx'; document.body.insertBefore(fx, document.body.firstChild); }
-    var d1 = (b.dim || 0) / 100, sc = 'rgba(' + bg.join(',') + ',.58)';
-    fx.style.backgroundImage = 'linear-gradient(' + sc + ',' + sc + '),' + (d1 ? 'linear-gradient(rgba(0,0,0,' + d1 + '),rgba(0,0,0,' + d1 + ')),' : '') + 'url("' + pk1.item.src + '")'; })();
-  if (bs) { bs.backgroundColor = rgbHex(bg); var pk = resolvePick(b.sel), bgs = {}; if (pk && (pk.kind === 'tex' || pk.kind === 'btex')) { paintPick(bgs, pk, 0); bs.backgroundImage = bgs.backgroundImage; bs.backgroundSize = bgs.backgroundSize; bs.backgroundRepeat = 'repeat'; } else bs.backgroundImage = ''; }
+  (function () {
+    var ppk = resolvePick(pg.sel), fx = document.getElementById('bgfx');
+    if (!(ppk && ppk.kind === 'bg') || !document.body) { if (fx) fx.remove(); }
+    else {
+      if (!fx) { fx = document.createElement('div'); fx.id = 'bgfx'; document.body.insertBefore(fx, document.body.firstChild); }
+      var fd = (pg.fade == null ? 55 : pg.fade) / 100, sc = 'rgba(' + pbg.join(',') + ',' + fd + ')';
+      fx.style.backgroundImage = 'linear-gradient(' + sc + ',' + sc + '),url("' + ppk.item.src + '")';
+    }
+  })();
+  if (bs) { var pk = resolvePick(pg.sel) || resolvePick(b.sel), bgs = {}; bs.backgroundColor = rgbHex(pbg); if (pk && (pk.kind === 'tex' || pk.kind === 'btex')) { paintPick(bgs, pk, 0); bs.backgroundImage = bgs.backgroundImage; bs.backgroundSize = bgs.backgroundSize; bs.backgroundRepeat = 'repeat'; } else bs.backgroundImage = ''; }
 }
 function eff0(role) { try { return eff(role).f; } catch (e) { return 'Figtree'; } }
 function stage(child, cls) { var el = h('div', { class: 'stage ' + (cls || '') }, child); applyBg(el); return el; }
@@ -1599,26 +1601,26 @@ function afterBought(item) {
   var fid = item.foodId || '', fd = fid ? FOODS[fid] : null;
   if (!fd) { var m = E.matchFoods(item.name, allFoods(), 1)[0]; if (m) { fid = m.id; fd = m; } }
   var place = item.place || placeGuess(item.name, fd), exp = produceExp(item.name + ' ' + (fd ? fd.name : ''), place), ew = fd ? eachW(fd) : 0;
-  var info = { name: item.name, foodId: fid, g: item.g > 0 ? item.g : 0, place: place, exp: exp, cnt: !!exp && ew > 0 };
-  if (exp) { if (addPantry(info) === 'ok') toast('“' + item.name + '” is in your pantry, use by ' + dm(fromIso(exp)) + '.'); return; }
-  openBuySheet(info, fd);
+  openBuySheet({ name: item.name, foodId: fid, g: item.g > 0 ? item.g : 0, place: place, exp: exp, cnt: !!exp && ew > 0 }, fd);
 }
 function openBuySheet(info, fd) {
   var old = document.getElementById('buysheet'); if (old) old.remove();
   var ew = fd ? eachW(fd) : 0, lq = fd && isLiq(fd), dn = (fd && fd.density) || 1;
-  var uSel = h('select', { 'aria-label': 'Unit' }, [['g', 'g'], ['kg', 'kg'], ['ml', 'ml'], ['L', 'L'], ['whole', 'whole']].map(function (u) { return h('option', { value: u[0], selected: u[0] === (lq ? 'ml' : 'g') }, u[1]); }));
-  var a = h('input', { type: 'number', min: '0', step: 'any', inputmode: 'decimal', 'aria-label': 'Amount', value: info.g > 0 ? String(Math.round(lq ? info.g / dn : info.g)) : '', placeholder: 'Amount' });
+  var uSel = h('select', { 'aria-label': 'Unit' }, [['g', 'g'], ['kg', 'kg'], ['ml', 'ml'], ['L', 'L'], ['whole', 'whole']].map(function (u) { var u0 = info.cnt && ew ? 'whole' : lq ? 'ml' : 'g'; return h('option', { value: u[0], selected: u[0] === u0 }, u[1]); }));
+  var a = h('input', { type: 'number', min: '0', step: 'any', inputmode: 'decimal', 'aria-label': 'Amount', value: info.g > 0 ? String(info.cnt && ew ? Math.round(info.g / ew * 2) / 2 : Math.round(lq ? info.g / dn : info.g)) : '', placeholder: 'How much?' });
   var pl = h('select', { 'aria-label': 'Kept in' }, ['Fridge', 'Freezer', 'Cupboard'].map(function (x) { return h('option', { value: x, selected: x === info.place }, x); }));
-  var ex = h('input', { type: 'date', 'aria-label': 'Use by date', id: 'bs-exp' });
+  var ex = h('input', { type: 'date', 'aria-label': 'Use by date (optional)', id: 'bs-exp', value: info.exp || '' }); ex.dataset.auto = info.exp ? '1' : '';
+  ex.addEventListener('input', function () { ex.dataset.auto = ''; });
+  pl.addEventListener('change', function () { if (ex.dataset.auto === '1') { var sg = produceExp(info.name + ' ' + (fd ? fd.name : ''), pl.value); ex.value = sg; } });
   function close() { var e = document.getElementById('buysheet'); if (e) e.remove(); }
   function save() {
-    var v = parseFloat(a.value), g = 0; if (v > 0) { g = toGrams(v, uSel.value, info.foodId); if (g == null) { toast('I do not know the weight of one of those. Use g or kg.'); return; } }
+    var v = parseFloat(a.value), g = 0; if (!(v > 0)) { toast('Add how much you bought.'); a.focus(); return; } g = toGrams(v, uSel.value, info.foodId); if (g == null) { toast('I do not know the weight of one of those. Use g or kg.'); return; }
     addPantry({ name: info.name, foodId: info.foodId, g: g, place: pl.value, exp: ex.value, cnt: uSel.value === 'whole' }); close(); toast('“' + info.name + '” added to your pantry.'); render();
   }
   var sheet = h('div', { class: 'sheetbg', id: 'buysheet', onclick: function (e) { if (e.target === e.currentTarget) close(); } },
     h('div', { class: 'sheet', role: 'dialog', 'aria-label': 'Add to pantry' },
       h('h2', null, 'Add to pantry'), h('p', { class: 'sheetn' }, info.name),
-      h('div', { class: 'sheetg' }, h('label', null, 'Amount', h('span', { class: 'nipr' }, a, uSel)), h('label', null, 'Kept in', pl), h('label', null, 'Use by', ex)),
+      h('div', { class: 'sheetg' }, h('label', null, 'Amount', h('span', { class: 'nipr' }, a, uSel)), h('label', null, 'Kept in', pl), h('label', null, 'Use by (optional)', ex)),
       h('div', { class: 'btns', style: 'margin-top:16px' }, h('button', { class: 'btn primary', type: 'button', onclick: save }, 'Add to pantry'), h('button', { class: 'btn quiet', type: 'button', onclick: close }, 'Skip'))));
   document.body.appendChild(sheet);
 }
@@ -2132,6 +2134,11 @@ function recipesView() {
     oninput: function (e) { S.q = e.target.value; drawList(); if (desk) drawPane(); } });
   var sort = h('select', { class: 'sortsel', 'aria-label': 'Order recipes', onchange: function (e) { S.sort = e.target.value; render(); } }, [['az', 'A\u2013Z'], ['quick', 'Quickest']].map(function (x) { return h('option', { value: x[0], selected: S.sort === x[0] }, x[1]); }));
   var tg = allTags(), tagBar = h('div', { class: 'tagstrip', role: 'group', 'aria-label': 'Filter by tag' }, [['', 0]].concat(tg).map(function (x) { return h('button', { type: 'button', class: 'tagt', 'aria-pressed': String((S.tag || '') === x[0]), onclick: function () { S.tag = x[0]; render(); } }, x[0] || 'All'); }));
+  (function () {
+    var pk = resolvePick(design.bg.sel), isTex = pk && (pk.kind === 'tex' || pk.kind === 'btex');
+    [].forEach.call(tagBar.children, function (bt) { bt.style.backgroundColor = design.bg.color; if (isTex) { paintPick(bt.style, pk, 0); bt.style.backgroundColor = design.bg.color; } else if (pk && pk.kind === 'bg') { var dd = (design.bg.dim || 0) / 100; bt.style.backgroundImage = (dd ? 'linear-gradient(rgba(0,0,0,' + dd + '),rgba(0,0,0,' + dd + ')),' : '') + 'url("' + pk.item.src + '")'; bt.style.backgroundSize = 'cover'; bt.style.backgroundRepeat = 'no-repeat'; bt.style.backgroundPosition = 'center'; } else bt.style.backgroundImage = 'none'; });
+    if (isTex) requestAnimationFrame(function () { [].forEach.call(tagBar.children, function (bt) { var r = bt.getBoundingClientRect(), b = document.body.getBoundingClientRect(); bt.style.backgroundPosition = Math.round(b.left - r.left) + 'px ' + Math.round(b.top - r.top) + 'px'; }); });
+  })();
   var nvBtn = h('button', { class: 'nvtog', type: 'button', role: 'switch', 'aria-checked': String(nv.on), title: 'Show or hide nutrition on every card', onclick: function () { nv.on = !nv.on; saveNv(); render(); } }, h('span', { class: 'nvdot', 'aria-hidden': 'true' }), h('span', null, 'Nutrition'));
   var flt = h('button', { class: 'iconb fltb1', type: 'button', title: 'Filter', 'aria-label': 'Filter recipes', 'aria-haspopup': 'true', 'aria-pressed': String(!!S.flt), onclick: function (e) {
     e.stopPropagation(); if (dotPop && dotPop.btn === flt) { closeDot(); return; } closeDot();
@@ -2773,8 +2780,20 @@ function settingsView() {
   }
   function uploadBtn(text, input) { return h('button', { class: 'btn', type: 'button', onclick: function () { input.click(); } }, text); }
 
+  function secPage() {
+    var g = design.page, pk = resolvePick(g.sel), kids = [h('h2', null, 'App background'), h('p', { class: 'hint' }, 'The wide background behind every screen. Leave it plain to follow the card background below, or give the whole app its own picture, texture or colour.')];
+    var inBg = pickFile('bg', 'Upload a picture', function (item) { g.sel = 'p:' + item.id; changed(); drawCtl(); });
+    var inTx = pickFile('tex', 'Upload a texture', function (item) { g.sel = 'p:' + item.id; changed(); drawCtl(); });
+    kids.push(field('App picture or texture', picSelect('pg-pick', 'App picture or texture', g.sel, 'Plain colour', function (v) { g.sel = v; changed(); drawCtl(); }), 'Pick a built-in texture or anything from your library.', 'pg-pick'));
+    kids.push(h('div', { class: 'btns', style: 'margin-top:12px' }, uploadBtn('Upload a picture', inBg), inBg, uploadBtn('Upload a texture', inTx), inTx));
+    if (!(pk && pk.kind === 'bg')) kids.push(h('div', { class: 'field' }, h('span', { class: 'lab2' }, 'Colour'), swatches(BGPAL, g.color || design.bg.color, function (c) { g.color = c; }, 'App background')));
+    if (pk && pk.kind === 'bg') kids.push(slider('pg-fade', 'Fade the picture into the colour', 0, 90, Math.round(g.fade == null ? 55 : g.fade), '%', function (v) { g.fade = v; }, 'Higher is softer, so text stays easy to read.'));
+    if (pk && pk.kind === 'bg') kids.push(h('div', { class: 'field' }, h('span', { class: 'lab2' }, 'Colour behind the picture'), swatches(BGPAL, g.color || design.bg.color, function (c) { g.color = c; }, 'App background colour')));
+    if (g.sel || g.color) kids.push(h('div', { class: 'btns', style: 'margin-top:12px' }, h('button', { class: 'btn quiet', type: 'button', onclick: function () { g.sel = ''; g.color = ''; changed(); drawCtl(); } }, 'Match the card background')));
+    return h('div', { class: 'sec' }, kids);
+  }
   function secBackground() {
-    var b = design.bg, pk = resolvePick(b.sel), kids = [h('h2', null, 'Background'), h('p', { class: 'hint' }, 'The surface the cards roll across. The cards themselves are set under Cardstock.')];
+    var b = design.bg, pk = resolvePick(b.sel), kids = [h('h2', null, 'Card background'), h('p', { class: 'hint' }, 'The surface behind the recipe card and the category tabs. The cards themselves are set under Cardstock.')];
     var inBg = pickFile('bg', 'Upload a background', function (item) { b.sel = 'p:' + item.id; changed(); drawCtl(); });
     var inTx = pickFile('tex', 'Upload a texture', function (item) { b.sel = 'p:' + item.id; changed(); drawCtl(); });
     kids.push(field('Background picture or texture', picSelect('bg-pick', 'Background picture or texture', b.sel, 'Plain colour', function (v) { b.sel = v; changed(); drawCtl(); }),
@@ -2890,7 +2909,7 @@ function settingsView() {
     kids.push(h('div', { style: 'margin-top:16px' }, rst));
     return h('div', { class: 'sec' }, kids);
   }
-  function drawCtl() { ctl.replaceChildren(secBackground(), secPaper(), secText(), secLib(), secMeasuring()); }
+  function drawCtl() { ctl.replaceChildren(secPage(), secBackground(), secPaper(), secText(), secLib(), secMeasuring()); }
   drawPreview(); drawCtl();
   return h('div', { class: 'set' }, pv, ctl);
 }
