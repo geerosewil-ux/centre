@@ -494,6 +494,21 @@ input:focus,select:focus,textarea:focus{outline:none!important;border-color:var(
 .top .seg button{font-family:var(--menu-font,inherit)!important;font-size:calc(12px*var(--menu-z,1))!important;color:var(--menu-ink,var(--pg-ink-2,var(--ink-2)))}
 .top .seg button[aria-pressed="true"]{color:var(--menu-ink,var(--pg-ink,var(--ink)))}
 @media (max-width:640px){.top h1{font-size:calc(38px*var(--ttl-z,1))}.top .seg button{font-size:calc(10.5px*var(--menu-z,1))!important}}
+.dstrip{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin:14px 0 14px}
+.dchip{display:flex;flex-direction:column;align-items:center;gap:3px;padding:9px 0 8px;min-height:64px;border:1px solid var(--line);border-radius:var(--r-panel,14px);background:var(--card);color:var(--ink);cursor:pointer;font-family:var(--font-body)}
+.dchip .dn{font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-2)}.dchip .dd{font-size:18px;font-weight:600;line-height:1.1}
+.dchip .dbar{display:block;width:70%;height:3px;border-radius:3px;background:var(--rule);overflow:hidden;margin-top:2px}.dchip .dbar i{display:block;height:100%;background:var(--accent)}
+.dchip.today .dd{color:var(--accent)}.dchip.on{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+.dday{border:1px solid var(--line);border-radius:var(--r-panel,16px);background:var(--card);padding:16px 18px;display:flex;flex-direction:column;gap:6px}
+.dhead{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}.dhead h3{font:600 20px var(--font-serif)}.dhead span{color:var(--ink-2);font-size:14px}
+.dslot{display:flex;flex-direction:column;gap:4px;border-top:1px solid var(--rule);padding-top:10px;margin-top:6px}.dslot .slotl{margin:0 0 4px}
+.dent{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 0;border-top:1px solid var(--rule)}.dslot .slotl+.dent{border-top:0}
+.dent .det{display:flex;flex-direction:column;min-width:0}.dent .det b,.dent .det .entname{font-weight:600;font-size:15px;text-align:left}.dent .det small{color:var(--ink-2);font-size:12.5px}
+.dent .entctl{display:flex;gap:6px;flex:none}
+.addp{display:flex;flex-direction:column;gap:10px;padding:12px;border:1px dashed var(--line);border-radius:12px;margin-top:6px}
+.addp .rchips{display:flex;flex-wrap:wrap;gap:6px}
+.dday .addb{align-self:flex-start!important;justify-content:flex-start;width:auto;min-height:36px;padding:0 4px;border:0;background:none;color:var(--accent);margin-top:2px}
+@media (min-width:900px){.dday{max-width:760px}}
 </style>
 
 <div class="app" id="app"></div>
@@ -1387,74 +1402,151 @@ function targetBars(totals, compact) {
 
 /* ---------- planner ---------- */
 function dayEntries(iso) { return plan[iso] || []; }
-function dayTotals(iso) { return E.planDay(dayEntries(iso).map(function (e) { return { recipeId: e.recipeId, servings: e.servings, slot: e.slot }; }), recMap(), FOODS).total; }
+function isFoodEnt(e) { return !e.recipeId; }
+function entTotals(e) {
+  var z = {}; E.NKEYS.forEach(function (k) { z[k] = 0; });
+  try {
+    if (!isFoodEnt(e)) return E.planDay([{ recipeId: e.recipeId, servings: e.servings, slot: e.slot }], recMap(), FOODS).total;
+    if (!FOODS[e.foodId]) return z;
+    return E.sumNutrients([{ foodId: e.foodId, g: e.g }], FOODS).total;
+  } catch (x) { return z; }
+}
+function dayTotals(iso) {
+  var t = {}; E.NKEYS.forEach(function (k) { t[k] = 0; });
+  dayEntries(iso).forEach(function (e) { var x = entTotals(e); E.NKEYS.forEach(function (k) { t[k] += x[k] || 0; }); });
+  return t;
+}
+function foodAmtText(e) { var fd = FOODS[e.foodId]; try { return fd ? E.displayAmount({ g: e.g, ml: isLiq(fd) ? e.g / (fd.density || 1) : null }, fd) : Math.round(e.g) + ' g'; } catch (x) { return Math.round(e.g) + ' g'; } }
+function foodStep(e) { var fd = FOODS[e.foodId], ew = fd ? eachW(fd) : 0; return ew && ew < 400 ? ew : 25 * (isLiq(fd) && fd.density ? fd.density : 1); }
+function setFoodG(e, ng) {
+  ng = Math.max(1, ng);
+  var p = pantryItemFor(e);
+  if (p && !p.nog && !p.staple) { var avail = p.g + (e.pg || 0), take = Math.min(avail, ng); p.g = Math.round((avail - take) * 10) / 10; e.pg = Math.round(take * 10) / 10; savePantry(); }
+  e.g = Math.round(ng * 10) / 10; savePlan();
+}
+function pantryItemFor(e) { return (e.foodId && pantryItem(e.foodId)) || pantry.filter(function (x) { return x.name.toLowerCase() === (e.name || '').toLowerCase(); })[0] || null; }
+function removeEnt(iso, e) {
+  var p = e.pg > 0 ? pantryItemFor(e) : null; if (p) { p.g = Math.round((p.g + e.pg) * 10) / 10; savePantry(); }
+  plan[iso] = dayEntries(iso).filter(function (x) { return x !== e; }); if (!plan[iso].length) delete plan[iso]; savePlan();
+}
+function logFood(iso, slot, info) {
+  var e = { id: uid(), foodId: info.foodId || '', name: info.name, g: info.g, slot: slot }, p = pantryItemFor(e);
+  if (p && !p.nog && !p.staple && p.g > 0) { var take = Math.min(p.g, info.g); p.g = Math.round((p.g - take) * 10) / 10; e.pg = Math.round(take * 10) / 10; savePantry(); }
+  (plan[iso] = plan[iso] || []).push(e); savePlan();
+  return e;
+}
+function recentFoods() {
+  var seen = {}, out = [], isos = Object.keys(plan).sort().reverse();
+  isos.forEach(function (iso) { dayEntries(iso).slice().reverse().forEach(function (e) { if (isFoodEnt(e) && e.name && !seen[e.name.toLowerCase()] && out.length < 8) { seen[e.name.toLowerCase()] = 1; out.push(e); } }); });
+  return out;
+}
+function dayChipState(iso) {
+  var ents = dayEntries(iso); if (!ents.length) return { pct: 0, n: 0 };
+  var kt = targets.filter(function (t) { return t.k === 'kcal'; })[0], tot = dayTotals(iso);
+  return { n: ents.length, pct: kt && kt.v ? Math.min(100, Math.round((tot.kcal || 0) / kt.v * 100)) : 100 };
+}
 
 function planView() {
   var mon = fromIso(S.week), wrap = h('div', { class: 'planv' }), today = isoD(new Date()), map = recMap();
+  var weekIsos = []; for (var wi = 0; wi < 7; wi++) weekIsos.push(isoD(addDays(mon, wi)));
+  if (!S.pday || weekIsos.indexOf(S.pday) < 0) S.pday = weekIsos.indexOf(today) >= 0 ? today : weekIsos[0];
+  var sel = S.pday;
   var head = h('div', { class: 'tools' },
     h('div', { class: 'seg', role: 'group', 'aria-label': 'Week' },
-      h('button', { type: 'button', 'aria-label': 'Previous week', onclick: function () { S.week = isoD(addDays(mon, -7)); render(); } }, '‹'),
+      h('button', { type: 'button', 'aria-label': 'Previous week', onclick: function () { S.week = isoD(addDays(mon, -7)); S.pday = ''; render(); } }, '‹'),
       h('button', { type: 'button', style: 'pointer-events:none;min-width:150px', 'aria-live': 'polite' }, dm(mon) + ' – ' + dm(addDays(mon, 6))),
-      h('button', { type: 'button', 'aria-label': 'Next week', onclick: function () { S.week = isoD(addDays(mon, 7)); render(); } }, '›')),
-    h('button', { class: 'btn', type: 'button', onclick: function () { S.week = isoD(mondayOf(new Date())); render(); } }, 'This week'),
+      h('button', { type: 'button', 'aria-label': 'Next week', onclick: function () { S.week = isoD(addDays(mon, 7)); S.pday = ''; render(); } }, '›')),
+    h('button', { class: 'btn', type: 'button', onclick: function () { S.week = isoD(mondayOf(new Date())); S.pday = ''; render(); } }, 'This week'),
     h('button', { class: 'btn primary', type: 'button', onclick: function () { addWeekToCart(S.week); } }, 'Add this week to cart'));
   wrap.appendChild(head);
-  var grid = h('div', { class: 'wgrid' }), weekTot = {}, planned = 0;
+
+  // week strip
+  var strip = h('div', { class: 'dstrip', role: 'group', 'aria-label': 'Days of the week' }), weekTot = {}, planned = 0;
   E.NKEYS.forEach(function (k) { weekTot[k] = 0; });
-  for (var i = 0; i < 7; i++) (function (i) {
-    var d = addDays(mon, i), iso = isoD(d), ents = dayEntries(iso), tot = dayTotals(iso);
-    if (ents.length) { planned++; E.NKEYS.forEach(function (k) { weekTot[k] += tot[k]; }); }
-    var col = h('section', { class: 'dcol' + (iso === today ? ' today' : ''), 'aria-label': DAYN[i] + ' ' + dm(d) });
-    col.appendChild(h('h3', null, DAYN[i], h('span', null, ' ' + dm(d))));
-    SLOTS.forEach(function (sl) {
-      var list = ents.filter(function (e) { return e.slot === sl[0]; });
-      if (!list.length) return;
-      col.appendChild(h('div', { class: 'slotl' }, sl[1]));
-      list.forEach(function (e) {
+  weekIsos.forEach(function (iso, i) {
+    var d = addDays(mon, i), st = dayChipState(iso), ents = dayEntries(iso);
+    if (ents.length) { planned++; var t0 = dayTotals(iso); E.NKEYS.forEach(function (k) { weekTot[k] += t0[k]; }); }
+    strip.appendChild(h('button', { type: 'button', class: 'dchip' + (iso === sel ? ' on' : '') + (iso === today ? ' today' : ''), 'aria-pressed': String(iso === sel), 'aria-label': DAYN[i] + ' ' + dm(d) + (st.n ? ', ' + st.n + ' planned' : ', nothing planned'),
+      onclick: function () { S.pday = iso; render(); } },
+      h('span', { class: 'dn' }, DAYN[i]), h('span', { class: 'dd' }, String(d.getDate())), h('span', { class: 'dbar' }, h('i', { style: 'width:' + st.pct + '%' }))));
+  });
+  wrap.appendChild(strip);
+
+  // the selected day
+  var dsel = fromIso(sel), di = weekIsos.indexOf(sel), ents = dayEntries(sel), tot = dayTotals(sel);
+  var card = h('section', { class: 'dday', 'aria-label': DAYN[di] + ' ' + dm(dsel) });
+  card.appendChild(h('div', { class: 'dhead' }, h('h3', null, ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'][di]), h('span', null, dm(dsel) + (sel === today ? ' · today' : ''))));
+  if (ents.length && targets.length) card.appendChild(targetBars(tot, false));
+  SLOTS.forEach(function (sl) {
+    var list = ents.filter(function (e) { return (e.slot || 'dinner') === sl[0]; }), open = S.planAdd[sel] && S.planAdd[sel].slot === sl[0] ? S.planAdd[sel] : null;
+    var sec = h('div', { class: 'dslot' }, h('div', { class: 'slotl' }, sl[1]));
+    list.forEach(function (e) {
+      var kc = Math.round(entTotals(e).kcal || 0), kcTx = kc ? kc + ' kcal' : '';
+      if (isFoodEnt(e)) {
+        sec.appendChild(h('div', { class: 'dent food' },
+          h('div', { class: 'det' }, h('b', null, e.name), h('small', null, foodAmtText(e) + (kcTx ? ' · ' + kcTx : '') + (e.pg > 0 ? ' · from pantry' : ''))),
+          h('div', { class: 'entctl' },
+            h('button', { class: 'mini-b', type: 'button', 'aria-label': 'Less ' + e.name, onclick: function () { setFoodG(e, e.g - foodStep(e)); render(); } }, '−'),
+            h('button', { class: 'mini-b', type: 'button', 'aria-label': 'More ' + e.name, onclick: function () { setFoodG(e, e.g + foodStep(e)); render(); } }, '+'),
+            h('button', { class: 'mini-b', type: 'button', 'aria-label': 'Remove ' + e.name, onclick: function () { removeEnt(sel, e); render(); } }, '×'))));
+      } else {
         var r = map[e.recipeId];
-        col.appendChild(h('div', { class: 'ent' },
-          h('button', { class: 'entname', type: 'button', onclick: function () { if (r) { S.view = 'recipes'; S.sel = r.id; S.detail = true; S.q = ''; render(); } } }, r ? r.name : 'Removed recipe'),
+        sec.appendChild(h('div', { class: 'dent' },
+          h('div', { class: 'det' }, h('button', { class: 'entname', type: 'button', onclick: function () { if (r) { S.view = 'recipes'; S.sel = r.id; S.detail = true; S.q = ''; render(); } } }, r ? r.name : 'Removed recipe'),
+            h('small', null, e.servings + ' serve' + (e.servings === 1 ? '' : 's') + (kcTx ? ' · ' + kcTx : ''))),
           h('div', { class: 'entctl' },
             h('button', { class: 'mini-b', type: 'button', 'aria-label': 'Fewer servings of ' + (r ? r.name : 'recipe'), onclick: function () { e.servings = Math.max(0.5, e.servings - (e.servings > 1 ? 1 : 0.5)); savePlan(); render(); } }, '−'),
-            h('span', { class: 'srv' }, (e.servings % 1 ? e.servings : e.servings) + ' serve' + (e.servings === 1 ? '' : 's')),
             h('button', { class: 'mini-b', type: 'button', 'aria-label': 'More servings of ' + (r ? r.name : 'recipe'), onclick: function () { e.servings = e.servings + (e.servings >= 1 ? 1 : 0.5); savePlan(); render(); } }, '+'),
-            h('button', { class: 'mini-b', type: 'button', 'aria-label': 'Remove ' + (r ? r.name : 'recipe') + ' from ' + DAYN[i], onclick: function () { plan[iso] = ents.filter(function (x) { return x !== e; }); if (!plan[iso].length) delete plan[iso]; savePlan(); render(); } }, '×'))));
-      });
+            h('button', { class: 'mini-b', type: 'button', 'aria-label': 'Remove ' + (r ? r.name : 'recipe'), onclick: function () { removeEnt(sel, e); render(); } }, '×'))));
+      }
     });
-    if (!ents.length) col.appendChild(h('p', { class: 'hint', style: 'margin:6px 0 10px' }, 'Nothing planned.'));
-    // add form
-    var open = S.planAdd[iso];
-    if (open) {
-      var slotSel = h('select', { 'aria-label': 'Meal' }, SLOTS.map(function (x) { return h('option', { value: x[0], selected: x[0] === (open.slot || 'dinner') }, x[1]); }));
-      var recSel = h('select', { 'aria-label': 'Recipe' }, RECIPES.slice().sort(function (a, b) { return a.name.localeCompare(b.name); }).map(function (r) { return h('option', { value: r.id, selected: r.id === open.rid }, r.name); }));
-      var srv = h('input', { type: 'number', min: '0.5', step: '0.5', value: open.srv || 1, 'aria-label': 'Servings', inputmode: 'decimal' });
-      recSel.addEventListener('change', function () { open.rid = recSel.value; });
-      slotSel.addEventListener('change', function () { open.slot = slotSel.value; });
-      col.appendChild(h('div', { class: 'addf' }, slotSel, recSel, h('label', null, 'Serves ', srv),
-        h('div', { class: 'btns' },
-          h('button', { class: 'btn primary', type: 'button', onclick: function () {
-            var rid = recSel.value, sv = Math.max(0.5, Number(srv.value) || 1); (plan[iso] = plan[iso] || []).push({ id: uid(), recipeId: rid, servings: sv, slot: slotSel.value });
-            savePlan(); S.planAdd[iso] = null; render();
-          } }, 'Add'),
-          h('button', { class: 'btn quiet', type: 'button', onclick: function () { S.planAdd[iso] = null; render(); } }, 'Cancel'))));
-    } else {
-      col.appendChild(h('button', { class: 'btn addb', type: 'button', onclick: function () { S.planAdd[iso] = { rid: RECIPES[0] && RECIPES[0].id, slot: 'dinner', srv: 1 }; render(); } }, '+ Add a meal'));
-    }
-    if (ents.length) col.appendChild(targetBars(tot, true));
-    grid.appendChild(col);
-  })(i);
-  wrap.appendChild(grid);
+    if (open) sec.appendChild(addPanel(sel, sl[0], open));
+    else sec.appendChild(h('button', { class: 'btn quiet addb', type: 'button', onclick: function () { S.planAdd = {}; S.planAdd[sel] = { slot: sl[0], mode: 'recipe' }; render(); } }, list.length ? '+ Add to ' + sl[1].toLowerCase() : '+ Add ' + sl[1].toLowerCase()));
+    card.appendChild(sec);
+  });
+  wrap.appendChild(card);
   if (planned > 1 && targets.length) {
     var avg = {}; E.NKEYS.forEach(function (k) { avg[k] = weekTot[k] / planned; });
     wrap.appendChild(h('div', { class: 'sumbox', style: 'margin-top:18px' }, h('div', { class: 'big', style: 'font-size:18px' }, 'Average of the ' + planned + ' planned days'), targetBars(avg, false)));
   }
   return wrap;
 }
+function addPanel(iso, slot, open) {
+  var box = h('div', { class: 'addp' }), mode = open.mode || 'recipe';
+  box.appendChild(h('div', { class: 'seg', role: 'group', 'aria-label': 'What to add' },
+    h('button', { type: 'button', 'aria-pressed': String(mode === 'recipe'), onclick: function () { open.mode = 'recipe'; render(); } }, 'Recipe'),
+    h('button', { type: 'button', 'aria-pressed': String(mode === 'food'), onclick: function () { open.mode = 'food'; render(); } }, 'Single food')));
+  var cancel = h('button', { class: 'btn quiet', type: 'button', onclick: function () { S.planAdd = {}; render(); } }, 'Cancel');
+  if (mode === 'recipe') {
+    var recSel = h('select', { 'aria-label': 'Recipe' }, RECIPES.slice().sort(function (a, b) { return a.name.localeCompare(b.name); }).map(function (r) { return h('option', { value: r.id, selected: r.id === open.rid }, r.name); }));
+    var srv = h('input', { type: 'number', min: '0.5', step: '0.5', value: open.srv || 1, 'aria-label': 'Servings', inputmode: 'decimal' });
+    recSel.addEventListener('change', function () { open.rid = recSel.value; });
+    box.appendChild(h('div', { class: 'addf' }, recSel, h('label', null, 'Serves ', srv),
+      h('div', { class: 'btns' }, h('button', { class: 'btn primary', type: 'button', onclick: function () {
+        (plan[iso] = plan[iso] || []).push({ id: uid(), recipeId: recSel.value, servings: Math.max(0.5, Number(srv.value) || 1), slot: slot }); savePlan(); S.planAdd = {}; render();
+      } }, 'Add'), cancel)));
+  } else {
+    var rec = recentFoods();
+    if (rec.length) {
+      box.appendChild(h('div', { class: 'lab2' }, 'Recent'));
+      box.appendChild(h('div', { class: 'rchips' }, rec.map(function (e) {
+        return h('button', { type: 'button', class: 'btn quiet', onclick: function () { logFood(iso, slot, { name: e.name, foodId: e.foodId, g: e.g }); S.planAdd = {}; toast('Logged ' + e.name + '.'); render(); } }, '+ ' + e.name);
+      })));
+    }
+    box.appendChild(newItemPanel({ label: 'Log it' }, function (it) {
+      if (!(it.g > 0)) { toast('Add an amount so I can count it.'); return; }
+      var had = pantryItemFor({ foodId: it.foodId, name: it.name }); logFood(iso, slot, { name: it.name, foodId: it.foodId, g: it.g });
+      S.planAdd = {}; toast('Logged ' + it.name + (had && !had.nog && !had.staple ? ' and took it from your pantry.' : '.')); render();
+    }));
+    box.appendChild(h('div', { class: 'btns', style: 'margin-top:8px' }, cancel));
+  }
+  return box;
+}
 
 /* ---------- cart ---------- */
 function addWeekToCart(week) {
   if (cart.sources.some(function (s) { return s.type === 'week' && s.week === week; })) { toast('That week is already in the cart.'); return; }
-  var n = 0; for (var i = 0; i < 7; i++) n += dayEntries(isoD(addDays(fromIso(week), i))).length;
+  var n = 0; for (var i = 0; i < 7; i++) n += dayEntries(isoD(addDays(fromIso(week), i))).filter(function (e) { return e.recipeId; }).length;
   if (!n) { toast('Plan some meals first.'); return; }
   cart.sources.push({ type: 'week', id: uid(), week: week }); saveCart(); toast('Week added to the cart.');
 }
@@ -1479,7 +1571,7 @@ function addRecipeToCart(r, servings, onlyMissing) {
 function cartEntries() {
   var out = [];
   cart.sources.forEach(function (s) {
-    if (s.type === 'week') for (var i = 0; i < 7; i++) dayEntries(isoD(addDays(fromIso(s.week), i))).forEach(function (e) { out.push(e); });
+    if (s.type === 'week') for (var i = 0; i < 7; i++) dayEntries(isoD(addDays(fromIso(s.week), i))).forEach(function (e) { if (e.recipeId) out.push(e); });
     else if (s.type === 'event') { var ev0 = (events || []).filter(function (e) { return e.id === s.eventId; })[0]; if (ev0) ev0.sections.forEach(function (sc) { sc.items.forEach(function (it) { out.push({ recipeId: it.rid, servings: it.serv, scope: it.scope || 'base' }); }); }); }
     else if (s.type === 'extra') out.push({ recipeId: s.id, servings: 1 });
     else out.push({ recipeId: s.recipeId, servings: s.servings, scope: s.scope || 'base' });
