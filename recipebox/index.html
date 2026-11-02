@@ -515,6 +515,16 @@ input:focus,select:focus,textarea:focus{outline:none!important;border-color:var(
 .tagstrip,.row2,.menubar .tagstrip{padding:0!important}
 .tplp .tplname{flex:1 1 auto;min-width:0;min-height:44px;border:1px solid var(--line);border-radius:999px;background:var(--card);padding:0 16px;color:var(--ink);font:inherit}
 .tplrow{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 0;border-top:1px solid var(--rule);flex-wrap:wrap}.tplrow .det{display:flex;flex-direction:column;min-width:0}.tplrow .det small{color:var(--ink-2);font-size:12.5px}.tplrow .entctl{display:flex;gap:6px;flex-wrap:wrap}
+.tbar.plain .track i{background:var(--ink-2);opacity:.55}
+.wkrow{border-top:1px solid var(--rule);padding:10px 0 4px}.wkrow .tl{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;font-size:14px}.wkrow .tv{color:var(--ink-2)}
+.wkcols{position:relative;display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-top:8px}
+.wkc{display:flex;flex-direction:column;align-items:center;gap:4px;border:0;background:none;padding:0;cursor:pointer;color:var(--ink-2);font:inherit}
+.wkb{display:flex;align-items:flex-end;width:100%;height:56px;background:var(--rule);border-radius:8px;overflow:hidden}.wkb i{display:block;width:100%;background:var(--accent);border-radius:8px 8px 0 0}
+.wkc.under .wkb i{background:var(--ink-2)}.wkc.over .wkb i{background:#B5543B}.wkc.on .wkb{outline:1.5px solid var(--accent);outline-offset:1px}.wkd{font-size:11px;letter-spacing:.08em}
+.wkt{display:none}
+.wkrow .ts{font-size:12px;color:var(--ink-2);margin-top:4px}
+.tplprev{padding:6px 0 10px;border-top:1px solid var(--rule)}
+.tplpick{margin:6px 0 8px}.tplpick .dchip{min-height:56px}
 </style>
 
 <div class="app" id="app"></div>
@@ -1534,8 +1544,8 @@ function planView() {
   var card = h('section', { class: 'dday', 'aria-label': DAYN[di] + ' ' + dm(dsel) });
   card.appendChild(h('div', { class: 'dhead' }, h('h3', null, ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'][di]), h('span', null, dm(dsel) + (sel === today ? ' · today' : ''))));
   card.appendChild(h('div', { class: 'btns', style: 'margin:0' }, h('button', { class: 'btn quiet', type: 'button', 'aria-pressed': String(!!(S.tpl && S.tpl.kind === 'day')), onclick: function () { S.tpl = S.tpl && S.tpl.kind === 'day' ? null : { kind: 'day' }; render(); } }, 'Day templates')));
-  var dtp = tplPanel('day', [sel]); if (dtp) card.appendChild(dtp);
-  if (ents.length && targets.length) card.appendChild(targetBars(tot, false));
+  var dtp = dayTplPanel(sel, weekIsos); if (dtp) card.appendChild(dtp);
+  if (ents.length && pnv.day !== false && pnItems().length) card.appendChild(planBars(tot));
   SLOTS.forEach(function (sl) {
     var list = ents.filter(function (e) { return (e.slot || 'dinner') === sl[0]; }), open = S.planAdd[sel] && S.planAdd[sel].slot === sl[0] ? S.planAdd[sel] : null;
     var sec = h('div', { class: 'dslot' }, h('div', { class: 'slotl' }, sl[1]));
@@ -1564,41 +1574,134 @@ function planView() {
     card.appendChild(sec);
   });
   wrap.appendChild(card);
-  if (planned > 1 && targets.length) {
-    var avg = {}; E.NKEYS.forEach(function (k) { avg[k] = weekTot[k] / planned; });
-    wrap.appendChild(h('div', { class: 'sumbox', style: 'margin-top:18px' }, h('div', { class: 'big', style: 'font-size:18px' }, 'Average of the ' + planned + ' planned days'), targetBars(avg, false)));
-  }
+  if (pnv.week !== false && pnItems().length) wrap.appendChild(weekSummary(weekIsos, sel));
   return wrap;
 }
 function addPanel(iso, slot, open) {
+  return addPanelG(slot, open,
+    function (rid, sv) { (plan[iso] = plan[iso] || []).push({ id: uid(), recipeId: rid, servings: sv, slot: slot }); savePlan(); S.planAdd = {}; render(); },
+    function (it) { var had = pantryItemFor({ foodId: it.foodId, name: it.name }); logFood(iso, slot, { name: it.name, foodId: it.foodId, g: it.g }); S.planAdd = {}; toast('Logged ' + it.name + (had && !had.nog && !had.staple ? ' and took it from your pantry.' : '.')); render(); },
+    function () { S.planAdd = {}; render(); });
+}
+function addPanelG(slot, open, onRecipe, onFood, close) {
   var box = h('div', { class: 'addp' }), mode = open.mode || 'recipe';
   box.appendChild(h('div', { class: 'seg', role: 'group', 'aria-label': 'What to add' },
     h('button', { type: 'button', 'aria-pressed': String(mode === 'recipe'), onclick: function () { open.mode = 'recipe'; render(); } }, 'Recipe'),
     h('button', { type: 'button', 'aria-pressed': String(mode === 'food'), onclick: function () { open.mode = 'food'; render(); } }, 'Single food')));
-  var cancel = h('button', { class: 'btn quiet', type: 'button', onclick: function () { S.planAdd = {}; render(); } }, 'Cancel');
+  var cancel = h('button', { class: 'btn quiet', type: 'button', onclick: close }, 'Cancel');
   if (mode === 'recipe') {
     var recSel = h('select', { 'aria-label': 'Recipe' }, RECIPES.slice().sort(function (a, b) { return a.name.localeCompare(b.name); }).map(function (r) { return h('option', { value: r.id, selected: r.id === open.rid }, r.name); }));
     var srv = h('input', { type: 'number', min: '0.5', step: '0.5', value: open.srv || 1, 'aria-label': 'Servings', inputmode: 'decimal' });
     recSel.addEventListener('change', function () { open.rid = recSel.value; });
     box.appendChild(h('div', { class: 'addf' }, recSel, h('label', null, 'Serves ', srv),
-      h('div', { class: 'btns' }, h('button', { class: 'btn primary', type: 'button', onclick: function () {
-        (plan[iso] = plan[iso] || []).push({ id: uid(), recipeId: recSel.value, servings: Math.max(0.5, Number(srv.value) || 1), slot: slot }); savePlan(); S.planAdd = {}; render();
-      } }, 'Add'), cancel)));
+      h('div', { class: 'btns' }, h('button', { class: 'btn primary', type: 'button', onclick: function () { onRecipe(recSel.value, Math.max(0.5, Number(srv.value) || 1)); } }, 'Add'), cancel)));
   } else {
     var rec = recentFoods();
     if (rec.length) {
       box.appendChild(h('div', { class: 'lab2' }, 'Recent'));
       box.appendChild(h('div', { class: 'rchips' }, rec.map(function (e) {
-        return h('button', { type: 'button', class: 'btn quiet', onclick: function () { logFood(iso, slot, { name: e.name, foodId: e.foodId, g: e.g }); S.planAdd = {}; toast('Logged ' + e.name + '.'); render(); } }, '+ ' + e.name);
+        return h('button', { type: 'button', class: 'btn quiet', onclick: function () { onFood({ name: e.name, foodId: e.foodId, g: e.g }); } }, '+ ' + e.name);
       })));
     }
     box.appendChild(newItemPanel({ label: 'Log it' }, function (it) {
       if (!(it.g > 0)) { toast('Add an amount so I can count it.'); return; }
-      var had = pantryItemFor({ foodId: it.foodId, name: it.name }); logFood(iso, slot, { name: it.name, foodId: it.foodId, g: it.g });
-      S.planAdd = {}; toast('Logged ' + it.name + (had && !had.nog && !had.staple ? ' and took it from your pantry.' : '.')); render();
+      onFood({ name: it.name, foodId: it.foodId, g: it.g });
     }));
     box.appendChild(h('div', { class: 'btns', style: 'margin-top:8px' }, cancel));
   }
+  return box;
+}
+
+/* ---------- day templates: build, preview, apply to chosen days ---------- */
+function tplTotals(arr) { var t = {}; E.NKEYS.forEach(function (k) { t[k] = 0; }); arr.forEach(function (e) { var x = entTotals(e); E.NKEYS.forEach(function (k) { t[k] += x[k] || 0; }); }); return t; }
+function tplEntName(e) { if (e.recipeId) { var r = recMap()[e.recipeId]; return r ? r.name : 'Removed recipe'; } return e.name; }
+function tplEntSub(e) { return e.recipeId ? e.servings + ' serve' + (e.servings === 1 ? '' : 's') : foodAmtText(e); }
+function tplEntList(arr, ctl) {
+  var out = h('div', null);
+  SLOTS.forEach(function (sl) {
+    var list = arr.filter(function (e) { return (e.slot || 'dinner') === sl[0]; }); if (!list.length) return;
+    out.appendChild(h('div', { class: 'slotl' }, sl[1]));
+    list.forEach(function (e) {
+      var kc = Math.round(entTotals(e).kcal || 0);
+      var row = h('div', { class: 'dent' }, h('div', { class: 'det' }, h('b', null, tplEntName(e)), h('small', null, tplEntSub(e) + (kc ? ' · ' + kc + ' kcal' : ''))));
+      if (ctl) row.appendChild(h('div', { class: 'entctl' },
+        h('button', { class: 'mini-b', type: 'button', 'aria-label': 'Less', onclick: function () { if (e.recipeId) e.servings = Math.max(0.5, e.servings - (e.servings > 1 ? 1 : 0.5)); else e.g = Math.max(1, Math.round((e.g - foodStep(e)) * 10) / 10); render(); } }, '−'),
+        h('button', { class: 'mini-b', type: 'button', 'aria-label': 'More', onclick: function () { if (e.recipeId) e.servings = e.servings + (e.servings >= 1 ? 1 : 0.5); else e.g = Math.round((e.g + foodStep(e)) * 10) / 10; render(); } }, '+'),
+        h('button', { class: 'mini-b', type: 'button', 'aria-label': 'Remove', onclick: function () { arr.splice(arr.indexOf(e), 1); render(); } }, '×')));
+      out.appendChild(row);
+    });
+  });
+  if (!arr.length) out.appendChild(h('p', { class: 'hint', style: 'margin:4px 0' }, 'Nothing in this template yet.'));
+  return out;
+}
+function dayTplPanel(sel, weekIsos) {
+  var T0 = S.tpl; if (!T0 || T0.kind !== 'day') return null;
+  var box = h('div', { class: 'addp tplp' }), mine = ptpl.filter(function (t) { return t.kind === 'day'; });
+  // editor
+  if (T0.edit) {
+    var ed = T0.edit;
+    box.appendChild(h('div', { class: 'lab2' }, ed.id ? 'Edit template' : 'New day template'));
+    var nm = h('input', { type: 'text', class: 'tplname', value: ed.name, placeholder: 'e.g. Busy weekday', 'aria-label': 'Template name', oninput: function (e) { ed.name = e.target.value; } });
+    box.appendChild(h('div', { class: 'nipr' }, nm));
+    box.appendChild(tplEntList(ed.items, true));
+    SLOTS.forEach(function (sl) {
+      if (ed.add && ed.add.slot === sl[0]) box.appendChild(addPanelG(sl[0], ed.add,
+        function (rid, sv) { ed.items.push({ recipeId: rid, servings: sv, slot: sl[0] }); ed.add = null; render(); },
+        function (it) { ed.items.push({ foodId: it.foodId, name: it.name, g: it.g, slot: sl[0] }); ed.add = null; render(); },
+        function () { ed.add = null; render(); }));
+    });
+    if (!ed.add) box.appendChild(h('div', { class: 'rchips' }, SLOTS.map(function (sl) { return h('button', { class: 'btn quiet', type: 'button', onclick: function () { ed.add = { slot: sl[0], mode: 'recipe' }; render(); } }, '+ ' + sl[1]); })));
+    if (ed.items.length && pnItems().length) { box.appendChild(h('div', { class: 'lab2', style: 'margin-top:6px' }, 'Nutrition for this day')); box.appendChild(planBars(tplTotals(ed.items))); }
+    box.appendChild(h('div', { class: 'btns', style: 'margin-top:8px' },
+      h('button', { class: 'btn primary', type: 'button', onclick: function () {
+        var name = (ed.name || '').trim(); if (!name) { toast('Name the template first.'); return; } if (!ed.items.length) { toast('Add something to the template first.'); return; }
+        var days = [ed.items.map(entCopy)];
+        if (ed.id) { var t = ptpl.filter(function (x) { return x.id === ed.id; })[0]; if (t) { t.name = name; t.days = days; } } else ptpl.push({ id: uid(), name: name, kind: 'day', days: days });
+        saveTpl(); T0.edit = null; toast('Template saved.'); render(); } }, 'Save template'),
+      h('button', { class: 'btn quiet', type: 'button', onclick: function () { T0.edit = null; render(); } }, 'Cancel')));
+    return box;
+  }
+  box.appendChild(h('div', { class: 'btns', style: 'margin:0' },
+    h('button', { class: 'btn primary', type: 'button', onclick: function () { T0.edit = { id: null, name: '', items: [], add: null }; render(); } }, 'New template'),
+    h('button', { class: 'btn', type: 'button', onclick: function () {
+      var ents = dayEntries(sel); if (!ents.length) { toast('Plan something on this day first.'); return; }
+      T0.edit = { id: null, name: '', items: ents.map(entCopy), add: null }; render(); } }, 'Save this day as one')));
+  if (!mine.length) box.appendChild(h('p', { class: 'hint', style: 'margin:6px 0 0' }, 'No day templates yet. Build one from scratch, or save a day you have already planned.'));
+  mine.forEach(function (t) {
+    var arr = t.days[0] || [], tot = tplTotals(arr), n = arr.length, open = T0.view === t.id, using = T0.use && T0.use.id === t.id;
+    var sumTx = n + ' item' + (n === 1 ? '' : 's') + (tot.kcal ? ' · ' + numStr(tot.kcal) + ' kcal' : '') + (tot.protein ? ' · ' + numStr(tot.protein) + ' g protein' : '');
+    var row = h('div', { class: 'tplrow' }, h('div', { class: 'det' }, h('b', null, t.name), h('small', null, sumTx)),
+      h('div', { class: 'entctl' },
+        h('button', { class: 'btn quiet', type: 'button', 'aria-expanded': String(open), onclick: function () { T0.view = open ? null : t.id; render(); } }, open ? 'Hide' : 'Preview'),
+        h('button', { class: 'btn primary', type: 'button', onclick: function () { var sl0 = {}; sl0[sel] = true; T0.use = using ? null : { id: t.id, days: sl0, mode: '' }; T0.view = t.id; render(); } }, using ? 'Close' : 'Use on…')));
+    box.appendChild(row);
+    if (open || using) {
+      var pv = h('div', { class: 'tplprev' }, tplEntList(arr, false));
+      if (pnItems().length) { pv.appendChild(h('div', { class: 'lab2', style: 'margin-top:8px' }, 'Nutrition for this day')); pv.appendChild(planBars(tot)); }
+      if (!using) pv.appendChild(h('div', { class: 'btns', style: 'margin-top:8px' },
+        h('button', { class: 'btn', type: 'button', onclick: function () { T0.edit = { id: t.id, name: t.name, items: arr.map(function (x) { return Object.assign({}, x); }), add: null }; render(); } }, 'Edit'),
+        (function () { var del = h('button', { class: 'btn quiet', type: 'button', onclick: function () {
+          if (del.getAttribute('data-arm') !== '1') { del.setAttribute('data-arm', '1'); del.textContent = 'Tap again to delete'; return; }
+          ptpl.splice(ptpl.indexOf(t), 1); saveTpl(); T0.view = null; render(); } }, 'Delete'); return del; })()));
+      box.appendChild(pv);
+    }
+    if (using) {
+      var u = T0.use, pick = h('div', { class: 'dstrip tplpick', role: 'group', 'aria-label': 'Days to apply to' });
+      weekIsos.forEach(function (iso, i) {
+        pick.appendChild(h('button', { type: 'button', class: 'dchip' + (u.days[iso] ? ' on' : ''), 'aria-pressed': String(!!u.days[iso]), onclick: function () { if (u.days[iso]) delete u.days[iso]; else u.days[iso] = true; render(); } },
+          h('span', { class: 'dn' }, DAYN[i]), h('span', { class: 'dd' }, String(fromIso(iso).getDate())), h('span', { class: 'dbar' }, dayEntries(iso).length ? h('i', { style: 'width:100%' }) : null)));
+      });
+      var chosen = weekIsos.filter(function (iso) { return u.days[iso]; }), busy = chosen.filter(function (iso) { return dayEntries(iso).length; }).length;
+      box.appendChild(h('div', { class: 'lab2', style: 'margin-top:8px' }, 'Apply to which days? (a bar marks days that already have meals)'));
+      box.appendChild(pick);
+      var go = function (replace) { var sk = applyTpl(t, chosen, replace); S.tpl = null; toast('Applied ' + t.name + ' to ' + chosen.length + ' day' + (chosen.length === 1 ? '' : 's') + (sk ? ' (' + sk + ' removed recipe' + (sk > 1 ? 's' : '') + ' skipped).' : '.')); render(); };
+      if (!chosen.length) box.appendChild(h('p', { class: 'hint', style: 'margin:0' }, 'Pick at least one day.'));
+      else if (busy) box.appendChild(h('div', { class: 'btns' }, h('span', { class: 'hint', style: 'margin:0;align-self:center' }, busy + ' of these already ' + (busy === 1 ? 'has' : 'have') + ' meals:'),
+        h('button', { class: 'btn', type: 'button', onclick: function () { go(false); } }, 'Add alongside'), h('button', { class: 'btn primary', type: 'button', onclick: function () { go(true); } }, 'Replace')));
+      else box.appendChild(h('div', { class: 'btns' }, h('button', { class: 'btn primary', type: 'button', onclick: function () { go(false); } }, 'Apply to ' + chosen.length + ' day' + (chosen.length === 1 ? '' : 's'))));
+    }
+  });
+  box.appendChild(h('div', { class: 'btns', style: 'margin-top:6px' }, h('button', { class: 'btn quiet', type: 'button', onclick: function () { S.tpl = null; render(); } }, 'Close')));
   return box;
 }
 
@@ -2008,6 +2111,64 @@ function nutritionSettings() {
   return wrap;
 }
 
+var pnv = lsGet('rb.pnv', { items: ['kcal', 'protein'], day: true, week: true, wkv: 'both' });
+if (!pnv.items) pnv.items = ['kcal', 'protein'];
+function savePnv() { lsSet('rb.pnv', pnv); }
+function planNutSettings() {
+  var wrap = h('div', { class: 'nvset' }, h('h2', { style: 'font-size:20px;margin:0 0 6px' }, 'Nutrition on the plan'),
+    h('p', { class: 'hint', style: 'max-width:60ch' }, 'Choose what shows on each day and in the weekly summary. Anything you have set a target for (under Daily targets) is measured against it; the rest shows against a typical adult day.'));
+  function chk(label, on, set, id) { return h('label', { class: 'chk2', for: id }, h('input', { type: 'checkbox', id: id, checked: on, onchange: function (e) { set(e.target.checked); savePnv(); render(); } }), ' ' + label); }
+  wrap.appendChild(chk('Show on each day', pnv.day !== false, function (v) { pnv.day = v; }, 'pn-day'));
+  wrap.appendChild(chk('Show the weekly summary', pnv.week !== false, function (v) { pnv.week = v; }, 'pn-week'));
+  var wsel = h('select', { id: 'pn-wkv', 'aria-label': 'Weekly figures', onchange: function (e) { pnv.wkv = e.target.value; savePnv(); render(); } },
+    [['both', 'Daily average and week total'], ['avg', 'Daily average'], ['total', 'Week total']].map(function (x) { return h('option', { value: x[0], selected: x[0] === (pnv.wkv || 'both') }, x[1]); }));
+  wrap.appendChild(h('div', { class: 'field', style: 'margin-top:10px;max-width:320px' }, h('label', { for: 'pn-wkv' }, 'Weekly figures'), wsel));
+  var groups = { energy: 'Energy', macro: 'Fats, carbs and protein', mineral: 'Minerals', vitamin: 'Vitamins' };
+  Object.keys(groups).forEach(function (g) {
+    var items = E.NUTRIENTS.filter(function (x) { return x[3] === g && x[0] !== 'kj'; }); if (!items.length) return;
+    wrap.appendChild(h('div', { class: 'lab2', style: 'margin:16px 0 4px' }, groups[g]));
+    var box = h('div', { class: 'nvgrid' });
+    items.forEach(function (x) { box.appendChild(chk(x[1], pnv.items.indexOf(x[0]) >= 0, function (v) { pnv.items = pnv.items.filter(function (k) { return k !== x[0]; }); if (v) pnv.items.push(x[0]); }, 'pn-' + x[0])); });
+    wrap.appendChild(box);
+  });
+  return wrap;
+}
+function pnItems() { return E.NUTRIENTS.filter(function (x) { return pnv.items.indexOf(x[0]) >= 0 && x[0] !== 'kj'; }); }
+function refFor(k) { var t = targets.filter(function (x) { return x.k === k; })[0]; return t && t.v ? { t: t, v: t.v } : { t: null, v: E.DAILY[k] || 0 }; }
+function planBars(totals) {
+  var box = h('div', { class: 'tbars' });
+  pnItems().forEach(function (def) {
+    var k = def[0], val = totals[k] || 0, rf = refFor(k), pct = rf.v ? Math.min(100, Math.round(val / rf.v * 100)) : 0, st = rf.t ? targetState(rf.t, val) : 'ok';
+    var lab = def[1] + (rf.t && rf.t.mode === 'min' ? ' (at least)' : rf.t && rf.t.mode === 'max' ? ' (no more than)' : '');
+    box.appendChild(h('div', { class: 'tbar ' + st + (rf.t ? '' : ' plain') },
+      h('div', { class: 'tl' }, h('span', null, lab), h('span', { class: 'tv' }, numStr(val) + (rf.t ? ' / ' + numStr(rf.v, def[2]) : ' ' + def[2]))),
+      h('div', { class: 'track', role: 'img', 'aria-label': def[1] + ' ' + pct + ' percent' }, h('i', { style: 'width:' + pct + '%' })),
+      h('div', { class: 'ts' }, rf.t ? STATE_TXT[st] : pct + '% of a typical day')));
+  });
+  return box;
+}
+function weekSummary(weekIsos, sel) {
+  var days = weekIsos.map(function (iso) { return { iso: iso, ents: dayEntries(iso).length, tot: dayTotals(iso) }; }), planned = days.filter(function (d) { return d.ents; }).length;
+  var box = h('div', { class: 'sumbox wksum', style: 'margin-top:18px' }, h('div', { class: 'big', style: 'font-size:18px' }, 'This week'),
+    h('p', { class: 'hint', style: 'margin:2px 0 8px' }, planned ? planned + ' of 7 days planned.' : 'Nothing planned yet.'));
+  if (!planned) return box;
+  var mode = pnv.wkv || 'both';
+  pnItems().forEach(function (def) {
+    var k = def[0], rf = refFor(k), tot = days.reduce(function (a, d) { return a + (d.tot[k] || 0); }, 0), avg = tot / planned, st = rf.t ? targetState(rf.t, avg) : 'ok';
+    var line = [];
+    if (mode !== 'total') line.push('Avg ' + numStr(avg) + (rf.t ? ' / ' + numStr(rf.v, def[2]) : ' ' + def[2]));
+    if (mode !== 'avg') line.push('Total ' + numStr(tot, def[2]));
+    var mx = Math.max(rf.v, Math.max.apply(null, days.map(function (d) { return d.tot[k] || 0; })), 1);
+    var cols = h('div', { class: 'wkcols', role: 'img', 'aria-label': def[1] + ' by day' }, days.map(function (d, i) {
+      var v = d.tot[k] || 0, ht = d.ents ? Math.max(4, Math.round(v / mx * 100)) : 0, ds = d.ents && rf.t ? targetState(rf.t, v) : 'ok';
+      return h('button', { type: 'button', class: 'wkc ' + ds + (d.iso === sel ? ' on' : ''), 'aria-label': DAYN[i] + ' ' + numStr(v) + ' ' + def[2], onclick: function () { S.pday = d.iso; render(); } }, h('span', { class: 'wkb' }, h('i', { style: 'height:' + ht + '%' })), h('span', { class: 'wkd' }, DAYN[i].charAt(0)));
+    }));
+    if (rf.v) cols.appendChild(h('span', { class: 'wkt', style: 'bottom:calc(' + Math.round(rf.v / mx * 100) + '% * .62 + 16px)' }));
+    box.appendChild(h('div', { class: 'wkrow ' + st }, h('div', { class: 'tl' }, h('span', null, def[1]), h('span', { class: 'tv' }, line.join(' · '))), cols,
+      rf.t ? h('div', { class: 'ts' }, 'Average: ' + STATE_TXT[st]) : null));
+  });
+  return box;
+}
 function targetsView() {
   var wrap = h('div', { class: 'tgv' });
   wrap.appendChild(h('h2', { style: 'font-size:22px' }, 'Daily targets'));
@@ -2033,9 +2194,9 @@ function targetsView() {
 }
 function settingsRoot() {
   var seg = h('div', { class: 'seg', role: 'group', 'aria-label': 'Settings', style: 'margin-bottom:18px' },
-    [['design', 'Card design'], ['targets', 'Daily targets'], ['nutrition', 'Nutrition'], ['account', 'Account']].map(function (x) { return h('button', { type: 'button', 'aria-pressed': String(S.setTab === x[0]), onclick: function () { S.setTab = x[0]; render(); } }, x[1]); }));
+    [['design', 'Card design'], ['targets', 'Daily targets'], ['nutrition', 'Cards nutrition'], ['plannut', 'Plan nutrition'], ['account', 'Account']].map(function (x) { return h('button', { type: 'button', 'aria-pressed': String(S.setTab === x[0]), onclick: function () { S.setTab = x[0]; render(); } }, x[1]); }));
   var about = h('p', { class: 'attr', style: 'margin-top:36px' }, 'Nutrition data: Australian Food Composition Database, Food Standards Australia New Zealand, licensed CC BY-SA 3.0 AU. Adapted for this app. Packaged product data: Open Food Facts contributors, ODbL.');
-  return h('div', null, seg, S.setTab === 'targets' ? targetsView() : S.setTab === 'account' ? accountView() : S.setTab === 'nutrition' ? nutritionSettings() : settingsView(), about);
+  return h('div', null, seg, S.setTab === 'targets' ? targetsView() : S.setTab === 'account' ? accountView() : S.setTab === 'nutrition' ? nutritionSettings() : S.setTab === 'plannut' ? planNutSettings() : settingsView(), about);
 }
 
 /* ---------- little extras: cooked it, surprise me ---------- */
@@ -3294,7 +3455,7 @@ function draftFromRecipe(r) {
 function startEdit(r) { A.draft = draftFromRecipe(r); S.view = 'add'; render(); }
 
 /* account and sync (Firebase) */
-var SYNCKEYS = ['rb.recipes', 'rb.foods', 'rb.matches', 'rb.region', 'rb.plan', 'rb.ptpl', 'rb.targets', 'rb.cart', 'rb.books', 'rb.user', 'rb.fridge', 'rb.pantry', 'rb.design', 'rb.nutview', 'rb.usuals', 'rb.pquick', 'rb.lib', 'rb.fonts', 'rb.typo2', 'rb.seeded', 'rb.hidden', 'rb.events'];
+var SYNCKEYS = ['rb.recipes', 'rb.foods', 'rb.matches', 'rb.region', 'rb.plan', 'rb.ptpl', 'rb.pnv', 'rb.targets', 'rb.cart', 'rb.books', 'rb.user', 'rb.fridge', 'rb.pantry', 'rb.design', 'rb.nutview', 'rb.usuals', 'rb.pquick', 'rb.lib', 'rb.fonts', 'rb.typo2', 'rb.seeded', 'rb.hidden', 'rb.events'];
 var BOOT_DONE = false, syncMeta = lsGet('rb.syncmeta', {}), dirty = {};
 var FB_DEFAULT = { apiKey: 'AIzaSyD4G9WZimZMA84PxEJtemdW5Al7TAzyLZY', authDomain: 'centre-dashboard.firebaseapp.com', databaseURL: 'https://centre-dashboard-default-rtdb.asia-southeast1.firebasedatabase.app', projectId: 'centre-dashboard', storageBucket: 'centre-dashboard.firebasestorage.app', messagingSenderId: '286461096007', appId: '1:286461096007:web:e55cdde4907775a1848162' };
 var fb = { cfg: lsGet('rb.fbconfig', null) || FB_DEFAULT, user: null, db: null, msg: '', busy: false }, pushT = 0;
