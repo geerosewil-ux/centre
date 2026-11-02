@@ -489,7 +489,7 @@ input:focus,select:focus,textarea:focus{outline:none!important;border-color:var(
 #bgfx{position:fixed;inset:0;z-index:-1;pointer-events:none;background-size:cover;background-position:center;background-repeat:no-repeat}
 .top .seg button{text-transform:var(--menu-case,var(--eb-case,uppercase))!important}.tagstrip .tagt{text-transform:var(--eb-case,uppercase)!important}
 .top h1,.phead .pt{text-transform:var(--h1-case,none)}
-.top h1{font-family:var(--ttl-font,var(--font-serif));font-size:calc(44px*var(--ttl-z,1));color:var(--ttl-ink,var(--pg-ink,var(--ink)));text-transform:var(--ttl-case,var(--h1-case,none))}
+.top h1,.phead .pt{font-variant-ligatures:no-common-ligatures no-discretionary-ligatures;letter-spacing:.02em}.top h1{font-family:var(--ttl-font,var(--font-serif));font-size:calc(44px*var(--ttl-z,1));color:var(--ttl-ink,var(--pg-ink,var(--ink)));text-transform:var(--ttl-case,var(--h1-case,none))}
 .phead .pt{font-family:var(--hd-font,var(--ttl-font,var(--font-serif)));font-size:calc(30px*var(--hd-z,1));color:var(--hd-ink,var(--pg-ink,var(--ink)));text-transform:var(--hd-case,var(--h1-case,none))}
 .top .seg button{font-family:var(--menu-font,inherit)!important;font-size:calc(12px*var(--menu-z,1))!important;color:var(--menu-ink,var(--pg-ink-2,var(--ink-2)))}
 .top .seg button[aria-pressed="true"]{color:var(--menu-ink,var(--pg-ink,var(--ink)))}
@@ -509,6 +509,12 @@ input:focus,select:focus,textarea:focus{outline:none!important;border-color:var(
 .addp .rchips{display:flex;flex-wrap:wrap;gap:6px}
 .dday .addb{align-self:flex-start!important;justify-content:flex-start;width:auto;min-height:36px;padding:0 4px;border:0;background:none;color:var(--accent);margin-top:2px}
 @media (min-width:900px){.dday{max-width:760px}}
+.slot{top:20%!important}
+.slim .sortsel,.slim .iconb,.slim .nvtog,.mrow .sortsel,.mrow .iconb,.mrow .nvtog{min-height:44px!important;height:44px;border:1px solid var(--line)!important;border-radius:999px!important;background:var(--card)!important;box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;padding:0 16px;color:var(--ink)}
+.slim .iconb,.mrow .iconb{width:44px;padding:0}.slim .sortsel,.mrow .sortsel{padding-right:8px}
+.tagstrip,.row2,.menubar .tagstrip{padding:0!important}
+.tplp .tplname{flex:1 1 auto;min-width:0;min-height:44px;border:1px solid var(--line);border-radius:999px;background:var(--card);padding:0 16px;color:var(--ink);font:inherit}
+.tplrow{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 0;border-top:1px solid var(--rule);flex-wrap:wrap}.tplrow .det{display:flex;flex-direction:column;min-width:0}.tplrow .det small{color:var(--ink-2);font-size:12.5px}.tplrow .entctl{display:flex;gap:6px;flex-wrap:wrap}
 </style>
 
 <div class="app" id="app"></div>
@@ -949,9 +955,9 @@ var ROLES = [['h1', 'Title'], ['h2', 'Subtitle'], ['bd', 'Body'], ['nm', 'Measur
 var DEFT = {
   h1: { f: 'Cormorant Garamond', c: '#111111', w: 600 }, h2: { f: 'Cormorant Garamond', c: '#111111', w: 500 },
   bd: { f: 'Figtree', c: '#2A2A27', w: 400 }, nm: { f: 'Figtree', c: '#111111', w: 500 },
-  eb: { f: 'Figtree', c: '#6B6B63', w: 600 }
+  eb: { f: 'Figtree', c: '#4C4C45', w: 600 }
 };
-var SZ = { h1: { full: 38, mini: 24 }, h2: { full: 21, mini: 15 }, bd: { full: 15, mini: 12 }, nm: { full: 15, mini: 13 }, eb: { full: 11, mini: 10 } };
+var SZ = { h1: { full: 38, mini: 24 }, h2: { full: 21, mini: 15 }, bd: { full: 15, mini: 12 }, nm: { full: 15, mini: 13 }, eb: { full: 11, mini: 10.5 } };
 var BFONTS = [
   ['Bodoni Moda', '"Bodoni Moda",Georgia,serif'], ['Cormorant Garamond', '"Cormorant Garamond",Georgia,serif'],
   ['Fraunces', 'Fraunces,Georgia,serif'], ['Playfair Display', '"Playfair Display",Georgia,serif'],
@@ -1234,7 +1240,7 @@ var CASEMAP = { upper: 'uppercase', lower: 'lowercase', none: 'none' };
 function eff(role) {
   var o = design.tx[role] || {}, d = DEFT[role], f = o.f || d.f;
   if (f.slice(0, 2) === 'u:' && !fonts.some(function (x) { return 'u:' + x.id === f; })) f = d.f;
-  return { f: f, z: o.z || 100, c: o.c || '', cd: d.c, n: o.n || '', ft: o.ft || 'gold', w: d.w, tc: o.tc || '' };
+  return { f: f, z: o.z || 100, c: o.c || '', cd: d.c, n: o.n || '', ft: o.ft || 'gold', w: d.w, tc: o.tc || '', ls: o.ls, sw: !!o.sw };
 }
 function T(role, ctx, text, opt) {
   opt = opt || {};
@@ -1245,6 +1251,9 @@ function T(role, ctx, text, opt) {
   st.fontFamily = fontStack(e.f); st.fontSize = px.toFixed(1) + 'px'; st.fontWeight = e.w; st.color = e.c || (relLum(paperEff()) < .3 ? (role === 'eb' ? '#B9B6AC' : '#F3F0E9') : e.cd);
   if (role === 'eb') { st.textTransform = 'uppercase'; st.letterSpacing = '.14em'; }
   if (e.tc) st.textTransform = CASEMAP[e.tc];
+  if (!isScript && !e.sw) { st.fontVariantLigatures = 'no-common-ligatures no-discretionary-ligatures no-historical-ligatures no-contextual'; st.fontFeatureSettings = '"liga" 0,"clig" 0,"dlig" 0,"hlig" 0,"calt" 0,"swsh" 0,"cswh" 0'; }
+  if (e.ls != null && e.ls !== '') st.letterSpacing = (e.ls / 100) + 'em';
+  else if (role === 'h1' && !isScript) st.letterSpacing = (st.textTransform === 'uppercase' ? '.06em' : '.015em');
   if (role === 'nm') st.fontVariantNumeric = 'tabular-nums';
   if (role === 'h1') st.lineHeight = '1.12';
   if (role === 'h2') st.lineHeight = '1.25';
@@ -1297,10 +1306,10 @@ function applyGlobal() {
   if (dark && relLum(acc) < .45) acc = mixC(acc, [255, 255, 255], .6);
   var n = 0; while (contrastOf(acc, effc) < 3.2 && n++ < 10) acc = mixC(acc, dark ? [255, 255, 255] : [0, 0, 0], .15);
   rs.setProperty('--ground', rgbHex(pbg)); rs.setProperty('--card', 'rgba(' + paper.join(',') + ',' + (p.op / 100) + ')');
-  rs.setProperty('--ink', rgbHex(ink)); rs.setProperty('--ink-2', rgbHex(mixC(ink, effc, .42)));
+  rs.setProperty('--ink', rgbHex(ink)); rs.setProperty('--ink-2', rgbHex(mixC(ink, effc, .3)));
   rs.setProperty('--line', rgbHex(mixC(effc, ink, .16))); rs.setProperty('--rule', rgbHex(mixC(effc, ink, .09)));
   rs.setProperty('--accent', rgbHex(acc)); rs.setProperty('--on-accent', relLum(acc) > .4 ? '#141513' : '#FFFFFF');
-  rs.setProperty('--pg-ink', rgbHex(pgInk)); rs.setProperty('--pg-ink-2', rgbHex(mixC(pgInk, pbg, .42)));
+  rs.setProperty('--pg-ink', rgbHex(pgInk)); rs.setProperty('--pg-ink-2', rgbHex(mixC(pgInk, pbg, .3)));
   var ps = {}; paintPick(ps, resolvePick(p.tex), 0);
   if (ps.backgroundImage) { rs.setProperty('--paper-img', ps.backgroundImage); rs.setProperty('--paper-size', ps.backgroundSize || 'auto'); } else { rs.removeProperty('--paper-img'); rs.removeProperty('--paper-size'); }
   var h1 = eff0('h1'), bd0 = eff0('bd'); rs.setProperty('--font-serif', fontStack(h1)); rs.setProperty('--font-body', fontStack(bd0));
@@ -1446,6 +1455,52 @@ function dayChipState(iso) {
   return { n: ents.length, pct: kt && kt.v ? Math.min(100, Math.round((tot.kcal || 0) / kt.v * 100)) : 100 };
 }
 
+var ptpl = lsGet('rb.ptpl', []);
+function saveTpl() { lsSet('rb.ptpl', ptpl); }
+function entCopy(e) { return e.recipeId ? { recipeId: e.recipeId, servings: e.servings, slot: e.slot } : { foodId: e.foodId, name: e.name, g: e.g, slot: e.slot }; }
+function applyTpl(t, isos, replace) {
+  var skipped = 0, rm = recMap();
+  isos.forEach(function (iso, i) {
+    var src = t.days[t.kind === 'day' ? 0 : i] || [];
+    if (replace) dayEntries(iso).slice().forEach(function (e) { removeEnt(iso, e); });
+    src.forEach(function (x) {
+      if (x.recipeId) { if (!rm[x.recipeId]) { skipped++; return; } (plan[iso] = plan[iso] || []).push({ id: uid(), recipeId: x.recipeId, servings: x.servings, slot: x.slot }); }
+      else logFood(iso, x.slot, { name: x.name, foodId: x.foodId, g: x.g });
+    });
+  });
+  savePlan(); return skipped;
+}
+function tplPanel(kind, isos) {
+  var T0 = S.tpl; if (!T0 || T0.kind !== kind) return null;
+  var box = h('div', { class: 'addp tplp' }), label = kind === 'day' ? 'day' : 'week';
+  var filled = isos.reduce(function (n, iso) { return n + dayEntries(iso).length; }, 0);
+  box.appendChild(h('div', { class: 'lab2' }, 'Save this ' + label + ' as a template'));
+  var nm = h('input', { type: 'text', placeholder: kind === 'day' ? 'e.g. Busy weekday' : 'e.g. Standard week', 'aria-label': 'Template name', class: 'tplname' });
+  var save = function () {
+    var name = nm.value.trim(); if (!name) { toast('Name the template first.'); return; }
+    if (!filled) { toast('Plan something first.'); return; }
+    ptpl.push({ id: uid(), name: name, kind: kind, days: kind === 'day' ? [dayEntries(isos[0]).map(entCopy)] : isos.map(function (iso) { return dayEntries(iso).map(entCopy); }) });
+    saveTpl(); toast('Template saved.'); render();
+  };
+  nm.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); save(); } });
+  box.appendChild(h('div', { class: 'nipr' }, nm, h('button', { class: 'btn primary', type: 'button', onclick: save }, 'Save')));
+  var mine = ptpl.filter(function (t) { return t.kind === kind; });
+  box.appendChild(h('div', { class: 'lab2', style: 'margin-top:6px' }, 'Use a template'));
+  if (!mine.length) box.appendChild(h('p', { class: 'hint', style: 'margin:0' }, 'No ' + label + ' templates yet.'));
+  mine.forEach(function (t) {
+    var n = t.days.reduce(function (a, d) { return a + d.length; }, 0), asking = T0.pick === t.id;
+    var row = h('div', { class: 'tplrow' }, h('div', { class: 'det' }, h('b', null, t.name), h('small', null, n + ' item' + (n === 1 ? '' : 's'))));
+    var go = function (replace) { var sk = applyTpl(t, isos, replace); S.tpl = null; toast('Applied ' + t.name + (sk ? ' (' + sk + ' removed recipe' + (sk > 1 ? 's' : '') + ' skipped).' : '.')); render(); };
+    var del = h('button', { class: 'btn quiet', type: 'button', onclick: function () {
+      if (del.getAttribute('data-arm') !== '1') { del.setAttribute('data-arm', '1'); del.textContent = 'Tap again'; return; }
+      ptpl.splice(ptpl.indexOf(t), 1); saveTpl(); render(); } }, 'Delete');
+    if (asking) row.appendChild(h('div', { class: 'entctl' }, h('button', { class: 'btn', type: 'button', onclick: function () { go(false); } }, 'Add alongside'), h('button', { class: 'btn primary', type: 'button', onclick: function () { go(true); } }, 'Replace'), h('button', { class: 'btn quiet', type: 'button', onclick: function () { T0.pick = null; render(); } }, 'Cancel')));
+    else row.appendChild(h('div', { class: 'entctl' }, h('button', { class: 'btn primary', type: 'button', onclick: function () { if (filled) { T0.pick = t.id; render(); } else go(false); } }, 'Use'), del));
+    box.appendChild(row);
+  });
+  box.appendChild(h('div', { class: 'btns', style: 'margin-top:6px' }, h('button', { class: 'btn quiet', type: 'button', onclick: function () { S.tpl = null; render(); } }, 'Close')));
+  return box;
+}
 function planView() {
   var mon = fromIso(S.week), wrap = h('div', { class: 'planv' }), today = isoD(new Date()), map = recMap();
   var weekIsos = []; for (var wi = 0; wi < 7; wi++) weekIsos.push(isoD(addDays(mon, wi)));
@@ -1457,8 +1512,10 @@ function planView() {
       h('button', { type: 'button', style: 'pointer-events:none;min-width:150px', 'aria-live': 'polite' }, dm(mon) + ' – ' + dm(addDays(mon, 6))),
       h('button', { type: 'button', 'aria-label': 'Next week', onclick: function () { S.week = isoD(addDays(mon, 7)); S.pday = ''; render(); } }, '›')),
     h('button', { class: 'btn', type: 'button', onclick: function () { S.week = isoD(mondayOf(new Date())); S.pday = ''; render(); } }, 'This week'),
+    h('button', { class: 'btn', type: 'button', 'aria-pressed': String(!!(S.tpl && S.tpl.kind === 'week')), onclick: function () { S.tpl = S.tpl && S.tpl.kind === 'week' ? null : { kind: 'week' }; render(); } }, 'Week templates'),
     h('button', { class: 'btn primary', type: 'button', onclick: function () { addWeekToCart(S.week); } }, 'Add this week to cart'));
   wrap.appendChild(head);
+  var wtp = tplPanel('week', weekIsos); if (wtp) wrap.appendChild(wtp);
 
   // week strip
   var strip = h('div', { class: 'dstrip', role: 'group', 'aria-label': 'Days of the week' }), weekTot = {}, planned = 0;
@@ -1476,6 +1533,8 @@ function planView() {
   var dsel = fromIso(sel), di = weekIsos.indexOf(sel), ents = dayEntries(sel), tot = dayTotals(sel);
   var card = h('section', { class: 'dday', 'aria-label': DAYN[di] + ' ' + dm(dsel) });
   card.appendChild(h('div', { class: 'dhead' }, h('h3', null, ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'][di]), h('span', null, dm(dsel) + (sel === today ? ' · today' : ''))));
+  card.appendChild(h('div', { class: 'btns', style: 'margin:0' }, h('button', { class: 'btn quiet', type: 'button', 'aria-pressed': String(!!(S.tpl && S.tpl.kind === 'day')), onclick: function () { S.tpl = S.tpl && S.tpl.kind === 'day' ? null : { kind: 'day' }; render(); } }, 'Day templates')));
+  var dtp = tplPanel('day', [sel]); if (dtp) card.appendChild(dtp);
   if (ents.length && targets.length) card.appendChild(targetBars(tot, false));
   SLOTS.forEach(function (sl) {
     var list = ents.filter(function (e) { return (e.slot || 'dinner') === sl[0]; }), open = S.planAdd[sel] && S.planAdd[sel].slot === sl[0] ? S.planAdd[sel] : null;
@@ -2163,7 +2222,8 @@ function wheelView(list, sel, pick, opts) {
   var cards = [], first = {}, reduce = false, tk = false, last = null;
   try { reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) {}
   var wheel = h('div', { class: 'wheel', role: 'list', 'aria-label': 'Recipes' });
-  function goTo(c, smooth) { if (!c) return; wheel.scrollTo({ top: c.offsetTop + c.offsetHeight / 2 - wheel.clientHeight / 2, behavior: smooth === false ? 'auto' : 'smooth' }); }
+  var FOC = 0.2;
+  function goTo(c, smooth) { if (!c) return; wheel.scrollTo({ top: c.offsetTop + c.offsetHeight / 2 - wheel.clientHeight * FOC, behavior: smooth === false ? 'auto' : 'smooth' }); }
   list.forEach(function (r) {
     var inner = miniCard(r);
     var c = h('div', { class: 'wcard', role: 'listitem', tabindex: '0',
@@ -2177,15 +2237,15 @@ function wheelView(list, sel, pick, opts) {
   if (opts.az) Object.keys(first).forEach(function (L) { az.appendChild(h('button', { type: 'button', 'aria-label': 'Jump to ' + L, onclick: function () { goTo(first[L]); } }, L)); });
   function paint() {
     tk = false; if (!wheel.isConnected) return;
-    var padv = Math.max(0, wheel.clientHeight / 2 - 52) + 'px';
-    if (wheel.style.paddingTop !== padv) { wheel.style.paddingTop = padv; wheel.style.paddingBottom = padv; }
-    var wr = wheel.getBoundingClientRect(), mid = wr.top + wr.height / 2, best = null, bd = 1e9;
+    var padT = Math.max(16, wheel.clientHeight * FOC - 52) + 'px', padB = Math.max(16, wheel.clientHeight * (1 - FOC) - 52) + 'px';
+    if (wheel.style.paddingTop !== padT) { wheel.style.paddingTop = padT; wheel.style.paddingBottom = padB; }
+    var wr = wheel.getBoundingClientRect(), mid = wr.top + wr.height * FOC, best = null, bd = 1e9;
     cards.forEach(function (c) {
       var r = c.getBoundingClientRect(), cm = r.top + r.height / 2, d = (cm - mid) / 114, ad = Math.min(Math.abs(d), 2.6);
       if (Math.abs(cm - mid) < bd) { bd = Math.abs(cm - mid); best = c; }
       var tilt = reduce ? 0 : Math.max(-62, Math.min(62, d * 34)), i = c._in;
       i.style.transform = ad < 0.12 ? 'none' : 'rotateX(' + (-tilt) + 'deg) translateZ(' + (-ad * 34) + 'px) scale(' + (1 - ad * 0.05) + ')';
-      i.style.opacity = String(Math.max(0.32, 1 - ad * 0.24));
+      i.style.opacity = String(Math.max(0.55, 1 - ad * 0.15));
       i.style.boxShadow = ad < 0.4 ? '0 14px 30px -14px var(--shadow)' : 'none';
     });
     var sl0 = wrap.querySelector('.slot'); if (sl0 && best) { var br = best.getBoundingClientRect(), wp = wrap.getBoundingClientRect(); sl0.style.left = Math.round(br.left - wp.left) + 'px'; sl0.style.right = Math.round(wp.right - br.right) + 'px'; }
@@ -2960,6 +3020,9 @@ function settingsView() {
     var csel = h('select', { id: 'tx-case', 'aria-label': 'Letter case', onchange: function (ev) { if (ev.target.value) o.tc = ev.target.value; else delete o.tc; changed(); drawCtl(); } },
       [['', 'Default for this style'], ['none', 'As written'], ['upper', 'ALL UPPERCASE'], ['lower', 'all lowercase']].map(function (x) { return h('option', { value: x[0], selected: x[0] === (e.tc || '') }, x[1]); }));
     kids.push(field('Letter case', csel, 'Changes how the text shows, never what you typed. Titles also change the page headings, and Labels also change the menu and category tabs.', 'tx-case'));
+    kids.push(slider('tx-ls', 'Letter spacing', 0, 30, e.ls != null && e.ls !== '' ? e.ls : (role === 'h1' ? (e.tc === 'upper' ? 6 : 2) : 0), '', function (v) { o.ls = v; }, 'Space between letters, in hundredths of the text size. A little extra keeps display fonts from running together.'));
+    kids.push(h('div', { class: 'field' }, h('button', { class: 'btn quiet', type: 'button', 'aria-pressed': String(!!e.sw), onclick: function () { if (o.sw) delete o.sw; else o.sw = true; changed(); drawCtl(); } }, e.sw ? 'Joined and swash letters: on' : 'Joined and swash letters: off'),
+      h('p', { class: 'hint' }, 'Some display fonts join letters like C and H into one decorative shape. Off keeps every letter separate and easy to read. Script fonts always stay joined.')));
     var nsel = h('select', { id: 'tx-finish', 'aria-label': 'Finish', onchange: function (ev) { if (ev.target.value) o.n = ev.target.value; else delete o.n; changed(); drawCtl(); } },
       [['', 'Flat'], ['raise', 'Raised'], ['press', 'Pressed in'], ['lp', 'Letterpress'], ['foil', 'Foil']].map(function (x) { return h('option', { value: x[0], selected: x[0] === e.n }, x[1]); }));
     kids.push(field('Finish', nsel, 'Raised and pressed take the paper’s colour, so the lettering looks embossed or engraved. Pick a text colour to tint them.', 'tx-finish'));
@@ -3231,7 +3294,7 @@ function draftFromRecipe(r) {
 function startEdit(r) { A.draft = draftFromRecipe(r); S.view = 'add'; render(); }
 
 /* account and sync (Firebase) */
-var SYNCKEYS = ['rb.recipes', 'rb.foods', 'rb.matches', 'rb.region', 'rb.plan', 'rb.targets', 'rb.cart', 'rb.books', 'rb.user', 'rb.fridge', 'rb.pantry', 'rb.design', 'rb.nutview', 'rb.usuals', 'rb.pquick', 'rb.lib', 'rb.fonts', 'rb.typo2', 'rb.seeded', 'rb.hidden', 'rb.events'];
+var SYNCKEYS = ['rb.recipes', 'rb.foods', 'rb.matches', 'rb.region', 'rb.plan', 'rb.ptpl', 'rb.targets', 'rb.cart', 'rb.books', 'rb.user', 'rb.fridge', 'rb.pantry', 'rb.design', 'rb.nutview', 'rb.usuals', 'rb.pquick', 'rb.lib', 'rb.fonts', 'rb.typo2', 'rb.seeded', 'rb.hidden', 'rb.events'];
 var BOOT_DONE = false, syncMeta = lsGet('rb.syncmeta', {}), dirty = {};
 var FB_DEFAULT = { apiKey: 'AIzaSyD4G9WZimZMA84PxEJtemdW5Al7TAzyLZY', authDomain: 'centre-dashboard.firebaseapp.com', databaseURL: 'https://centre-dashboard-default-rtdb.asia-southeast1.firebasedatabase.app', projectId: 'centre-dashboard', storageBucket: 'centre-dashboard.firebasestorage.app', messagingSenderId: '286461096007', appId: '1:286461096007:web:e55cdde4907775a1848162' };
 var fb = { cfg: lsGet('rb.fbconfig', null) || FB_DEFAULT, user: null, db: null, msg: '', busy: false }, pushT = 0;
