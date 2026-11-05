@@ -2400,6 +2400,7 @@ function wheelView(list, sel, pick, opts) {
     tk = false; if (!wheel.isConnected) return;
     var padT = Math.max(16, wheel.clientHeight * FOC - 52) + 'px', padB = Math.max(16, wheel.clientHeight * (1 - FOC) - 52) + 'px';
     if (wheel.style.paddingTop !== padT) { wheel.style.paddingTop = padT; wheel.style.paddingBottom = padB; }
+    wheel.style.scrollPaddingTop = '0px'; wheel.style.scrollPaddingBottom = Math.max(0, wheel.clientHeight * (1 - 2 * FOC)) + 'px';
     var wr = wheel.getBoundingClientRect(), mid = wr.top + wr.height * FOC, best = null, bd = 1e9;
     cards.forEach(function (c) {
       var r = c.getBoundingClientRect(), cm = r.top + r.height / 2, d = (cm - mid) / 114, ad = Math.min(Math.abs(d), 2.6);
